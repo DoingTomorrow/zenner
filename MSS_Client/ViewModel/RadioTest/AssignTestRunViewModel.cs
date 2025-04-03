@@ -1,0 +1,98 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.RadioTest.AssignTestRunViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.DTO;
+using MSS.Business.Errors;
+using MSS.Business.Events;
+using MSS.Core.Model.RadioTest;
+using MSS.Core.Model.Structures;
+using MSS.DTO.MessageHandler;
+using MSS.Interfaces;
+using MSS.Utils.Utils;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.ViewModel.RadioTest
+{
+  public class AssignTestRunViewModel : ViewModelBase
+  {
+    private IRepositoryFactory _repositoryFactory;
+    private StructureNodeDTO _structureNodeDto;
+
+    public AssignTestRunViewModel(
+      IRepositoryFactory repositoryFactory,
+      StructureNodeDTO structureNode)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._structureNodeDto = structureNode;
+      this.TestOrderList = (IEnumerable<TestOrder>) this._repositoryFactory.GetRepository<TestOrder>().SearchFor((Expression<Func<TestOrder, bool>>) (x => x.StructureNode == default (object)));
+    }
+
+    public IEnumerable<RadioTestRun> RadioTestRunList { get; set; }
+
+    public IEnumerable<TestOrder> TestOrderList { get; set; }
+
+    public ICommand CancelCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          this.OnRequestClose(false);
+          MSS.DTO.Message.Message message = new MSS.DTO.Message.Message()
+          {
+            MessageType = MessageTypeEnum.Warning,
+            MessageText = MessageCodes.OperationCancelled.GetStringValue()
+          };
+          EventPublisher.Publish<AttachTestConfigMessage>(new AttachTestConfigMessage()
+          {
+            Message = message
+          }, (IViewModel) this);
+        }));
+      }
+    }
+
+    public ICommand SetTestConfig
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (SelectedItem =>
+        {
+          if (SelectedItem is TestOrder testOrder2)
+          {
+            TestOrder byId1 = this._repositoryFactory.GetRepository<TestOrder>().GetById((object) testOrder2.Id);
+            StructureNode structureNode = this._repositoryFactory.GetRepository<StructureNode>().GetById((object) this._structureNodeDto.Id);
+            Location byId2 = this._repositoryFactory.GetRepository<Location>().GetById((object) structureNode.EntityId);
+            TestOrder entity = this._repositoryFactory.GetRepository<TestOrder>().FirstOrDefault((Expression<Func<TestOrder, bool>>) (x => x.StructureNode != default (object) && x.StructureNode.Id == structureNode.Id));
+            if (entity != null)
+            {
+              entity.StructureNode = (StructureNode) null;
+              this._repositoryFactory.GetRepository<TestOrder>().Update(entity);
+            }
+            byId1.StructureNode = structureNode;
+            byId1.BuildingNumber = byId2.BuildingNr;
+            this._repositoryFactory.GetRepository<TestOrder>().Update(byId1);
+          }
+          this.OnRequestClose(false);
+          MSS.DTO.Message.Message message = new MSS.DTO.Message.Message()
+          {
+            MessageType = MessageTypeEnum.Success,
+            MessageText = MessageCodes.Success_Assign_Test_Config.GetStringValue()
+          };
+          EventPublisher.Publish<AttachTestConfigMessage>(new AttachTestConfigMessage()
+          {
+            Message = message
+          }, (IViewModel) this);
+        }));
+      }
+    }
+  }
+}

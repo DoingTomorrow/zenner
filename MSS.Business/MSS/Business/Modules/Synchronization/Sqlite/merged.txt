@@ -1,0 +1,126 @@
+
+--- SqliteSynchronizationHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Synchronization.Sqlite.SqliteSynchronizationHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using ApplicationScope;
+using ConfigurationScope;
+using Microsoft.Synchronization;
+using Microsoft.Synchronization.ClientServices;
+using Microsoft.Synchronization.ClientServices.SQLite;
+using MSS.Business.Errors;
+using MSS.Business.Utils;
+using ReadingValuesScope;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using UsersScope;
+
+#nullable disable
+namespace MSS.Business.Modules.Synchronization.Sqlite
+{
+  public class SqliteSynchronizationHelper : SynchronizationHelperBase
+  {
+    public static string ConfigurationScopeSyncUri = SqliteSynchronizationHelper.GetSyncServiceUrl().TrimEnd('/') + "/ConfigurationSyncService.svc/";
+    public static string UsersScopeSyncUri = SqliteSynchronizationHelper.GetSyncServiceUrl().TrimEnd('/') + "/UsersSyncService.svc/";
+    public static string ApplicationScopeSyncUri = SqliteSynchronizationHelper.GetSyncServiceUrl().TrimEnd('/') + "/ApplicationSyncService.svc/";
+    public static string ReadingValuesScopeSyncUri = SqliteSynchronizationHelper.GetSyncServiceUrl().TrimEnd('/') + "/ReadingValuesSyncService.svc/";
+
+    private ConfigurationOfflineContext ConfigurationSyncContext { get; set; }
+
+    private UsersOfflineContext UsersSyncContext { get; set; }
+
+    private ApplicationOfflineContext ApplicationSyncContext { get; set; }
+
+    private ReadingValuesOfflineContext ReadingValuesSyncContext { get; set; }
+
+    public string DatabasePath { get; set; }
+
+    private Dictionary<SyncScopesEnum, SQLiteContext> ContextsForScope { get; set; }
+
+    public SqliteSynchronizationHelper()
+    {
+      this.DatabasePath = NHibernateConfigurationHelper.GetDataSourceForConnString("SQLiteDatabase").Replace("|DataDirectory|", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\");
+      this.ConfigurationSyncContext = new ConfigurationOfflineContext(this.DatabasePath, new Uri(SqliteSynchronizationHelper.ConfigurationScopeSyncUri, UriKind.Absolute));
+      this.ConfigurationSyncContext.CacheController.ControllerBehavior.SerializationFormat = SerializationFormat.ODataJSON;
+      this.UsersSyncContext = new UsersOfflineContext(this.DatabasePath, new Uri(SqliteSynchronizationHelper.UsersScopeSyncUri, UriKind.Absolute));
+      this.UsersSyncContext.CacheController.ControllerBehavior.SerializationFormat = SerializationFormat.ODataJSON;
+      this.ApplicationSyncContext = new ApplicationOfflineContext(this.DatabasePath, new Uri(SqliteSynchronizationHelper.ApplicationScopeSyncUri, UriKind.Absolute));
+      this.ApplicationSyncContext.CacheController.ControllerBehavior.SerializationFormat = SerializationFormat.ODataJSON;
+      this.ReadingValuesSyncContext = new ReadingValuesOfflineContext(this.DatabasePath, new Uri(SqliteSynchronizationHelper.ReadingValuesScopeSyncUri, UriKind.Absolute));
+      this.ApplicationSyncContext.CacheController.ControllerBehavior.SerializationFormat = SerializationFormat.ODataJSON;
+      this.ContextsForScope = new Dictionary<SyncScopesEnum, SQLiteContext>()
+      {
+        {
+          SyncScopesEnum.Application,
+          (SQLiteContext) this.ApplicationSyncContext
+        },
+        {
+          SyncScopesEnum.Configuration,
+          (SQLiteContext) this.ConfigurationSyncContext
+        },
+        {
+          SyncScopesEnum.Users,
+          (SQLiteContext) this.UsersSyncContext
+        },
+        {
+          SyncScopesEnum.ReadingValues,
+          (SQLiteContext) this.ReadingValuesSyncContext
+        }
+      };
+    }
+
+    private static string GetSyncServiceUrl()
+    {
+      string parameterValue1 = MSS.Business.Utils.AppContext.Current.GetParameterValue<string>("ServerIp");
+      string parameterValue2 = MSS.Business.Utils.AppContext.Current.GetParameterValue<string>("SqliteSyncWebServiceUrl");
+      string propertyValue = CustomerConfiguration.GetPropertyValue("SyncServiceUrl");
+      return string.IsNullOrEmpty(propertyValue) ? string.Format("http://{0}/{1}/", (object) parameterValue1, (object) parameterValue2) : propertyValue;
+    }
+
+    public override SynchronizationResults SynchronizeScope(
+      SyncScopesEnum syncScope,
+      SyncDirectionOrder syncDirection)
+    {
+      switch (syncDirection)
+      {
+        case SyncDirectionOrder.Upload:
+          CacheRefreshStatistics result1 = this.ContextsForScope[syncScope].UploadAsync(new CancellationToken(), (IProgress<SyncProgressEvent>) null).Result;
+          if (result1.Error != null)
+          {
+            MessageHandler.LogException("An error occured while synchronizing scope " + syncScope.ToString());
+            MessageHandler.LogException(result1.Error);
+            break;
+          }
+          MessageHandler.LogDebug(string.Format("Total downloads: {0}, Total uploads: {1}, Conflicts: {2}, Errors: {3}", (object) result1.TotalDownloads, (object) result1.TotalUploads, (object) result1.TotalSyncConflicts, (object) result1.TotalSyncErrors));
+          break;
+        case SyncDirectionOrder.Download:
+          CacheRefreshStatistics result2 = this.ContextsForScope[syncScope].DownloadAsync(new CancellationToken(), (IProgress<SyncProgressEvent>) null).Result;
+          if (result2.Error != null)
+          {
+            MessageHandler.LogException("An error occured while synchronizing scope " + syncScope.ToString());
+            MessageHandler.LogException(result2.Error);
+            break;
+          }
+          MessageHandler.LogDebug(string.Format("Total downloads: {0}, Total uploads: {1}, Conflicts: {2}, Errors: {3}", (object) result2.TotalDownloads, (object) result2.TotalUploads, (object) result2.TotalSyncConflicts, (object) result2.TotalSyncErrors));
+          break;
+      }
+      return (SynchronizationResults) null;
+    }
+
+    protected override bool IsVersionUpToDateDownload(SyncScopesEnum syncScopesEnum)
+    {
+      return this.ContextsForScope[syncScopesEnum].IsVersionUpToDateDownload(new CancellationToken(), (IProgress<SyncProgressEvent>) null).Result;
+    }
+
+    protected override bool IsVersionUpToDateSend(SyncScopesEnum syncScopesEnum)
+    {
+      return this.ContextsForScope[syncScopesEnum].IsVersionUpToDateSend(new CancellationToken(), (IProgress<SyncProgressEvent>) null).Result;
+    }
+  }
+}
+

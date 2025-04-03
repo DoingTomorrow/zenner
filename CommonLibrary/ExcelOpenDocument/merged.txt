@@ -1,0 +1,241 @@
+
+--- ExcelOdSheet.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.ExcelOpenDocument.ExcelOdSheet
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.ExcelOpenDocument
+{
+  public class ExcelOdSheet
+  {
+    private SpreadsheetDocument TheSpreadsheetDocument;
+    private WorksheetPart TheWorksheetPart;
+    private WorkbookPart TheWorkbookPart;
+    private Worksheet TheWorksheet;
+    private SheetData TheSheetData;
+    private List<string> ColumnList;
+
+    internal ExcelOdSheet(
+      WorksheetPart theWorksheetPart,
+      SpreadsheetDocument theSpreadsheetDocument)
+    {
+      this.TheWorksheetPart = theWorksheetPart;
+      this.TheSpreadsheetDocument = theSpreadsheetDocument;
+      this.TheWorkbookPart = theSpreadsheetDocument.WorkbookPart;
+      this.TheWorksheet = theWorksheetPart.Worksheet;
+      this.TheSheetData = ((OpenXmlElement) this.TheWorksheet).GetFirstChild<SheetData>();
+    }
+
+    public void Save() => ((OpenXmlPartRootElement) this.TheWorksheetPart.Worksheet).Save();
+
+    public string GetCellValue(string columnName, uint rowIndex)
+    {
+      string s = (string) null;
+      string cellReference = columnName + rowIndex.ToString();
+      Cell cell = ((OpenXmlElement) this.TheWorksheetPart.Worksheet).Descendants<Cell>().Where<Cell>((Func<Cell, bool>) (c => StringValue.op_Implicit(((CellType) c).CellReference) == cellReference)).FirstOrDefault<Cell>();
+      if (cell != null)
+      {
+        s = ((OpenXmlElement) cell).InnerText;
+        if (((CellType) cell).DataType != null)
+        {
+          CellValues cellValues = ((CellType) cell).DataType.Value;
+          if (cellValues != null)
+          {
+            if (cellValues == 3)
+            {
+              SharedStringTablePart sharedStringTablePart = ((OpenXmlPartContainer) this.TheWorkbookPart).GetPartsOfType<SharedStringTablePart>().FirstOrDefault<SharedStringTablePart>();
+              if (sharedStringTablePart != null)
+                s = ((IEnumerable<OpenXmlElement>) sharedStringTablePart.SharedStringTable).ElementAt<OpenXmlElement>(int.Parse(s)).InnerText;
+            }
+          }
+          else
+            s = s == "0" ? "FALSE" : "TRUE";
+        }
+      }
+      return s;
+    }
+
+    public void SetCellNumber(double number, string columnName, uint rowIndex)
+    {
+      Cell cell = this.InsertCellInWorksheet(columnName, rowIndex);
+      ((CellType) cell).CellValue = new CellValue(number.ToString((IFormatProvider) CultureInfo.InvariantCulture));
+      ((CellType) cell).DataType = new EnumValue<CellValues>((CellValues) 1);
+    }
+
+    public void SetCellString(string text, string columnName, uint rowIndex)
+    {
+      SharedStringTablePart shareStringPart = ((OpenXmlPartContainer) this.TheWorkbookPart).GetPartsOfType<SharedStringTablePart>().Count<SharedStringTablePart>() <= 0 ? ((OpenXmlPartContainer) this.TheWorkbookPart).AddNewPart<SharedStringTablePart>() : ((OpenXmlPartContainer) this.TheWorkbookPart).GetPartsOfType<SharedStringTablePart>().First<SharedStringTablePart>();
+      int num = ExcelOdSheet.InsertSharedStringItem(text, shareStringPart);
+      Cell cell = this.InsertCellInWorksheet(columnName, rowIndex);
+      ((CellType) cell).CellValue = new CellValue(num.ToString());
+      ((CellType) cell).DataType = new EnumValue<CellValues>((CellValues) 3);
+    }
+
+    public void PrepareColumnList(List<string> columnList)
+    {
+      this.ColumnList = columnList;
+      int indexFrom1 = 1;
+      foreach (string column in columnList)
+      {
+        this.SetCellString(column, ExcelOdSheet.ColumnIndexToName(indexFrom1), 1U);
+        ++indexFrom1;
+      }
+    }
+
+    public static string ColumnIndexToName(int indexFrom1)
+    {
+      if (indexFrom1 < 1)
+        throw new Exception("Column index < 1: " + indexFrom1.ToString());
+      int num1 = indexFrom1 - 1;
+      int num2 = 65;
+      int num3 = 90 - num2 + 1;
+      int num4 = num1 / num3;
+      int num5 = num1 % num3;
+      if (num4 > num3)
+        throw new Exception("Not supported column index: " + indexFrom1.ToString());
+      return num4 == 0 ? ((char) (num2 + num5)).ToString() ?? "" : ((char) (num2 + num4)).ToString() + ((char) (num2 + num5)).ToString();
+    }
+
+    private static int InsertSharedStringItem(string text, SharedStringTablePart shareStringPart)
+    {
+      if (shareStringPart.SharedStringTable == null)
+        shareStringPart.SharedStringTable = new SharedStringTable();
+      int num = 0;
+      foreach (OpenXmlElement element in ((OpenXmlElement) shareStringPart.SharedStringTable).Elements<SharedStringItem>())
+      {
+        if (element.InnerText == text)
+          return num;
+        ++num;
+      }
+      ((OpenXmlCompositeElement) shareStringPart.SharedStringTable).AppendChild<SharedStringItem>(new SharedStringItem(new OpenXmlElement[1]
+      {
+        (OpenXmlElement) new Text(text)
+      }));
+      ((OpenXmlPartRootElement) shareStringPart.SharedStringTable).Save();
+      return num;
+    }
+
+    private Cell InsertCellInWorksheet(string columnName, uint rowIndex)
+    {
+      string cellReference = columnName + rowIndex.ToString();
+      Row row;
+      if (((OpenXmlElement) this.TheSheetData).Elements<Row>().Where<Row>((Func<Row, bool>) (r => (int) UInt32Value.op_Implicit(r.RowIndex) == (int) rowIndex)).Count<Row>() != 0)
+      {
+        row = ((OpenXmlElement) this.TheSheetData).Elements<Row>().Where<Row>((Func<Row, bool>) (r => (int) UInt32Value.op_Implicit(r.RowIndex) == (int) rowIndex)).First<Row>();
+      }
+      else
+      {
+        row = new Row()
+        {
+          RowIndex = UInt32Value.op_Implicit(rowIndex)
+        };
+        ((OpenXmlElement) this.TheSheetData).Append(new OpenXmlElement[1]
+        {
+          (OpenXmlElement) row
+        });
+      }
+      if (((OpenXmlElement) row).Elements<Cell>().Where<Cell>((Func<Cell, bool>) (c => ((CellType) c).CellReference.Value == columnName + rowIndex.ToString())).Count<Cell>() > 0)
+        return ((OpenXmlElement) row).Elements<Cell>().Where<Cell>((Func<Cell, bool>) (c => ((CellType) c).CellReference.Value == cellReference)).First<Cell>();
+      Cell cell1 = (Cell) null;
+      foreach (Cell element in ((OpenXmlElement) row).Elements<Cell>())
+      {
+        if (((CellType) element).CellReference.Value.Length == cellReference.Length && string.Compare(((CellType) element).CellReference.Value, cellReference, true) > 0)
+        {
+          cell1 = element;
+          break;
+        }
+      }
+      Cell cell2 = new Cell();
+      ((CellType) cell2).CellReference = StringValue.op_Implicit(cellReference);
+      Cell cell3 = cell2;
+      ((OpenXmlCompositeElement) row).InsertBefore<Cell>(cell3, (OpenXmlElement) cell1);
+      ((OpenXmlPartRootElement) this.TheWorksheet).Save();
+      return cell3;
+    }
+  }
+}
+
+
+--- ExcelOdWorkbook.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.ExcelOpenDocument.ExcelOdWorkbook
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+using System;
+using System.IO;
+using System.Linq;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.ExcelOpenDocument
+{
+  public class ExcelOdWorkbook
+  {
+    private SpreadsheetDocument TheDocument;
+
+    public void Open(string filePath)
+    {
+      this.TheDocument = this.TheDocument == null ? SpreadsheetDocument.Open(filePath, true) : throw new Exception("An open document exists");
+    }
+
+    public void New(string filePath, string sheetName)
+    {
+      if (this.TheDocument != null)
+        throw new Exception("An open document exists");
+      if (File.Exists(filePath))
+        File.Delete(filePath);
+      this.TheDocument = SpreadsheetDocument.Create(filePath, (SpreadsheetDocumentType) 0);
+      WorkbookPart workbookPart = this.TheDocument.AddWorkbookPart();
+      workbookPart.Workbook = new Workbook();
+      WorksheetPart worksheetPart = ((OpenXmlPartContainer) workbookPart).AddNewPart<WorksheetPart>();
+      SheetData sheetData = new SheetData();
+      worksheetPart.Worksheet = new Worksheet(new OpenXmlElement[1]
+      {
+        (OpenXmlElement) sheetData
+      });
+      ((OpenXmlElement) ((OpenXmlCompositeElement) this.TheDocument.WorkbookPart.Workbook).AppendChild<Sheets>(new Sheets())).Append(new OpenXmlElement[1]
+      {
+        (OpenXmlElement) new Sheet()
+        {
+          Id = StringValue.op_Implicit(((OpenXmlPartContainer) this.TheDocument.WorkbookPart).GetIdOfPart((OpenXmlPart) worksheetPart)),
+          SheetId = UInt32Value.op_Implicit(1U),
+          Name = StringValue.op_Implicit(sheetName)
+        }
+      });
+      ((OpenXmlPartRootElement) workbookPart.Workbook).Save();
+    }
+
+    public void Close()
+    {
+      if (this.TheDocument == null)
+        throw new Exception("No document for closing");
+      ((OpenXmlPackage) this.TheDocument).Close();
+      this.TheDocument = (SpreadsheetDocument) null;
+    }
+
+    public ExcelOdSheet GetSheet(string sheetName)
+    {
+      if (this.TheDocument == null)
+        throw new Exception("Not a open document available");
+      return new ExcelOdSheet((WorksheetPart) ((OpenXmlPartContainer) this.TheDocument.WorkbookPart).GetPartById(StringValue.op_Implicit((((OpenXmlElement) ((OpenXmlElement) this.TheDocument.WorkbookPart.Workbook).GetFirstChild<Sheets>()).Elements<Sheet>().FirstOrDefault<Sheet>((Func<Sheet, bool>) (s => StringValue.op_Implicit(s.Name) == sheetName)) ?? throw new Exception("Sheet " + sheetName + " not found")).Id)), this.TheDocument);
+    }
+  }
+}
+

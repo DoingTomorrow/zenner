@@ -1,0 +1,1128 @@
+
+--- AssemblyInfo.cs ---
+
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security.Permissions;
+
+[assembly: AssemblyCopyright("AForge © 2012")]
+[assembly: AssemblyTitle("AForge")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("AForge")]
+[assembly: AssemblyProduct("AForge.NET")]
+[assembly: Guid("f37ad0d7-d32b-4096-841f-3c03dbbecde6")]
+[assembly: AssemblyTrademark("")]
+[assembly: ComVisible(false)]
+[assembly: AssemblyFileVersion("2.2.5.0")]
+[assembly: AssemblyVersion("2.2.5.0")]
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
+
+
+--- CommunicationBufferEventArgs.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.CommunicationBufferEventArgs
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+using System;
+
+#nullable disable
+namespace AForge
+{
+  public class CommunicationBufferEventArgs : EventArgs
+  {
+    private readonly byte[] message;
+    private readonly int index;
+    private readonly int length;
+
+    public int MessageLength => this.length;
+
+    public CommunicationBufferEventArgs(byte[] message)
+    {
+      this.message = message;
+      this.index = 0;
+      this.length = message.Length;
+    }
+
+    public CommunicationBufferEventArgs(byte[] buffer, int index, int length)
+    {
+      this.message = buffer;
+      this.index = index;
+      this.length = length;
+    }
+
+    public byte[] GetMessage()
+    {
+      byte[] destinationArray = new byte[this.length];
+      Array.Copy((Array) this.message, this.index, (Array) destinationArray, 0, this.length);
+      return destinationArray;
+    }
+
+    public string GetMessageString()
+    {
+      return BitConverter.ToString(this.message, this.index, this.length);
+    }
+  }
+}
+
+
+--- ConnectionFailedException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.ConnectionFailedException
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+using System;
+
+#nullable disable
+namespace AForge
+{
+  public class ConnectionFailedException(string message) : Exception(message)
+  {
+  }
+}
+
+
+--- ConnectionLostException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.ConnectionLostException
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+using System;
+
+#nullable disable
+namespace AForge
+{
+  public class ConnectionLostException(string message) : Exception(message)
+  {
+  }
+}
+
+
+--- DeviceBusyException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.DeviceBusyException
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+using System;
+
+#nullable disable
+namespace AForge
+{
+  public class DeviceBusyException(string message) : Exception(message)
+  {
+  }
+}
+
+
+--- DeviceErrorException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.DeviceErrorException
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+using System;
+
+#nullable disable
+namespace AForge
+{
+  public class DeviceErrorException(string message) : Exception(message)
+  {
+  }
+}
+
+
+--- DoublePoint.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.DoublePoint
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+using System;
+using System.Globalization;
+
+#nullable disable
+namespace AForge
+{
+  [Serializable]
+  public struct DoublePoint(double x, double y)
+  {
+    public double X = x;
+    public double Y = y;
+
+    public double DistanceTo(DoublePoint anotherPoint)
+    {
+      double num1 = this.X - anotherPoint.X;
+      double num2 = this.Y - anotherPoint.Y;
+      return Math.Sqrt(num1 * num1 + num2 * num2);
+    }
+
+    public double SquaredDistanceTo(DoublePoint anotherPoint)
+    {
+      double num1 = this.X - anotherPoint.X;
+      double num2 = this.Y - anotherPoint.Y;
+      return num1 * num1 + num2 * num2;
+    }
+
+    public static DoublePoint operator +(DoublePoint point1, DoublePoint point2)
+    {
+      return new DoublePoint(point1.X + point2.X, point1.Y + point2.Y);
+    }
+
+    public static DoublePoint Add(DoublePoint point1, DoublePoint point2)
+    {
+      return new DoublePoint(point1.X + point2.X, point1.Y + point2.Y);
+    }
+
+    public static DoublePoint operator -(DoublePoint point1, DoublePoint point2)
+    {
+      return new DoublePoint(point1.X - point2.X, point1.Y - point2.Y);
+    }
+
+    public static DoublePoint Subtract(DoublePoint point1, DoublePoint point2)
+    {
+      return new DoublePoint(point1.X - point2.X, point1.Y - point2.Y);
+    }
+
+    public static DoublePoint operator +(DoublePoint point, double valueToAdd)
+    {
+      return new DoublePoint(point.X + valueToAdd, point.Y + valueToAdd);
+    }
+
+    public static DoublePoint Add(DoublePoint point, double valueToAdd)
+    {
+      return new DoublePoint(point.X + valueToAdd, point.Y + valueToAdd);
+    }
+
+    public static DoublePoint operator -(DoublePoint point, double valueToSubtract)
+    {
+      return new DoublePoint(point.X - valueToSubtract, point.Y - valueToSubtract);
+    }
+
+    public static DoublePoint Subtract(DoublePoint point, double valueToSubtract)
+    {
+      return new DoublePoint(point.X - valueToSubtract, point.Y - valueToSubtract);
+    }
+
+    public static DoublePoint operator *(DoublePoint point, double factor)
+    {
+      return new DoublePoint(point.X * factor, point.Y * factor);
+    }
+
+    public static DoublePoint Multiply(DoublePoint point, double factor)
+    {
+      return new DoublePoint(point.X * factor, point.Y * factor);
+    }
+
+    public static DoublePoint operator /(DoublePoint point, double factor)
+    {
+      return new DoublePoint(point.X / factor, point.Y / factor);
+    }
+
+    public static DoublePoint Divide(DoublePoint point, double factor)
+    {
+      return new DoublePoint(point.X / factor, point.Y / factor);
+    }
+
+    public static bool operator ==(DoublePoint point1, DoublePoint point2)
+    {
+      return point1.X == point2.X && point1.Y == point2.Y;
+    }
+
+    public static bool operator !=(DoublePoint point1, DoublePoint point2)
+    {
+      return point1.X != point2.X || point1.Y != point2.Y;
+    }
+
+    public override bool Equals(object obj)
+    {
+      return obj is DoublePoint doublePoint && this == doublePoint;
+    }
+
+    public override int GetHashCode() => this.X.GetHashCode() + this.Y.GetHashCode();
+
+    public static explicit operator IntPoint(DoublePoint point)
+    {
+      return new IntPoint((int) point.X, (int) point.Y);
+    }
+
+    public static explicit operator Point(DoublePoint point)
+    {
+      return new Point((float) point.X, (float) point.Y);
+    }
+
+    public IntPoint Round() => new IntPoint((int) Math.Round(this.X), (int) Math.Round(this.Y));
+
+    public override string ToString()
+    {
+      return string.Format((IFormatProvider) CultureInfo.InvariantCulture, "{0}, {1}", (object) this.X, (object) this.Y);
+    }
+
+    public double EuclideanNorm() => Math.Sqrt(this.X * this.X + this.Y * this.Y);
+  }
+}
+
+
+--- DoubleRange.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.DoubleRange
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+using System;
+using System.Globalization;
+
+#nullable disable
+namespace AForge
+{
+  [Serializable]
+  public struct DoubleRange(double min, double max)
+  {
+    private double min = min;
+    private double max = max;
+
+    public double Min
+    {
+      get => this.min;
+      set => this.min = value;
+    }
+
+    public double Max
+    {
+      get => this.max;
+      set => this.max = value;
+    }
+
+    public double Length => this.max - this.min;
+
+    public bool IsInside(double x) => x >= this.min && x <= this.max;
+
+    public bool IsInside(DoubleRange range) => this.IsInside(range.min) && this.IsInside(range.max);
+
+    public bool IsOverlapping(DoubleRange range)
+    {
+      return this.IsInside(range.min) || this.IsInside(range.max) || range.IsInside(this.min) || range.IsInside(this.max);
+    }
+
+    public IntRange ToIntRange(bool provideInnerRange)
+    {
+      int min;
+      int max;
+      if (provideInnerRange)
+      {
+        min = (int) Math.Ceiling(this.min);
+        max = (int) Math.Floor(this.max);
+      }
+      else
+      {
+        min = (int) Math.Floor(this.min);
+        max = (int) Math.Ceiling(this.max);
+      }
+      return new IntRange(min, max);
+    }
+
+    public static bool operator ==(DoubleRange range1, DoubleRange range2)
+    {
+      return range1.min == range2.min && range1.max == range2.max;
+    }
+
+    public static bool operator !=(DoubleRange range1, DoubleRange range2)
+    {
+      return range1.min != range2.min || range1.max != range2.max;
+    }
+
+    public override bool Equals(object obj) => obj is Range && this == (DoubleRange) obj;
+
+    public override int GetHashCode() => this.min.GetHashCode() + this.max.GetHashCode();
+
+    public override string ToString()
+    {
+      return string.Format((IFormatProvider) CultureInfo.InvariantCulture, "{0}, {1}", (object) this.min, (object) this.max);
+    }
+  }
+}
+
+
+--- IntPoint.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.IntPoint
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+using System;
+using System.Globalization;
+
+#nullable disable
+namespace AForge
+{
+  [Serializable]
+  public struct IntPoint(int x, int y)
+  {
+    public int X = x;
+    public int Y = y;
+
+    public float DistanceTo(IntPoint anotherPoint)
+    {
+      int num1 = this.X - anotherPoint.X;
+      int num2 = this.Y - anotherPoint.Y;
+      return (float) Math.Sqrt((double) (num1 * num1 + num2 * num2));
+    }
+
+    public float SquaredDistanceTo(Point anotherPoint)
+    {
+      float num1 = (float) this.X - anotherPoint.X;
+      float num2 = (float) this.Y - anotherPoint.Y;
+      return (float) ((double) num1 * (double) num1 + (double) num2 * (double) num2);
+    }
+
+    public static IntPoint operator +(IntPoint point1, IntPoint point2)
+    {
+      return new IntPoint(point1.X + point2.X, point1.Y + point2.Y);
+    }
+
+    public static IntPoint Add(IntPoint point1, IntPoint point2)
+    {
+      return new IntPoint(point1.X + point2.X, point1.Y + point2.Y);
+    }
+
+    public static IntPoint operator -(IntPoint point1, IntPoint point2)
+    {
+      return new IntPoint(point1.X - point2.X, point1.Y - point2.Y);
+    }
+
+    public static IntPoint Subtract(IntPoint point1, IntPoint point2)
+    {
+      return new IntPoint(point1.X - point2.X, point1.Y - point2.Y);
+    }
+
+    public static IntPoint operator +(IntPoint point, int valueToAdd)
+    {
+      return new IntPoint(point.X + valueToAdd, point.Y + valueToAdd);
+    }
+
+    public static IntPoint Add(IntPoint point, int valueToAdd)
+    {
+      return new IntPoint(point.X + valueToAdd, point.Y + valueToAdd);
+    }
+
+    public static IntPoint operator -(IntPoint point, int valueToSubtract)
+    {
+      return new IntPoint(point.X - valueToSubtract, point.Y - valueToSubtract);
+    }
+
+    public static IntPoint Subtract(IntPoint point, int valueToSubtract)
+    {
+      return new IntPoint(point.X - valueToSubtract, point.Y - valueToSubtract);
+    }
+
+    public static IntPoint operator *(IntPoint point, int factor)
+    {
+      return new IntPoint(point.X * factor, point.Y * factor);
+    }
+
+    public static IntPoint Multiply(IntPoint point, int factor)
+    {
+      return new IntPoint(point.X * factor, point.Y * factor);
+    }
+
+    public static IntPoint operator /(IntPoint point, int factor)
+    {
+      return new IntPoint(point.X / factor, point.Y / factor);
+    }
+
+    public static IntPoint Divide(IntPoint point, int factor)
+    {
+      return new IntPoint(point.X / factor, point.Y / factor);
+    }
+
+    public static bool operator ==(IntPoint point1, IntPoint point2)
+    {
+      return point1.X == point2.X && point1.Y == point2.Y;
+    }
+
+    public static bool operator !=(IntPoint point1, IntPoint point2)
+    {
+      return point1.X != point2.X || point1.Y != point2.Y;
+    }
+
+    public override bool Equals(object obj) => obj is IntPoint intPoint && this == intPoint;
+
+    public override int GetHashCode() => this.X.GetHashCode() + this.Y.GetHashCode();
+
+    public static implicit operator Point(IntPoint point)
+    {
+      return new Point((float) point.X, (float) point.Y);
+    }
+
+    public static implicit operator DoublePoint(IntPoint point)
+    {
+      return new DoublePoint((double) point.X, (double) point.Y);
+    }
+
+    public override string ToString()
+    {
+      return string.Format((IFormatProvider) CultureInfo.InvariantCulture, "{0}, {1}", (object) this.X, (object) this.Y);
+    }
+
+    public float EuclideanNorm() => (float) Math.Sqrt((double) (this.X * this.X + this.Y * this.Y));
+  }
+}
+
+
+--- IntRange.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.IntRange
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+using System;
+using System.Globalization;
+
+#nullable disable
+namespace AForge
+{
+  [Serializable]
+  public struct IntRange(int min, int max)
+  {
+    private int min = min;
+    private int max = max;
+
+    public int Min
+    {
+      get => this.min;
+      set => this.min = value;
+    }
+
+    public int Max
+    {
+      get => this.max;
+      set => this.max = value;
+    }
+
+    public int Length => this.max - this.min;
+
+    public bool IsInside(int x) => x >= this.min && x <= this.max;
+
+    public bool IsInside(IntRange range) => this.IsInside(range.min) && this.IsInside(range.max);
+
+    public bool IsOverlapping(IntRange range)
+    {
+      return this.IsInside(range.min) || this.IsInside(range.max) || range.IsInside(this.min) || range.IsInside(this.max);
+    }
+
+    public static implicit operator Range(IntRange range)
+    {
+      return new Range((float) range.Min, (float) range.Max);
+    }
+
+    public static bool operator ==(IntRange range1, IntRange range2)
+    {
+      return range1.min == range2.min && range1.max == range2.max;
+    }
+
+    public static bool operator !=(IntRange range1, IntRange range2)
+    {
+      return range1.min != range2.min || range1.max != range2.max;
+    }
+
+    public override bool Equals(object obj) => obj is IntRange intRange && this == intRange;
+
+    public override int GetHashCode() => this.min.GetHashCode() + this.max.GetHashCode();
+
+    public override string ToString()
+    {
+      return string.Format((IFormatProvider) CultureInfo.InvariantCulture, "{0}, {1}", (object) this.min, (object) this.max);
+    }
+  }
+}
+
+
+--- MessageTransferHandler.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.MessageTransferHandler
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+#nullable disable
+namespace AForge
+{
+  public delegate void MessageTransferHandler(object sender, CommunicationBufferEventArgs eventArgs);
+}
+
+
+--- NotConnectedException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.NotConnectedException
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+using System;
+
+#nullable disable
+namespace AForge
+{
+  public class NotConnectedException(string message) : Exception(message)
+  {
+  }
+}
+
+
+--- Parallel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Parallel
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+using System;
+using System.Threading;
+
+#nullable disable
+namespace AForge
+{
+  public sealed class Parallel
+  {
+    private static int threadsCount = Environment.ProcessorCount;
+    private static object sync = new object();
+    private static volatile Parallel instance = (Parallel) null;
+    private Thread[] threads;
+    private AutoResetEvent[] jobAvailable;
+    private ManualResetEvent[] threadIdle;
+    private int currentIndex;
+    private int stopIndex;
+    private Parallel.ForLoopBody loopBody;
+
+    public static int ThreadsCount
+    {
+      get => Parallel.threadsCount;
+      set
+      {
+        lock (Parallel.sync)
+          Parallel.threadsCount = Math.Max(1, value);
+      }
+    }
+
+    public static void For(int start, int stop, Parallel.ForLoopBody loopBody)
+    {
+      lock (Parallel.sync)
+      {
+        Parallel instance = Parallel.Instance;
+        instance.currentIndex = start - 1;
+        instance.stopIndex = stop;
+        instance.loopBody = loopBody;
+        for (int index = 0; index < Parallel.threadsCount; ++index)
+        {
+          instance.threadIdle[index].Reset();
+          instance.jobAvailable[index].Set();
+        }
+        for (int index = 0; index < Parallel.threadsCount; ++index)
+          instance.threadIdle[index].WaitOne();
+        instance.loopBody = (Parallel.ForLoopBody) null;
+      }
+    }
+
+    private Parallel()
+    {
+    }
+
+    private static Parallel Instance
+    {
+      get
+      {
+        if (Parallel.instance == null)
+        {
+          Parallel.instance = new Parallel();
+          Parallel.instance.Initialize();
+        }
+        else if (Parallel.instance.threads.Length != Parallel.threadsCount)
+        {
+          Parallel.instance.Terminate();
+          Parallel.instance.Initialize();
+        }
+        return Parallel.instance;
+      }
+    }
+
+    private void Initialize()
+    {
+      this.jobAvailable = new AutoResetEvent[Parallel.threadsCount];
+      this.threadIdle = new ManualResetEvent[Parallel.threadsCount];
+      this.threads = new Thread[Parallel.threadsCount];
+      for (int parameter = 0; parameter < Parallel.threadsCount; ++parameter)
+      {
+        this.jobAvailable[parameter] = new AutoResetEvent(false);
+        this.threadIdle[parameter] = new ManualResetEvent(true);
+        this.threads[parameter] = new Thread(new ParameterizedThreadStart(this.WorkerThread));
+        this.threads[parameter].Name = "AForge.Parallel";
+        this.threads[parameter].IsBackground = true;
+        this.threads[parameter].Start((object) parameter);
+      }
+    }
+
+    private void Terminate()
+    {
+      this.loopBody = (Parallel.ForLoopBody) null;
+      int index = 0;
+      for (int length = this.threads.Length; index < length; ++index)
+      {
+        this.jobAvailable[index].Set();
+        this.threads[index].Join();
+        this.jobAvailable[index].Close();
+        this.threadIdle[index].Close();
+      }
+      this.jobAvailable = (AutoResetEvent[]) null;
+      this.threadIdle = (ManualResetEvent[]) null;
+      this.threads = (Thread[]) null;
+    }
+
+    private void WorkerThread(object index)
+    {
+      int index1 = (int) index;
+      while (true)
+      {
+        this.jobAvailable[index1].WaitOne();
+        if (this.loopBody != null)
+        {
+          while (true)
+          {
+            int index2 = Interlocked.Increment(ref this.currentIndex);
+            if (index2 < this.stopIndex)
+              this.loopBody(index2);
+            else
+              break;
+          }
+          this.threadIdle[index1].Set();
+        }
+        else
+          break;
+      }
+    }
+
+    public delegate void ForLoopBody(int index);
+  }
+}
+
+
+--- Point.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Point
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+using System;
+using System.Globalization;
+
+#nullable disable
+namespace AForge
+{
+  [Serializable]
+  public struct Point(float x, float y)
+  {
+    public float X = x;
+    public float Y = y;
+
+    public float DistanceTo(Point anotherPoint)
+    {
+      float num1 = this.X - anotherPoint.X;
+      float num2 = this.Y - anotherPoint.Y;
+      return (float) Math.Sqrt((double) num1 * (double) num1 + (double) num2 * (double) num2);
+    }
+
+    public float SquaredDistanceTo(Point anotherPoint)
+    {
+      float num1 = this.X - anotherPoint.X;
+      float num2 = this.Y - anotherPoint.Y;
+      return (float) ((double) num1 * (double) num1 + (double) num2 * (double) num2);
+    }
+
+    public static Point operator +(Point point1, Point point2)
+    {
+      return new Point(point1.X + point2.X, point1.Y + point2.Y);
+    }
+
+    public static Point Add(Point point1, Point point2)
+    {
+      return new Point(point1.X + point2.X, point1.Y + point2.Y);
+    }
+
+    public static Point operator -(Point point1, Point point2)
+    {
+      return new Point(point1.X - point2.X, point1.Y - point2.Y);
+    }
+
+    public static Point Subtract(Point point1, Point point2)
+    {
+      return new Point(point1.X - point2.X, point1.Y - point2.Y);
+    }
+
+    public static Point operator +(Point point, float valueToAdd)
+    {
+      return new Point(point.X + valueToAdd, point.Y + valueToAdd);
+    }
+
+    public static Point Add(Point point, float valueToAdd)
+    {
+      return new Point(point.X + valueToAdd, point.Y + valueToAdd);
+    }
+
+    public static Point operator -(Point point, float valueToSubtract)
+    {
+      return new Point(point.X - valueToSubtract, point.Y - valueToSubtract);
+    }
+
+    public static Point Subtract(Point point, float valueToSubtract)
+    {
+      return new Point(point.X - valueToSubtract, point.Y - valueToSubtract);
+    }
+
+    public static Point operator *(Point point, float factor)
+    {
+      return new Point(point.X * factor, point.Y * factor);
+    }
+
+    public static Point Multiply(Point point, float factor)
+    {
+      return new Point(point.X * factor, point.Y * factor);
+    }
+
+    public static Point operator /(Point point, float factor)
+    {
+      return new Point(point.X / factor, point.Y / factor);
+    }
+
+    public static Point Divide(Point point, float factor)
+    {
+      return new Point(point.X / factor, point.Y / factor);
+    }
+
+    public static bool operator ==(Point point1, Point point2)
+    {
+      return (double) point1.X == (double) point2.X && (double) point1.Y == (double) point2.Y;
+    }
+
+    public static bool operator !=(Point point1, Point point2)
+    {
+      return (double) point1.X != (double) point2.X || (double) point1.Y != (double) point2.Y;
+    }
+
+    public override bool Equals(object obj) => obj is Point point && this == point;
+
+    public override int GetHashCode() => this.X.GetHashCode() + this.Y.GetHashCode();
+
+    public static explicit operator IntPoint(Point point)
+    {
+      return new IntPoint((int) point.X, (int) point.Y);
+    }
+
+    public static implicit operator DoublePoint(Point point)
+    {
+      return new DoublePoint((double) point.X, (double) point.Y);
+    }
+
+    public IntPoint Round()
+    {
+      return new IntPoint((int) Math.Round((double) this.X), (int) Math.Round((double) this.Y));
+    }
+
+    public override string ToString()
+    {
+      return string.Format((IFormatProvider) CultureInfo.InvariantCulture, "{0}, {1}", (object) this.X, (object) this.Y);
+    }
+
+    public float EuclideanNorm()
+    {
+      return (float) Math.Sqrt((double) this.X * (double) this.X + (double) this.Y * (double) this.Y);
+    }
+  }
+}
+
+
+--- PolishExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.PolishExpression
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+using System;
+using System.Collections;
+
+#nullable disable
+namespace AForge
+{
+  public static class PolishExpression
+  {
+    public static double Evaluate(string expression, double[] variables)
+    {
+      string[] strArray = expression.Trim().Split(' ');
+      Stack stack = new Stack();
+      foreach (string s in strArray)
+      {
+        if (char.IsDigit(s[0]))
+          stack.Push((object) double.Parse(s));
+        else if (s[0] == '$')
+        {
+          stack.Push((object) variables[int.Parse(s.Substring(1))]);
+        }
+        else
+        {
+          double num = (double) stack.Pop();
+          switch (s)
+          {
+            case "+":
+              stack.Push((object) ((double) stack.Pop() + num));
+              continue;
+            case "-":
+              stack.Push((object) ((double) stack.Pop() - num));
+              continue;
+            case "*":
+              stack.Push((object) ((double) stack.Pop() * num));
+              continue;
+            case "/":
+              stack.Push((object) ((double) stack.Pop() / num));
+              continue;
+            case "sin":
+              stack.Push((object) Math.Sin(num));
+              continue;
+            case "cos":
+              stack.Push((object) Math.Cos(num));
+              continue;
+            case "ln":
+              stack.Push((object) Math.Log(num));
+              continue;
+            case "exp":
+              stack.Push((object) Math.Exp(num));
+              continue;
+            case "sqrt":
+              stack.Push((object) Math.Sqrt(num));
+              continue;
+            default:
+              throw new ArgumentException("Unsupported function: " + s);
+          }
+        }
+      }
+      return stack.Count == 1 ? (double) stack.Pop() : throw new ArgumentException("Incorrect expression.");
+    }
+  }
+}
+
+
+--- Range.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Range
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+using System;
+using System.Globalization;
+
+#nullable disable
+namespace AForge
+{
+  [Serializable]
+  public struct Range(float min, float max)
+  {
+    private float min = min;
+    private float max = max;
+
+    public float Min
+    {
+      get => this.min;
+      set => this.min = value;
+    }
+
+    public float Max
+    {
+      get => this.max;
+      set => this.max = value;
+    }
+
+    public float Length => this.max - this.min;
+
+    public bool IsInside(float x)
+    {
+      return (double) x >= (double) this.min && (double) x <= (double) this.max;
+    }
+
+    public bool IsInside(Range range) => this.IsInside(range.min) && this.IsInside(range.max);
+
+    public bool IsOverlapping(Range range)
+    {
+      return this.IsInside(range.min) || this.IsInside(range.max) || range.IsInside(this.min) || range.IsInside(this.max);
+    }
+
+    public IntRange ToIntRange(bool provideInnerRange)
+    {
+      int min;
+      int max;
+      if (provideInnerRange)
+      {
+        min = (int) Math.Ceiling((double) this.min);
+        max = (int) Math.Floor((double) this.max);
+      }
+      else
+      {
+        min = (int) Math.Floor((double) this.min);
+        max = (int) Math.Ceiling((double) this.max);
+      }
+      return new IntRange(min, max);
+    }
+
+    public static bool operator ==(Range range1, Range range2)
+    {
+      return (double) range1.min == (double) range2.min && (double) range1.max == (double) range2.max;
+    }
+
+    public static bool operator !=(Range range1, Range range2)
+    {
+      return (double) range1.min != (double) range2.min || (double) range1.max != (double) range2.max;
+    }
+
+    public override bool Equals(object obj) => obj is Range range && this == range;
+
+    public override int GetHashCode() => this.min.GetHashCode() + this.max.GetHashCode();
+
+    public override string ToString()
+    {
+      return string.Format((IFormatProvider) CultureInfo.InvariantCulture, "{0}, {1}", (object) this.min, (object) this.max);
+    }
+  }
+}
+
+
+--- SystemTools.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.SystemTools
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+using System;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge
+{
+  public static class SystemTools
+  {
+    public static unsafe IntPtr CopyUnmanagedMemory(IntPtr dst, IntPtr src, int count)
+    {
+      SystemTools.CopyUnmanagedMemory((byte*) dst.ToPointer(), (byte*) src.ToPointer(), count);
+      return dst;
+    }
+
+    public static unsafe byte* CopyUnmanagedMemory(byte* dst, byte* src, int count)
+    {
+      return SystemTools.memcpy(dst, src, count);
+    }
+
+    public static unsafe IntPtr SetUnmanagedMemory(IntPtr dst, int filler, int count)
+    {
+      SystemTools.SetUnmanagedMemory((byte*) dst.ToPointer(), filler, count);
+      return dst;
+    }
+
+    public static unsafe byte* SetUnmanagedMemory(byte* dst, int filler, int count)
+    {
+      return SystemTools.memset(dst, filler, count);
+    }
+
+    [DllImport("ntdll.dll", CallingConvention = CallingConvention.Cdecl)]
+    private static extern unsafe byte* memcpy(byte* dst, byte* src, int count);
+
+    [DllImport("ntdll.dll", CallingConvention = CallingConvention.Cdecl)]
+    private static extern unsafe byte* memset(byte* dst, int filler, int count);
+  }
+}
+
+
+--- ThreadSafeRandom.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.ThreadSafeRandom
+// Assembly: AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb
+// MVID: D4933F01-4742-407D-982E-D47DDB340621
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.dll
+
+using System;
+
+#nullable disable
+namespace AForge
+{
+  public sealed class ThreadSafeRandom : Random
+  {
+    private object sync = new object();
+
+    public ThreadSafeRandom()
+    {
+    }
+
+    public ThreadSafeRandom(int seed)
+      : base(seed)
+    {
+    }
+
+    public override int Next()
+    {
+      lock (this.sync)
+        return base.Next();
+    }
+
+    public override int Next(int maxValue)
+    {
+      lock (this.sync)
+        return base.Next(maxValue);
+    }
+
+    public override int Next(int minValue, int maxValue)
+    {
+      lock (this.sync)
+        return base.Next(minValue, maxValue);
+    }
+
+    public override void NextBytes(byte[] buffer)
+    {
+      lock (this.sync)
+        base.NextBytes(buffer);
+    }
+
+    public override double NextDouble()
+    {
+      lock (this.sync)
+        return base.NextDouble();
+    }
+  }
+}
+

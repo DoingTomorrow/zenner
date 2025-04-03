@@ -1,0 +1,13 @@
+<Window x:Class="ReadoutConfiguration.SelectByPictureWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Title="Select from picture list" Height="300" Width="554"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico" WindowState="Maximized">
+  <Grid>
+    <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
+    <ScrollViewer Margin="0,56,0,0">
+      <WrapPanel Name="WrapPanalPictures"/>
+    </ScrollViewer>
+  </Grid>
+</Window>

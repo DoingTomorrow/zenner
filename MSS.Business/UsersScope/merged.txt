@@ -1,0 +1,481 @@
+
+--- t_Operation.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: UsersScope.t_Operation
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace UsersScope
+{
+  public class t_Operation : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _Name;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(100)]
+    public string Name
+    {
+      get => this._Name;
+      set
+      {
+        this.OnPropertyChanging(nameof (Name));
+        this._Name = value;
+        this.OnPropertyChanged(nameof (Name));
+      }
+    }
+  }
+}
+
+
+--- t_Role.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: UsersScope.t_Role
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace UsersScope
+{
+  public class t_Role : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _Name;
+    private bool _IsStandard;
+    private bool _IsDeactivated;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(100)]
+    public string Name
+    {
+      get => this._Name;
+      set
+      {
+        this.OnPropertyChanging(nameof (Name));
+        this._Name = value;
+        this.OnPropertyChanged(nameof (Name));
+      }
+    }
+
+    public bool IsStandard
+    {
+      get => this._IsStandard;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsStandard));
+        this._IsStandard = value;
+        this.OnPropertyChanged(nameof (IsStandard));
+      }
+    }
+
+    public bool IsDeactivated
+    {
+      get => this._IsDeactivated;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsDeactivated));
+        this._IsDeactivated = value;
+        this.OnPropertyChanged(nameof (IsDeactivated));
+      }
+    }
+  }
+}
+
+
+--- t_RoleOperation.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: UsersScope.t_RoleOperation
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace UsersScope
+{
+  public class t_RoleOperation : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private Guid? _RoleId;
+    private Guid? _OperationId;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    public Guid? RoleId
+    {
+      get => this._RoleId;
+      set
+      {
+        this.OnPropertyChanging(nameof (RoleId));
+        this._RoleId = value;
+        this.OnPropertyChanged(nameof (RoleId));
+      }
+    }
+
+    public Guid? OperationId
+    {
+      get => this._OperationId;
+      set
+      {
+        this.OnPropertyChanging(nameof (OperationId));
+        this._OperationId = value;
+        this.OnPropertyChanged(nameof (OperationId));
+      }
+    }
+  }
+}
+
+
+--- t_User.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: UsersScope.t_User
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace UsersScope
+{
+  public class t_User : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _FirstName;
+    private string _LastName;
+    private string _Password;
+    private string _Username;
+    private string _Language;
+    private bool _IsDeactivated;
+    private string _Office;
+    private Guid? _CountryId;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(100)]
+    public string FirstName
+    {
+      get => this._FirstName;
+      set
+      {
+        this.OnPropertyChanging(nameof (FirstName));
+        this._FirstName = value;
+        this.OnPropertyChanged(nameof (FirstName));
+      }
+    }
+
+    [MaxLength(100)]
+    public string LastName
+    {
+      get => this._LastName;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastName));
+        this._LastName = value;
+        this.OnPropertyChanged(nameof (LastName));
+      }
+    }
+
+    [MaxLength(100)]
+    public string Password
+    {
+      get => this._Password;
+      set
+      {
+        this.OnPropertyChanging(nameof (Password));
+        this._Password = value;
+        this.OnPropertyChanged(nameof (Password));
+      }
+    }
+
+    [MaxLength(100)]
+    public string Username
+    {
+      get => this._Username;
+      set
+      {
+        this.OnPropertyChanging(nameof (Username));
+        this._Username = value;
+        this.OnPropertyChanged(nameof (Username));
+      }
+    }
+
+    [MaxLength(100)]
+    public string Language
+    {
+      get => this._Language;
+      set
+      {
+        this.OnPropertyChanging(nameof (Language));
+        this._Language = value;
+        this.OnPropertyChanged(nameof (Language));
+      }
+    }
+
+    public bool IsDeactivated
+    {
+      get => this._IsDeactivated;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsDeactivated));
+        this._IsDeactivated = value;
+        this.OnPropertyChanged(nameof (IsDeactivated));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Office
+    {
+      get => this._Office;
+      set
+      {
+        this.OnPropertyChanging(nameof (Office));
+        this._Office = value;
+        this.OnPropertyChanged(nameof (Office));
+      }
+    }
+
+    public Guid? CountryId
+    {
+      get => this._CountryId;
+      set
+      {
+        this.OnPropertyChanging(nameof (CountryId));
+        this._CountryId = value;
+        this.OnPropertyChanged(nameof (CountryId));
+      }
+    }
+  }
+}
+
+
+--- t_UserDeviceTypeSettings.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: UsersScope.t_UserDeviceTypeSettings
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace UsersScope
+{
+  public class t_UserDeviceTypeSettings : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _DeviceType;
+    private double? _DecimalPlaces;
+    private Guid? _DisplayUnitId;
+    private Guid? _UserId;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(255)]
+    public string DeviceType
+    {
+      get => this._DeviceType;
+      set
+      {
+        this.OnPropertyChanging(nameof (DeviceType));
+        this._DeviceType = value;
+        this.OnPropertyChanged(nameof (DeviceType));
+      }
+    }
+
+    public double? DecimalPlaces
+    {
+      get => this._DecimalPlaces;
+      set
+      {
+        this.OnPropertyChanging(nameof (DecimalPlaces));
+        this._DecimalPlaces = value;
+        this.OnPropertyChanged(nameof (DecimalPlaces));
+      }
+    }
+
+    public Guid? DisplayUnitId
+    {
+      get => this._DisplayUnitId;
+      set
+      {
+        this.OnPropertyChanging(nameof (DisplayUnitId));
+        this._DisplayUnitId = value;
+        this.OnPropertyChanged(nameof (DisplayUnitId));
+      }
+    }
+
+    public Guid? UserId
+    {
+      get => this._UserId;
+      set
+      {
+        this.OnPropertyChanging(nameof (UserId));
+        this._UserId = value;
+        this.OnPropertyChanged(nameof (UserId));
+      }
+    }
+  }
+}
+
+
+--- t_UserRole.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: UsersScope.t_UserRole
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace UsersScope
+{
+  public class t_UserRole : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private Guid? _RoleId;
+    private Guid? _UserId;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    public Guid? RoleId
+    {
+      get => this._RoleId;
+      set
+      {
+        this.OnPropertyChanging(nameof (RoleId));
+        this._RoleId = value;
+        this.OnPropertyChanged(nameof (RoleId));
+      }
+    }
+
+    public Guid? UserId
+    {
+      get => this._UserId;
+      set
+      {
+        this.OnPropertyChanging(nameof (UserId));
+        this._UserId = value;
+        this.OnPropertyChanged(nameof (UserId));
+      }
+    }
+  }
+}
+
+
+--- UsersOfflineContext.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: UsersScope.UsersOfflineContext
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.Common;
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace UsersScope
+{
+  public class UsersOfflineContext(string cachePath, Uri serviceUri) : SQLiteContext(UsersOfflineContext.GetSchema(), "Users", cachePath, serviceUri)
+  {
+    private const string SyncScopeName = "Users";
+
+    private static OfflineSchema GetSchema()
+    {
+      OfflineSchema schema = new OfflineSchema();
+      schema.AddCollection<t_User>();
+      schema.AddCollection<t_Role>();
+      schema.AddCollection<t_Operation>();
+      schema.AddCollection<t_UserRole>();
+      schema.AddCollection<t_RoleOperation>();
+      schema.AddCollection<t_UserDeviceTypeSettings>();
+      return schema;
+    }
+  }
+}
+

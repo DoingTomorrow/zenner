@@ -1,0 +1,29 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Properties.Settings
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System.CodeDom.Compiler;
+using System.Configuration;
+using System.Runtime.CompilerServices;
+
+#nullable disable
+namespace MSS.Business.Properties
+{
+  [CompilerGenerated]
+  [GeneratedCode("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "14.0.0.0")]
+  internal sealed class Settings : ApplicationSettingsBase
+  {
+    private static Settings defaultInstance = (Settings) SettingsBase.Synchronized((SettingsBase) new Settings());
+
+    public static Settings Default
+    {
+      get
+      {
+        Settings defaultInstance = Settings.defaultInstance;
+        return defaultInstance;
+      }
+    }
+  }
+}

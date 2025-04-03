@@ -1,0 +1,12 @@
+<Window x:Class="HandlerLib.InputWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Height="120" Width="300" Title="Input Box" WindowStartupLocation="CenterScreen"
+        WindowStyle="ToolWindow">
+  <Grid>
+    <TextBox Name="InputText" HorizontalAlignment="Center" Height="23" Margin="0,18,0,0" VerticalAlignment="Top"
+             Width="184"/>
+    <Button Click="OkButton_Click" Name="OK_Button" Content="OK" HorizontalAlignment="Center" Margin="0,56,0,0"
+            VerticalAlignment="Top" Width="76"/>
+  </Grid>
+</Window>

@@ -1,0 +1,269 @@
+
+--- BaseApplicationException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Errors.BaseApplicationException
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+
+#nullable disable
+namespace MSS.Business.Errors
+{
+  [Serializable]
+  public class BaseApplicationException : Exception
+  {
+    public BaseApplicationException()
+    {
+    }
+
+    public BaseApplicationException(string message)
+      : base(message)
+    {
+    }
+
+    public BaseApplicationException(string format, params object[] args)
+      : base(string.Format(format, args))
+    {
+    }
+
+    public BaseApplicationException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+
+    public BaseApplicationException(string format, Exception innerException, params object[] args)
+      : base(string.Format(format, args), innerException)
+    {
+    }
+  }
+}
+
+
+--- ErrorCodes.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Errors.ErrorCodes
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+using System.Collections;
+
+#nullable disable
+namespace MSS.Business.Errors
+{
+  public class ErrorCodes
+  {
+    private static readonly Hashtable ErrorMessage = new Hashtable();
+    public const string ERR__ERROR_TEST1 = "MSSError_1";
+    public const string ERR__INSERT_ONLY_CHILDREN = "MSSError_2";
+    public const string ERR__SYNC_FAILED = "MSSError_3";
+    public const string ERR__FAILED_TO_CREATE_CHANNEL = "MSSError_4";
+    public const string ERR__FAILED_TO_RETRIEVE_APPLICATION_PARAMETER = "MSSError_5";
+    public const string ERR__RETRIEVING_RESPONSE = "MSSError_6";
+    public const string ERR__INVALID_RESPONSE_STATUS = "MSSError_7";
+    public const string ERR__EXECUTING_METHOD = "MSSError_8";
+    public const string ERR__IMPORT_INCORRECT_DATA_FORMAT = "MSSError_9";
+
+    static ErrorCodes()
+    {
+      ErrorCodes.ErrorMessage[(object) "MSSError_1"] = (object) "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+      ErrorCodes.ErrorMessage[(object) "MSSError_2"] = (object) "MSS_Error_Message_Insert_Only_Children_Problem";
+      ErrorCodes.ErrorMessage[(object) "MSSError_3"] = (object) "An Error has Occurred. Please try synchronization later.";
+      ErrorCodes.ErrorMessage[(object) "MSSError_4"] = (object) "Failed to create channel";
+      ErrorCodes.ErrorMessage[(object) "MSSError_5"] = (object) "The parameter '{0}' could not be found in the database.";
+      ErrorCodes.ErrorMessage[(object) "MSSError_6"] = (object) "Error retrieving response. Check inner details for more info.";
+      ErrorCodes.ErrorMessage[(object) "MSSError_7"] = (object) "Error retrieving response. Check inner details for more info.";
+      ErrorCodes.ErrorMessage[(object) "MSSError_8"] = (object) "Error retrieving response. Check inned details for more info.";
+      ErrorCodes.ErrorMessage[(object) "MSSError_9"] = (object) "The file you tried to import has an incorrect data format. Please use another file.";
+    }
+
+    public static string GetErrorMessage(string errorCode)
+    {
+      return ErrorCodes.ErrorMessage[(object) errorCode] as string;
+    }
+
+    public static BaseApplicationException GetException(string errorCode)
+    {
+      return ErrorCodes.GetException(errorCode, (Exception) null);
+    }
+
+    public static BaseApplicationException GetException(string errorCode, Exception inner)
+    {
+      return new BaseApplicationException(errorCode, new object[2]
+      {
+        (object) ErrorCodes.GetErrorMessage(errorCode),
+        (object) inner
+      });
+    }
+  }
+}
+
+
+--- MessageCodes.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Errors.MessageCodes
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Utils.Utils;
+
+#nullable disable
+namespace MSS.Business.Errors
+{
+  public enum MessageCodes
+  {
+    [StringEnum("MSS_MessageCodes_SuccessOperation")] Success_Operation,
+    [StringEnum("MSS_MessageCodes_SuccessSave")] Success_Save,
+    [StringEnum("MSS_Client_OperationCancelledMessage")] OperationCancelled,
+    [StringEnum("MSS_Client_ValidationError")] ValidationError,
+    [StringEnum("MSS_MessageCodes_UserDuplicate")] User_Duplicate,
+    [StringEnum("MSS_MessageCodes_Success_Remove_Structure")] Success_Remove_Structure,
+    [StringEnum("MSS_MessageCodes_Success_Delete_Structure")] Success_Delete_Structure,
+    [StringEnum("MSS_Error_Message_Invalid_Page_Size")] PageSize_Not_A_Number,
+    [StringEnum("MSS_Error_Message_Invalid_Batch_Size")] BatchSize_Not_A_Number,
+    [StringEnum("MSS_MessageCodes_Refresh_Successfully")] Refresh_Successfully,
+    [StringEnum("MSS_MessageCodes_Server_Not_Available")] Server_Not_Available,
+    [StringEnum("MSS_Error_Message_Server_Not_Found")] Server_Not_Found,
+    [StringEnum("MSS_Error_Message_Invalid_IP")] Invalid_IP,
+    [StringEnum("MSS_Success_Message_Test_Config")] Success_Assign_Test_Config,
+    [StringEnum("MSS_MessageCodes_SuccessDownload")] Success_Download,
+    [StringEnum("MSS_MessageCodes_SuccessUpdate")] Success_Update,
+    [StringEnum("MSS_MessageCodes_SuccessSend")] Success_Send,
+    [StringEnum("MSS_Client_Structures_Search")] No_Item_found,
+    [StringEnum("MSS_MessageCodes_Error_Print_Size")] Error_Print_Width,
+    [StringEnum("MSS_MessageCodes_Error_Print_Canceled")] Error_Print_Canceled,
+    [StringEnum("MSS_Error_Title")] Error,
+    [StringEnum("MSS_Warning_Title")] Warning,
+    [StringEnum("MSS_ExportOrder_Error_Title")] Error_ExportOrder,
+    [StringEnum("MSS_ImportOrder_Error_Title")] Error_ImportOrder,
+    [StringEnum("MSS_ExportOrder_Error_Message_LockedStructure")] Error_LockedStructure,
+    [StringEnum("MSS_ExportOrder_Error_Message_LockedOrder")] Error_LockedOrder,
+    [StringEnum("MSS_ExportOrder_Error_Message_FixedStructure")] Error_ExportNonFixedStructure,
+    [StringEnum("MSS_ExportOrder_Error_Message_IncompleteStructure")] Error_ExportReadingOrder_IncompleteStructure,
+    [StringEnum("MSS_ExportOrder_Error_Message")] Error_Export_NoExportableMeter,
+    [StringEnum("MSS_ExportOrder_Error_Message_TenantWithoutValidMeters")] Error_Export_TenantNoExportableMeters,
+    [StringEnum("MSS_ExportOrder_Error_Message_MissingMeterMandatoryData")] Error_Export_MeterMissingMandatoryData,
+    [StringEnum("MSS_Error_Order_TenantsNotUnique_Message")] Error_Order_TenantsNotUnique_Message,
+    [StringEnum("MSS_Error_Order_MetersNotUnique_Message")] Error_Order_MetersNotUnique_Message,
+    [StringEnum("MSS_Order_Warning_Title")] Warning_UpdateDueDateStructureValue_Title,
+    [StringEnum("MSS_Order_UpdateDueDateStructureValue_Message")] Warning_UpdateDueDateStructureValue_Message,
+    [StringEnum("MSS_Error_Incorrect_Format")] Error_Incorrect_Format,
+    [StringEnum("MSS_DeleteStructure_Warning_Title")] Warning_DeleteStructure_Title,
+    [StringEnum("MSS_DeleteFixedStructure_Warning_Message")] Warning_DeleteFixedStructure,
+    [StringEnum("MSS_DeleteLogicalStructure_Warning_Message")] Warning_DeleteLogicalStructure,
+    [StringEnum("MSS_DeleteStructure_Warning_Message")] Warning_DeleteStructure_Message,
+    [StringEnum("MSS_DeletePhysicalNodeInReadingOrder_Warning_Message")] Warning_DeletePhysicalNodeInReadingOrder_Message,
+    [StringEnum("MSS_Minoconnect_AccessError")] Error_Minoconnect_Access,
+    [StringEnum("ERR_FAILED_TO_SAS_IMPORT")] Error_SAS_Import,
+    [StringEnum("MSS_Error_MigrationFailed")] Error_MigrationFailed,
+    [StringEnum("Error_ImportRadioMeters_MediumFormat")] Error_ImportRadioMeters_MediumFormat,
+    [StringEnum("Error_ImportRadioMeters_ReadingEnabledFormat")] Error_ImportRadioMeters_ReadingEnabledFormat,
+  }
+}
+
+
+--- MessageHandler.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Errors.MessageHandler
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Utils.Utils;
+using Newtonsoft.Json;
+using NLog;
+using System;
+
+#nullable disable
+namespace MSS.Business.Errors
+{
+  public static class MessageHandler
+  {
+    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+    public static string GetMessage(MessageCodes errorCode, params object[] values)
+    {
+      return string.Format(errorCode.GetStringValue(), values);
+    }
+
+    public static string LogException(Exception ex, MessageCodes messageCode)
+    {
+      string message = string.Format("Error message: {0} Error code: {1}. Exception is :'{2}'. Stack trace: {3}", (object) ex.Message, (object) messageCode, (object) ex.GetBaseException().GetType().ToString(), (object) ex.StackTrace);
+      MessageHandler.Logger.Log(NLog.LogLevel.Error, message);
+      return message;
+    }
+
+    public static string LogException(Exception ex)
+    {
+      if (ex == null)
+        return string.Empty;
+      string message = string.Format("Error occured. Exception is :'{0}'. Message: {1} Stack trace: {2}", (object) ex.GetBaseException().GetType().ToString(), (object) ex.GetBaseException().Message, (object) ex.GetBaseException().StackTrace);
+      MessageHandler.Logger.Log(NLog.LogLevel.Error, message);
+      return message;
+    }
+
+    public static void LogDebug(string message, object objectToLog = null)
+    {
+      MessageHandler.Logger.Log(NLog.LogLevel.Debug, message);
+      if (objectToLog == null)
+        return;
+      MessageHandler.Logger.Debug(objectToLog.ToJson());
+    }
+
+    public static void LogInfo(string message) => MessageHandler.Logger.Log(NLog.LogLevel.Info, message);
+
+    public static void LogError(MessageCodes messageCode)
+    {
+      MessageHandler.Logger.Log(NLog.LogLevel.Error, "Error code: " + (object) messageCode);
+    }
+
+    public static void LogException(string messageCode)
+    {
+      MessageHandler.Logger.Log(NLog.LogLevel.Error, "Error code: " + messageCode);
+    }
+
+    public static void LogGMMExceptionMessage(string message)
+    {
+      MessageHandler.Logger.Log(NLog.LogLevel.Error, "GMM error: " + message);
+    }
+
+    public static string ToJson(this object value)
+    {
+      JsonSerializerSettings settings = new JsonSerializerSettings()
+      {
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        NullValueHandling = NullValueHandling.Ignore
+      };
+      return JsonConvert.SerializeObject(value, Formatting.Indented, settings);
+    }
+  }
+}
+
+
+--- UnsupportedFileTypeException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Errors.UnsupportedFileTypeException
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+
+#nullable disable
+namespace MSS.Business.Errors
+{
+  [Serializable]
+  public class UnsupportedFileTypeException(string message) : Exception(message)
+  {
+  }
+}
+

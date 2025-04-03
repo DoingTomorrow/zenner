@@ -1,0 +1,88 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: CommunicationPort.UserInterface.BluetoothLEDeviceDisplay
+// Assembly: CommunicationPort, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 4F7EB5DB-4517-47DC-B5F2-757F0B03AE01
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommunicationPort.dll
+
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Media.Imaging;
+using Windows.Devices.Enumeration;
+
+#nullable disable
+namespace CommunicationPort.UserInterface
+{
+  public class BluetoothLEDeviceDisplay : INotifyPropertyChanged
+  {
+    public BluetoothLEDeviceDisplay(DeviceInformation deviceInfoIn)
+    {
+      this.DeviceInformation = deviceInfoIn;
+      this.UpdateGlyphBitmapImage();
+    }
+
+    public DeviceInformation DeviceInformation { get; private set; }
+
+    public string Id => this.DeviceInformation.Id;
+
+    public string Name => this.DeviceInformation.Name;
+
+    public bool IsPaired => this.DeviceInformation.Pairing.IsPaired;
+
+    public bool IsConnected
+    {
+      get
+      {
+        bool? property = (bool?) this.DeviceInformation.Properties["System.Devices.Aep.IsConnected"];
+        bool flag = true;
+        return property.GetValueOrDefault() == flag & property.HasValue;
+      }
+    }
+
+    public bool IsConnectable
+    {
+      get
+      {
+        bool? property = (bool?) this.DeviceInformation.Properties["System.Devices.Aep.Bluetooth.Le.IsConnectable"];
+        bool flag = true;
+        return property.GetValueOrDefault() == flag & property.HasValue;
+      }
+    }
+
+    public IReadOnlyDictionary<string, object> Properties => this.DeviceInformation.Properties;
+
+    public BitmapImage GlyphBitmapImage { get; private set; }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    public void Update(DeviceInformationUpdate deviceInfoUpdate)
+    {
+      this.DeviceInformation.Update(deviceInfoUpdate);
+      this.OnPropertyChanged("Id");
+      this.OnPropertyChanged("Name");
+      this.OnPropertyChanged("DeviceInformation");
+      this.OnPropertyChanged("IsPaired");
+      this.OnPropertyChanged("IsConnected");
+      this.OnPropertyChanged("Properties");
+      this.OnPropertyChanged("IsConnectable");
+      this.UpdateGlyphBitmapImage();
+    }
+
+    private async void UpdateGlyphBitmapImage()
+    {
+      DeviceThumbnail deviceThumbnail = await this.DeviceInformation.GetGlyphThumbnailAsync();
+      BitmapImage glyphBitmapImage = new BitmapImage();
+      this.GlyphBitmapImage = glyphBitmapImage;
+      this.OnPropertyChanged("GlyphBitmapImage");
+      deviceThumbnail = (DeviceThumbnail) null;
+      glyphBitmapImage = (BitmapImage) null;
+    }
+
+    protected void OnPropertyChanged(string name)
+    {
+      PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+      if (propertyChanged == null)
+        return;
+      propertyChanged((object) this, new PropertyChangedEventArgs(name));
+    }
+  }
+}

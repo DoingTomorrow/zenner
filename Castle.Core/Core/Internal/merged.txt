@@ -1,0 +1,544 @@
+
+--- AttributesUtil.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Internal.AttributesUtil
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.Core.Internal
+{
+  public static class AttributesUtil
+  {
+    public static T GetAttribute<T>(this ICustomAttributeProvider member) where T : class
+    {
+      return ((IEnumerable<T>) member.GetAttributes<T>()).FirstOrDefault<T>();
+    }
+
+    public static T[] GetAttributes<T>(this ICustomAttributeProvider member) where T : class
+    {
+      return typeof (T) != typeof (object) ? (T[]) member.GetCustomAttributes(typeof (T), false) : (T[]) member.GetCustomAttributes(false);
+    }
+
+    public static T GetTypeAttribute<T>(this Type type) where T : class
+    {
+      T typeAttribute = type.GetAttribute<T>();
+      if ((object) typeAttribute == null)
+      {
+        foreach (Type type1 in type.GetInterfaces())
+        {
+          typeAttribute = type1.GetTypeAttribute<T>();
+          if ((object) typeAttribute != null)
+            break;
+        }
+      }
+      return typeAttribute;
+    }
+
+    public static T[] GetTypeAttributes<T>(Type type) where T : class
+    {
+      T[] typeAttributes = type.GetAttributes<T>();
+      if (typeAttributes.Length == 0)
+      {
+        foreach (Type type1 in type.GetInterfaces())
+        {
+          typeAttributes = AttributesUtil.GetTypeAttributes<T>(type1);
+          if (typeAttributes.Length > 0)
+            break;
+        }
+      }
+      return typeAttributes;
+    }
+
+    public static Type GetTypeConverter(MemberInfo member)
+    {
+      TypeConverterAttribute attribute = member.GetAttribute<TypeConverterAttribute>();
+      return attribute != null ? Type.GetType(attribute.ConverterTypeName) : (Type) null;
+    }
+
+    public static bool HasAttribute<T>(this ICustomAttributeProvider member) where T : class
+    {
+      return (object) ((IEnumerable<T>) member.GetAttributes<T>()).FirstOrDefault<T>() != null;
+    }
+  }
+}
+
+
+--- ILockHolder.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Internal.ILockHolder
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core.Internal
+{
+  public interface ILockHolder : IDisposable
+  {
+    bool LockAcquired { get; }
+  }
+}
+
+
+--- InternalsVisible.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Internal.InternalsVisible
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.Core.Internal
+{
+  public class InternalsVisible
+  {
+    public const string ToCastleCore = "Castle.Core, PublicKey=002400000480000094000000060200000024000052534131000400000100010077F5E87030DADCCCE6902C6ADAB7A987BD69CB5819991531F560785EACFC89B6FCDDF6BB2A00743A7194E454C0273447FC6EEC36474BA8E5A3823147D214298E4F9A631B1AFEE1A51FFEAE4672D498F14B000E3D321453CDD8AC064DE7E1CF4D222B7E81F54D4FD46725370D702A05B48738CC29D09228F1AA722AE1A9CA02FB";
+    public const string ToDynamicProxyGenAssembly2 = "DynamicProxyGenAssembly2, PublicKey=0024000004800000940000000602000000240000525341310004000001000100c547cac37abd99c8db225ef2f6c8a3602f3b3606cc9891605d02baa56104f4cfc0734aa39b93bf7852f7d9266654753cc297e7d2edfe0bac1cdcf9f717241550e0a7b191195b7667bb4f64bcb8e2121380fd1d9d46ad2d92d2d15605093924cceaf74c4861eff62abf69b9291ed0a340e113be11e6a7d3113e92484cf7045cc7";
+  }
+}
+
+
+--- IUpgradeableLockHolder.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Internal.IUpgradeableLockHolder
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core.Internal
+{
+  public interface IUpgradeableLockHolder : ILockHolder, IDisposable
+  {
+    ILockHolder Upgrade();
+
+    ILockHolder Upgrade(bool waitForLock);
+  }
+}
+
+
+--- Lock.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Internal.Lock
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.Core.Internal
+{
+  public abstract class Lock
+  {
+    public abstract IUpgradeableLockHolder ForReadingUpgradeable();
+
+    public abstract ILockHolder ForReading();
+
+    public abstract ILockHolder ForWriting();
+
+    public abstract IUpgradeableLockHolder ForReadingUpgradeable(bool waitForLock);
+
+    public abstract ILockHolder ForReading(bool waitForLock);
+
+    public abstract ILockHolder ForWriting(bool waitForLock);
+
+    public static Lock Create() => (Lock) new SlimReadWriteLock();
+  }
+}
+
+
+--- MonitorLockHolder.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Internal.MonitorLockHolder
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Threading;
+
+#nullable disable
+namespace Castle.Core.Internal
+{
+  internal class MonitorLockHolder : ILockHolder, IDisposable
+  {
+    private readonly object locker;
+    private bool lockAcquired;
+
+    public MonitorLockHolder(object locker, bool waitForLock)
+    {
+      this.locker = locker;
+      if (waitForLock)
+      {
+        Monitor.Enter(locker);
+        this.lockAcquired = true;
+      }
+      else
+        this.lockAcquired = Monitor.TryEnter(locker, 0);
+    }
+
+    public void Dispose()
+    {
+      if (!this.LockAcquired)
+        return;
+      Monitor.Exit(this.locker);
+      this.lockAcquired = false;
+    }
+
+    public bool LockAcquired => this.lockAcquired;
+  }
+}
+
+
+--- MonitorUpgradeableLockHolder.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Internal.MonitorUpgradeableLockHolder
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Threading;
+
+#nullable disable
+namespace Castle.Core.Internal
+{
+  internal class MonitorUpgradeableLockHolder : IUpgradeableLockHolder, ILockHolder, IDisposable
+  {
+    private readonly object locker;
+    private bool lockAcquired;
+
+    public MonitorUpgradeableLockHolder(object locker, bool waitForLock)
+    {
+      this.locker = locker;
+      if (waitForLock)
+      {
+        Monitor.Enter(locker);
+        this.lockAcquired = true;
+      }
+      else
+        this.lockAcquired = Monitor.TryEnter(locker, 0);
+    }
+
+    public void Dispose()
+    {
+      if (!this.LockAcquired)
+        return;
+      Monitor.Exit(this.locker);
+      this.lockAcquired = false;
+    }
+
+    public ILockHolder Upgrade() => NoOpLock.Lock;
+
+    public ILockHolder Upgrade(bool waitForLock) => NoOpLock.Lock;
+
+    public bool LockAcquired => this.lockAcquired;
+  }
+}
+
+
+--- NoOpLock.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Internal.NoOpLock
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core.Internal
+{
+  internal class NoOpLock : ILockHolder, IDisposable
+  {
+    public static readonly ILockHolder Lock = (ILockHolder) new NoOpLock();
+
+    public void Dispose()
+    {
+    }
+
+    public bool LockAcquired => true;
+  }
+}
+
+
+--- NoOpUpgradeableLock.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Internal.NoOpUpgradeableLock
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core.Internal
+{
+  internal class NoOpUpgradeableLock : IUpgradeableLockHolder, ILockHolder, IDisposable
+  {
+    public static readonly IUpgradeableLockHolder Lock = (IUpgradeableLockHolder) new NoOpUpgradeableLock();
+
+    public void Dispose()
+    {
+    }
+
+    public bool LockAcquired => true;
+
+    public ILockHolder Upgrade() => NoOpLock.Lock;
+
+    public ILockHolder Upgrade(bool waitForLock) => NoOpLock.Lock;
+  }
+}
+
+
+--- PermissionUtil.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Internal.PermissionUtil
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Security;
+
+#nullable disable
+namespace Castle.Core.Internal
+{
+  public static class PermissionUtil
+  {
+    [SecuritySafeCritical]
+    public static bool IsGranted(this IPermission permission)
+    {
+      return SecurityManager.IsGranted(permission);
+    }
+  }
+}
+
+
+--- SlimReadLockHolder.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Internal.SlimReadLockHolder
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Threading;
+
+#nullable disable
+namespace Castle.Core.Internal
+{
+  internal class SlimReadLockHolder : ILockHolder, IDisposable
+  {
+    private readonly ReaderWriterLockSlim locker;
+    private bool lockAcquired;
+
+    public SlimReadLockHolder(ReaderWriterLockSlim locker, bool waitForLock)
+    {
+      this.locker = locker;
+      if (waitForLock)
+      {
+        locker.EnterReadLock();
+        this.lockAcquired = true;
+      }
+      else
+        this.lockAcquired = locker.TryEnterReadLock(0);
+    }
+
+    public void Dispose()
+    {
+      if (!this.LockAcquired)
+        return;
+      this.locker.ExitReadLock();
+      this.lockAcquired = false;
+    }
+
+    public bool LockAcquired => this.lockAcquired;
+  }
+}
+
+
+--- SlimReadWriteLock.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Internal.SlimReadWriteLock
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Threading;
+
+#nullable disable
+namespace Castle.Core.Internal
+{
+  internal class SlimReadWriteLock : Lock
+  {
+    private readonly ReaderWriterLockSlim locker = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+
+    public override IUpgradeableLockHolder ForReadingUpgradeable()
+    {
+      return this.ForReadingUpgradeable(true);
+    }
+
+    public override ILockHolder ForReading() => this.ForReading(true);
+
+    public override ILockHolder ForWriting() => this.ForWriting(true);
+
+    public override IUpgradeableLockHolder ForReadingUpgradeable(bool waitForLock)
+    {
+      return (IUpgradeableLockHolder) new SlimUpgradeableReadLockHolder(this.locker, waitForLock, this.locker.IsUpgradeableReadLockHeld || this.locker.IsWriteLockHeld);
+    }
+
+    public override ILockHolder ForReading(bool waitForLock)
+    {
+      return this.locker.IsReadLockHeld || this.locker.IsUpgradeableReadLockHeld || this.locker.IsWriteLockHeld ? NoOpLock.Lock : (ILockHolder) new SlimReadLockHolder(this.locker, waitForLock);
+    }
+
+    public override ILockHolder ForWriting(bool waitForLock)
+    {
+      return this.locker.IsWriteLockHeld ? NoOpLock.Lock : (ILockHolder) new SlimWriteLockHolder(this.locker, waitForLock);
+    }
+
+    public bool IsReadLockHeld => this.locker.IsReadLockHeld;
+
+    public bool IsUpgradeableReadLockHeld => this.locker.IsUpgradeableReadLockHeld;
+
+    public bool IsWriteLockHeld => this.locker.IsWriteLockHeld;
+  }
+}
+
+
+--- SlimUpgradeableReadLockHolder.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Internal.SlimUpgradeableReadLockHolder
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Threading;
+
+#nullable disable
+namespace Castle.Core.Internal
+{
+  internal class SlimUpgradeableReadLockHolder : IUpgradeableLockHolder, ILockHolder, IDisposable
+  {
+    private readonly ReaderWriterLockSlim locker;
+    private bool lockAcquired;
+    private SlimWriteLockHolder writerLock;
+    private bool wasLockAlreadyHeld;
+
+    public SlimUpgradeableReadLockHolder(
+      ReaderWriterLockSlim locker,
+      bool waitForLock,
+      bool wasLockAlreadyHelf)
+    {
+      this.locker = locker;
+      if (wasLockAlreadyHelf)
+      {
+        this.lockAcquired = true;
+        this.wasLockAlreadyHeld = true;
+      }
+      else if (waitForLock)
+      {
+        locker.EnterUpgradeableReadLock();
+        this.lockAcquired = true;
+      }
+      else
+        this.lockAcquired = locker.TryEnterUpgradeableReadLock(0);
+    }
+
+    public void Dispose()
+    {
+      if (this.writerLock != null && this.writerLock.LockAcquired)
+      {
+        this.writerLock.Dispose();
+        this.writerLock = (SlimWriteLockHolder) null;
+      }
+      if (!this.LockAcquired)
+        return;
+      if (!this.wasLockAlreadyHeld)
+        this.locker.ExitUpgradeableReadLock();
+      this.lockAcquired = false;
+    }
+
+    public ILockHolder Upgrade() => this.Upgrade(true);
+
+    public ILockHolder Upgrade(bool waitForLock)
+    {
+      if (this.locker.IsWriteLockHeld)
+        return NoOpLock.Lock;
+      this.writerLock = new SlimWriteLockHolder(this.locker, waitForLock);
+      return (ILockHolder) this.writerLock;
+    }
+
+    public bool LockAcquired => this.lockAcquired;
+  }
+}
+
+
+--- SlimWriteLockHolder.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Internal.SlimWriteLockHolder
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Threading;
+
+#nullable disable
+namespace Castle.Core.Internal
+{
+  internal class SlimWriteLockHolder : ILockHolder, IDisposable
+  {
+    private readonly ReaderWriterLockSlim locker;
+    private bool lockAcquired;
+
+    public SlimWriteLockHolder(ReaderWriterLockSlim locker, bool waitForLock)
+    {
+      this.locker = locker;
+      if (waitForLock)
+      {
+        locker.EnterWriteLock();
+        this.lockAcquired = true;
+      }
+      else
+        this.lockAcquired = locker.TryEnterWriteLock(0);
+    }
+
+    public void Dispose()
+    {
+      if (!this.LockAcquired)
+        return;
+      this.locker.ExitWriteLock();
+      this.lockAcquired = false;
+    }
+
+    public bool LockAcquired => this.lockAcquired;
+  }
+}
+

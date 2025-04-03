@@ -1,0 +1,258 @@
+
+--- ConfiguratorManagerWrapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMMWrapper.ConfiguratorManagerWrapper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System.Collections.Generic;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.GMMWrapper
+{
+  public class ConfiguratorManagerWrapper : IConfiguratorManager
+  {
+    public int ReadDevice(ConnectionAdjuster connectionAdjuster)
+    {
+      return GmmInterface.ConfiguratorManager.ReadDevice(connectionAdjuster);
+    }
+
+    public SortedList<OverrideID, ConfigurationParameter> GetConfigurationParameters(int channel)
+    {
+      return GmmInterface.ConfiguratorManager.GetConfigurationParameters(channel);
+    }
+
+    public void CloseConnection() => GmmInterface.ConfiguratorManager.CloseConnection();
+
+    public void SetConfigurationParameters(
+      SortedList<OverrideID, ConfigurationParameter> parameter)
+    {
+      GmmInterface.ConfiguratorManager.SetConfigurationParameters(parameter);
+    }
+
+    public void SetConfigurationParameters(
+      SortedList<OverrideID, ConfigurationParameter> parameter,
+      int channel)
+    {
+      GmmInterface.ConfiguratorManager.SetConfigurationParameters(parameter, channel);
+    }
+
+    public void WriteDevice() => GmmInterface.ConfiguratorManager.WriteDevice();
+  }
+}
+
+
+--- DeviceManagerWrapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMMWrapper.DeviceManagerWrapper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System.Collections.Generic;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS.Business.Modules.GMMWrapper
+{
+  public class DeviceManagerWrapper : IDeviceManager
+  {
+    public const string FilterDefaultReceiverRadio3 = "DefaultReceiverRadio3";
+    public const string FilterDefaultScanner = "DefaultScanner";
+
+    public DeviceManagerWrapper()
+    {
+    }
+
+    public DeviceManagerWrapper(string filter) => this.SetFilter(filter);
+
+    public string SetFilter(string newValue)
+    {
+      string selectedFilter = GmmInterface.DeviceManager.SelectedFilter;
+      GmmInterface.DeviceManager.SelectedFilter = newValue;
+      return selectedFilter;
+    }
+
+    public string ResetFilter()
+    {
+      string selectedFilter = GmmInterface.DeviceManager.SelectedFilter;
+      GmmInterface.DeviceManager.SelectedFilter = (string) null;
+      return selectedFilter;
+    }
+
+    public ConnectionProfile GetConnectionProfile(int connectionProfileId)
+    {
+      return GmmInterface.DeviceManager.GetConnectionProfile(connectionProfileId);
+    }
+
+    public List<ProfileType> GetProfileTypes(
+      List<Meter> meters,
+      EquipmentModel equipmentModel,
+      ProfileTypeTags? tags)
+    {
+      return GmmInterface.DeviceManager.GetProfileTypes(meters, equipmentModel, tags);
+    }
+
+    public List<EquipmentModel> GetEquipmentModels()
+    {
+      return GmmInterface.DeviceManager.GetEquipmentModels();
+    }
+
+    public List<DeviceModel> GetDeviceModels() => GmmInterface.DeviceManager.GetDeviceModels();
+
+    public DeviceModel GetDeviceModel(string name)
+    {
+      return GmmInterface.DeviceManager.GetDeviceModel(name);
+    }
+
+    public ConnectionAdjuster GetConnectionAdjuster(
+      DeviceModel deviceModel,
+      EquipmentModel equipmentModel,
+      ProfileType profileType)
+    {
+      return GmmInterface.DeviceManager.GetConnectionAdjuster(deviceModel, equipmentModel, profileType);
+    }
+
+    public List<ProfileType> GetProfileTypes(DeviceModel deviceModel, EquipmentModel equipmentModel)
+    {
+      return GmmInterface.DeviceManager.GetProfileTypes(deviceModel, equipmentModel);
+    }
+
+    public List<DeviceModel> GetDeviceModels(DeviceModelTags tags)
+    {
+      return GmmInterface.DeviceManager.GetDeviceModels(tags);
+    }
+  }
+}
+
+
+--- HandlerManagerWrapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMMWrapper.HandlerManagerWrapper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS.Business.Modules.GMMWrapper
+{
+  public class HandlerManagerWrapper : IHandlerManager
+  {
+    public T CreateInstance<T>(ConnectionProfile profile)
+    {
+      return GmmInterface.HandlerManager.CreateInstance<T>(profile);
+    }
+  }
+}
+
+
+--- IConfiguratorManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMMWrapper.IConfiguratorManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System.Collections.Generic;
+using ZENNER.CommonLibrary.Entities;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.GMMWrapper
+{
+  public interface IConfiguratorManager
+  {
+    int ReadDevice(ConnectionAdjuster connectionAdjuster);
+
+    SortedList<OverrideID, ConfigurationParameter> GetConfigurationParameters(int channel);
+
+    void SetConfigurationParameters(
+      SortedList<OverrideID, ConfigurationParameter> parameter);
+
+    void SetConfigurationParameters(
+      SortedList<OverrideID, ConfigurationParameter> parameter,
+      int channel);
+
+    void CloseConnection();
+
+    void WriteDevice();
+  }
+}
+
+
+--- IDeviceManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMMWrapper.IDeviceManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System.Collections.Generic;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS.Business.Modules.GMMWrapper
+{
+  public interface IDeviceManager
+  {
+    string SetFilter(string newValue);
+
+    string ResetFilter();
+
+    ConnectionProfile GetConnectionProfile(int connectionProfileId);
+
+    List<ProfileType> GetProfileTypes(
+      List<Meter> meters,
+      EquipmentModel equipmentModel,
+      ProfileTypeTags? tags);
+
+    List<EquipmentModel> GetEquipmentModels();
+
+    List<DeviceModel> GetDeviceModels();
+
+    DeviceModel GetDeviceModel(string name);
+
+    ConnectionAdjuster GetConnectionAdjuster(
+      DeviceModel deviceModel,
+      EquipmentModel equipmentModel,
+      ProfileType profileType);
+
+    List<ProfileType> GetProfileTypes(DeviceModel deviceModel, EquipmentModel equipmentModel);
+
+    List<DeviceModel> GetDeviceModels(DeviceModelTags tags);
+  }
+}
+
+
+--- IHandlerManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMMWrapper.IHandlerManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS.Business.Modules.GMMWrapper
+{
+  public interface IHandlerManager
+  {
+    T CreateInstance<T>(ConnectionProfile profile);
+  }
+}
+

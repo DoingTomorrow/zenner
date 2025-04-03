@@ -1,0 +1,186 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: ReadingValuesScope.t_ReadingValues
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ReadingValuesScope
+{
+  public class t_ReadingValues : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private DateTime? _Date;
+    private double? _Value;
+    private long? _ValueId;
+    private Guid? _MeterId;
+    private string _MeterSerialNumber;
+    private DateTime? _CreatedOn;
+    private Guid? _UnitId;
+    private long? _StorageInterval;
+    private long? _PhysicalQuantity;
+    private long? _MeterType;
+    private long? _CalculationStart;
+    private long? _Creation;
+    private long? _Calculation;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    public DateTime? Date
+    {
+      get => this._Date;
+      set
+      {
+        this.OnPropertyChanging(nameof (Date));
+        this._Date = value;
+        this.OnPropertyChanged(nameof (Date));
+      }
+    }
+
+    public double? Value
+    {
+      get => this._Value;
+      set
+      {
+        this.OnPropertyChanging(nameof (Value));
+        this._Value = value;
+        this.OnPropertyChanged(nameof (Value));
+      }
+    }
+
+    public long? ValueId
+    {
+      get => this._ValueId;
+      set
+      {
+        this.OnPropertyChanging(nameof (ValueId));
+        this._ValueId = value;
+        this.OnPropertyChanged(nameof (ValueId));
+      }
+    }
+
+    public Guid? MeterId
+    {
+      get => this._MeterId;
+      set
+      {
+        this.OnPropertyChanging(nameof (MeterId));
+        this._MeterId = value;
+        this.OnPropertyChanged(nameof (MeterId));
+      }
+    }
+
+    [MaxLength(255)]
+    public string MeterSerialNumber
+    {
+      get => this._MeterSerialNumber;
+      set
+      {
+        this.OnPropertyChanging(nameof (MeterSerialNumber));
+        this._MeterSerialNumber = value;
+        this.OnPropertyChanged(nameof (MeterSerialNumber));
+      }
+    }
+
+    public DateTime? CreatedOn
+    {
+      get => this._CreatedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (CreatedOn));
+        this._CreatedOn = value;
+        this.OnPropertyChanged(nameof (CreatedOn));
+      }
+    }
+
+    public Guid? UnitId
+    {
+      get => this._UnitId;
+      set
+      {
+        this.OnPropertyChanging(nameof (UnitId));
+        this._UnitId = value;
+        this.OnPropertyChanged(nameof (UnitId));
+      }
+    }
+
+    public long? StorageInterval
+    {
+      get => this._StorageInterval;
+      set
+      {
+        this.OnPropertyChanging(nameof (StorageInterval));
+        this._StorageInterval = value;
+        this.OnPropertyChanged(nameof (StorageInterval));
+      }
+    }
+
+    public long? PhysicalQuantity
+    {
+      get => this._PhysicalQuantity;
+      set
+      {
+        this.OnPropertyChanging(nameof (PhysicalQuantity));
+        this._PhysicalQuantity = value;
+        this.OnPropertyChanged(nameof (PhysicalQuantity));
+      }
+    }
+
+    public long? MeterType
+    {
+      get => this._MeterType;
+      set
+      {
+        this.OnPropertyChanging(nameof (MeterType));
+        this._MeterType = value;
+        this.OnPropertyChanged(nameof (MeterType));
+      }
+    }
+
+    public long? CalculationStart
+    {
+      get => this._CalculationStart;
+      set
+      {
+        this.OnPropertyChanging(nameof (CalculationStart));
+        this._CalculationStart = value;
+        this.OnPropertyChanged(nameof (CalculationStart));
+      }
+    }
+
+    public long? Creation
+    {
+      get => this._Creation;
+      set
+      {
+        this.OnPropertyChanging(nameof (Creation));
+        this._Creation = value;
+        this.OnPropertyChanged(nameof (Creation));
+      }
+    }
+
+    public long? Calculation
+    {
+      get => this._Calculation;
+      set
+      {
+        this.OnPropertyChanging(nameof (Calculation));
+        this._Calculation = value;
+        this.OnPropertyChanged(nameof (Calculation));
+      }
+    }
+  }
+}

@@ -1,0 +1,1859 @@
+
+--- AMMediaType.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.AMMediaType
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [ComVisible(false)]
+  [StructLayout(LayoutKind.Sequential)]
+  internal class AMMediaType : IDisposable
+  {
+    public Guid MajorType;
+    public Guid SubType;
+    [MarshalAs(UnmanagedType.Bool)]
+    public bool FixedSizeSamples = true;
+    [MarshalAs(UnmanagedType.Bool)]
+    public bool TemporalCompression;
+    public int SampleSize = 1;
+    public Guid FormatType;
+    public IntPtr unkPtr;
+    public int FormatSize;
+    public IntPtr FormatPtr;
+
+    ~AMMediaType() => this.Dispose(false);
+
+    public void Dispose()
+    {
+      this.Dispose(true);
+      GC.SuppressFinalize((object) this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (this.FormatSize != 0 && this.FormatPtr != IntPtr.Zero)
+      {
+        Marshal.FreeCoTaskMem(this.FormatPtr);
+        this.FormatSize = 0;
+      }
+      if (!(this.unkPtr != IntPtr.Zero))
+        return;
+      Marshal.Release(this.unkPtr);
+      this.unkPtr = IntPtr.Zero;
+    }
+  }
+}
+
+
+--- AnalogVideoStandard.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.AnalogVideoStandard
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [Flags]
+  [ComVisible(false)]
+  internal enum AnalogVideoStandard
+  {
+    None = 0,
+    NTSC_M = 1,
+    NTSC_M_J = 2,
+    NTSC_433 = 4,
+    PAL_B = 16, // 0x00000010
+    PAL_D = 32, // 0x00000020
+    PAL_G = 64, // 0x00000040
+    PAL_H = 128, // 0x00000080
+    PAL_I = 256, // 0x00000100
+    PAL_M = 512, // 0x00000200
+    PAL_N = 1024, // 0x00000400
+    PAL_60 = 2048, // 0x00000800
+    SECAM_B = 4096, // 0x00001000
+    SECAM_D = 8192, // 0x00002000
+    SECAM_G = 16384, // 0x00004000
+    SECAM_H = 32768, // 0x00008000
+    SECAM_K = 65536, // 0x00010000
+    SECAM_K1 = 131072, // 0x00020000
+    SECAM_L = 262144, // 0x00040000
+    SECAM_L1 = 524288, // 0x00080000
+    PAL_N_COMBO = 1048576, // 0x00100000
+  }
+}
+
+
+--- BitmapInfoHeader.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.BitmapInfoHeader
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [ComVisible(false)]
+  [StructLayout(LayoutKind.Sequential, Pack = 2)]
+  internal struct BitmapInfoHeader
+  {
+    public int Size;
+    public int Width;
+    public int Height;
+    public short Planes;
+    public short BitCount;
+    public int Compression;
+    public int ImageSize;
+    public int XPelsPerMeter;
+    public int YPelsPerMeter;
+    public int ColorsUsed;
+    public int ColorsImportant;
+  }
+}
+
+
+--- CAUUID.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.CAUUID
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [ComVisible(false)]
+  internal struct CAUUID
+  {
+    public int cElems;
+    public IntPtr pElems;
+
+    public Guid[] ToGuidArray()
+    {
+      Guid[] guidArray = new Guid[this.cElems];
+      for (int index = 0; index < this.cElems; ++index)
+      {
+        IntPtr ptr = new IntPtr(this.pElems.ToInt64() + (long) (index * Marshal.SizeOf(typeof (Guid))));
+        guidArray[index] = (Guid) Marshal.PtrToStructure(ptr, typeof (Guid));
+      }
+      return guidArray;
+    }
+  }
+}
+
+
+--- Clsid.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.Clsid
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [ComVisible(false)]
+  internal static class Clsid
+  {
+    public static readonly Guid SystemDeviceEnum = new Guid(1656642832, (short) 24811, (short) 4560, (byte) 189, (byte) 59, (byte) 0, (byte) 160, (byte) 201, (byte) 17, (byte) 206, (byte) 134);
+    public static readonly Guid FilterGraph = new Guid(3828804531U, (ushort) 21071, (ushort) 4558, (byte) 159, (byte) 83, (byte) 0, (byte) 32, (byte) 175, (byte) 11, (byte) 167, (byte) 112);
+    public static readonly Guid SampleGrabber = new Guid(3253993632U, (ushort) 16136, (ushort) 4563, (byte) 159, (byte) 11, (byte) 0, (byte) 96, (byte) 8, (byte) 3, (byte) 158, (byte) 55);
+    public static readonly Guid CaptureGraphBuilder2 = new Guid(3213342433U, (ushort) 35879, (ushort) 4560, (byte) 179, (byte) 240, (byte) 0, (byte) 170, (byte) 0, (byte) 55, (byte) 97, (byte) 197);
+    public static readonly Guid AsyncReader = new Guid(3828804533U, (ushort) 21071, (ushort) 4558, (byte) 159, (byte) 83, (byte) 0, (byte) 32, (byte) 175, (byte) 11, (byte) 167, (byte) 112);
+  }
+}
+
+
+--- DsEvCode.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.DsEvCode
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  internal enum DsEvCode
+  {
+    None = 0,
+    Complete = 1,
+    DeviceLost = 31, // 0x0000001F
+  }
+}
+
+
+--- FilterInfo.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.FilterInfo
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [ComVisible(false)]
+  [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
+  internal struct FilterInfo
+  {
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+    public string Name;
+    public IFilterGraph FilterGraph;
+  }
+}
+
+
+--- FilterState.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.FilterState
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  internal enum FilterState
+  {
+    State_Stopped,
+    State_Paused,
+    State_Running,
+  }
+}
+
+
+--- FindDirection.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.FindDirection
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [ComVisible(false)]
+  internal static class FindDirection
+  {
+    public static readonly Guid UpstreamOnly = new Guid(2893646816U, (ushort) 39139, (ushort) 4561, (byte) 179, (byte) 241, (byte) 0, (byte) 170, (byte) 0, (byte) 55, (byte) 97, (byte) 197);
+    public static readonly Guid DownstreamOnly = new Guid(2893646817U, (ushort) 39139, (ushort) 4561, (byte) 179, (byte) 241, (byte) 0, (byte) 170, (byte) 0, (byte) 55, (byte) 97, (byte) 197);
+  }
+}
+
+
+--- FormatType.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.FormatType
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [ComVisible(false)]
+  internal static class FormatType
+  {
+    public static readonly Guid VideoInfo = new Guid(89694080U, (ushort) 50006, (ushort) 4558, (byte) 191, (byte) 1, (byte) 0, (byte) 170, (byte) 0, (byte) 85, (byte) 89, (byte) 90);
+    public static readonly Guid VideoInfo2 = new Guid(4146755232U, (ushort) 60170, (ushort) 4560, (byte) 172, (byte) 228, (byte) 0, (byte) 0, (byte) 192, (byte) 204, (byte) 22, (byte) 186);
+  }
+}
+
+
+--- IAMCameraControl.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IAMCameraControl
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [Guid("C6E13370-30AC-11d0-A18C-00A0C9118956")]
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [ComImport]
+  internal interface IAMCameraControl
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetRange(
+      [In] CameraControlProperty Property,
+      out int pMin,
+      out int pMax,
+      out int pSteppingDelta,
+      out int pDefault,
+      out CameraControlFlags pCapsFlags);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Set([In] CameraControlProperty Property, [In] int lValue, [In] CameraControlFlags Flags);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Get([In] CameraControlProperty Property, out int lValue, out CameraControlFlags Flags);
+  }
+}
+
+
+--- IAMCrossbar.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IAMCrossbar
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Security;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [Guid("C6E13380-30AC-11D0-A18C-00A0C9118956")]
+  [SuppressUnmanagedCodeSecurity]
+  [ComImport]
+  internal interface IAMCrossbar
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_PinCounts(out int outputPinCount, out int inputPinCount);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int CanRoute([In] int outputPinIndex, [In] int inputPinIndex);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Route([In] int outputPinIndex, [In] int inputPinIndex);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_IsRoutedTo([In] int outputPinIndex, out int inputPinIndex);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_CrossbarPinInfo(
+      [MarshalAs(UnmanagedType.Bool), In] bool isInputPin,
+      [In] int pinIndex,
+      out int pinIndexRelated,
+      out PhysicalConnectorType physicalType);
+  }
+}
+
+
+--- IAMStreamConfig.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IAMStreamConfig
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [Guid("C6E13340-30AC-11d0-A18C-00A0C9118956")]
+  [ComImport]
+  internal interface IAMStreamConfig
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetFormat([MarshalAs(UnmanagedType.LPStruct), In] AMMediaType mediaType);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetFormat([MarshalAs(UnmanagedType.LPStruct)] out AMMediaType mediaType);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetNumberOfCapabilities(out int count, out int size);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetStreamCaps([In] int index, [MarshalAs(UnmanagedType.LPStruct)] out AMMediaType mediaType, [MarshalAs(UnmanagedType.LPStruct), In] VideoStreamConfigCaps streamConfigCaps);
+  }
+}
+
+
+--- IAMVideoControl.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IAMVideoControl
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Drawing;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [Guid("6A2E0670-28E4-11D0-A18c-00A0C9118956")]
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [ComImport]
+  internal interface IAMVideoControl
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetCaps([In] IPin pin, [MarshalAs(UnmanagedType.I4)] out VideoControlFlags flags);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetMode([In] IPin pin, [MarshalAs(UnmanagedType.I4), In] VideoControlFlags mode);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetMode([In] IPin pin, [MarshalAs(UnmanagedType.I4)] out VideoControlFlags mode);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetCurrentActualFrameRate([In] IPin pin, [MarshalAs(UnmanagedType.I8)] out long actualFrameRate);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetMaxAvailableFrameRate(
+      [In] IPin pin,
+      [In] int index,
+      [In] Size dimensions,
+      out long maxAvailableFrameRate);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetFrameRateList(
+      [In] IPin pin,
+      [In] int index,
+      [In] Size dimensions,
+      out int listSize,
+      out IntPtr frameRate);
+  }
+}
+
+
+--- IBaseFilter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IBaseFilter
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [Guid("56A86895-0AD4-11CE-B03A-0020AF0BA770")]
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [ComImport]
+  internal interface IBaseFilter
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetClassID(out Guid ClassID);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Stop();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Pause();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Run(long start);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetState(int milliSecsTimeout, out int filterState);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetSyncSource([In] IntPtr clock);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetSyncSource(out IntPtr clock);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int EnumPins(out IEnumPins enumPins);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int FindPin([MarshalAs(UnmanagedType.LPWStr), In] string id, out IPin pin);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int QueryFilterInfo(out FilterInfo filterInfo);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int JoinFilterGraph([In] IFilterGraph graph, [MarshalAs(UnmanagedType.LPWStr), In] string name);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int QueryVendorInfo([MarshalAs(UnmanagedType.LPWStr)] out string vendorInfo);
+  }
+}
+
+
+--- ICaptureGraphBuilder2.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.ICaptureGraphBuilder2
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [Guid("93E5A4E0-2D50-11d2-ABFA-00A0C9C6E38D")]
+  [ComImport]
+  internal interface ICaptureGraphBuilder2
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetFiltergraph([In] IGraphBuilder graphBuilder);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetFiltergraph(out IGraphBuilder graphBuilder);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetOutputFileName(
+      [MarshalAs(UnmanagedType.LPStruct), In] Guid type,
+      [MarshalAs(UnmanagedType.LPWStr), In] string fileName,
+      out IBaseFilter baseFilter,
+      out IntPtr fileSinkFilter);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int FindInterface(
+      [MarshalAs(UnmanagedType.LPStruct), In] Guid category,
+      [MarshalAs(UnmanagedType.LPStruct), In] Guid type,
+      [In] IBaseFilter baseFilter,
+      [MarshalAs(UnmanagedType.LPStruct), In] Guid interfaceID,
+      [MarshalAs(UnmanagedType.IUnknown)] out object retInterface);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int RenderStream(
+      [MarshalAs(UnmanagedType.LPStruct), In] Guid category,
+      [MarshalAs(UnmanagedType.LPStruct), In] Guid mediaType,
+      [MarshalAs(UnmanagedType.IUnknown), In] object source,
+      [In] IBaseFilter compressor,
+      [In] IBaseFilter renderer);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int ControlStream(
+      [MarshalAs(UnmanagedType.LPStruct), In] Guid category,
+      [MarshalAs(UnmanagedType.LPStruct), In] Guid mediaType,
+      [MarshalAs(UnmanagedType.Interface), In] IBaseFilter filter,
+      [In] long start,
+      [In] long stop,
+      [In] short startCookie,
+      [In] short stopCookie);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int AllocCapFile([MarshalAs(UnmanagedType.LPWStr), In] string fileName, [In] long size);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int CopyCaptureFile(
+      [MarshalAs(UnmanagedType.LPWStr), In] string oldFileName,
+      [MarshalAs(UnmanagedType.LPWStr), In] string newFileName,
+      [MarshalAs(UnmanagedType.Bool), In] bool allowEscAbort,
+      [In] IntPtr callback);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int FindPin(
+      [MarshalAs(UnmanagedType.IUnknown), In] object source,
+      [In] PinDirection pinDirection,
+      [MarshalAs(UnmanagedType.LPStruct), In] Guid category,
+      [MarshalAs(UnmanagedType.LPStruct), In] Guid mediaType,
+      [MarshalAs(UnmanagedType.Bool), In] bool unconnected,
+      [In] int index,
+      [MarshalAs(UnmanagedType.Interface)] out IPin pin);
+  }
+}
+
+
+--- ICreateDevEnum.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.ICreateDevEnum
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [Guid("29840822-5B84-11D0-BD3B-00A0C911CE86")]
+  [ComImport]
+  internal interface ICreateDevEnum
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int CreateClassEnumerator([In] ref Guid type, out IEnumMoniker enumMoniker, [In] int flags);
+  }
+}
+
+
+--- IEnumFilters.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IEnumFilters
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [Guid("56A86893-0AD4-11CE-B03A-0020AF0BA770")]
+  [ComImport]
+  internal interface IEnumFilters
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Next([In] int cFilters, [MarshalAs(UnmanagedType.LPArray), Out] IBaseFilter[] filters, out int filtersFetched);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Skip([In] int cFilters);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Reset();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Clone(out IEnumFilters enumFilters);
+  }
+}
+
+
+--- IEnumPins.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IEnumPins
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [Guid("56A86892-0AD4-11CE-B03A-0020AF0BA770")]
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [ComImport]
+  internal interface IEnumPins
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Next([In] int cPins, [MarshalAs(UnmanagedType.LPArray), Out] IPin[] pins, out int pinsFetched);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Skip([In] int cPins);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Reset();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Clone(out IEnumPins enumPins);
+  }
+}
+
+
+--- IFileSourceFilter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IFileSourceFilter
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [Guid("56A868A6-0Ad4-11CE-B03A-0020AF0BA770")]
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [ComImport]
+  internal interface IFileSourceFilter
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Load([MarshalAs(UnmanagedType.LPWStr), In] string fileName, [MarshalAs(UnmanagedType.LPStruct), In] AMMediaType mediaType);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetCurFile([MarshalAs(UnmanagedType.LPWStr)] out string fileName, [MarshalAs(UnmanagedType.LPStruct), Out] AMMediaType mediaType);
+  }
+}
+
+
+--- IFilterGraph.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IFilterGraph
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [Guid("56A8689F-0AD4-11CE-B03A-0020AF0BA770")]
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [ComImport]
+  internal interface IFilterGraph
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int AddFilter([In] IBaseFilter filter, [MarshalAs(UnmanagedType.LPWStr), In] string name);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int RemoveFilter([In] IBaseFilter filter);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int EnumFilters(out IntPtr enumerator);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int FindFilterByName([MarshalAs(UnmanagedType.LPWStr), In] string name, out IBaseFilter filter);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int ConnectDirect([In] IPin pinOut, [In] IPin pinIn, [MarshalAs(UnmanagedType.LPStruct), In] AMMediaType mediaType);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Reconnect([In] IPin pin);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Disconnect([In] IPin pin);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetDefaultSyncSource();
+  }
+}
+
+
+--- IFilterGraph2.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IFilterGraph2
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [Guid("36B73882-C2C8-11CF-8B46-00805F6CEF60")]
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [ComImport]
+  internal interface IFilterGraph2
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int AddFilter([In] IBaseFilter filter, [MarshalAs(UnmanagedType.LPWStr), In] string name);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int RemoveFilter([In] IBaseFilter filter);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int EnumFilters(out IEnumFilters enumerator);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int FindFilterByName([MarshalAs(UnmanagedType.LPWStr), In] string name, out IBaseFilter filter);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int ConnectDirect([In] IPin pinOut, [In] IPin pinIn, [MarshalAs(UnmanagedType.LPStruct), In] AMMediaType mediaType);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Reconnect([In] IPin pin);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Disconnect([In] IPin pin);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetDefaultSyncSource();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Connect([In] IPin pinOut, [In] IPin pinIn);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Render([In] IPin pinOut);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int RenderFile([MarshalAs(UnmanagedType.LPWStr), In] string file, [MarshalAs(UnmanagedType.LPWStr), In] string playList);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int AddSourceFilter([MarshalAs(UnmanagedType.LPWStr), In] string fileName, [MarshalAs(UnmanagedType.LPWStr), In] string filterName, out IBaseFilter filter);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetLogFile(IntPtr hFile);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Abort();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int ShouldOperationContinue();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int AddSourceFilterForMoniker(
+      [In] IMoniker moniker,
+      [In] IBindCtx bindContext,
+      [MarshalAs(UnmanagedType.LPWStr), In] string filterName,
+      out IBaseFilter filter);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int ReconnectEx([In] IPin pin, [MarshalAs(UnmanagedType.LPStruct), In] AMMediaType mediaType);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int RenderEx([In] IPin outputPin, [In] int flags, [In] IntPtr context);
+  }
+}
+
+
+--- IGraphBuilder.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IGraphBuilder
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [Guid("56A868A9-0AD4-11CE-B03A-0020AF0BA770")]
+  [ComImport]
+  internal interface IGraphBuilder
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int AddFilter([In] IBaseFilter filter, [MarshalAs(UnmanagedType.LPWStr), In] string name);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int RemoveFilter([In] IBaseFilter filter);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int EnumFilters(out IEnumFilters enumerator);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int FindFilterByName([MarshalAs(UnmanagedType.LPWStr), In] string name, out IBaseFilter filter);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int ConnectDirect([In] IPin pinOut, [In] IPin pinIn, [MarshalAs(UnmanagedType.LPStruct), In] AMMediaType mediaType);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Reconnect([In] IPin pin);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Disconnect([In] IPin pin);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetDefaultSyncSource();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Connect([In] IPin pinOut, [In] IPin pinIn);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Render([In] IPin pinOut);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int RenderFile([MarshalAs(UnmanagedType.LPWStr), In] string file, [MarshalAs(UnmanagedType.LPWStr), In] string playList);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int AddSourceFilter([MarshalAs(UnmanagedType.LPWStr), In] string fileName, [MarshalAs(UnmanagedType.LPWStr), In] string filterName, out IBaseFilter filter);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetLogFile(IntPtr hFile);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Abort();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int ShouldOperationContinue();
+  }
+}
+
+
+--- IMediaControl.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IMediaControl
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [Guid("56A868B1-0AD4-11CE-B03A-0020AF0BA770")]
+  [InterfaceType(ComInterfaceType.InterfaceIsDual)]
+  [ComImport]
+  internal interface IMediaControl
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Run();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Pause();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Stop();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetState(int timeout, out int filterState);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int RenderFile(string fileName);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int AddSourceFilter([In] string fileName, [MarshalAs(UnmanagedType.IDispatch)] out object filterInfo);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_FilterCollection([MarshalAs(UnmanagedType.IDispatch)] out object collection);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_RegFilterCollection([MarshalAs(UnmanagedType.IDispatch)] out object collection);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int StopWhenReady();
+  }
+}
+
+
+--- IMediaEventEx.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IMediaEventEx
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [Guid("56a868c0-0ad4-11ce-b03a-0020af0ba770")]
+  [InterfaceType(ComInterfaceType.InterfaceIsDual)]
+  [ComVisible(true)]
+  [ComImport]
+  internal interface IMediaEventEx
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetEventHandle(out IntPtr hEvent);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetEvent([MarshalAs(UnmanagedType.I4)] out DsEvCode lEventCode, out IntPtr lParam1, out IntPtr lParam2, int msTimeout);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int WaitForCompletion(int msTimeout, out int pEvCode);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int CancelDefaultHandling(int lEvCode);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int RestoreDefaultHandling(int lEvCode);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int FreeEventParams([MarshalAs(UnmanagedType.I4), In] DsEvCode lEvCode, IntPtr lParam1, IntPtr lParam2);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetNotifyWindow(IntPtr hwnd, int lMsg, IntPtr lInstanceData);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetNotifyFlags(int lNoNotifyFlags);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetNotifyFlags(out int lplNoNotifyFlags);
+  }
+}
+
+
+--- IMediaFilter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IMediaFilter
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Security;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [Guid("56a86899-0ad4-11ce-b03a-0020af0ba770")]
+  [SuppressUnmanagedCodeSecurity]
+  [ComImport]
+  internal interface IMediaFilter : IPersist
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    new int GetClassID(out Guid pClassID);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Stop();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Pause();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Run([In] long tStart);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetState([In] int dwMilliSecsTimeout, out FilterState filtState);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetSyncSource([In] IReferenceClock pClock);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetSyncSource(out IReferenceClock pClock);
+  }
+}
+
+
+--- IPersist.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IPersist
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [InterfaceType(ComInterfaceType.InterfaceIsDual)]
+  [Guid("0000010c-0000-0000-C000-000000000046")]
+  [ComImport]
+  internal interface IPersist
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetClassID(out Guid pClassID);
+  }
+}
+
+
+--- IPin.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IPin
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [Guid("56A86891-0AD4-11CE-B03A-0020AF0BA770")]
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [ComImport]
+  internal interface IPin
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Connect([In] IPin receivePin, [MarshalAs(UnmanagedType.LPStruct), In] AMMediaType mediaType);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int ReceiveConnection([In] IPin receivePin, [MarshalAs(UnmanagedType.LPStruct), In] AMMediaType mediaType);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Disconnect();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int ConnectedTo(out IPin pin);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int ConnectionMediaType([MarshalAs(UnmanagedType.LPStruct), Out] AMMediaType mediaType);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int QueryPinInfo(out PinInfo pinInfo);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int QueryDirection(out PinDirection pinDirection);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int QueryId([MarshalAs(UnmanagedType.LPWStr)] out string id);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int QueryAccept([MarshalAs(UnmanagedType.LPStruct), In] AMMediaType mediaType);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int EnumMediaTypes(IntPtr enumerator);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int QueryInternalConnections(IntPtr apPin, [In, Out] ref int nPin);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int EndOfStream();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int BeginFlush();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int EndFlush();
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int NewSegment(long start, long stop, double rate);
+  }
+}
+
+
+--- IPropertyBag.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IPropertyBag
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [Guid("55272A00-42CB-11CE-8135-00AA004BB851")]
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [ComImport]
+  internal interface IPropertyBag
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Read([MarshalAs(UnmanagedType.LPWStr), In] string propertyName, [MarshalAs(UnmanagedType.Struct), In, Out] ref object pVar, [In] IntPtr pErrorLog);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Write([MarshalAs(UnmanagedType.LPWStr), In] string propertyName, [MarshalAs(UnmanagedType.Struct), In] ref object pVar);
+  }
+}
+
+
+--- IReferenceClock.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IReferenceClock
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Security;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [Guid("56a86897-0ad4-11ce-b03a-0020af0ba770")]
+  [SuppressUnmanagedCodeSecurity]
+  [ComImport]
+  internal interface IReferenceClock
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetTime(out long pTime);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int AdviseTime([In] long baseTime, [In] long streamTime, [In] IntPtr hEvent, out int pdwAdviseCookie);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int AdvisePeriodic(
+      [In] long startTime,
+      [In] long periodTime,
+      [In] IntPtr hSemaphore,
+      out int pdwAdviseCookie);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int Unadvise([In] int dwAdviseCookie);
+  }
+}
+
+
+--- ISampleGrabber.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.ISampleGrabber
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [Guid("6B652FFF-11FE-4FCE-92AD-0266B5D7C78F")]
+  [ComImport]
+  internal interface ISampleGrabber
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetOneShot([MarshalAs(UnmanagedType.Bool), In] bool oneShot);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetMediaType([MarshalAs(UnmanagedType.LPStruct), In] AMMediaType mediaType);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetConnectedMediaType([MarshalAs(UnmanagedType.LPStruct), Out] AMMediaType mediaType);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetBufferSamples([MarshalAs(UnmanagedType.Bool), In] bool bufferThem);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetCurrentBuffer(ref int bufferSize, IntPtr buffer);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetCurrentSample(IntPtr sample);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetCallback(ISampleGrabberCB callback, int whichMethodToCallback);
+  }
+}
+
+
+--- ISampleGrabberCB.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.ISampleGrabberCB
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [Guid("0579154A-2B53-4994-B0D0-E773148EFF85")]
+  [ComImport]
+  internal interface ISampleGrabberCB
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SampleCB(double sampleTime, IntPtr sample);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int BufferCB(double sampleTime, IntPtr buffer, int bufferLen);
+  }
+}
+
+
+--- ISpecifyPropertyPages.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.ISpecifyPropertyPages
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [Guid("B196B28B-BAB4-101A-B69C-00AA00341D07")]
+  [ComImport]
+  internal interface ISpecifyPropertyPages
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetPages(out CAUUID pPages);
+  }
+}
+
+
+--- IVideoWindow.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.IVideoWindow
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [Guid("56A868B4-0AD4-11CE-B03A-0020AF0BA770")]
+  [InterfaceType(ComInterfaceType.InterfaceIsDual)]
+  [ComImport]
+  internal interface IVideoWindow
+  {
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int put_Caption(string caption);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_Caption(out string caption);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int put_WindowStyle(int windowStyle);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_WindowStyle(out int windowStyle);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int put_WindowStyleEx(int windowStyleEx);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_WindowStyleEx(out int windowStyleEx);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int put_AutoShow([MarshalAs(UnmanagedType.Bool), In] bool autoShow);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_AutoShow([MarshalAs(UnmanagedType.Bool)] out bool autoShow);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int put_WindowState(int windowState);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_WindowState(out int windowState);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int put_BackgroundPalette([MarshalAs(UnmanagedType.Bool), In] bool backgroundPalette);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_BackgroundPalette([MarshalAs(UnmanagedType.Bool)] out bool backgroundPalette);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int put_Visible([MarshalAs(UnmanagedType.Bool), In] bool visible);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_Visible([MarshalAs(UnmanagedType.Bool)] out bool visible);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int put_Left(int left);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_Left(out int left);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int put_Width(int width);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_Width(out int width);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int put_Top(int top);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_Top(out int top);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int put_Height(int height);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_Height(out int height);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int put_Owner(IntPtr owner);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_Owner(out IntPtr owner);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int put_MessageDrain(IntPtr drain);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_MessageDrain(out IntPtr drain);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_BorderColor(out int color);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int put_BorderColor(int color);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int get_FullScreenMode([MarshalAs(UnmanagedType.Bool)] out bool fullScreenMode);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int put_FullScreenMode([MarshalAs(UnmanagedType.Bool), In] bool fullScreenMode);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetWindowForeground(int focus);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int NotifyOwnerMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int SetWindowPosition(int left, int top, int width, int height);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetWindowPosition(out int left, out int top, out int width, out int height);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetMinIdealImageSize(out int width, out int height);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetMaxIdealImageSize(out int width, out int height);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int GetRestorePosition(out int left, out int top, out int width, out int height);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int HideCursor([MarshalAs(UnmanagedType.Bool), In] bool hideCursor);
+
+    [MethodImpl(MethodImplOptions.PreserveSig)]
+    int IsCursorHidden([MarshalAs(UnmanagedType.Bool)] out bool hideCursor);
+  }
+}
+
+
+--- MediaSubType.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.MediaSubType
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [ComVisible(false)]
+  internal static class MediaSubType
+  {
+    public static readonly Guid YUYV = new Guid(1448695129, (short) 0, (short) 16, (byte) 128, (byte) 0, (byte) 0, (byte) 170, (byte) 0, (byte) 56, (byte) 155, (byte) 113);
+    public static readonly Guid IYUV = new Guid(1448433993, (short) 0, (short) 16, (byte) 128, (byte) 0, (byte) 0, (byte) 170, (byte) 0, (byte) 56, (byte) 155, (byte) 113);
+    public static readonly Guid DVSD = new Guid(1146312260, (short) 0, (short) 16, (byte) 128, (byte) 0, (byte) 0, (byte) 170, (byte) 0, (byte) 56, (byte) 155, (byte) 113);
+    public static readonly Guid RGB1 = new Guid(3828804472U, (ushort) 21071, (ushort) 4558, (byte) 159, (byte) 83, (byte) 0, (byte) 32, (byte) 175, (byte) 11, (byte) 167, (byte) 112);
+    public static readonly Guid RGB4 = new Guid(3828804473U, (ushort) 21071, (ushort) 4558, (byte) 159, (byte) 83, (byte) 0, (byte) 32, (byte) 175, (byte) 11, (byte) 167, (byte) 112);
+    public static readonly Guid RGB8 = new Guid(3828804474U, (ushort) 21071, (ushort) 4558, (byte) 159, (byte) 83, (byte) 0, (byte) 32, (byte) 175, (byte) 11, (byte) 167, (byte) 112);
+    public static readonly Guid RGB565 = new Guid(3828804475U, (ushort) 21071, (ushort) 4558, (byte) 159, (byte) 83, (byte) 0, (byte) 32, (byte) 175, (byte) 11, (byte) 167, (byte) 112);
+    public static readonly Guid RGB555 = new Guid(3828804476U, (ushort) 21071, (ushort) 4558, (byte) 159, (byte) 83, (byte) 0, (byte) 32, (byte) 175, (byte) 11, (byte) 167, (byte) 112);
+    public static readonly Guid RGB24 = new Guid(3828804477U, (ushort) 21071, (ushort) 4558, (byte) 159, (byte) 83, (byte) 0, (byte) 32, (byte) 175, (byte) 11, (byte) 167, (byte) 112);
+    public static readonly Guid RGB32 = new Guid(3828804478U, (ushort) 21071, (ushort) 4558, (byte) 159, (byte) 83, (byte) 0, (byte) 32, (byte) 175, (byte) 11, (byte) 167, (byte) 112);
+    public static readonly Guid Avi = new Guid(3828804488U, (ushort) 21071, (ushort) 4558, (byte) 159, (byte) 83, (byte) 0, (byte) 32, (byte) 175, (byte) 11, (byte) 167, (byte) 112);
+    public static readonly Guid Asf = new Guid(1035472784U, (ushort) 37906, (ushort) 4561, (byte) 173, (byte) 237, (byte) 0, (byte) 0, (byte) 248, (byte) 117, (byte) 75, (byte) 153);
+  }
+}
+
+
+--- MediaType.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.MediaType
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [ComVisible(false)]
+  internal static class MediaType
+  {
+    public static readonly Guid Video = new Guid(1935960438, (short) 0, (short) 16, (byte) 128, (byte) 0, (byte) 0, (byte) 170, (byte) 0, (byte) 56, (byte) 155, (byte) 113);
+    public static readonly Guid Interleaved = new Guid(1937138025, (short) 0, (short) 16, (byte) 128, (byte) 0, (byte) 0, (byte) 170, (byte) 0, (byte) 56, (byte) 155, (byte) 113);
+    public static readonly Guid Audio = new Guid(1935963489, (short) 0, (short) 16, (byte) 128, (byte) 0, (byte) 0, (byte) 170, (byte) 0, (byte) 56, (byte) 155, (byte) 113);
+    public static readonly Guid Text = new Guid(1937012852, (short) 0, (short) 16, (byte) 128, (byte) 0, (byte) 0, (byte) 170, (byte) 0, (byte) 56, (byte) 155, (byte) 113);
+    public static readonly Guid Stream = new Guid(3828804483U, (ushort) 21071, (ushort) 4558, (byte) 159, (byte) 83, (byte) 0, (byte) 32, (byte) 175, (byte) 11, (byte) 167, (byte) 112);
+  }
+}
+
+
+--- PinCategory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.PinCategory
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [ComVisible(false)]
+  internal static class PinCategory
+  {
+    public static readonly Guid Capture = new Guid(4218176129U, (ushort) 851, (ushort) 4561, (byte) 144, (byte) 95, (byte) 0, (byte) 0, (byte) 192, (byte) 204, (byte) 22, (byte) 186);
+    public static readonly Guid StillImage = new Guid(4218176138U, (ushort) 851, (ushort) 4561, (byte) 144, (byte) 95, (byte) 0, (byte) 0, (byte) 192, (byte) 204, (byte) 22, (byte) 186);
+  }
+}
+
+
+--- PinDirection.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.PinDirection
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [ComVisible(false)]
+  internal enum PinDirection
+  {
+    Input,
+    Output,
+  }
+}
+
+
+--- PinInfo.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.PinInfo
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [ComVisible(false)]
+  [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
+  internal struct PinInfo
+  {
+    public IBaseFilter Filter;
+    public PinDirection Direction;
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+    public string Name;
+  }
+}
+
+
+--- RECT.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.RECT
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [ComVisible(false)]
+  internal struct RECT
+  {
+    public int Left;
+    public int Top;
+    public int Right;
+    public int Bottom;
+  }
+}
+
+
+--- Tools.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.Tools
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  internal static class Tools
+  {
+    public static IPin GetPin(IBaseFilter filter, PinDirection dir, int num)
+    {
+      IPin[] pins = new IPin[1];
+      IEnumPins enumPins = (IEnumPins) null;
+      if (filter.EnumPins(out enumPins) == 0)
+      {
+        try
+        {
+          while (enumPins.Next(1, pins, out int _) == 0)
+          {
+            PinDirection pinDirection;
+            pins[0].QueryDirection(out pinDirection);
+            if (pinDirection == dir)
+            {
+              if (num == 0)
+                return pins[0];
+              --num;
+            }
+            Marshal.ReleaseComObject((object) pins[0]);
+            pins[0] = (IPin) null;
+          }
+        }
+        finally
+        {
+          Marshal.ReleaseComObject((object) enumPins);
+        }
+      }
+      return (IPin) null;
+    }
+
+    public static IPin GetInPin(IBaseFilter filter, int num)
+    {
+      return Tools.GetPin(filter, PinDirection.Input, num);
+    }
+
+    public static IPin GetOutPin(IBaseFilter filter, int num)
+    {
+      return Tools.GetPin(filter, PinDirection.Output, num);
+    }
+  }
+}
+
+
+--- VideoControlFlags.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.VideoControlFlags
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [Flags]
+  [ComVisible(false)]
+  internal enum VideoControlFlags
+  {
+    FlipHorizontal = 1,
+    FlipVertical = 2,
+    ExternalTriggerEnable = 4,
+    Trigger = 8,
+  }
+}
+
+
+--- VideoInfoHeader.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.VideoInfoHeader
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [ComVisible(false)]
+  internal struct VideoInfoHeader
+  {
+    public RECT SrcRect;
+    public RECT TargetRect;
+    public int BitRate;
+    public int BitErrorRate;
+    public long AverageTimePerFrame;
+    public BitmapInfoHeader BmiHeader;
+  }
+}
+
+
+--- VideoInfoHeader2.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.VideoInfoHeader2
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [ComVisible(false)]
+  internal struct VideoInfoHeader2
+  {
+    public RECT SrcRect;
+    public RECT TargetRect;
+    public int BitRate;
+    public int BitErrorRate;
+    public long AverageTimePerFrame;
+    public int InterlaceFlags;
+    public int CopyProtectFlags;
+    public int PictAspectRatioX;
+    public int PictAspectRatioY;
+    public int Reserved1;
+    public int Reserved2;
+    public BitmapInfoHeader BmiHeader;
+  }
+}
+
+
+--- VideoStreamConfigCaps.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.VideoStreamConfigCaps
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Drawing;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  [ComVisible(false)]
+  [StructLayout(LayoutKind.Sequential)]
+  internal class VideoStreamConfigCaps
+  {
+    public Guid Guid;
+    public AnalogVideoStandard VideoStandard;
+    public Size InputSize;
+    public Size MinCroppingSize;
+    public Size MaxCroppingSize;
+    public int CropGranularityX;
+    public int CropGranularityY;
+    public int CropAlignX;
+    public int CropAlignY;
+    public Size MinOutputSize;
+    public Size MaxOutputSize;
+    public int OutputGranularityX;
+    public int OutputGranularityY;
+    public int StretchTapsX;
+    public int StretchTapsY;
+    public int ShrinkTapsX;
+    public int ShrinkTapsY;
+    public long MinFrameInterval;
+    public long MaxFrameInterval;
+    public int MinBitsPerSecond;
+    public int MaxBitsPerSecond;
+  }
+}
+
+
+--- Win32.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.Internals.Win32
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
+
+#nullable disable
+namespace AForge.Video.DirectShow.Internals
+{
+  internal static class Win32
+  {
+    [DllImport("ole32.dll")]
+    public static extern int CreateBindCtx(int reserved, out IBindCtx ppbc);
+
+    [DllImport("ole32.dll", CharSet = CharSet.Unicode)]
+    public static extern int MkParseDisplayName(
+      IBindCtx pbc,
+      string szUserName,
+      ref int pchEaten,
+      out IMoniker ppmk);
+
+    [DllImport("ntdll.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern unsafe int memcpy(byte* dst, byte* src, int count);
+
+    [DllImport("oleaut32.dll")]
+    public static extern int OleCreatePropertyFrame(
+      IntPtr hwndOwner,
+      int x,
+      int y,
+      [MarshalAs(UnmanagedType.LPWStr)] string caption,
+      int cObjects,
+      [MarshalAs(UnmanagedType.Interface)] ref object ppUnk,
+      int cPages,
+      IntPtr lpPageClsID,
+      int lcid,
+      int dwReserved,
+      IntPtr lpvReserved);
+  }
+}
+

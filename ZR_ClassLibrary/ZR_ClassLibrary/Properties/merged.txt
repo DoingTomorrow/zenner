@@ -1,0 +1,779 @@
+
+--- Resources.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZR_ClassLibrary.Properties.Resources
+// Assembly: ZR_ClassLibrary, Version=6.16.22.24524, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: EF8F26C8-41DE-4472-B020-D54F7F8B6357
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\ZR_ClassLibrary.dll
+
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
+using System.Resources;
+using System.Runtime.CompilerServices;
+
+#nullable disable
+namespace ZR_ClassLibrary.Properties
+{
+  [GeneratedCode("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+  [DebuggerNonUserCode]
+  [CompilerGenerated]
+  public class Resources
+  {
+    private static ResourceManager resourceMan;
+    private static CultureInfo resourceCulture;
+
+    internal Resources()
+    {
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Advanced)]
+    public static ResourceManager ResourceManager
+    {
+      get
+      {
+        if (ZR_ClassLibrary.Properties.Resources.resourceMan == null)
+          ZR_ClassLibrary.Properties.Resources.resourceMan = new ResourceManager("ZR_ClassLibrary.Properties.Resources", typeof (ZR_ClassLibrary.Properties.Resources).Assembly);
+        return ZR_ClassLibrary.Properties.Resources.resourceMan;
+      }
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Advanced)]
+    public static CultureInfo Culture
+    {
+      get => ZR_ClassLibrary.Properties.Resources.resourceCulture;
+      set => ZR_ClassLibrary.Properties.Resources.resourceCulture = value;
+    }
+
+    public static Bitmap AddButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (AddButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap AddButtonSmall
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (AddButtonSmall), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap AlertIcon
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (AlertIcon), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap ArrowDown
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (ArrowDown), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap ArrowLeft
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (ArrowLeft), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap ArrowLeftLeft
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (ArrowLeftLeft), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap ArrowUp
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (ArrowUp), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap BasisNode
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (BasisNode), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap Binary
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (Binary), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap BottomButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (BottomButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap Calculate
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (Calculate), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap CancelButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (CancelButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap ChartCurve
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (ChartCurve), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap CityNode
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (CityNode), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap CloseButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (CloseButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap CollapseButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (CollapseButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap Command
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (Command), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap COMserver
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (COMserver), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap ConverterNode
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (ConverterNode), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap CountryNode
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (CountryNode), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap DeleteButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (DeleteButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap Device_16x16
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (Device_16x16), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap DeviceGroup
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (DeviceGroup), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap EditClear
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (EditClear), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap EmptyIcon
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (EmptyIcon), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap Event
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (Event), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap ExpandButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (ExpandButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap ExportButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (ExportButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap ExportButtonSmall
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (ExportButtonSmall), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap FilterButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (FilterButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap FindButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (FindButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap FlatNode
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (FlatNode), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap FolderNode
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (FolderNode), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap Function
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (Function), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap ImportButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (ImportButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap ImportSmal
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (ImportSmal), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap Link
+    {
+      get => (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (Link), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+    }
+
+    public static Bitmap LinkFolder
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (LinkFolder), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap List
+    {
+      get => (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (List), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+    }
+
+    public static Bitmap LoadButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (LoadButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap LoadDB
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (LoadDB), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap Log
+    {
+      get => (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (Log), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+    }
+
+    public static Bitmap LogButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (LogButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap ManifoldNode
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (ManifoldNode), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap NewButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (NewButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap NewButtonSmall
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (NewButtonSmall), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap OkButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (OkButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap OpenButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (OpenButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap PrintButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (PrintButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap Properties
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (Properties), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap Property
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (Property), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap ProtectedMethod
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (ProtectedMethod), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap PulseDeviceNode
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (PulseDeviceNode), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap Read
+    {
+      get => (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (Read), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+    }
+
+    public static Bitmap ReadoutSettings
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (ReadoutSettings), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap RefreshButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (RefreshButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap RemoveButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (RemoveButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap RepeaterNode
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (RepeaterNode), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap ReplaceButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (ReplaceButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap SaveButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (SaveButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap SaveButtonSmall
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (SaveButtonSmall), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap SaveDB
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (SaveDB), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap SettingsButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (SettingsButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap StartButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (StartButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap StartButtonSmal
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (StartButtonSmal), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap StateError
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (StateError), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap StatePending
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (StatePending), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap StopButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (StopButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap StopButtonSmal
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (StopButtonSmal), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap StreetNode
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (StreetNode), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap SuccessIcon
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (SuccessIcon), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap SuccessIconTransporent
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (SuccessIconTransporent), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap TopButton
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (TopButton), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap TranslationRules
+    {
+      get
+      {
+        return (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (TranslationRules), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+      }
+    }
+
+    public static Bitmap wait
+    {
+      get => (Bitmap) ZR_ClassLibrary.Properties.Resources.ResourceManager.GetObject(nameof (wait), ZR_ClassLibrary.Properties.Resources.resourceCulture);
+    }
+  }
+}
+
+
+--- Settings.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZR_ClassLibrary.Properties.Settings
+// Assembly: ZR_ClassLibrary, Version=6.16.22.24524, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: EF8F26C8-41DE-4472-B020-D54F7F8B6357
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\ZR_ClassLibrary.dll
+
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Configuration;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+
+#nullable disable
+namespace ZR_ClassLibrary.Properties
+{
+  [CompilerGenerated]
+  [GeneratedCode("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.5.0.0")]
+  internal sealed class Settings : ApplicationSettingsBase
+  {
+    private static Settings defaultInstance = (Settings) SettingsBase.Synchronized((SettingsBase) new Settings());
+
+    private void SettingChangingEventHandler(object sender, SettingChangingEventArgs e)
+    {
+    }
+
+    private void SettingsSavingEventHandler(object sender, CancelEventArgs e)
+    {
+    }
+
+    public static Settings Default
+    {
+      get
+      {
+        Settings defaultInstance = Settings.defaultInstance;
+        return defaultInstance;
+      }
+    }
+
+    [ApplicationScopedSetting]
+    [DebuggerNonUserCode]
+    [SpecialSetting(SpecialSetting.ConnectionString)]
+    [DefaultSettingValue("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=\"C:\\Dokumente und Einstellungen\\Beck\\Eigene Dateien\\Visual Studio 2005\\Projects\\GMM\\Database\\SecMeterDB.mdb\";Jet OLEDB:Database Password=meterdbpass")]
+    public string SecMeterDBConnectionString => (string) this[nameof (SecMeterDBConnectionString)];
+
+    [ApplicationScopedSetting]
+    [DebuggerNonUserCode]
+    [SpecialSetting(SpecialSetting.ConnectionString)]
+    [DefaultSettingValue("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=\"|DataDirectory|\\Schema Access\\MeterDB_New.mdb\";Persist Security Info=True;Jet OLEDB:Database Password=meterdbpass")]
+    public string MeterDB_NewConnectionString
+    {
+      get => (string) this[nameof (MeterDB_NewConnectionString)];
+    }
+
+    [ApplicationScopedSetting]
+    [DebuggerNonUserCode]
+    [SpecialSetting(SpecialSetting.ConnectionString)]
+    [DefaultSettingValue("data source=\"C:\\Dokumente und Einstellungen\\beck\\Desktop\\MobileMeterDB.sql\"")]
+    public string ConnectionString => (string) this[nameof (ConnectionString)];
+
+    [ApplicationScopedSetting]
+    [DebuggerNonUserCode]
+    [SpecialSetting(SpecialSetting.ConnectionString)]
+    [DefaultSettingValue("data source=C:\\Projekte\\GMM\\Database\\MobileMeterDB.sql")]
+    public string MobileMeterDB => (string) this[nameof (MobileMeterDB)];
+
+    [ApplicationScopedSetting]
+    [DebuggerNonUserCode]
+    [SpecialSetting(SpecialSetting.ConnectionString)]
+    [DefaultSettingValue("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=T:\\Produkte\\Softwareprodukte\\GMM\\aktuell\\Datenbank\\MeterDB_New.mdb")]
+    public string MeterDB_NewConnectionString1
+    {
+      get => (string) this[nameof (MeterDB_NewConnectionString1)];
+    }
+
+    [ApplicationScopedSetting]
+    [DebuggerNonUserCode]
+    [SpecialSetting(SpecialSetting.ConnectionString)]
+    [DefaultSettingValue("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=T:\\Produkte\\Softwareprodukte\\GMM\\aktuell\\Datenbank\\MeterDB_New.mdb")]
+    public string MeterDB_NewConnectionString2
+    {
+      get => (string) this[nameof (MeterDB_NewConnectionString2)];
+    }
+
+    [ApplicationScopedSetting]
+    [DebuggerNonUserCode]
+    [SpecialSetting(SpecialSetting.ConnectionString)]
+    [DefaultSettingValue("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=L:\\Produkte\\Softwareprodukte\\GMM\\aktuell\\Datenbank\\MeterDB_New.mdb")]
+    public string MeterDB_NewConnectionString3
+    {
+      get => (string) this[nameof (MeterDB_NewConnectionString3)];
+    }
+
+    [ApplicationScopedSetting]
+    [DebuggerNonUserCode]
+    [SpecialSetting(SpecialSetting.ConnectionString)]
+    [DefaultSettingValue("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\\Users\\Ersch\\Documents\\SVN\\GMM_Interface\\Database\\MeterDB_New.mdb")]
+    public string MeterDB_NewConnectionString4
+    {
+      get => (string) this[nameof (MeterDB_NewConnectionString4)];
+    }
+
+    [ApplicationScopedSetting]
+    [DebuggerNonUserCode]
+    [SpecialSetting(SpecialSetting.ConnectionString)]
+    [DefaultSettingValue("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\\Users\\ersch\\Documents\\svn\\GMM_trunk\\Database\\MeterDB_New.mdb")]
+    public string MeterDB_NewConnectionString5
+    {
+      get => (string) this[nameof (MeterDB_NewConnectionString5)];
+    }
+
+    [ApplicationScopedSetting]
+    [DebuggerNonUserCode]
+    [SpecialSetting(SpecialSetting.ConnectionString)]
+    [DefaultSettingValue("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\\Users\\ersch\\Documents\\SVN\\GMM\\GmmTrunkNewStructure\\Source\\Database\\MeterDB_New.mdb")]
+    public string MeterDB_NewConnectionString6
+    {
+      get => (string) this[nameof (MeterDB_NewConnectionString6)];
+    }
+
+    [ApplicationScopedSetting]
+    [DebuggerNonUserCode]
+    [SpecialSetting(SpecialSetting.ConnectionString)]
+    [DefaultSettingValue("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\\Users\\erschw\\Documents\\SVN\\GMM\\trunk\\Source\\Database\\MeterDB_New.mdb")]
+    public string MeterDB_NewConnectionString7
+    {
+      get => (string) this[nameof (MeterDB_NewConnectionString7)];
+    }
+
+    [ApplicationScopedSetting]
+    [DebuggerNonUserCode]
+    [SpecialSetting(SpecialSetting.ConnectionString)]
+    [DefaultSettingValue("Data Source=meterdb_dev.msh.org;Initial Catalog=meterdb_20161130;User ID=meter-db-cl-sb;Password=gmmmr")]
+    public string meterdb_20161130ConnectionString
+    {
+      get => (string) this[nameof (meterdb_20161130ConnectionString)];
+    }
+  }
+}
+

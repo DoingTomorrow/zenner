@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ValueIdPart_MeterTypeHeatCostAllocator" xml:space="preserve">
+    <value>Heat Cost Allocator</value>
+  </data>
+  <data name="ValueIdPart_CalculationStartMeterProduction" xml:space="preserve">
+    <value>MeterProduction</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeElectricity" xml:space="preserve">
+    <value>Electricity</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeHygrometer" xml:space="preserve">
+    <value>Hygrometer</value>
+  </data>
+  <data name="ValueIdentWarningLoggerDisabled" xml:space="preserve">
+    <value>Logger disabled</value>
+  </data>
+  <data name="ValueIdentWarningTemperatureOutOfMeasuringRangeHigh" xml:space="preserve">
+    <value>Temperature out of measuring range (high)</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityTempDiff" xml:space="preserve">
+    <value>Temperature difference</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityTempFlow" xml:space="preserve">
+    <value>Temperature flow</value>
+  </data>
+  <data name="ValueIdPart_CreationBitCompression" xml:space="preserve">
+    <value>Bit compression</value>
+  </data>
+  <data name="ValueIdentErrorAny" xml:space="preserve">
+    <value>Any</value>
+  </data>
+  <data name="ValueIdentErrorManipulation" xml:space="preserve">
+    <value>Manipulation</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeVolumeMeter" xml:space="preserve">
+    <value>Volume meter</value>
+  </data>
+  <data name="ValueIdentWarningOpticalInterfacePowerOff" xml:space="preserve">
+    <value>Optical interface power off</value>
+  </data>
+  <data name="ValueIdentErrorErrorWirelessInterface" xml:space="preserve">
+    <value>Wireless interface</value>
+  </data>
+  <data name="ValueIdentWarningBurst" xml:space="preserve">
+    <value>Burst detected</value>
+  </data>
+  <data name="ValueIdPart_CalculationAverage" xml:space="preserve">
+    <value>Average</value>
+  </data>
+  <data name="ValueIdentWarningPulseDisabled" xml:space="preserve">
+    <value>Pulse disabled</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityAny" xml:space="preserve">
+    <value>Any</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityHCA" xml:space="preserve">
+    <value>Heat cost allocator value</value>
+  </data>
+  <data name="ValueIdentErrorErrorWritePermission" xml:space="preserve">
+    <value>Access to "write permission" detected</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityPulse" xml:space="preserve">
+    <value>Pulse</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityPower" xml:space="preserve">
+    <value>Power</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeCooling" xml:space="preserve">
+    <value>Cooling</value>
+  </data>
+  <data name="ValueIdentWarningTemperatureOutOfMeasuringRangeLow" xml:space="preserve">
+    <value>Temperature out of measuring range (low)</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeTransceiver" xml:space="preserve">
+    <value>Transceiver</value>
+  </data>
+  <data name="ValueIdPart_CalculationStartHalfMonth" xml:space="preserve">
+    <value>HalfMonth</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityDateTime" xml:space="preserve">
+    <value>Date time</value>
+  </data>
+  <data name="ValueIdPart_IndexAny" xml:space="preserve">
+    <value>Any</value>
+  </data>
+  <data name="ValueIdentWarningTamper" xml:space="preserve">
+    <value>Tamper detected</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityOperatingHours" xml:space="preserve">
+    <value>Operating hours</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeOil" xml:space="preserve">
+    <value>Oil</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeAny" xml:space="preserve">
+    <value>Any meter type</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeGas" xml:space="preserve">
+    <value>Gas</value>
+  </data>
+  <data name="ValueIdentWarningInterruptionSupplySensor" xml:space="preserve">
+    <value>Interruption supply sensor</value>
+  </data>
+  <data name="ValueIdentErrorHardwareErrorRef2" xml:space="preserve">
+    <value>Hardware error Ref2</value>
+  </data>
+  <data name="ValueIdentErrorHardwareErrorRef1" xml:space="preserve">
+    <value>Hardware error Ref1</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeWarmWater" xml:space="preserve">
+    <value>Warm water</value>
+  </data>
+  <data name="ValueIdPart_StorageIntervalDueDate" xml:space="preserve">
+    <value>Due date</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityFlow" xml:space="preserve">
+    <value>Flow</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityMass" xml:space="preserve">
+    <value>Mass</value>
+  </data>
+  <data name="ValueIdentWarningShortCircuitReturnSensor" xml:space="preserve">
+    <value>Short-circuit return sensor</value>
+  </data>
+  <data name="ValueIdentWarningRadioDisabled" xml:space="preserve">
+    <value>Radio disabled</value>
+  </data>
+  <data name="ValueIdPart_StorageIntervalHour" xml:space="preserve">
+    <value>Hour</value>
+  </data>
+  <data name="ValueIdPart_StorageIntervalNone" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ValueIdPart_StorageIntervalYear" xml:space="preserve">
+    <value>Year</value>
+  </data>
+  <data name="ValueIdPart_StorageIntervalWeek" xml:space="preserve">
+    <value>Week</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeSteam" xml:space="preserve">
+    <value>Steam</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeWater" xml:space="preserve">
+    <value>Water</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeOther" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeSmokeDetector" xml:space="preserve">
+    <value>Smoke detector</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityWarningNumber" xml:space="preserve">
+    <value>Warning number</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityPercent" xml:space="preserve">
+    <value>Percent</value>
+  </data>
+  <data name="ValueIdPart_CreationAny" xml:space="preserve">
+    <value>Any</value>
+  </data>
+  <data name="ValueIdPart_StorageIntervalHalfHour" xml:space="preserve">
+    <value>Half hour</value>
+  </data>
+  <data name="ValueIdentWarningBatteryLow" xml:space="preserve">
+    <value>Battery low</value>
+  </data>
+  <data name="ValueIdentErrorHardwareErrorInterpreter" xml:space="preserve">
+    <value>Error Interpreter</value>
+  </data>
+  <data name="ValueIdentWarningLeak" xml:space="preserve">
+    <value>Flow leak detected</value>
+  </data>
+  <data name="ValueIdentWarningNoWaterInMeasuringTube" xml:space="preserve">
+    <value>No water in the measuring tube</value>
+  </data>
+  <data name="ValueIdPart_StorageIntervalQuarterHour" xml:space="preserve">
+    <value>Quarter hour</value>
+  </data>
+  <data name="ValueIdentErrorStatusInitialVerificationExpired" xml:space="preserve">
+    <value>Status initial verification expired</value>
+  </data>
+  <data name="ValueIdentWarningShortCircuitSupplySensor" xml:space="preserve">
+    <value>Short-circuit supply sensor</value>
+  </data>
+  <data name="ValueIdentErrorStatusEndOfBattery" xml:space="preserve">
+    <value>Status end of the battery</value>
+  </data>
+  <data name="ValueIdentWarningInterruptionReturnSensor" xml:space="preserve">
+    <value>Interruption return sensor</value>
+  </data>
+  <data name="ValueIdPart_CalculationMinimum" xml:space="preserve">
+    <value>Minimum</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityEnergy" xml:space="preserve">
+    <value>Energy</value>
+  </data>
+  <data name="ValueIdPart_StorageIntervalHalfMonth" xml:space="preserve">
+    <value>Half month</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeChangeOverHeat" xml:space="preserve">
+    <value>ChangeOverHeat</value>
+  </data>
+  <data name="ValueIdPart_CalculationDifference" xml:space="preserve">
+    <value>Difference</value>
+  </data>
+  <data name="ValueIdPart_CalculationMaximum" xml:space="preserve">
+    <value>Maximum</value>
+  </data>
+  <data name="ValueIdentWarningAny" xml:space="preserve">
+    <value>Any</value>
+  </data>
+  <data name="ValueIdPart_CreationManually" xml:space="preserve">
+    <value>Manually</value>
+  </data>
+  <data name="ValueIdentWarningAirInsideMedium" xml:space="preserve">
+    <value>Air inside the medium</value>
+  </data>
+  <data name="ValueIdentWarningFailedToRead" xml:space="preserve">
+    <value>Failed to read</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityDigitalInputOutput" xml:space="preserve">
+    <value>Digital IO</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityCoolingEnergy" xml:space="preserve">
+    <value>Cooling energy</value>
+  </data>
+  <data name="ValueIdentErrorDeviceError" xml:space="preserve">
+    <value>Device error</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeHotWater" xml:space="preserve">
+    <value>Hot water</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeCollector" xml:space="preserve">
+    <value>Collector</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeThermometer" xml:space="preserve">
+    <value>Thermometer</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeHeat" xml:space="preserve">
+    <value>Heat</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityReturnVolume" xml:space="preserve">
+    <value>Return volume</value>
+  </data>
+  <data name="ValueIdPart_CalculationCurrent" xml:space="preserve">
+    <value>Current</value>
+  </data>
+  <data name="ValueIdentWarningVolumeFlowOutOfRange" xml:space="preserve">
+    <value>Measured value outside overload range</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityVolume" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeColdWater" xml:space="preserve">
+    <value>ColdWater</value>
+  </data>
+  <data name="ValueIdPart_MeterTypePulseCounter" xml:space="preserve">
+    <value>Pulse counter</value>
+  </data>
+  <data name="ValueIdentWarningBackflow" xml:space="preserve">
+    <value>Backflow detected</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityCoolingVolume" xml:space="preserve">
+    <value>Colling volume</value>
+  </data>
+  <data name="ValueIdentWarningReverseWaterFlowDetected" xml:space="preserve">
+    <value>Reverse water flow detected</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityTempReturn" xml:space="preserve">
+    <value>Temperature return</value>
+  </data>
+  <data name="ValueIdPart_MeterTypeBarometer" xml:space="preserve">
+    <value>Barometer</value>
+  </data>
+  <data name="ValueIdPart_StorageIntervalDay" xml:space="preserve">
+    <value>Day</value>
+  </data>
+  <data name="ValueIdPart_StorageIntervalAny" xml:space="preserve">
+    <value>Any</value>
+  </data>
+  <data name="ValueIdPart_CalculationStartQuarterHour" xml:space="preserve">
+    <value>QuarterHour</value>
+  </data>
+  <data name="ValueIdPart_CalculationStartCurrent" xml:space="preserve">
+    <value>Current</value>
+  </data>
+  <data name="ValueIdPart_CreationReadingSystem" xml:space="preserve">
+    <value>ReadingSystem</value>
+  </data>
+  <data name="ValueIdPart_CalculationStartMonth" xml:space="preserve">
+    <value>Month</value>
+  </data>
+  <data name="ValueIdPart_CalculationStartMeterCycle" xml:space="preserve">
+    <value>MeterCycle</value>
+  </data>
+  <data name="ValueIdentWarningBlockage" xml:space="preserve">
+    <value>Flow block detected</value>
+  </data>
+  <data name="ValueIdentWarningOversized" xml:space="preserve">
+    <value>Meter oversized</value>
+  </data>
+  <data name="ValueIdPart_StorageIntervalMeterCycle" xml:space="preserve">
+    <value>Meter cycle</value>
+  </data>
+  <data name="ValueIdPart_CalculationStartHour" xml:space="preserve">
+    <value>Hour</value>
+  </data>
+  <data name="ValueIdPart_CalculationStartWeek" xml:space="preserve">
+    <value>Week</value>
+  </data>
+  <data name="ValueIdPart_CalculationStartYear" xml:space="preserve">
+    <value>Year</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityStatusNumber" xml:space="preserve">
+    <value>Status number</value>
+  </data>
+  <data name="ValueIdPart_StorageIntervalMonth" xml:space="preserve">
+    <value>Month</value>
+  </data>
+  <data name="ValueIdPart_CreationEstimation" xml:space="preserve">
+    <value>Estimation</value>
+  </data>
+  <data name="ValueIdentErrorHardwareErrorUltrasonic" xml:space="preserve">
+    <value>Error in the measuring system</value>
+  </data>
+  <data name="ValueIdPart_CalculationStartAny" xml:space="preserve">
+    <value>Any</value>
+  </data>
+  <data name="ValueIdPart_CalculationStartDay" xml:space="preserve">
+    <value>Day</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityTemperature" xml:space="preserve">
+    <value>Temperature</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityErrorNumber" xml:space="preserve">
+    <value>Error number</value>
+  </data>
+  <data name="ValueIdentWarningTemporaryError" xml:space="preserve">
+    <value>Temporary error</value>
+  </data>
+  <data name="ValueIdPart_CalculationAny" xml:space="preserve">
+    <value>Any</value>
+  </data>
+  <data name="ValueIdPart_CalculationStartHalfHour" xml:space="preserve">
+    <value>HalfHour</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantitySignalStrength" xml:space="preserve">
+    <value>Signal strength</value>
+  </data>
+  <data name="ValueIdPart_CreationMeter" xml:space="preserve">
+    <value>Meter</value>
+  </data>
+  <data name="ValueIdentWarningUndersized" xml:space="preserve">
+    <value>Meter undersized</value>
+  </data>
+  <data name="ValueIdPart_PhysicalQuantityHCA_Weighted" xml:space="preserve">
+    <value>Heat cost allocator value (weighted)</value>
+  </data>
+  <data name="ValueIdentWarningRemoval" xml:space="preserve">
+    <value>Removal detected</value>
+  </data>
+  <data name="ValueIdPart_CalculationStartDueDate" xml:space="preserve">
+    <value>DueDate</value>
+  </data>
+  <data name="ValueIdentErrorBatteryVoltage" xml:space="preserve">
+    <value>Battery voltage</value>
+  </data>
+  <data name="ValueIdPart_CalculationAccumulated" xml:space="preserve">
+    <value>Accumulated</value>
+  </data>
+  <data name="ValueIdentWarningTimebaseError" xml:space="preserve">
+    <value>Timebase error</value>
+  </data>
+</root>

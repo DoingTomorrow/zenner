@@ -1,0 +1,1469 @@
+
+--- ActionFinished.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ActionFinished
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ActionFinished
+  {
+    public MSS.DTO.Message.Message Message { get; set; }
+  }
+}
+
+
+--- ActionFinishedBooleanResponse.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ActionFinishedBooleanResponse
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ActionFinishedBooleanResponse
+  {
+    public bool IsSuccessfull { get; set; }
+  }
+}
+
+
+--- ActionSearch`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ActionSearch`1
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Utils;
+using System;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ActionSearch<T>
+  {
+    public Guid Id { get; set; }
+
+    public System.Collections.ObjectModel.ObservableCollection<T> ObservableCollection { get; set; }
+
+    public Telerik.Windows.Data.VirtualQueryableCollectionView<T> VirtualQueryableCollectionView { get; set; }
+
+    public ApplicationTabsEnum SelectedTab { get; set; }
+
+    public MSS.DTO.Message.Message Message { get; set; }
+  }
+}
+
+
+--- ActionSearchByText.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ActionSearchByText
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ActionSearchByText
+  {
+    public string SearchedText { get; set; }
+  }
+}
+
+
+--- ActionStructureAndEntitiesUpdate.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ActionStructureAndEntitiesUpdate
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+using MSS.Core.Model.DataCollectors;
+using MSS.Core.Model.Structures;
+using MSS.DTO.Meters;
+using System;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ActionStructureAndEntitiesUpdate
+  {
+    public Guid Guid { get; set; }
+
+    public MeterDTO MeterDTO { get; set; }
+
+    public StructureNodeDTO Node { get; set; }
+
+    public Location Location { get; set; }
+
+    public Tenant Tenant { get; set; }
+
+    public Minomat Minomat { get; set; }
+
+    public MSS.DTO.Message.Message Message { get; set; }
+
+    public string Name { get; set; }
+
+    public string Description { get; set; }
+  }
+}
+
+
+--- ActionSyncFinished.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ActionSyncFinished
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ActionSyncFinished
+  {
+    public MSS.DTO.Message.Message Message { get; set; }
+
+    public bool ContinueScanning { get; set; }
+  }
+}
+
+
+--- ActionUpdated.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ActionUpdated
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ActionUpdated
+  {
+    public Guid Guid { get; set; }
+
+    public MSS.DTO.Message.Message Message { get; set; }
+  }
+}
+
+
+--- ArchiveSearched.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ArchiveSearched
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ArchiveSearched
+  {
+    public string SearchedText { get; set; }
+  }
+}
+
+
+--- AssignMinomatEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.AssignMinomatEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.DTO.Structures;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class AssignMinomatEvent
+  {
+    public MinomatSerializableDTO Minomat { get; set; }
+  }
+}
+
+
+--- AssignStructureEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.AssignStructureEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class AssignStructureEvent
+  {
+    public StructureNodeDTO StructureNode { get; set; }
+  }
+}
+
+
+--- AttachTestConfigMessage.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.AttachTestConfigMessage
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class AttachTestConfigMessage
+  {
+    public MSS.DTO.Message.Message Message { get; set; }
+  }
+}
+
+
+--- ChangeableParametersLoadedEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ChangeableParametersLoadedEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Modules.Configuration;
+using System.Collections.Generic;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ChangeableParametersLoadedEvent
+  {
+    public List<Config> ChangeableParameters { get; set; }
+
+    public string StackPanelName { get; set; }
+
+    public double GridFirstColumnPercentage { get; set; }
+
+    public double GridWidth { get; set; }
+
+    public ChangeableParameterUsings Type { get; set; }
+  }
+}
+
+
+--- CleanNews.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.CleanNews
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class CleanNews
+  {
+    public bool IsRead { get; set; }
+  }
+}
+
+
+--- ConfigurationParameterClicked.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ConfigurationParameterClicked
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ConfigurationParameterClicked
+  {
+    public string Description { get; set; }
+  }
+}
+
+
+--- DeleteEntityEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.DeleteEntityEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class DeleteEntityEvent
+  {
+    public bool WasEntityDeleted { get; set; }
+
+    public object ObjectToDelete { get; set; }
+
+    public Type Type { get; set; }
+  }
+}
+
+
+--- DynamicGridSelectionEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.DynamicGridSelectionEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class DynamicGridSelectionEvent
+  {
+    public object Value { get; set; }
+  }
+}
+
+
+--- EditRuleEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.EditRuleEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.DataFilters;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class EditRuleEvent
+  {
+    public Rules Rule { get; set; }
+  }
+}
+
+
+--- EquipmentConfigEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.EquipmentConfigEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Modules.Configuration;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class EquipmentConfigEvent
+  {
+    public List<Config> EquipmentConfigValues { get; set; }
+  }
+}
+
+
+--- ErrorDuringReading.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ErrorDuringReading
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ErrorDuringReading
+  {
+    public string SerialNumber { get; set; }
+
+    public string ErrorMessage { get; set; }
+  }
+}
+
+
+--- EventPublisher.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.EventPublisher
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Threading;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class EventPublisher
+  {
+    private static readonly IDictionary<Type, List<Action<object>>> Subscribers = (IDictionary<Type, List<Action<object>>>) new Dictionary<Type, List<Action<object>>>();
+
+    public static void Publish<T>(T eventToPublish, IViewModel publishedBy)
+    {
+      List<Action<object>> actionList;
+      lock (EventPublisher.Subscribers)
+      {
+        if (!EventPublisher.Subscribers.TryGetValue(typeof (T), out actionList))
+          return;
+      }
+      foreach (Action<object> action in actionList)
+      {
+        if (action.Target != publishedBy)
+          action((object) eventToPublish);
+      }
+    }
+
+    public static void Publish<T>(T eventToPublish, object publishedBy)
+    {
+      List<Action<object>> actionList;
+      lock (EventPublisher.Subscribers)
+      {
+        if (!EventPublisher.Subscribers.TryGetValue(typeof (T), out actionList))
+          return;
+      }
+      foreach (Action<object> action in actionList)
+      {
+        if (action.Target != publishedBy)
+          action((object) eventToPublish);
+      }
+    }
+
+    public static void Register<T>(Action<T> action)
+    {
+      lock (EventPublisher.Subscribers)
+      {
+        List<Action<object>> actionList;
+        if (!EventPublisher.Subscribers.TryGetValue(typeof (T), out actionList) && !EventPublisher.Subscribers.TryGetValue(typeof (T), out actionList))
+          EventPublisher.Subscribers[typeof (T)] = actionList = new List<Action<object>>();
+        Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
+        Debug.Assert(dispatcher != null);
+        Action<object> item = (Action<object>) (o =>
+        {
+          if (dispatcher != Dispatcher.CurrentDispatcher)
+            dispatcher.Invoke((Action) (() => action((T) o)));
+          else
+            action((T) o);
+        });
+        if (action != null && action.Target is IViewModel)
+          ((IViewModel) action.Target).Disposed += (Action) (() => EventPublisher.Unregister<T>(item));
+        else if (action.Target is Window)
+          ((Window) action.Target).Closed += (EventHandler) delegate
+          {
+            EventPublisher.Unregister<T>(item);
+          };
+        else if (action.Target is UserControl)
+          ((FrameworkElement) action.Target).Unloaded += (RoutedEventHandler) delegate
+          {
+            EventPublisher.Unregister<T>(item);
+          };
+        actionList.Add(item);
+      }
+    }
+
+    private static void Unregister<T>(Action<object> action)
+    {
+      lock (EventPublisher.Subscribers)
+      {
+        List<Action<object>> actionList;
+        if (!EventPublisher.Subscribers.TryGetValue(typeof (T), out actionList))
+          return;
+        actionList.Remove(action);
+      }
+    }
+  }
+}
+
+
+--- EventsPublisher.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.EventsPublisher
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Interfaces;
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class EventsPublisher : IEventPublisher
+  {
+    private static readonly IDictionary<Type, List<Action<object>>> Subscribers = (IDictionary<Type, List<Action<object>>>) new Dictionary<Type, List<Action<object>>>();
+
+    public void Publish<T>(T eventToPublish, IViewModel publishedBy)
+    {
+      EventPublisher.Publish<T>(eventToPublish, publishedBy);
+    }
+
+    public void Publish<T>(T eventToPublish, object publishedBy)
+    {
+      EventPublisher.Publish<T>(eventToPublish, publishedBy);
+    }
+
+    public void Register<T>(Action<T> action) => EventPublisher.Register<T>(action);
+  }
+}
+
+
+--- GridShouldBeUpdated.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.GridShouldBeUpdated
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class GridShouldBeUpdated
+  {
+  }
+}
+
+
+--- IEventPublisher.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.IEventPublisher
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Interfaces;
+using System;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public interface IEventPublisher
+  {
+    void Publish<T>(T eventToPublish, IViewModel publishedBy);
+
+    void Publish<T>(T eventToPublish, object publishedBy);
+
+    void Register<T>(Action<T> action);
+  }
+}
+
+
+--- ItemDropped.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ItemDropped
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ItemDropped
+  {
+  }
+}
+
+
+--- JobCacheUpdate.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.JobCacheUpdate
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class JobCacheUpdate
+  {
+    public Guid JobId { get; set; }
+
+    public JobCacheUpdateEnum UpdateType { get; set; }
+
+    public string SerialNumberToUpdate { get; set; }
+  }
+}
+
+
+--- JobCacheUpdateEnum.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.JobCacheUpdateEnum
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public enum JobCacheUpdateEnum
+  {
+    JobStarted,
+    JobCompleted,
+    JobError,
+    JobValueIdentSetReceived,
+  }
+}
+
+
+--- JobStateModified.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.JobStateModified
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class JobStateModified
+  {
+    public Guid JobId { get; set; }
+  }
+}
+
+
+--- LanguageChangedEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.LanguageChangedEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Languages;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class LanguageChangedEvent
+  {
+    public LangEnum Language;
+  }
+}
+
+
+--- LoadSubNodesForRoot.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.LoadSubNodesForRoot
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class LoadSubNodesForRoot
+  {
+    public StructureNodeDTO RootNode { get; set; }
+  }
+}
+
+
+--- LocalDatabaseModified.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.LocalDatabaseModified
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class LocalDatabaseModified
+  {
+    public bool IsChanged { get; set; }
+  }
+}
+
+
+--- MBusScanEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.MBusScanEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class MBusScanEvent
+  {
+    public Meter Meter { get; set; }
+  }
+}
+
+
+--- MBusScanMessage.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.MBusScanMessage
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class MBusScanMessage
+  {
+    public MSS.DTO.Message.Message Message { get; set; }
+  }
+}
+
+
+--- MeterConfigurationEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.MeterConfigurationEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Modules.Configuration;
+using System.Collections.Generic;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class MeterConfigurationEvent
+  {
+    public List<ConfigurationPerChannel> ConfigValuesPerChannelList { get; set; }
+
+    public ICommand ComboboxCommand { get; set; }
+
+    public int SelectedTab { get; set; }
+  }
+}
+
+
+--- MeterConfigurationParamsLoadedEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.MeterConfigurationParamsLoadedEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class MeterConfigurationParamsLoadedEvent
+  {
+  }
+}
+
+
+--- MeterNotesUpdated.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.MeterNotesUpdated
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+using MSS.Core.Model.Meters;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class MeterNotesUpdated
+  {
+    public StructureNodeDTO UpdatedNode { get; set; }
+
+    public List<Note> NewNotesList { get; set; }
+  }
+}
+
+
+--- MeterPhotosUpdated.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.MeterPhotosUpdated
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class MeterPhotosUpdated
+  {
+    public StructureNodeDTO UpdatedNode { get; set; }
+
+    public List<byte[]> NewPhotos { get; set; }
+  }
+}
+
+
+--- MinomatUpdate.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.MinomatUpdate
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class MinomatUpdate
+  {
+    public bool IsUpdate { get; set; }
+
+    public List<Guid> Ids { get; set; }
+  }
+}
+
+
+--- OrderReadingValuesSavedEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.OrderReadingValuesSavedEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class OrderReadingValuesSavedEvent
+  {
+    public string SerialNumber { get; set; }
+  }
+}
+
+
+--- OrderUpdated.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.OrderUpdated
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+using MSS.Core.Model.Structures;
+using System;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class OrderUpdated
+  {
+    public Guid Guid { get; set; }
+
+    public StructureNodeDTO SelectedNodeDTO { get; set; }
+
+    public StructureTypeEnum? StructureType { get; set; }
+  }
+}
+
+
+--- PartialSyncEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.PartialSyncEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class PartialSyncEvent
+  {
+  }
+}
+
+
+--- ProfileTypeChangedEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ProfileTypeChangedEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Modules.Configuration;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ProfileTypeChangedEvent
+  {
+    public List<Config> ProfileTypeValues { get; set; }
+  }
+}
+
+
+--- ProgressBarItemDone.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ProgressBarItemDone
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ProgressBarItemDone
+  {
+    public string Item { get; set; }
+  }
+}
+
+
+--- ProgressBarValueChanged.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ProgressBarValueChanged
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ProgressBarValueChanged
+  {
+    public int Value { get; set; }
+  }
+}
+
+
+--- ProgressEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ProgressEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ProgressEvent
+  {
+    public int Value { get; set; }
+  }
+}
+
+
+--- ProgressFinished.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ProgressFinished
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ProgressFinished
+  {
+    public int Value { get; set; }
+  }
+}
+
+
+--- RefreshFilters.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.RefreshFilters
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class RefreshFilters
+  {
+    public bool isRefresh;
+  }
+}
+
+
+--- RefreshFixedStructuresEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.RefreshFixedStructuresEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class RefreshFixedStructuresEvent
+  {
+  }
+}
+
+
+--- RefreshGridEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.RefreshGridEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class RefreshGridEvent
+  {
+  }
+}
+
+
+--- RefreshJobGrid.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.RefreshJobGrid
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.Jobs;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class RefreshJobGrid
+  {
+    public MssReadingJob Job { get; set; }
+  }
+}
+
+
+--- RemoveJobDefinitionEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.RemoveJobDefinitionEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.Jobs;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class RemoveJobDefinitionEvent
+  {
+    public JobDefinition JobDefinition { get; set; }
+  }
+}
+
+
+--- RemoveJobEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.RemoveJobEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.Jobs;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class RemoveJobEvent
+  {
+    public MssReadingJob Job { get; set; }
+  }
+}
+
+
+--- ReplaceDeviceEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ReplaceDeviceEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.Structures;
+using MSS.DTO.Meters;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ReplaceDeviceEvent
+  {
+    public Guid Guid { get; set; }
+
+    public MeterDTO CurrentMeterDTO { get; set; }
+
+    public StructureNodeDTO ReplacedMeter { get; set; }
+
+    public MSS.DTO.Message.Message Message { get; set; }
+
+    public string Name { get; set; }
+
+    public string Description { get; set; }
+
+    public StructureNodeType CurrentMeterNodeType { get; set; }
+
+    public ObservableCollection<StructureNodeDTO> SubNodes { get; set; }
+
+    public List<byte[]> AssignedPicture { get; set; }
+
+    public List<Note> AssignedNotes { get; set; }
+
+    public StructureNodeDTO MeterToReplaceWith { get; set; }
+  }
+}
+
+
+--- SaveJobDefinitionEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.SaveJobDefinitionEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.Jobs;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class SaveJobDefinitionEvent
+  {
+    public JobDefinition JobDefinition { get; set; }
+  }
+}
+
+
+--- ScanModeConfigEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ScanModeConfigEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Modules.Configuration;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ScanModeConfigEvent
+  {
+    public List<Config> ScanModeConfigValues { get; set; }
+  }
+}
+
+
+--- SelectedTabChanged.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.SelectedTabChanged
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Utils;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class SelectedTabChanged
+  {
+    public ApplicationTabsEnum SelectedTab { get; set; }
+  }
+}
+
+
+--- SelectedTabValue.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.SelectedTabValue
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Utils;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class SelectedTabValue
+  {
+    public ApplicationTabsEnum Tab { get; set; }
+  }
+}
+
+
+--- SendSerializedDataEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.SendSerializedDataEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class SendSerializedDataEvent
+  {
+    public byte[] SerializedObject { get; set; }
+  }
+}
+
+
+--- SetSystemChangeableParamsEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.SetSystemChangeableParamsEvent
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class SetSystemChangeableParamsEvent
+  {
+    public TimeSpan? DueDate { get; set; }
+
+    public TimeSpan? Month { get; set; }
+
+    public TimeSpan? Day { get; set; }
+
+    public TimeSpan? QuarterHour { get; set; }
+  }
+}
+
+
+--- ShowMessage.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.ShowMessage
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class ShowMessage
+  {
+    public MSS.DTO.Message.Message Message { get; set; }
+  }
+}
+
+
+--- StructureBytesUpdated.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.StructureBytesUpdated
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class StructureBytesUpdated
+  {
+    public byte[] StructureBytes { get; set; }
+
+    public Guid MeterReadByWalkBy { get; set; }
+
+    public string SerialNumberRead { get; set; }
+
+    public bool AnyReadingValuesRead { get; set; }
+
+    public bool IsConfigured { get; set; }
+  }
+}
+
+
+--- StructureRootUpdated.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.StructureRootUpdated
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class StructureRootUpdated
+  {
+    public Guid RootNodeId { get; set; }
+  }
+}
+
+
+--- StructureUpdated.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.StructureUpdated
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+using MSS.Core.Model.Structures;
+using System;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class StructureUpdated
+  {
+    public Guid Guid { get; set; }
+
+    public Guid EntityId { get; set; }
+
+    public StructureNodeTypeEnum EntityType { get; set; }
+
+    public Guid LinkGuid { get; set; }
+
+    public MSS.DTO.Message.Message Message { get; set; }
+
+    public StructureNodeDTO RootNode { get; set; }
+  }
+}
+
+
+--- SyncConflictsStateChanged.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.SyncConflictsStateChanged
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class SyncConflictsStateChanged
+  {
+  }
+}
+
+
+--- TreeDragDropChange.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.TreeDragDropChange
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class TreeDragDropChange
+  {
+  }
+}
+
+
+--- UpdateDefaultEquipment.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Events.UpdateDefaultEquipment
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Modules.Configuration;
+using System.Collections.Generic;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS.Business.Events
+{
+  public class UpdateDefaultEquipment
+  {
+    public EquipmentModel SelectedEquipmentModel { get; set; }
+
+    public List<Config> ChangeableParameters { get; set; }
+  }
+}
+

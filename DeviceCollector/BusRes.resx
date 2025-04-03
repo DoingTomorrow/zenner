@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ExcelConnectError" xml:space="preserve">
+    <value>Error while connecting to MS Excel. Please ensure that MS Excel is properly installed.</value>
+  </data>
+  <data name="PrimaryAddressSearch" xml:space="preserve">
+    <value>Addresses scanned: {0} of {1},  Devices found: {2}</value>
+  </data>
+  <data name="HOT_AND_COLD_WATER" xml:space="preserve">
+    <value>Hot and cold water meter</value>
+  </data>
+  <data name="BUS_SYSTEM" xml:space="preserve">
+    <value>Bus system</value>
+  </data>
+  <data name="PRESSURE" xml:space="preserve">
+    <value>Pressure</value>
+  </data>
+  <data name="HEAT_COLD" xml:space="preserve">
+    <value>Heat meter with mounting position on cooler pipe</value>
+  </data>
+  <data name="HEAT_WARM" xml:space="preserve">
+    <value>Heat meter with mounting position on warmer pipe</value>
+  </data>
+  <data name="5" xml:space="preserve">
+    <value>Address not changed</value>
+  </data>
+  <data name="4" xml:space="preserve">
+    <value>Scan start address error!</value>
+  </data>
+  <data name="7" xml:space="preserve">
+    <value>The selected device does not support this SetPrimaryAddress command</value>
+  </data>
+  <data name="6" xml:space="preserve">
+    <value>Data error</value>
+  </data>
+  <data name="1" xml:space="preserve">
+    <value>Device not found</value>
+  </data>
+  <data name="3" xml:space="preserve">
+    <value>Save changed businfo?</value>
+  </data>
+  <data name="2" xml:space="preserve">
+    <value>Read error</value>
+  </data>
+  <data name="9" xml:space="preserve">
+    <value>The selected device does not support the reset command</value>
+  </data>
+  <data name="8" xml:space="preserve">
+    <value>The selected device does not support this ReadParameter command</value>
+  </data>
+  <data name="10" xml:space="preserve">
+    <value>The selected device does not support the SetEmergencyMode command</value>
+  </data>
+  <data name="11" xml:space="preserve">
+    <value>The selected device does not support the RunBackup command</value>
+  </data>
+  <data name="12" xml:space="preserve">
+    <value>The selected device does not support the DeleteMeterKey command</value>
+  </data>
+  <data name="13" xml:space="preserve">
+    <value>This Function removes alle bus data. Continue?</value>
+  </data>
+  <data name="GAS" xml:space="preserve">
+    <value>Gas meter</value>
+  </data>
+  <data name="OIL" xml:space="preserve">
+    <value>Oil meter</value>
+  </data>
+  <data name="HCA" xml:space="preserve">
+    <value>Heat cost allocator</value>
+  </data>
+  <data name="HOT_WATER_90" xml:space="preserve">
+    <value>Hot water meter ( &gt; 90°C)</value>
+  </data>
+  <data name="OTHER" xml:space="preserve">
+    <value>Other device type</value>
+  </data>
+  <data name="WATER" xml:space="preserve">
+    <value>Water meter</value>
+  </data>
+  <data name="STEAM" xml:space="preserve">
+    <value>Steam meter</value>
+  </data>
+  <data name="ReadBusCollection" xml:space="preserve">
+    <value>Read device list and settings</value>
+  </data>
+  <data name="UNKNOWN" xml:space="preserve">
+    <value>unknown</value>
+  </data>
+  <data name="HEAT_AND_COOL" xml:space="preserve">
+    <value>Heat and cooling meter (change over)</value>
+  </data>
+  <data name="COMPRESSED_AIR" xml:space="preserve">
+    <value>Compressed air</value>
+  </data>
+  <data name="ELECTRICITY" xml:space="preserve">
+    <value>Electricity meter</value>
+  </data>
+  <data name="NoVersionCommandAvailable" xml:space="preserve">
+    <value>The selected device does not support the ReadVersion command. Select ZENNER Serie2 decice on DeviceCollector!</value>
+  </data>
+  <data name="WriteBusCollection" xml:space="preserve">
+    <value>Write device list and settings</value>
+  </data>
+  <data name="COLD_WATER" xml:space="preserve">
+    <value>Cold water</value>
+  </data>
+  <data name="HOT_WATER" xml:space="preserve">
+    <value>Hot water meter (30°C-90°C)</value>
+  </data>
+  <data name="COOL_WARM" xml:space="preserve">
+    <value>Heat meter with mounting position on cooler pipe (outlet)</value>
+  </data>
+  <data name="COOL_COLD" xml:space="preserve">
+    <value>Heat meter with mounting position on warmer pipe (inlet)</value>
+  </data>
+  <data name="AD_CONVERTER" xml:space="preserve">
+    <value>A/D Converter</value>
+  </data>
+  <data name="AsyncComIsLocked" xml:space="preserve">
+    <value>The AsyncCom component is already used by {0}!</value>
+  </data>
+</root>

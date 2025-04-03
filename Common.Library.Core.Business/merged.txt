@@ -1,0 +1,69 @@
+
+--- AssemblyInfo.cs ---
+
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyCompany("Infobest")]
+[assembly: AssemblyProduct("Common.Library.Core.Business")]
+[assembly: AssemblyCopyright("Copyright ©  Infobest 2012")]
+[assembly: AssemblyTitle("Common.Library.Core.Business")]
+[assembly: AssemblyDescription("Business components for standard use within the framework.")]
+[assembly: AssemblyConfiguration("")]
+[assembly: ComVisible(false)]
+[assembly: AssemblyTrademark("")]
+[assembly: Guid("27065c24-cf8f-4ffa-a728-96ee69630c93")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.0.0")]
+
+
+--- DefaultConnectionStringProvider.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Common.Library.Core.Business.Database.DefaultConnectionStringProvider
+// Assembly: Common.Library.Core.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 848DF87A-D999-47E1-B1BF-1A19BA680E53
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Common.Library.Core.Business.dll
+
+using System;
+using System.Configuration;
+using System.Linq;
+
+#nullable disable
+namespace Common.Library.Core.Business.Database
+{
+  public class DefaultConnectionStringProvider : IConnectionStringProvider
+  {
+    private const string DEFAULT_KEY_NAME = "Default";
+
+    public string GetConnectionString()
+    {
+      if (ConfigurationManager.ConnectionStrings.OfType<ConnectionStringSettings>().SingleOrDefault<ConnectionStringSettings>((Func<ConnectionStringSettings, bool>) (s => s.Name.Equals("Default", StringComparison.InvariantCultureIgnoreCase))) != null)
+        return ConfigurationManager.ConnectionStrings["Default"].ConnectionString;
+      throw new SettingsPropertyNotFoundException("Could not find the connection string setting named \"Default\" in the configuration file.");
+    }
+
+    public string GetConnectionString(params object[] parameters) => this.GetConnectionString();
+  }
+}
+
+
+--- IConnectionStringProvider.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Common.Library.Core.Business.Database.IConnectionStringProvider
+// Assembly: Common.Library.Core.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 848DF87A-D999-47E1-B1BF-1A19BA680E53
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Common.Library.Core.Business.dll
+
+#nullable disable
+namespace Common.Library.Core.Business.Database
+{
+  public interface IConnectionStringProvider
+  {
+    string GetConnectionString();
+
+    string GetConnectionString(params object[] parameters);
+  }
+}
+

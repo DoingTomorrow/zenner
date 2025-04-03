@@ -1,0 +1,27 @@
+<Window x:Class="HandlerLib.TypeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Types" Height="600" Width="900" WindowStartupLocation="CenterOwner"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="5"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
+      <Label Content="SAP number:" VerticalAlignment="Center"/>
+      <TextBox KeyDown="TextBoxSapNumber_KeyDown" Name="TextBoxSapNumber" MinWidth="100" Margin="5"/>
+      <Button Click="ButtonOpen_Click" x:Name="ButtonOpen" Content="Open" VerticalAlignment="Center"/>
+    </StackPanel>
+    <DataGrid MouseDoubleClick="DataGridTypes_MouseDoubleClick" x:Name="DataGridTypes" CanUserAddRows="false"
+              Margin="5">
+      <FrameworkElement.ContextMenu>
+        <ContextMenu>
+          <MenuItem Click="MenuItemDelete_Click" x:Name="MenuItemDelete" Header="Delete"/>
+        </ContextMenu>
+      </FrameworkElement.ContextMenu>
+    </DataGrid>
+  </DockPanel>
+</Window>

@@ -1,0 +1,30 @@
+<Window x:Class="CommonWPF.ExceptionViewer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:my="clr-namespace:CommonWPF"
+        Title="Exception" Height="391.274" Width="734.978" WindowStartupLocation="CenterScreen"
+        Icon="Images/ZR.ico">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type TextBlock}">
+      <Setter Property="FrameworkElement.Margin" Value="5"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <my:GmmCorporateControl DockPanel.Dock="Top" HorizontalAlignment="Stretch"/>
+    <ScrollViewer>
+      <StackPanel Name="StackPanalAnchor" Margin="5">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+            <CheckBox Checked="CheckBoxStackTrace_Checked" Unchecked="CheckBoxStackTrace_Unchecked"
+                      Name="CheckBoxStackTrace" Content="Show stack trace" FlowDirection="RightToLeft"
+                      VerticalContentAlignment="Center"/>
+            <Button Click="ButtonCopy_Click" Name="ButtonCopy" Content="Copy" Margin="10,5,5,5" Padding="5,0,5,3"/>
+          </StackPanel>
+          <TextBlock Name="TextBlockHeaderText" Text="Header text" Margin="5,10,10,2" FontWeight="Bold" FontSize="12"
+                     TextWrapping="Wrap"/>
+        </DockPanel>
+        <my:ExceptionLayer x:Name="ExceptionLayer1"/>
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</Window>

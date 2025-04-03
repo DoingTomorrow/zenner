@@ -1,0 +1,418 @@
+
+--- Config.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Configuration.Config
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Modules.Configuration
+{
+  public class Config
+  {
+    public string PropertyName { get; set; }
+
+    public string PropertyValue { get; set; }
+
+    public List<ConfigurationPropertyValue> ProperListValues { get; set; }
+
+    public string Type { get; set; }
+
+    public bool IsReadOnly { get; set; }
+
+    public object Parameter { get; set; }
+
+    public string Description { get; set; }
+  }
+}
+
+
+--- ConfigurationHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Configuration.ConfigurationHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Xml.Serialization;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS.Business.Modules.Configuration
+{
+  public static class ConfigurationHelper
+  {
+    public static byte[] SerializeConfigurationParameters(
+      List<ConfigurationPerChannel> configurationParametersPerChannel)
+    {
+      foreach (ConfigurationPerChannel configurationPerChannel in configurationParametersPerChannel)
+      {
+        foreach (Config configValue in configurationPerChannel.ConfigValues)
+        {
+          configValue.Parameter = (object) null;
+          configValue.IsReadOnly = true;
+        }
+      }
+      XmlSerializer xmlSerializer = new XmlSerializer(configurationParametersPerChannel.GetType());
+      MemoryStream memoryStream = new MemoryStream();
+      xmlSerializer.Serialize((Stream) memoryStream, (object) configurationParametersPerChannel);
+      return memoryStream.ToArray();
+    }
+
+    public static List<ConfigurationPerChannel> DeserializeConfigurationParameters(
+      byte[] gmmParameters)
+    {
+      return new XmlSerializer(typeof (List<ConfigurationPerChannel>)).Deserialize((Stream) new MemoryStream(gmmParameters)) as List<ConfigurationPerChannel>;
+    }
+
+    public static bool HasChangeableParameters(DeviceModel deviceModel)
+    {
+      return deviceModel?.ChangeableParameters != null && deviceModel.ChangeableParameters.Any<ChangeableParameter>();
+    }
+  }
+}
+
+
+--- ConfigurationPerChannel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Configuration.ConfigurationPerChannel
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Modules.Configuration
+{
+  public class ConfigurationPerChannel
+  {
+    public int ChannelNr { get; set; }
+
+    public List<Config> ConfigValues { get; set; }
+  }
+}
+
+
+--- ConfigurationPropertyValue.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Configuration.ConfigurationPropertyValue
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Modules.Configuration
+{
+  public class ConfigurationPropertyValue
+  {
+    public string OriginalName { get; set; }
+
+    public string DisplayName { get; set; }
+
+    public string Value { get; set; }
+  }
+}
+
+
+--- ConfigurationValuesToListConfigConverter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Configuration.ConfigurationValuesToListConfigConverter
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using GmmDbLib;
+using MSS.Core.Model.ApplicationParamenters;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.Configuration
+{
+  public class ConfigurationValuesToListConfigConverter : IConfigurationValuesToListConfigConverter
+  {
+    public List<Config> GetConfigurationValues(
+      SortedList<OverrideID, ConfigurationParameter> parameters)
+    {
+      List<Config> configurationValues = new List<Config>();
+      foreach (KeyValuePair<OverrideID, ConfigurationParameter> parameter in parameters)
+      {
+        Config config = new Config()
+        {
+          PropertyName = EnumTranslator.GetTranslatedEnumName((object) parameter.Value.ParameterID),
+          Description = EnumTranslator.GetTranslatedEnumDescription((object) parameter.Value.ParameterID),
+          ProperListValues = (List<ConfigurationPropertyValue>) null,
+          Parameter = (object) parameter,
+          IsReadOnly = !parameter.Value.HasWritePermission,
+          Type = this.GetConfigType(parameter.Value),
+          PropertyValue = this.GetPropertyValue(parameter.Value)
+        };
+        config.ProperListValues = this.GetProperListValues(parameter.Value);
+        configurationValues.Add(config);
+      }
+      return configurationValues;
+    }
+
+    private string GetConfigType(ConfigurationParameter pValue)
+    {
+      if (pValue.ParameterValue == null || !pValue.HasWritePermission)
+        return ViewObjectTypeEnum.TextBox.ToString();
+      Type type = pValue.ParameterValue.GetType();
+      if (type != (Type) null && type == typeof (string[]) && pValue != null && pValue.AllowedValues != null && pValue.AllowedValues.GetType() == typeof (string[]))
+        return ViewObjectTypeEnum.MultiSelectionComboBox.ToString();
+      if (type.IsEnum || pValue.AllowedValues != null && pValue.AllowedValues.Length != 0)
+        return ViewObjectTypeEnum.ComboBox.ToString();
+      return typeof (bool) == type ? ViewObjectTypeEnum.CheckBox.ToString() : ViewObjectTypeEnum.TextBox.ToString();
+    }
+
+    private string GetPropertyValue(ConfigurationParameter pValue)
+    {
+      if (pValue.ParameterValue == null || !pValue.HasWritePermission)
+        return pValue.ToString();
+      if (pValue.ParameterValue is DateTime)
+      {
+        DateTime parameterValue = (DateTime) pValue.ParameterValue;
+        return parameterValue.TimeOfDay.Ticks == 0L ? parameterValue.ToString("d") : parameterValue.ToString();
+      }
+      Type type = pValue.ParameterValue.GetType();
+      if (type.IsEnum)
+        return Enum.Parse(type, pValue.ParameterValue.ToString(), true).ToString();
+      if (type.IsArray && type.GetElementType() == typeof (string))
+        return string.Join(",", (string[]) pValue.ParameterValue);
+      if (pValue.AllowedValues != null && pValue.AllowedValues.Length != 0)
+        return pValue.ParameterValue.ToString();
+      return typeof (bool) == type ? Convert.ToBoolean(pValue.ParameterValue).ToString() : pValue.ToString();
+    }
+
+    private List<ConfigurationPropertyValue> GetProperListValues(ConfigurationParameter pValue)
+    {
+      if (pValue.ParameterValue == null)
+        return (List<ConfigurationPropertyValue>) null;
+      Type type = pValue.ParameterValue.GetType();
+      if (!type.IsEnum && (pValue.AllowedValues == null || pValue.AllowedValues.Length == 0))
+        return (List<ConfigurationPropertyValue>) null;
+      if (!type.IsEnum)
+        return ((IEnumerable<string>) pValue.AllowedValues).Select<string, ConfigurationPropertyValue>((Func<string, ConfigurationPropertyValue>) (x => new ConfigurationPropertyValue()
+        {
+          DisplayName = x,
+          Value = x,
+          OriginalName = x
+        })).ToList<ConfigurationPropertyValue>();
+      return pValue.AllowedValues == null ? Enum.GetValues(type).Cast<object>().Select<object, string>((Func<object, string>) (value => value.ToString())).ToList<string>().Select<string, ConfigurationPropertyValue>((Func<string, ConfigurationPropertyValue>) (x => new ConfigurationPropertyValue()
+      {
+        DisplayName = x,
+        Value = x,
+        OriginalName = x
+      })).ToList<ConfigurationPropertyValue>() : ((IEnumerable<string>) pValue.AllowedValues).Select<string, string>((Func<string, string>) (item => Enum.Parse(type, item).ToString())).ToList<string>().Select<string, ConfigurationPropertyValue>((Func<string, ConfigurationPropertyValue>) (x => new ConfigurationPropertyValue()
+      {
+        DisplayName = x,
+        Value = x,
+        OriginalName = x
+      })).ToList<ConfigurationPropertyValue>();
+    }
+  }
+}
+
+
+--- DeviceConfigurationParameterCollector.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Configuration.DeviceConfigurationParameterCollector
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Modules.GMMWrapper;
+using System.Collections.Generic;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS.Business.Modules.Configuration
+{
+  public class DeviceConfigurationParameterCollector : IDeviceConfigurationParameterCollector
+  {
+    public const int MaxChannels = 4;
+    private readonly IConfiguratorManager _configuratorManager;
+    private readonly IConfigurationValuesToListConfigConverter _converter;
+
+    public DeviceConfigurationParameterCollector(
+      IConfiguratorManager configuratorManager,
+      IConfigurationValuesToListConfigConverter configurationValuesToListConfigConverter)
+    {
+      this._configuratorManager = configuratorManager;
+      this._converter = configurationValuesToListConfigConverter;
+    }
+
+    public List<ConfigurationPerChannel> Collect(ConnectionAdjuster connectionAdjuster)
+    {
+      try
+      {
+        return this.GetConfigurationParameters(this._configuratorManager.ReadDevice(connectionAdjuster));
+      }
+      finally
+      {
+        this._configuratorManager.CloseConnection();
+      }
+    }
+
+    private List<ConfigurationPerChannel> GetConfigurationParameters(int count)
+    {
+      List<ConfigurationPerChannel> dictConfigParams = new List<ConfigurationPerChannel>();
+      for (int inputType = 0; inputType < 4; ++inputType)
+      {
+        if (count > inputType)
+          this.AddConfigParams(dictConfigParams, inputType);
+      }
+      return dictConfigParams;
+    }
+
+    private void AddConfigParams(List<ConfigurationPerChannel> dictConfigParams, int inputType)
+    {
+      List<Config> configurationValues = this._converter.GetConfigurationValues(this._configuratorManager.GetConfigurationParameters(inputType));
+      dictConfigParams.Add(new ConfigurationPerChannel()
+      {
+        ChannelNr = inputType,
+        ConfigValues = configurationValues
+      });
+    }
+  }
+}
+
+
+--- DeviceConfigurationParameterWriter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Configuration.DeviceConfigurationParameterWriter
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Modules.GMMWrapper;
+using System.Collections.Generic;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.Configuration
+{
+  public class DeviceConfigurationParameterWriter : IDeviceConfigurationParameterWriter
+  {
+    private readonly IConfiguratorManager _configuratorManager;
+
+    public DeviceConfigurationParameterWriter(IConfiguratorManager configuratorManager)
+    {
+      this._configuratorManager = configuratorManager;
+    }
+
+    public void Write(
+      SortedList<OverrideID, ConfigurationParameter> paramsChannel1List,
+      SortedList<OverrideID, ConfigurationParameter> paramsChannel2List,
+      SortedList<OverrideID, ConfigurationParameter> paramsChannel3List,
+      SortedList<OverrideID, ConfigurationParameter> paramsList)
+    {
+      try
+      {
+        this.SetConfigParams(paramsChannel1List, paramsChannel2List, paramsChannel3List, paramsList);
+        this._configuratorManager.WriteDevice();
+      }
+      finally
+      {
+        this._configuratorManager.CloseConnection();
+      }
+    }
+
+    private void SetConfigParams(
+      SortedList<OverrideID, ConfigurationParameter> paramsChannel1List,
+      SortedList<OverrideID, ConfigurationParameter> paramsChannel2List,
+      SortedList<OverrideID, ConfigurationParameter> paramsChannel3List,
+      SortedList<OverrideID, ConfigurationParameter> paramsList)
+    {
+      this._configuratorManager.SetConfigurationParameters(paramsChannel1List, 1);
+      this._configuratorManager.SetConfigurationParameters(paramsChannel2List, 2);
+      this._configuratorManager.SetConfigurationParameters(paramsChannel3List, 3);
+      this._configuratorManager.SetConfigurationParameters(paramsList);
+    }
+  }
+}
+
+
+--- IConfigurationValuesToListConfigConverter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Configuration.IConfigurationValuesToListConfigConverter
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System.Collections.Generic;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.Configuration
+{
+  public interface IConfigurationValuesToListConfigConverter
+  {
+    List<Config> GetConfigurationValues(
+      SortedList<OverrideID, ConfigurationParameter> parameters);
+  }
+}
+
+
+--- IDeviceConfigurationParameterCollector.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Configuration.IDeviceConfigurationParameterCollector
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System.Collections.Generic;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS.Business.Modules.Configuration
+{
+  public interface IDeviceConfigurationParameterCollector
+  {
+    List<ConfigurationPerChannel> Collect(ConnectionAdjuster connectionAdjuster);
+  }
+}
+
+
+--- IDeviceConfigurationParameterWriter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Configuration.IDeviceConfigurationParameterWriter
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System.Collections.Generic;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.Configuration
+{
+  public interface IDeviceConfigurationParameterWriter
+  {
+    void Write(
+      SortedList<OverrideID, ConfigurationParameter> paramsChannel1List,
+      SortedList<OverrideID, ConfigurationParameter> paramsChannel2List,
+      SortedList<OverrideID, ConfigurationParameter> paramsChannel3List,
+      SortedList<OverrideID, ConfigurationParameter> paramsList);
+  }
+}
+

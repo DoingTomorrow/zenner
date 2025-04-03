@@ -1,0 +1,1378 @@
+
+--- ArchiveDetailsADO.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Archiving.ArchiveDetailsADO
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.Archiving;
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Modules.Archiving
+{
+  public class ArchiveDetailsADO
+  {
+    public ArchiveDetailsADO()
+    {
+      this.ArchivedEntities = new List<ArchiveEntity>();
+      this.StartTime = DateTime.MinValue;
+      this.EndTime = DateTime.MinValue;
+      this.ArchiveName = string.Empty;
+    }
+
+    public List<ArchiveEntity> ArchivedEntities { get; set; }
+
+    public DateTime StartTime { get; set; }
+
+    public DateTime EndTime { get; set; }
+
+    public string ArchiveName { get; set; }
+  }
+}
+
+
+--- ArchiveDetailsNHibernate.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Archiving.ArchiveDetailsNHibernate
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.Archiving;
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Modules.Archiving
+{
+  public class ArchiveDetailsNHibernate
+  {
+    public ArchiveDetailsNHibernate()
+    {
+      this.ArchivedEntities = new List<ArchiveEntity>();
+      this.StartTime = DateTime.MinValue;
+      this.EndTime = DateTime.MinValue;
+    }
+
+    public List<ArchiveEntity> ArchivedEntities { get; set; }
+
+    public DateTime StartTime { get; set; }
+
+    public DateTime EndTime { get; set; }
+  }
+}
+
+
+--- ArchiveJobManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Archiving.ArchiveJobManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.Archiving;
+using MSS.Core.Model.Reporting;
+using MSS.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+#nullable disable
+namespace MSS.Business.Modules.Archiving
+{
+  public class ArchiveJobManager
+  {
+    private readonly IRepositoryFactory _repositoryFactory;
+
+    public ArchiveJobManager(IRepositoryFactory repositoryFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+    }
+
+    public List<ArchiveJob> GetActiveJobs()
+    {
+      return this._repositoryFactory.GetRepository<ArchiveJob>().GetAll().Where<ArchiveJob>(new Func<ArchiveJob, bool>(this.IsDueForExecution)).ToList<ArchiveJob>();
+    }
+
+    public ArchiveDetailsADO GetArchiveDetails(ArchiveJob archiveJob)
+    {
+      DateTime dateTime = archiveJob.LastExecutionDate.HasValue ? archiveJob.LastExecutionDate.Value : new DateTime(2000, 1, 1);
+      return new ArchiveDetailsADO()
+      {
+        StartTime = dateTime,
+        EndTime = DateTime.Now,
+        ArchivedEntities = ArchivingHelper.DeserializeArchivedEntities(archiveJob.ArchivedEntities),
+        ArchiveName = archiveJob.ArchiveName + "_" + dateTime.ToString("dd-MMM-yy HH:mm") + "_" + DateTime.Now.ToString("dd-MMM-yy HH:mm")
+      };
+    }
+
+    private bool IsDueForExecution(ArchiveJob jobToCheck)
+    {
+      DateTime dateTime1;
+      if (jobToCheck.LastExecutionDate.HasValue)
+      {
+        DateTime dateTime2 = jobToCheck.LastExecutionDate.Value;
+        DateTime startDate = jobToCheck.StartDate;
+        dateTime1 = new DateTime(dateTime2.Year, dateTime2.Month, dateTime2.Day, startDate.Hour, startDate.Minute, 0);
+      }
+      else
+        dateTime1 = jobToCheck.StartDate;
+      DateTime dateTime3;
+      switch (jobToCheck.Periodicity)
+      {
+        case AutomatedExportJobPeriodicityEnum.Hourly:
+          dateTime3 = dateTime1.AddHours(1.0);
+          break;
+        case AutomatedExportJobPeriodicityEnum.Daily:
+          dateTime3 = dateTime1.AddDays(1.0);
+          break;
+        case AutomatedExportJobPeriodicityEnum.Weekly:
+          dateTime3 = dateTime1.AddDays(7.0);
+          break;
+        case AutomatedExportJobPeriodicityEnum.Monthly:
+          dateTime3 = dateTime1.AddMonths(1);
+          break;
+        case AutomatedExportJobPeriodicityEnum.Annually:
+          dateTime3 = dateTime1.AddYears(1);
+          break;
+        default:
+          return false;
+      }
+      return dateTime3 < DateTime.Now;
+    }
+  }
+}
+
+
+--- ArchiveManagerADO.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Archiving.ArchiveManagerADO
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Utils;
+using MSS.Core.Model.Archiving;
+using MSS.Core.Model.DataCollectors;
+using MSS.Core.Model.Meters;
+using MSS.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+
+#nullable disable
+namespace MSS.Business.Modules.Archiving
+{
+  public class ArchiveManagerADO
+  {
+    private IRepositoryFactory RepositoryFactory { get; set; }
+
+    private GenericArchiver Archiver { get; set; }
+
+    public ArchiveManagerADO(IRepositoryFactory repositoryFactory)
+    {
+      this.RepositoryFactory = repositoryFactory;
+      DatabaseEngineEnum databaseEngineEnum = (DatabaseEngineEnum) Enum.Parse(typeof (DatabaseEngineEnum), ConfigurationManager.AppSettings["DatabaseEngine"]);
+      string propertyValue1 = NHibernateConfigurationHelper.GetPropertyValue(ConfigurationManager.AppSettings["DatabaseEngine"], "connection.connection_string");
+      string propertyValue2 = NHibernateConfigurationHelper.GetPropertyValue(ConfigurationManager.AppSettings["ArhiveDatabaseEngine"], "connection.connection_string");
+      switch (databaseEngineEnum)
+      {
+        case DatabaseEngineEnum.MSSQLDatabase:
+          this.Archiver = (GenericArchiver) new MSSQLDatabaseArchiver(propertyValue1, propertyValue2, repositoryFactory.GetSession().SessionFactory);
+          break;
+        case DatabaseEngineEnum.SQLiteDatabase:
+          this.Archiver = (GenericArchiver) new SQLiteDatabaseArchiver(propertyValue1, propertyValue2, repositoryFactory.GetSession().SessionFactory);
+          break;
+        default:
+          throw new Exception("No database engine provided");
+      }
+    }
+
+    public int Archive(ArchiveJob archiveJob)
+    {
+      List<ArchiveEntity> source = ArchivingHelper.DeserializeArchivedEntities(archiveJob.ArchivedEntities);
+      bool flag1 = source.Any<ArchiveEntity>((Func<ArchiveEntity, bool>) (e => e.ArchivedEntityEnum == ArchivedEntitiesEnum.ReadingData && e.IsChecked));
+      bool flag2 = source.Any<ArchiveEntity>((Func<ArchiveEntity, bool>) (e => e.ArchivedEntityEnum == ArchivedEntitiesEnum.OrderAndStructure && e.IsChecked));
+      bool flag3 = source.Any<ArchiveEntity>((Func<ArchiveEntity, bool>) (e => e.ArchivedEntityEnum == ArchivedEntitiesEnum.Structure && e.IsChecked));
+      bool flag4 = source.Any<ArchiveEntity>((Func<ArchiveEntity, bool>) (e => e.ArchivedEntityEnum == ArchivedEntitiesEnum.Jobs && e.IsChecked));
+      bool flag5 = source.Any<ArchiveEntity>((Func<ArchiveEntity, bool>) (e => e.ArchivedEntityEnum == ArchivedEntitiesEnum.Logs && e.IsChecked));
+      this.Archiver.Initialize();
+      int num1 = 0;
+      try
+      {
+        if (flag1)
+        {
+          int num2 = this.RepositoryFactory.GetSession().QueryOver<MeterReadingValue>().RowCount();
+          num1 += num2;
+          if (num2 > 0)
+            this.Archiver.ArchiveReadingData(archiveJob);
+        }
+        if (flag2)
+          this.Archiver.ArchiveOrders(archiveJob);
+        if (flag4)
+          this.Archiver.ArchiveJobs(archiveJob);
+        if (flag3)
+          this.Archiver.ArchiveStructures(archiveJob);
+        if (flag5)
+        {
+          int num3 = this.RepositoryFactory.GetSession().QueryOver<MinomatConnectionLog>().RowCount();
+          num1 += num3;
+          if (num3 > 0)
+            this.Archiver.ArchiveLogs(archiveJob);
+        }
+      }
+      catch (Exception ex)
+      {
+        this.Archiver.Error();
+        throw;
+      }
+      finally
+      {
+        this.Archiver.Commit();
+      }
+      return num1;
+    }
+  }
+}
+
+
+--- ArchiveManagerNHibernate.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Archiving.ArchiveManagerNHibernate
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Common.Library.NHibernate.Data;
+using MSS.Core.Model.Archiving;
+using MSS.Interfaces;
+using NHibernate;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+
+#nullable disable
+namespace MSS.Business.Modules.Archiving
+{
+  public class ArchiveManagerNHibernate
+  {
+    private IRepositoryFactory RepositoryFactory { get; set; }
+
+    public ArchiveManagerNHibernate(IRepositoryFactory repositoryFactory)
+    {
+      this.RepositoryFactory = repositoryFactory;
+    }
+
+    public void Archive(ArchiveDetailsNHibernate archiveDetails)
+    {
+      List<ArchiveEntity> archivedEntities = archiveDetails.ArchivedEntities;
+      bool flag1 = archivedEntities.Any<ArchiveEntity>((Func<ArchiveEntity, bool>) (e => e.ArchivedEntityEnum == ArchivedEntitiesEnum.ReadingData && e.IsChecked));
+      bool flag2 = archivedEntities.Any<ArchiveEntity>((Func<ArchiveEntity, bool>) (e => e.ArchivedEntityEnum == ArchivedEntitiesEnum.OrderAndStructure && e.IsChecked));
+      bool flag3 = archivedEntities.Any<ArchiveEntity>((Func<ArchiveEntity, bool>) (e => e.ArchivedEntityEnum == ArchivedEntitiesEnum.Jobs && e.IsChecked));
+      bool flag4 = archivedEntities.Any<ArchiveEntity>((Func<ArchiveEntity, bool>) (e => e.ArchivedEntityEnum == ArchivedEntitiesEnum.Logs && e.IsChecked));
+      if (!flag1)
+        ;
+      if (!flag2)
+        ;
+      if (!flag3)
+        ;
+      if (!flag4)
+        ;
+    }
+
+    public static void TransferObjects(
+      IRepositoryFactory repositoryFactory,
+      ArchiveDetailsNHibernate archiveDetails)
+    {
+    }
+
+    public static ISessionFactory GetSessionFactoryMSSArchive()
+    {
+      string appSetting = ConfigurationManager.AppSettings["ArhiveDatabaseEngine"];
+      HibernateMultipleDatabasesManager.Initialize(appSetting);
+      return HibernateMultipleDatabasesManager.DataSessionFactory(appSetting);
+    }
+  }
+}
+
+
+--- ArchivingHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Archiving.ArchivingHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using AutoMapper;
+using MSS.Core.Model.Archiving;
+using MSS.Core.Model.Structures;
+using MSS.DTO.Archive;
+using MSSArchive.Core.Model.DataCollectors;
+using MSSArchive.Core.Model.Meters;
+using MSSArchive.Core.Model.Structures;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Xml.Serialization;
+
+#nullable disable
+namespace MSS.Business.Modules.Archiving
+{
+  public static class ArchivingHelper
+  {
+    public static byte[] SerializeArchivedEntities(List<ArchiveEntity> archivedEntities)
+    {
+      XmlSerializer xmlSerializer = new XmlSerializer(archivedEntities.GetType());
+      MemoryStream memoryStream = new MemoryStream();
+      xmlSerializer.Serialize((Stream) memoryStream, (object) archivedEntities);
+      return memoryStream.ToArray();
+    }
+
+    public static List<ArchiveEntity> DeserializeArchivedEntities(byte[] structureBytes)
+    {
+      return new XmlSerializer(typeof (List<ArchiveEntity>)).Deserialize((Stream) new MemoryStream(structureBytes)) as List<ArchiveEntity>;
+    }
+
+    public static string ArchivedEntitiesString(byte[] structureBytes)
+    {
+      return ArchivingHelper.DeserializeArchivedEntities(structureBytes).Where<ArchiveEntity>((Func<ArchiveEntity, bool>) (entity => entity.IsChecked)).Aggregate<ArchiveEntity, string>(string.Empty, (Func<string, ArchiveEntity, string>) ((current, entity) => current + entity.Name + "; ")).Trim().TrimEnd(';');
+    }
+
+    public static List<ArchiveStructureNodeDTO> CreateArchiveStructureCollection(
+      IOrderedEnumerable<ArchiveStructureNodeLinks> archiveStructureNodeLinks,
+      List<ArchiveStructureNode> archiveStructureNodes,
+      Dictionary<Guid, object> entitiesDictionary)
+    {
+      Mapper.CreateMap<ArchiveMeter, ArchiveMeterDTO>();
+      Mapper.CreateMap<ArchiveLocation, ArchiveLocationDTO>();
+      Mapper.CreateMap<ArchiveTenant, ArchiveTenantDTO>();
+      Mapper.CreateMap<ArchiveMinomat, ArchiveMinomatDTO>();
+      List<ArchiveStructureNodeDTO> structureCollection = new List<ArchiveStructureNodeDTO>();
+      IList<ArchiveStructureNodeLinks> list = (IList<ArchiveStructureNodeLinks>) archiveStructureNodeLinks.Where<ArchiveStructureNodeLinks>((Func<ArchiveStructureNodeLinks, bool>) (x => x.ParentNodeId == Guid.Empty && x.RootNodeId == x.NodeId)).ToList<ArchiveStructureNodeLinks>();
+      Dictionary<Guid, \u003C\u003Ef__AnonymousType0<Guid, ILookup<Guid, ArchiveStructureNodeLinks>>> dictionary = archiveStructureNodeLinks.GroupBy((Func<ArchiveStructureNodeLinks, Guid>) (p => p.RootNodeId), (key, g) => new
+      {
+        TreeRootNode = key,
+        TreeElements = g.ToLookup<ArchiveStructureNodeLinks, Guid>((Func<ArchiveStructureNodeLinks, Guid>) (x => x.ParentNodeId))
+      }).ToDictionary(x => x.TreeRootNode);
+      foreach (ArchiveStructureNodeLinks structureNodeLink in (IEnumerable<ArchiveStructureNodeLinks>) list)
+      {
+        ArchiveStructureNodeDTO newNode = ArchivingHelper.CreateNewNode(structureNodeLink, (IEnumerable<ArchiveStructureNode>) archiveStructureNodes, entitiesDictionary);
+        newNode.RootNode = newNode;
+        structureCollection.Add(newNode);
+        Guid id = newNode.Id;
+        if (dictionary.ContainsKey(id))
+        {
+          ILookup<Guid, ArchiveStructureNodeLinks> treeElements = dictionary[id].TreeElements;
+          ArchivingHelper.FillChild(newNode, newNode.Id, treeElements, archiveStructureNodes, entitiesDictionary);
+        }
+      }
+      return structureCollection;
+    }
+
+    private static ArchiveStructureNodeDTO CreateNewNode(
+      ArchiveStructureNodeLinks structureNodeLink,
+      IEnumerable<ArchiveStructureNode> archiveStructureNodes,
+      Dictionary<Guid, object> entitiesDictionary)
+    {
+      ArchiveStructureNodeDTO node = new ArchiveStructureNodeDTO();
+      if (structureNodeLink.NodeId != Guid.Empty)
+      {
+        node.Id = structureNodeLink.NodeId;
+        ArchiveStructureNode archiveStructureNode = archiveStructureNodes.FirstOrDefault<ArchiveStructureNode>((Func<ArchiveStructureNode, bool>) (n => n.Id == structureNodeLink.NodeId));
+        if (archiveStructureNode != null)
+        {
+          node.Name = archiveStructureNode.Name;
+          node.Description = archiveStructureNode.Description;
+          node.NodeType = archiveStructureNode.NodeType;
+          if (archiveStructureNode.EntityId != Guid.Empty)
+          {
+            object entities = entitiesDictionary[archiveStructureNode.EntityId];
+            if (entities != null)
+            {
+              object archiveEntityDto = ArchivingHelper.GetArchiveEntityDTO(archiveStructureNode.NodeType, entities);
+              node.Entity = archiveEntityDto;
+            }
+          }
+        }
+        node.StructureType = new StructureTypeEnum?(structureNodeLink.StructureType);
+        node.Image = ArchivingHelper.GetImageForNode(node);
+      }
+      return node;
+    }
+
+    private static object GetArchiveEntityDTO(
+      StructureNodeTypeEnum structureNodeTypeName,
+      object entityObj)
+    {
+      object obj = new object();
+      object archiveEntityDto = new object();
+      switch (structureNodeTypeName)
+      {
+        case StructureNodeTypeEnum.Location:
+          archiveEntityDto = (object) Mapper.Map<ArchiveLocation, ArchiveLocationDTO>(entityObj as ArchiveLocation);
+          break;
+        case StructureNodeTypeEnum.Tenant:
+          archiveEntityDto = (object) Mapper.Map<ArchiveTenant, ArchiveTenantDTO>(entityObj as ArchiveTenant);
+          break;
+        case StructureNodeTypeEnum.Meter:
+          archiveEntityDto = (object) Mapper.Map<ArchiveMeter, ArchiveMeterDTO>(entityObj as ArchiveMeter);
+          break;
+        case StructureNodeTypeEnum.MinomatMaster:
+        case StructureNodeTypeEnum.MinomatSlave:
+          archiveEntityDto = (object) Mapper.Map<ArchiveMinomat, ArchiveMinomatDTO>(entityObj as ArchiveMinomat);
+          break;
+      }
+      return archiveEntityDto;
+    }
+
+    private static BitmapImage GetImageForNode(ArchiveStructureNodeDTO node)
+    {
+      switch (node.NodeType)
+      {
+        case StructureNodeTypeEnum.City:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/city.png"));
+        case StructureNodeTypeEnum.CityArea:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/cityarea.png"));
+        case StructureNodeTypeEnum.COMServer:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/comserver.png"));
+        case StructureNodeTypeEnum.Converter:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/converter.png"));
+        case StructureNodeTypeEnum.Country:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/country.png"));
+        case StructureNodeTypeEnum.DeviceGroup:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/devicegroup.png"));
+        case StructureNodeTypeEnum.Flat:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/flat.png"));
+        case StructureNodeTypeEnum.Floor:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/floor.png"));
+        case StructureNodeTypeEnum.House:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/house.png"));
+        case StructureNodeTypeEnum.Manifold:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/manifold.png"));
+        case StructureNodeTypeEnum.Repeater:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/repeater.png"));
+        case StructureNodeTypeEnum.Street:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/street.png"));
+        case StructureNodeTypeEnum.User:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/user.png"));
+        case StructureNodeTypeEnum.UserGroup:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/usergroup.png"));
+        case StructureNodeTypeEnum.Location:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/location.png"));
+        case StructureNodeTypeEnum.Tenant:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/tenant.png"));
+        case StructureNodeTypeEnum.Meter:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/meter.png"));
+        case StructureNodeTypeEnum.Radio:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/Radio.png"));
+        case StructureNodeTypeEnum.MinomatMaster:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/minomatm.png"));
+        case StructureNodeTypeEnum.MinomatSlave:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/minomats.png"));
+        case StructureNodeTypeEnum.RadioMeter:
+          return new BitmapImage(new Uri("pack://application:,,,/Styles;component/Images/StructureIcons/radiometer.png"));
+        default:
+          return new BitmapImage(new Uri(""));
+      }
+    }
+
+    private static void FillChild(
+      ArchiveStructureNodeDTO parentNode,
+      Guid parentNodeId,
+      ILookup<Guid, ArchiveStructureNodeLinks> currentTreeLookup,
+      List<ArchiveStructureNode> archiveStructureNodes,
+      Dictionary<Guid, object> entitiesDictionary)
+    {
+      if (!currentTreeLookup.Contains(parentNodeId))
+        return;
+      foreach (ArchiveStructureNodeLinks structureNodeLink in currentTreeLookup[parentNodeId])
+      {
+        ArchiveStructureNodeDTO newNode = ArchivingHelper.CreateNewNode(structureNodeLink, (IEnumerable<ArchiveStructureNode>) archiveStructureNodes, entitiesDictionary);
+        parentNode.Children.Add(newNode);
+        ArchivingHelper.FillChild(newNode, newNode.Id, currentTreeLookup, archiveStructureNodes, entitiesDictionary);
+      }
+    }
+
+    public static IEnumerable<ArchiveStructureNodeDTO> Descendants(ArchiveStructureNodeDTO root)
+    {
+      Stack<ArchiveStructureNodeDTO> nodes = new Stack<ArchiveStructureNodeDTO>((IEnumerable<ArchiveStructureNodeDTO>) new ArchiveStructureNodeDTO[1]
+      {
+        root
+      });
+      while (nodes.Any<ArchiveStructureNodeDTO>())
+      {
+        ArchiveStructureNodeDTO node = nodes.Pop();
+        yield return node;
+        foreach (ArchiveStructureNodeDTO n in (Collection<ArchiveStructureNodeDTO>) node.Children)
+          nodes.Push(n);
+        node = (ArchiveStructureNodeDTO) null;
+      }
+    }
+
+    public static List<ArchiveStructureNodeDTO> FilterArchiveStructureCollectionByName(
+      string searchText,
+      List<ArchiveStructureNodeDTO> allArchiveStrNodeCollectionDto)
+    {
+      if (searchText == "")
+        return allArchiveStrNodeCollectionDto;
+      List<ArchiveStructureNodeDTO> structureNodeDtoList = new List<ArchiveStructureNodeDTO>();
+      foreach (ArchiveStructureNodeDTO root in allArchiveStrNodeCollectionDto)
+      {
+        List<ArchiveStructureNodeDTO> list = ArchivingHelper.Descendants(root).ToList<ArchiveStructureNodeDTO>();
+        list.Add(root);
+        if (list.Any<ArchiveStructureNodeDTO>((Func<ArchiveStructureNodeDTO, bool>) (d => d.Name.Contains(searchText))))
+        {
+          foreach (ArchiveStructureNodeDTO structureNodeDto in list.Where<ArchiveStructureNodeDTO>((Func<ArchiveStructureNodeDTO, bool>) (d => d.Name.Contains(searchText))))
+          {
+            structureNodeDto.BackgroundColor = (Brush) Brushes.LightGreen;
+            structureNodeDto.IsExpanded = true;
+          }
+          structureNodeDtoList.Add(root);
+        }
+      }
+      return structureNodeDtoList;
+    }
+  }
+}
+
+
+--- CleanupManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Archiving.CleanupManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.Archiving;
+using MSS.Core.Model.DataCollectors;
+using MSS.Core.Model.Meters;
+using MSS.Interfaces;
+using NHibernate;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+#nullable disable
+namespace MSS.Business.Modules.Archiving
+{
+  public class CleanupManager
+  {
+    private IRepositoryFactory RepositoryFactory { get; set; }
+
+    private ITransaction Transaction { get; set; }
+
+    public CleanupManager(IRepositoryFactory repositoryFactory)
+    {
+      this.RepositoryFactory = repositoryFactory;
+    }
+
+    public int Cleanup(ArchiveJob archiveJob)
+    {
+      List<ArchiveEntity> source = ArchivingHelper.DeserializeArchivedEntities(archiveJob.ArchivedEntities);
+      bool flag1 = source.Any<ArchiveEntity>((Func<ArchiveEntity, bool>) (e => e.ArchivedEntityEnum == ArchivedEntitiesEnum.ReadingData && e.IsChecked));
+      bool flag2 = source.Any<ArchiveEntity>((Func<ArchiveEntity, bool>) (e => e.ArchivedEntityEnum == ArchivedEntitiesEnum.OrderAndStructure && e.IsChecked));
+      bool flag3 = source.Any<ArchiveEntity>((Func<ArchiveEntity, bool>) (e => e.ArchivedEntityEnum == ArchivedEntitiesEnum.Jobs && e.IsChecked));
+      bool flag4 = source.Any<ArchiveEntity>((Func<ArchiveEntity, bool>) (e => e.ArchivedEntityEnum == ArchivedEntitiesEnum.Logs && e.IsChecked));
+      int num1 = 0;
+      try
+      {
+        if (flag1)
+        {
+          int num2 = this.RepositoryFactory.GetSession().QueryOver<MeterReadingValue>().RowCount();
+          num1 += num2;
+          if (num2 > 0)
+            this.CleanupReadingData();
+        }
+        if (flag2)
+          this.CleanupOrders();
+        if (flag3)
+          this.CleanupJobs();
+        if (flag4)
+        {
+          int num3 = this.RepositoryFactory.GetSession().QueryOver<MinomatConnectionLog>().RowCount();
+          num1 += num3;
+          if (num3 > 0)
+            this.CleanupLogs();
+        }
+      }
+      catch (Exception ex)
+      {
+        this.RollbackTransaction();
+        throw;
+      }
+      return num1;
+    }
+
+    public void InitializeTransaction()
+    {
+      this.Transaction = this.RepositoryFactory.GetSession().BeginTransaction();
+    }
+
+    public void CommitTransaction() => this.Transaction.Commit();
+
+    public void RollbackTransaction() => this.Transaction.Rollback();
+
+    public void CleanupReadingData()
+    {
+      ISession session = this.RepositoryFactory.GetSession();
+      try
+      {
+        this.InitializeTransaction();
+        session.CreateSQLQuery("exec sp_ArchiveDisableTriggers").ExecuteUpdate();
+        this.CommitTransaction();
+        this.InitializeTransaction();
+        session.CreateSQLQuery("delete from t_OrderReadingValues where EXISTS (select id FROM temp_processing_items where MeterReadingValueId = temp_processing_items.id)").ExecuteUpdate();
+        session.CreateSQLQuery("delete from t_JobReadingValues where EXISTS (select id FROM temp_processing_items where ReadingValueId = temp_processing_items.id)").ExecuteUpdate();
+        session.CreateSQLQuery("DELETE FROM view_ArchiveReadingValues where EXISTS (select id FROM temp_processing_items where view_ArchiveReadingValues.Id = temp_processing_items.id)").ExecuteUpdate();
+        session.CreateSQLQuery("truncate table temp_processing_items").ExecuteUpdate();
+        this.CommitTransaction();
+      }
+      finally
+      {
+        this.InitializeTransaction();
+        session.CreateSQLQuery("exec sp_ArchiveEnableTriggers").ExecuteUpdate();
+        this.CommitTransaction();
+      }
+    }
+
+    public void CleanupLogs()
+    {
+      ISession session = this.RepositoryFactory.GetSession();
+      this.InitializeTransaction();
+      session.CreateSQLQuery("DELETE FROM view_ArchiveLogs where EXISTS (select id FROM temp_processing_items where view_ArchiveLogs.Id = temp_processing_items.id)").ExecuteUpdate();
+      session.CreateSQLQuery("truncate table temp_processing_items").ExecuteUpdate();
+      this.CommitTransaction();
+    }
+
+    public void CleanupOrders()
+    {
+    }
+
+    public void CleanupJobs()
+    {
+    }
+
+    public void TransactionalInsert(Archive archive)
+    {
+      MSS.Core.Model.Archiving.Cleanup entity = new MSS.Core.Model.Archiving.Cleanup()
+      {
+        CleanupDate = DateTime.Now,
+        Archive = archive
+      };
+      this.RepositoryFactory.GetRepository<MSS.Core.Model.Archiving.Cleanup>().TransactionalInsert(entity);
+    }
+  }
+}
+
+
+--- DatasourcesInfo.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Archiving.DatasourcesInfo
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Modules.Archiving
+{
+  public class DatasourcesInfo
+  {
+    public string SourceTableName { get; set; }
+
+    public string DestinationTableName { get; set; }
+
+    public string SourceViewName { get; set; }
+  }
+}
+
+
+--- GenericArchiver.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Archiving.GenericArchiver
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.Archiving;
+using MSS.Core.Model.DataCollectors;
+using MSS.Core.Model.Jobs;
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.Orders;
+using MSS.Core.Model.Structures;
+using MSSArchive.Core.Model.DataCollectors;
+using MSSArchive.Core.Model.Jobs;
+using MSSArchive.Core.Model.Logs;
+using MSSArchive.Core.Model.Meters;
+using MSSArchive.Core.Model.Orders;
+using MSSArchive.Core.Model.Structures;
+using MSSArchive.Core.Utils;
+using NHibernate;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+
+#nullable disable
+namespace MSS.Business.Modules.Archiving
+{
+  internal abstract class GenericArchiver
+  {
+    protected string ConnStringMSS { get; set; }
+
+    protected string ConnStringArchive { get; set; }
+
+    protected Guid ArchiveId { get; set; }
+
+    protected Dictionary<Type, DbType> TypeMapper { get; set; }
+
+    protected ISessionFactory SessionFactory { get; set; }
+
+    internal void ArchiveReadingData(ArchiveJob archiveJob)
+    {
+      this.ArchiveEntity<MeterReadingValue, ArchiveMeterReadingValue>(new DatasourcesInfo()
+      {
+        SourceTableName = "t_ReadingValues",
+        DestinationTableName = "t_ReadingValues",
+        SourceViewName = "view_ArchiveReadingValues"
+      }, archiveJob);
+    }
+
+    internal void ArchiveStructures(ArchiveJob archiveJob)
+    {
+      this.ArchiveEntity<Meter, ArchiveMeter>(new DatasourcesInfo()
+      {
+        SourceTableName = "t_Meter",
+        DestinationTableName = "t_Meter",
+        SourceViewName = "view_ArchiveMeter"
+      }, archiveJob);
+      this.ArchiveEntity<Location, ArchiveLocation>(new DatasourcesInfo()
+      {
+        SourceTableName = "t_Location",
+        DestinationTableName = "t_Location",
+        SourceViewName = "view_ArchiveLocation"
+      }, archiveJob);
+      this.ArchiveEntity<Tenant, ArchiveTenant>(new DatasourcesInfo()
+      {
+        SourceTableName = "t_Tenant",
+        DestinationTableName = "t_Tenant",
+        SourceViewName = "view_ArchiveTenant"
+      }, archiveJob);
+      this.ArchiveEntity<Minomat, ArchiveMinomat>(new DatasourcesInfo()
+      {
+        SourceTableName = "t_Minomat",
+        DestinationTableName = "t_Minomat",
+        SourceViewName = "view_ArchiveMinomat"
+      }, archiveJob);
+      this.ArchiveEntity<MeterRadioDetails, ArchiveMeterRadioDetails>(new DatasourcesInfo()
+      {
+        SourceTableName = "t_MeterRadioDetails",
+        DestinationTableName = "t_MeterRadioDetails",
+        SourceViewName = "view_ArchiveMeterRadioDetails"
+      }, archiveJob);
+      this.ArchiveEntity<MbusRadioMeter, ArchiveMbusRadioMeter>(new DatasourcesInfo()
+      {
+        SourceTableName = "t_MeterMbusRadio",
+        DestinationTableName = "t_MeterMbusRadio",
+        SourceViewName = "view_ArchiveMeterMbusRadio"
+      }, archiveJob);
+      this.ArchiveEntity<MinomatRadioDetails, ArchiveMinomatRadioDetails>(new DatasourcesInfo()
+      {
+        SourceTableName = "t_MinomatRadioDetails",
+        DestinationTableName = "t_MinomatRadioDetails",
+        SourceViewName = "view_ArchiveMinomatRadioDetails"
+      }, archiveJob);
+      this.ArchiveEntity<StructureNodeLinks, ArchiveStructureNodeLinks>(new DatasourcesInfo()
+      {
+        SourceTableName = "t_StructureNodeLinks",
+        DestinationTableName = "t_StructureNodeLinks",
+        SourceViewName = "view_ArchiveStructureNodeLinks"
+      }, archiveJob);
+      this.ArchiveEntity<StructureNode, ArchiveStructureNode>(new DatasourcesInfo()
+      {
+        SourceTableName = "t_StructureNode",
+        DestinationTableName = "t_StructureNode",
+        SourceViewName = "view_ArchiveStructureNode"
+      }, archiveJob);
+    }
+
+    internal void ArchiveOrders(ArchiveJob archiveJob)
+    {
+      this.ArchiveEntity<Order, ArchiveOrder>(new DatasourcesInfo()
+      {
+        SourceTableName = "t_Order",
+        DestinationTableName = "t_Order",
+        SourceViewName = "view_ArchiveOrders"
+      }, archiveJob);
+    }
+
+    internal void ArchiveJobs(ArchiveJob archiveJob)
+    {
+      this.ArchiveEntity<MssReadingJob, ArchiveMssReadingJob>(new DatasourcesInfo()
+      {
+        SourceTableName = "t_Job",
+        DestinationTableName = "t_Job",
+        SourceViewName = "view_ArchiveMssReadingJobs"
+      }, archiveJob);
+    }
+
+    internal void ArchiveLogs(ArchiveJob archiveJob)
+    {
+      this.ArchiveEntity<MinomatConnectionLog, ArchiveMinomatConnectionLogs>(new DatasourcesInfo()
+      {
+        SourceTableName = "t_MinomatConnectionLog",
+        DestinationTableName = "t_MinomatConnectionLog",
+        SourceViewName = "view_ArchiveLogs"
+      }, archiveJob);
+    }
+
+    internal abstract void SaveArchiveInformation(ArchiveDetailsADO archiveDetails);
+
+    internal abstract void Initialize();
+
+    internal abstract void Commit();
+
+    internal abstract void Error();
+
+    protected abstract string GetSelectStatement<SourceEntity>(string tableName);
+
+    protected abstract string GetInsertStatement<T>(string tableName);
+
+    protected abstract void UpdateArchiveInformationId(string tableName, Guid archiveJobId);
+
+    protected abstract void ArchiveEntity<SourceEntity, DestinationEntity>(
+      DatasourcesInfo dsInfo,
+      ArchiveJob archiveJob);
+
+    protected PropertyInfo[] GetProperties<T>()
+    {
+      return ((IEnumerable<PropertyInfo>) typeof (T).GetProperties()).Where<PropertyInfo>((System.Func<PropertyInfo, bool>) (p => p.GetCustomAttributes(typeof (ExcludePropertyAttribute), true).Length == 0)).ToArray<PropertyInfo>();
+    }
+
+    protected string GetSourceName(DatasourcesInfo dsInfo)
+    {
+      return string.IsNullOrEmpty(dsInfo.SourceViewName) ? dsInfo.SourceTableName : dsInfo.SourceViewName;
+    }
+
+    protected void InitializeTypesConverter()
+    {
+      this.TypeMapper = new Dictionary<Type, DbType>();
+      this.TypeMapper[typeof (byte)] = DbType.Byte;
+      this.TypeMapper[typeof (sbyte)] = DbType.SByte;
+      this.TypeMapper[typeof (short)] = DbType.Int16;
+      this.TypeMapper[typeof (ushort)] = DbType.UInt16;
+      this.TypeMapper[typeof (int)] = DbType.Int32;
+      this.TypeMapper[typeof (uint)] = DbType.UInt32;
+      this.TypeMapper[typeof (long)] = DbType.Int64;
+      this.TypeMapper[typeof (ulong)] = DbType.UInt64;
+      this.TypeMapper[typeof (float)] = DbType.Single;
+      this.TypeMapper[typeof (double)] = DbType.Double;
+      this.TypeMapper[typeof (Decimal)] = DbType.Decimal;
+      this.TypeMapper[typeof (bool)] = DbType.Boolean;
+      this.TypeMapper[typeof (string)] = DbType.String;
+      this.TypeMapper[typeof (char)] = DbType.StringFixedLength;
+      this.TypeMapper[typeof (Guid)] = DbType.Guid;
+      this.TypeMapper[typeof (DateTime)] = DbType.DateTime;
+      this.TypeMapper[typeof (DateTimeOffset)] = DbType.DateTimeOffset;
+      this.TypeMapper[typeof (byte[])] = DbType.Binary;
+      this.TypeMapper[typeof (byte?)] = DbType.Byte;
+      this.TypeMapper[typeof (sbyte?)] = DbType.SByte;
+      this.TypeMapper[typeof (short?)] = DbType.Int16;
+      this.TypeMapper[typeof (ushort?)] = DbType.UInt16;
+      this.TypeMapper[typeof (int?)] = DbType.Int32;
+      this.TypeMapper[typeof (uint?)] = DbType.UInt32;
+      this.TypeMapper[typeof (long?)] = DbType.Int64;
+      this.TypeMapper[typeof (ulong?)] = DbType.UInt64;
+      this.TypeMapper[typeof (float?)] = DbType.Single;
+      this.TypeMapper[typeof (double?)] = DbType.Double;
+      this.TypeMapper[typeof (Decimal?)] = DbType.Decimal;
+      this.TypeMapper[typeof (bool?)] = DbType.Boolean;
+      this.TypeMapper[typeof (char?)] = DbType.StringFixedLength;
+      this.TypeMapper[typeof (Guid?)] = DbType.Guid;
+      this.TypeMapper[typeof (DateTime?)] = DbType.DateTime;
+      this.TypeMapper[typeof (DateTimeOffset?)] = DbType.DateTimeOffset;
+      this.TypeMapper[typeof (Enum)] = DbType.String;
+    }
+
+    protected DbType GetDbType(PropertyInfo property)
+    {
+      if (this.TypeMapper.ContainsKey(property.PropertyType))
+        return this.TypeMapper[property.PropertyType];
+      if (property.PropertyType.BaseType != (Type) null && this.TypeMapper.ContainsKey(property.PropertyType.BaseType))
+        return this.TypeMapper[property.PropertyType.BaseType];
+      return property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof (Nullable<>) && Nullable.GetUnderlyingType(property.PropertyType).BaseType != (Type) null && this.TypeMapper.ContainsKey(Nullable.GetUnderlyingType(property.PropertyType).BaseType) ? this.TypeMapper[Nullable.GetUnderlyingType(property.PropertyType).BaseType] : DbType.Object;
+    }
+  }
+}
+
+
+--- MSSQLDatabaseArchiver.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Archiving.MSSQLDatabaseArchiver
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.Archiving;
+using Newtonsoft.Json;
+using NHibernate;
+using System;
+using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
+using System.Reflection;
+
+#nullable disable
+namespace MSS.Business.Modules.Archiving
+{
+  internal class MSSQLDatabaseArchiver : GenericArchiver
+  {
+    private SqlConnection SourceConnection { get; set; }
+
+    private SqlConnection DestinationConnection { get; set; }
+
+    private SqlTransaction Transaction { get; set; }
+
+    public MSSQLDatabaseArchiver(
+      string connStringMSS,
+      string connStringArchive,
+      ISessionFactory sessionFactory)
+    {
+      this.ConnStringMSS = connStringMSS;
+      this.ConnStringArchive = connStringArchive;
+      this.SessionFactory = sessionFactory;
+      this.InitializeTypesConverter();
+    }
+
+    internal override void SaveArchiveInformation(ArchiveDetailsADO archiveDetails)
+    {
+      this.ArchiveId = Guid.NewGuid();
+      SqlCommand sqlCommand = new SqlCommand("INSERT INTO t_ArchiveInformation ([Id],[ArchiveName],[DateTime],[StartTime],[EndTime],[ArchivedEntities]) VALUES (@Id,@ArchiveName,@DateTime,@StartTime,@EndTime,@ArchivedEntities)", this.DestinationConnection);
+      sqlCommand.Parameters.AddWithValue("Id", (object) this.ArchiveId);
+      sqlCommand.Parameters.AddWithValue("ArchiveName", (object) archiveDetails.ArchiveName);
+      sqlCommand.Parameters.AddWithValue("DateTime", (object) DateTime.Now);
+      sqlCommand.Parameters.AddWithValue("StartTime", (object) archiveDetails.StartTime);
+      sqlCommand.Parameters.AddWithValue("EndTime", (object) archiveDetails.EndTime);
+      sqlCommand.Parameters.AddWithValue("ArchivedEntities", (object) JsonConvert.SerializeObject((object) archiveDetails.ArchivedEntities));
+      sqlCommand.Transaction = this.Transaction;
+      sqlCommand.ExecuteNonQuery();
+    }
+
+    internal override void Initialize()
+    {
+      this.SourceConnection = new SqlConnection(this.ConnStringMSS);
+      this.DestinationConnection = new SqlConnection(this.ConnStringArchive);
+      this.SourceConnection.Open();
+      this.DestinationConnection.Open();
+      this.Transaction = this.DestinationConnection.BeginTransaction();
+    }
+
+    internal override void Commit()
+    {
+      if (this.DestinationConnection.State != ConnectionState.Open)
+        this.DestinationConnection.Open();
+      this.Transaction.Commit();
+      if (this.SourceConnection.State == ConnectionState.Open)
+        this.SourceConnection.Close();
+      if (this.DestinationConnection.State != ConnectionState.Open)
+        return;
+      this.DestinationConnection.Close();
+    }
+
+    internal override void Error()
+    {
+      if (this.DestinationConnection.State != ConnectionState.Open)
+        this.DestinationConnection.Open();
+      this.Transaction.Rollback();
+      if (this.SourceConnection.State == ConnectionState.Open)
+        this.SourceConnection.Close();
+      if (this.DestinationConnection.State != ConnectionState.Open)
+        return;
+      this.DestinationConnection.Close();
+    }
+
+    protected override string GetSelectStatement<SourceEntity>(string tableName)
+    {
+      return string.Format("SELECT * FROM {0}", (object) tableName);
+    }
+
+    protected override string GetInsertStatement<T>(string tableName)
+    {
+      throw new NotImplementedException();
+    }
+
+    protected override void UpdateArchiveInformationId(string tableName, Guid archiveJobId)
+    {
+      SqlCommand sqlCommand1 = new SqlCommand(string.Format("UPDATE {0} SET ArchiveJobId = @archiveJobId WHERE ArchiveJobId IS NULL", (object) tableName), this.DestinationConnection);
+      sqlCommand1.CommandTimeout = 600;
+      SqlCommand sqlCommand2 = sqlCommand1;
+      sqlCommand2.Parameters.AddWithValue(nameof (archiveJobId), (object) archiveJobId);
+      sqlCommand2.Transaction = this.Transaction;
+      sqlCommand2.ExecuteNonQuery();
+    }
+
+    protected override void ArchiveEntity<SourceEntity, DestinationEntity>(
+      DatasourcesInfo dsInfo,
+      ArchiveJob archiveJob)
+    {
+      string sourceName = this.GetSourceName(dsInfo);
+      if (archiveJob.DeleteAfterArchive)
+        this.SaveItemsIds(sourceName);
+      SqlCommand sqlCommand = new SqlCommand(this.GetSelectStatement<SourceEntity>(sourceName), this.SourceConnection);
+      sqlCommand.CommandTimeout = 600;
+      SqlDataReader reader = sqlCommand.ExecuteReader();
+      SqlBulkCopy sqlBulkCopy = new SqlBulkCopy(this.DestinationConnection, SqlBulkCopyOptions.Default, this.Transaction)
+      {
+        DestinationTableName = dsInfo.DestinationTableName,
+        BatchSize = 1000,
+        BulkCopyTimeout = 0
+      };
+      foreach (PropertyInfo property in this.GetProperties<DestinationEntity>())
+        sqlBulkCopy.ColumnMappings.Add(property.Name, property.Name);
+      sqlBulkCopy.WriteToServer((DbDataReader) reader);
+      sqlBulkCopy.Close();
+      reader.Close();
+      this.UpdateArchiveInformationId(dsInfo.SourceTableName, archiveJob.Id);
+    }
+
+    protected void SaveItemsIds(string tableName)
+    {
+      new SqlCommand("truncate table temp_processing_items", this.SourceConnection).ExecuteNonQuery();
+      SqlCommand sqlCommand = new SqlCommand("insert into temp_processing_items select id from " + tableName, this.SourceConnection);
+      sqlCommand.CommandTimeout = 600;
+      sqlCommand.ExecuteNonQuery();
+    }
+  }
+}
+
+
+--- SQLiteBulkInsert.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Archiving.SQLiteBulkInsert
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Data.SQLite;
+using System.Text;
+
+#nullable disable
+namespace MSS.Business.Modules.Archiving
+{
+  public class SQLiteBulkInsert
+  {
+    private readonly SQLiteConnection m_dbCon;
+    private SQLiteCommand m_cmd;
+    private SQLiteTransaction m_trans;
+    private readonly Dictionary<string, SQLiteParameter> m_parameters = new Dictionary<string, SQLiteParameter>();
+    private uint m_counter = 0;
+    private readonly string m_beginInsertText;
+    private bool m_allowBulkInsert = true;
+    private uint m_commitMax = 10000;
+    private readonly string m_tableName;
+    private const string m_paramDelim = ":";
+
+    public SQLiteBulkInsert(SQLiteConnection dbConnection, string tableName)
+    {
+      this.m_dbCon = dbConnection;
+      this.m_tableName = tableName;
+      StringBuilder stringBuilder = new StringBuilder((int) byte.MaxValue);
+      stringBuilder.Append("INSERT INTO [");
+      stringBuilder.Append(tableName);
+      stringBuilder.Append("] (");
+      this.m_beginInsertText = stringBuilder.ToString();
+    }
+
+    public bool AllowBulkInsert
+    {
+      get => this.m_allowBulkInsert;
+      set => this.m_allowBulkInsert = value;
+    }
+
+    public string CommandText
+    {
+      get
+      {
+        if (this.m_parameters.Count < 1)
+          return string.Empty;
+        StringBuilder stringBuilder = new StringBuilder((int) byte.MaxValue);
+        stringBuilder.Append(this.m_beginInsertText);
+        foreach (string key in this.m_parameters.Keys)
+        {
+          stringBuilder.Append('[');
+          stringBuilder.Append(key);
+          stringBuilder.Append(']');
+          stringBuilder.Append(", ");
+        }
+        stringBuilder.Remove(stringBuilder.Length - 2, 2);
+        stringBuilder.Append(") VALUES (");
+        foreach (string key in this.m_parameters.Keys)
+        {
+          stringBuilder.Append(":");
+          stringBuilder.Append(key);
+          stringBuilder.Append(", ");
+        }
+        stringBuilder.Remove(stringBuilder.Length - 2, 2);
+        stringBuilder.Append(")");
+        return stringBuilder.ToString();
+      }
+    }
+
+    public uint CommitMax
+    {
+      get => this.m_commitMax;
+      set => this.m_commitMax = value;
+    }
+
+    public string TableName => this.m_tableName;
+
+    public string ParamDelimiter => ":";
+
+    public void AddParameter(string name, DbType dbType)
+    {
+      SQLiteParameter sqLiteParameter = new SQLiteParameter(":" + name, dbType);
+      this.m_parameters.Add(name, sqLiteParameter);
+    }
+
+    public void Flush()
+    {
+      try
+      {
+        if (this.m_trans == null)
+          return;
+        this.m_trans.Commit();
+      }
+      catch (Exception ex)
+      {
+        throw new Exception("Could not commit transaction. See InnerException for more details", ex);
+      }
+      finally
+      {
+        if (this.m_trans != null)
+          this.m_trans.Dispose();
+        this.m_trans = (SQLiteTransaction) null;
+        this.m_counter = 0U;
+      }
+    }
+
+    public void Insert(object[] paramValues)
+    {
+      if (paramValues.Length != this.m_parameters.Count)
+        throw new Exception("The values array count must be equal to the count of the number of parameters.");
+      ++this.m_counter;
+      if (this.m_counter == 1U)
+      {
+        if (this.m_allowBulkInsert)
+          this.m_trans = this.m_dbCon.BeginTransaction();
+        this.m_cmd = this.m_dbCon.CreateCommand();
+        foreach (SQLiteParameter parameter in this.m_parameters.Values)
+          this.m_cmd.Parameters.Add(parameter);
+        if (this.m_parameters.Count < 1)
+          throw new SQLiteException("You must add at least one parameter.");
+        this.m_cmd.CommandText = this.CommandText;
+      }
+      int index = 0;
+      foreach (DbParameter dbParameter in this.m_parameters.Values)
+      {
+        dbParameter.Value = paramValues[index];
+        ++index;
+      }
+      this.m_cmd.ExecuteNonQuery();
+      if ((int) this.m_counter != (int) this.m_commitMax)
+        return;
+      try
+      {
+        if (this.m_trans != null)
+          this.m_trans.Commit();
+      }
+      catch (Exception ex)
+      {
+      }
+      finally
+      {
+        if (this.m_trans != null)
+        {
+          this.m_trans.Dispose();
+          this.m_trans = (SQLiteTransaction) null;
+        }
+        this.m_counter = 0U;
+      }
+    }
+  }
+}
+
+
+--- SQLiteDatabaseArchiver.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Archiving.SQLiteDatabaseArchiver
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.Archiving;
+using Newtonsoft.Json;
+using NHibernate;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SQLite;
+using System.Linq;
+using System.Reflection;
+
+#nullable disable
+namespace MSS.Business.Modules.Archiving
+{
+  internal class SQLiteDatabaseArchiver : GenericArchiver
+  {
+    private SQLiteConnection SourceConnection { get; set; }
+
+    private SQLiteConnection DestinationConnection { get; set; }
+
+    private SQLiteTransaction Transaction { get; set; }
+
+    public SQLiteDatabaseArchiver(
+      string connStringMSS,
+      string connStringArchive,
+      ISessionFactory sessionFactory)
+    {
+      this.ConnStringMSS = connStringMSS;
+      this.ConnStringArchive = connStringArchive;
+      this.SessionFactory = sessionFactory;
+      this.InitializeTypesConverter();
+    }
+
+    internal override void SaveArchiveInformation(ArchiveDetailsADO archiveDetails)
+    {
+      this.ArchiveId = Guid.NewGuid();
+      SQLiteCommand sqLiteCommand = new SQLiteCommand("INSERT INTO t_ArchiveInformation ([Id],[ArchiveName],[DateTime],[StartTime],[EndTime],[ArchivedEntities]) VALUES (:Id,:ArchiveName,:DateTime,:StartTime,:EndTime,:ArchivedEntities)", this.DestinationConnection);
+      sqLiteCommand.Parameters.AddWithValue("Id", (object) this.ArchiveId);
+      sqLiteCommand.Parameters.AddWithValue("ArchiveName", (object) archiveDetails.ArchiveName);
+      sqLiteCommand.Parameters.AddWithValue("DateTime", (object) DateTime.Now);
+      sqLiteCommand.Parameters.AddWithValue("StartTime", (object) archiveDetails.StartTime);
+      sqLiteCommand.Parameters.AddWithValue("EndTime", (object) archiveDetails.EndTime);
+      sqLiteCommand.Parameters.AddWithValue("ArchivedEntities", (object) JsonConvert.SerializeObject((object) archiveDetails.ArchivedEntities));
+      sqLiteCommand.Transaction = this.Transaction;
+      sqLiteCommand.ExecuteNonQuery();
+    }
+
+    internal override void Initialize()
+    {
+      this.SourceConnection = new SQLiteConnection(this.ConnStringMSS);
+      this.DestinationConnection = new SQLiteConnection(this.ConnStringArchive);
+      this.SourceConnection.Open();
+      this.DestinationConnection.Open();
+      this.Transaction = this.DestinationConnection.BeginTransaction();
+    }
+
+    internal override void Commit()
+    {
+      if (this.DestinationConnection.State != ConnectionState.Open)
+        this.DestinationConnection.Open();
+      this.Transaction.Commit();
+      if (this.SourceConnection.State == ConnectionState.Open)
+        this.SourceConnection.Close();
+      if (this.DestinationConnection.State != ConnectionState.Open)
+        return;
+      this.DestinationConnection.Close();
+    }
+
+    internal override void Error()
+    {
+      if (this.DestinationConnection.State != ConnectionState.Open)
+        this.DestinationConnection.Open();
+      this.Transaction.Rollback();
+      if (this.SourceConnection.State == ConnectionState.Open)
+        this.SourceConnection.Close();
+      if (this.DestinationConnection.State != ConnectionState.Open)
+        return;
+      this.DestinationConnection.Close();
+    }
+
+    protected override string GetSelectStatement<SourceEntity>(string tableName)
+    {
+      return string.Format("SELECT * FROM {0}", (object) tableName);
+    }
+
+    protected override string GetInsertStatement<T>(string tableName)
+    {
+      string empty1 = string.Empty;
+      string empty2 = string.Empty;
+      PropertyInfo[] properties = this.GetProperties<T>();
+      string str1 = ((IEnumerable<PropertyInfo>) properties).Aggregate<PropertyInfo, string>(empty2, (Func<string, PropertyInfo, string>) ((current, property) => current + property.Name + ","));
+      string str2 = str1.Substring(0, str1.Length - 1);
+      string str3 = ((IEnumerable<PropertyInfo>) properties).Aggregate<PropertyInfo, string>(empty1, (Func<string, PropertyInfo, string>) ((current, property) => current + ":" + property.Name + ","));
+      string str4 = str3.Substring(0, str3.Length - 1);
+      return string.Format("INSERT INTO {0} ({1}) VALUES ({2})", (object) tableName, (object) str2, (object) str4);
+    }
+
+    protected override void UpdateArchiveInformationId(string tableName, Guid archiveJobId)
+    {
+      SQLiteCommand sqLiteCommand = new SQLiteCommand(string.Format("UPDATE {0} SET " + tableName + "_ArchiveJobId = :ArchiveJobId WHERE " + tableName + "_ArchiveJobId IS NULL", (object) tableName), this.DestinationConnection);
+      sqLiteCommand.Parameters.AddWithValue("ArchiveJobId", (object) archiveJobId);
+      sqLiteCommand.Transaction = this.Transaction;
+      sqLiteCommand.ExecuteNonQuery();
+    }
+
+    protected override void ArchiveEntity<SourceEntity, DestinationEntity>(
+      DatasourcesInfo dsInfo,
+      ArchiveJob archiveJob)
+    {
+      SQLiteCommand sqLiteCommand1 = new SQLiteCommand(this.GetSelectStatement<SourceEntity>(this.GetSourceName(dsInfo)), this.SourceConnection);
+      DataTable table;
+      using (SQLiteDataAdapter sqLiteDataAdapter = new SQLiteDataAdapter())
+      {
+        sqLiteDataAdapter.SelectCommand = sqLiteCommand1;
+        DataSet dataSet = new DataSet();
+        sqLiteDataAdapter.Fill(dataSet, dsInfo.SourceTableName);
+        table = dataSet.Tables[0];
+      }
+      SQLiteCommand sqLiteCommand2 = new SQLiteCommand(this.GetSelectStatement<DestinationEntity>(dsInfo.DestinationTableName), this.DestinationConnection);
+      SQLiteCommand sqLiteCommand3 = new SQLiteCommand(this.GetInsertStatement<DestinationEntity>(dsInfo.DestinationTableName), this.DestinationConnection);
+      List<SQLiteParameter> list = ((IEnumerable<PropertyInfo>) this.GetProperties<DestinationEntity>()).Select<PropertyInfo, SQLiteParameter>((System.Func<PropertyInfo, SQLiteParameter>) (property => new SQLiteParameter(":" + property.Name, this.GetDbType(property), property.Name))).ToList<SQLiteParameter>();
+      using (SQLiteDataAdapter sqLiteDataAdapter = new SQLiteDataAdapter())
+      {
+        sqLiteDataAdapter.SelectCommand = sqLiteCommand2;
+        sqLiteDataAdapter.InsertCommand = sqLiteCommand3;
+        sqLiteDataAdapter.InsertCommand.Parameters.AddRange(list.ToArray());
+        using (SQLiteCommandBuilder liteCommandBuilder = new SQLiteCommandBuilder())
+        {
+          liteCommandBuilder.DataAdapter = sqLiteDataAdapter;
+          using (sqLiteDataAdapter.InsertCommand = (SQLiteCommand) liteCommandBuilder.GetInsertCommand().Clone())
+          {
+            liteCommandBuilder.DataAdapter = (SQLiteDataAdapter) null;
+            foreach (DataRow row in (InternalDataCollectionBase) table.Rows)
+              row.SetAdded();
+            sqLiteDataAdapter.Update(table);
+          }
+        }
+      }
+      this.UpdateArchiveInformationId(dsInfo.SourceTableName, archiveJob.Id);
+    }
+  }
+}
+

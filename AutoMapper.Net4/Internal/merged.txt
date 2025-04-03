@@ -1,0 +1,215 @@
+
+--- DictionaryFactoryOverride.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.DictionaryFactoryOverride
+// Assembly: AutoMapper.Net4, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: 30ECE8B3-1802-489A-86AE-267466F9FF1F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.Net4.dll
+
+using System;
+using System.Collections.Concurrent;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public class DictionaryFactoryOverride : IDictionaryFactory
+  {
+    public IDictionary<TKey, TValue> CreateDictionary<TKey, TValue>()
+    {
+      return (IDictionary<TKey, TValue>) new DictionaryFactoryOverride.ConcurrentDictionaryImpl<TKey, TValue>(new ConcurrentDictionary<TKey, TValue>());
+    }
+
+    private class ConcurrentDictionaryImpl<TKey, TValue> : IDictionary<TKey, TValue>
+    {
+      private readonly ConcurrentDictionary<TKey, TValue> _dictionary;
+
+      public ConcurrentDictionaryImpl(ConcurrentDictionary<TKey, TValue> dictionary)
+      {
+        this._dictionary = dictionary;
+      }
+
+      public TValue AddOrUpdate(
+        TKey key,
+        TValue addValue,
+        Func<TKey, TValue, TValue> updateValueFactory)
+      {
+        return this._dictionary.AddOrUpdate(key, addValue, updateValueFactory);
+      }
+
+      public bool TryGetValue(TKey key, out TValue value)
+      {
+        return this._dictionary.TryGetValue(key, out value);
+      }
+
+      public TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory)
+      {
+        return this._dictionary.GetOrAdd(key, valueFactory);
+      }
+
+      public TValue this[TKey key]
+      {
+        get => this._dictionary[key];
+        set => this._dictionary[key] = value;
+      }
+
+      public bool TryRemove(TKey key, out TValue value)
+      {
+        return this._dictionary.TryRemove(key, out value);
+      }
+    }
+  }
+}
+
+
+--- EnumNameValueMapperFactoryOverride.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.EnumNameValueMapperFactoryOverride
+// Assembly: AutoMapper.Net4, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: 30ECE8B3-1802-489A-86AE-267466F9FF1F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.Net4.dll
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public class EnumNameValueMapperFactoryOverride : IEnumNameValueMapperFactory
+  {
+    public IEnumNameValueMapper Create()
+    {
+      return (IEnumNameValueMapper) new EnumNameValueMapperFactoryOverride.EnumVameValueMapper();
+    }
+
+    private class EnumVameValueMapper : IEnumNameValueMapper
+    {
+      public bool IsMatch(Type enumDestinationType, string sourceValue)
+      {
+        return !((IEnumerable<string>) Enum.GetNames(enumDestinationType)).Contains<string>(sourceValue);
+      }
+
+      public object Convert(
+        Type enumSourceType,
+        Type enumDestinationType,
+        ResolutionContext context)
+      {
+        Type underlyingType = Enum.GetUnderlyingType(enumSourceType);
+        object obj = Convert.ChangeType(context.SourceValue, underlyingType);
+        return Enum.ToObject(context.DestinationType, obj);
+      }
+    }
+  }
+}
+
+
+--- NullableConverterFactoryOverride.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.NullableConverterFactoryOverride
+// Assembly: AutoMapper.Net4, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: 30ECE8B3-1802-489A-86AE-267466F9FF1F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.Net4.dll
+
+using System;
+using System.ComponentModel;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public class NullableConverterFactoryOverride : INullableConverterFactory
+  {
+    public INullableConverter Create(Type nullableType)
+    {
+      return (INullableConverter) new NullableConverterFactoryOverride.NullableConverterImpl(new NullableConverter(nullableType));
+    }
+
+    private class NullableConverterImpl : INullableConverter
+    {
+      private readonly NullableConverter _nullableConverter;
+
+      public NullableConverterImpl(NullableConverter nullableConverter)
+      {
+        this._nullableConverter = nullableConverter;
+      }
+
+      public object ConvertFrom(object value) => this._nullableConverter.ConvertFrom(value);
+
+      public Type UnderlyingType => this._nullableConverter.UnderlyingType;
+    }
+  }
+}
+
+
+--- ProxyGeneratorFactoryOverride.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.ProxyGeneratorFactoryOverride
+// Assembly: AutoMapper.Net4, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: 30ECE8B3-1802-489A-86AE-267466F9FF1F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.Net4.dll
+
+using AutoMapper.Impl;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public class ProxyGeneratorFactoryOverride : IProxyGeneratorFactory
+  {
+    public IProxyGenerator Create() => (IProxyGenerator) new ProxyGenerator();
+  }
+}
+
+
+--- ReaderWriterLockSlimFactoryOverride.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.ReaderWriterLockSlimFactoryOverride
+// Assembly: AutoMapper.Net4, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: 30ECE8B3-1802-489A-86AE-267466F9FF1F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.Net4.dll
+
+using System;
+using System.Threading;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public class ReaderWriterLockSlimFactoryOverride : IReaderWriterLockSlimFactory
+  {
+    public IReaderWriterLockSlim Create()
+    {
+      return (IReaderWriterLockSlim) new ReaderWriterLockSlimFactoryOverride.ReaderWriterLockSlimProxy(new ReaderWriterLockSlim());
+    }
+
+    private class ReaderWriterLockSlimProxy : IReaderWriterLockSlim, IDisposable
+    {
+      private readonly ReaderWriterLockSlim _readerWriterLockSlim;
+
+      public ReaderWriterLockSlimProxy(ReaderWriterLockSlim readerWriterLockSlim)
+      {
+        this._readerWriterLockSlim = readerWriterLockSlim;
+      }
+
+      public void Dispose() => this._readerWriterLockSlim.Dispose();
+
+      public void EnterWriteLock() => this._readerWriterLockSlim.EnterWriteLock();
+
+      public void ExitWriteLock() => this._readerWriterLockSlim.ExitWriteLock();
+
+      public void EnterUpgradeableReadLock()
+      {
+        this._readerWriterLockSlim.EnterUpgradeableReadLock();
+      }
+
+      public void ExitUpgradeableReadLock() => this._readerWriterLockSlim.ExitUpgradeableReadLock();
+
+      public void EnterReadLock() => this._readerWriterLockSlim.EnterReadLock();
+
+      public void ExitReadLock() => this._readerWriterLockSlim.ExitReadLock();
+    }
+  }
+}
+

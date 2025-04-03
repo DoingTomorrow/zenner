@@ -1,0 +1,333 @@
+
+--- EntityDTO.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.DTO.EntityDTO
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.DTO
+{
+  public class EntityDTO
+  {
+    public string SerialNumber { get; set; }
+
+    public string InputNumber { get; set; }
+
+    public string DeviceType { get; set; }
+
+    public int? PrimaryAddress { get; set; }
+
+    public string Manufacturer { get; set; }
+
+    public string Medium { get; set; }
+  }
+}
+
+
+--- StructureNodeDTO.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.DTO.StructureNodeDTO
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Events;
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.Structures;
+using MSS.DTO;
+using MSS.DTO.Structures;
+using MSS.Utils.Utils;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+
+#nullable disable
+namespace MSS.Business.DTO
+{
+  public class StructureNodeDTO : DTOBase, IComparable
+  {
+    private string _name;
+    private BitmapImage _image;
+    private object _entity;
+    private EntityDTO _entityDto;
+    private Brush _backgroundColor;
+    private bool isEmpty;
+    private bool isExpanded;
+    private StructureNodeDTO parentNode;
+    private StructureNodeDTO rootNode;
+    private ObservableCollection<StructureNodeDTO> subNodes;
+    private bool isDuplicate;
+    private bool _isMeterNonEditable;
+    private List<Note> _assignedNotes;
+    private long _cycles;
+    private long _succeeded;
+    private long _failed;
+
+    public Guid Id { get; set; }
+
+    public string Name
+    {
+      get => this._name;
+      set
+      {
+        this._name = value;
+        this.OnPropertyChanged(nameof (Name));
+      }
+    }
+
+    public StructureNodeType NodeType { get; set; }
+
+    public BitmapImage Image
+    {
+      get => this._image;
+      set
+      {
+        this._image = value;
+        this.OnPropertyChanged(nameof (Image));
+      }
+    }
+
+    public string Description { get; set; }
+
+    public object Entity
+    {
+      get => this._entity;
+      set
+      {
+        this._entity = value;
+        this.EntityDto = this._entity.Cast<EntityDTO>(true);
+        this.OnPropertyChanged(nameof (Entity));
+      }
+    }
+
+    public EntityDTO EntityDto
+    {
+      get => this._entityDto;
+      set
+      {
+        this._entityDto = value;
+        this.OnPropertyChanged(nameof (EntityDto));
+      }
+    }
+
+    public bool IsNewNode { get; set; }
+
+    public StructureTypeEnum? StructureType { get; set; }
+
+    public Brush BackgroundColor
+    {
+      get => this._backgroundColor;
+      set
+      {
+        this._backgroundColor = value;
+        this.OnPropertyChanged(nameof (BackgroundColor));
+      }
+    }
+
+    public int OrderNr { get; set; }
+
+    public DateTime? StartDate { get; set; }
+
+    public DateTime? EndDate { get; set; }
+
+    public bool IsEmpty
+    {
+      get => this.isEmpty;
+      set => this.isEmpty = value;
+    }
+
+    public bool IsExpanded
+    {
+      get => this.isExpanded;
+      set
+      {
+        if (this.isExpanded == value)
+          return;
+        this.isExpanded = value;
+        this.LoadChildren();
+        this.OnPropertyChanged(nameof (IsExpanded));
+      }
+    }
+
+    public void LoadChildren()
+    {
+      if ((this.subNodes == null || this.subNodes.Count == 0) && this.RootNode != null && this.Id == this.RootNode.Id)
+        EventPublisher.Publish<LoadSubNodesForRoot>(new LoadSubNodesForRoot()
+        {
+          RootNode = this
+        }, (object) this);
+      this.OnPropertyChanged("SubNodes");
+    }
+
+    public StructureNodeDTO ParentNode
+    {
+      get => this.parentNode;
+      set => this.parentNode = value;
+    }
+
+    public StructureNodeDTO RootNode
+    {
+      get => this.rootNode;
+      set => this.rootNode = value;
+    }
+
+    public ObservableCollection<StructureNodeDTO> SubNodes
+    {
+      get => this.subNodes;
+      set
+      {
+        this.subNodes = value;
+        this.OnPropertyChanged(nameof (SubNodes));
+      }
+    }
+
+    public bool IsDuplicate
+    {
+      get => this.isDuplicate;
+      set => this.isDuplicate = value;
+    }
+
+    public bool IsMeterNonEditable
+    {
+      get => this._isMeterNonEditable;
+      set
+      {
+        this._isMeterNonEditable = value;
+        this.OnPropertyChanged(nameof (IsMeterNonEditable));
+      }
+    }
+
+    private void SubFolders_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.Action != NotifyCollectionChangedAction.Add)
+        return;
+      foreach (StructureNodeDTO newItem in (IEnumerable) e.NewItems)
+      {
+        newItem.ParentNode = this;
+        newItem.RootNode = this.GetRoot(this);
+      }
+    }
+
+    public StructureNodeDTO(
+      Guid id,
+      string name,
+      BitmapImage image,
+      StructureNodeType nodeType,
+      string description,
+      object entity,
+      bool isNewNode,
+      StructureTypeEnum structureType,
+      bool isDuplicate = false)
+    {
+      this.Id = id;
+      this.Name = name;
+      this.Image = image;
+      this.NodeType = nodeType;
+      this.Description = description;
+      this.Entity = entity;
+      this.IsNewNode = isNewNode;
+      this.StructureType = new StructureTypeEnum?(structureType);
+      this.IsDuplicate = isDuplicate;
+      this.SubNodes = new ObservableCollection<StructureNodeDTO>();
+      this.SubNodes.CollectionChanged += new NotifyCollectionChangedEventHandler(this.SubFolders_CollectionChanged);
+    }
+
+    public StructureNodeDTO()
+    {
+      this.SubNodes = new ObservableCollection<StructureNodeDTO>();
+      this.SubNodes.CollectionChanged += new NotifyCollectionChangedEventHandler(this.SubFolders_CollectionChanged);
+    }
+
+    ~StructureNodeDTO()
+    {
+      this.SubNodes.CollectionChanged -= new NotifyCollectionChangedEventHandler(this.SubFolders_CollectionChanged);
+    }
+
+    private StructureNodeDTO GetRoot(StructureNodeDTO node)
+    {
+      return node == null || node.RootNode == node ? node : this.GetRoot(node.ParentNode);
+    }
+
+    public int CompareTo(object other)
+    {
+      if (other == null || !(other is StructureNodeDTO structureNodeDto))
+        return 0;
+      return this.Entity is TenantDTO && structureNodeDto.Entity is TenantDTO ? ((TenantDTO) this.Entity).TenantNr.CompareTo(((TenantDTO) structureNodeDto.Entity).TenantNr) : this.OrderNr.CompareTo(structureNodeDto.OrderNr);
+    }
+
+    public List<byte[]> AssignedPicture { get; set; }
+
+    public List<Note> AssignedNotes
+    {
+      get => this._assignedNotes;
+      set
+      {
+        this._assignedNotes = value;
+        this.OnPropertyChanged(nameof (AssignedNotes));
+      }
+    }
+
+    public DateTime? LastChangedOn { get; set; }
+
+    public long Cycles
+    {
+      get => this._cycles;
+      set
+      {
+        this._cycles = value;
+        this.OnPropertyChanged(nameof (Cycles));
+      }
+    }
+
+    public long Succeeded
+    {
+      get => this._succeeded;
+      set
+      {
+        this._succeeded = value;
+        this.OnPropertyChanged(nameof (Succeeded));
+      }
+    }
+
+    public long Failed
+    {
+      get => this._failed;
+      set
+      {
+        this._failed = value;
+        this.OnPropertyChanged(nameof (Failed));
+      }
+    }
+  }
+}
+
+
+--- StructureNodeExecuteOrderDTO.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.DTO.StructureNodeExecuteOrderDTO
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.DTO
+{
+  public class StructureNodeExecuteOrderDTO : StructureNodeDTO
+  {
+    public string FloorInfo { get; set; }
+
+    public string ExecutingState { get; set; }
+
+    public string Room { get; set; }
+  }
+}
+

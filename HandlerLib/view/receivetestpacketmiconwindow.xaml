@@ -1,0 +1,26 @@
+<Window x:Class="HandlerLib.ReceiveTestPacketMiConWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Receive Test Packet (MinoConnect)" Height="600" Width="800"
+        WindowStartupLocation="CenterOwner"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico">
+  <Grid>
+    <Button Click="ButtonReceiveTestPacket_Click" Name="ButtonReceiveTestPacket" Content="Receive one packet"
+            HorizontalAlignment="Left" Margin="456,45,0,0" VerticalAlignment="Top" Width="127"/>
+    <Label Content="Timeout:" HorizontalAlignment="Left" Margin="463,7,0,0" VerticalAlignment="Top"/>
+    <TextBox TextChanged="TextBoxTimeout_TextChanged" x:Name="TextBoxTimeout" HorizontalAlignment="Left"
+             Height="23" Margin="522,10,0,0" Text="10" VerticalAlignment="Top" Width="51"/>
+    <Label Content="seconds" HorizontalAlignment="Left" Margin="578,7,0,0" VerticalAlignment="Top"/>
+    <TextBox Name="TextBoxOutput" Background="WhiteSmoke" VerticalScrollBarVisibility="Auto" BorderThickness="1"
+             FontSize="11" TextWrapping="WrapWithOverflow" Margin="0,72,0,0"/>
+    <ProgressBar Name="ProgressBarRadioTest" HorizontalAlignment="Left" Height="15" Margin="594,48,0,0"
+                 VerticalAlignment="Top" Width="188"/>
+    <Label Content="Serialnumber:" HorizontalAlignment="Left" Margin="144,7,0,0" VerticalAlignment="Top"
+           RenderTransformOrigin="0,0.115"/>
+    <TextBox x:Name="TextBoxSerialnumber" IsReadOnly="false" IsEnabled="true" HorizontalAlignment="Left"
+             Height="23" Margin="229,9,0,0" TextWrapping="Wrap" Text="11111111" VerticalAlignment="Top"
+             Width="85"/>
+    <Button Click="ButtonConnectionProfile_Click" x:Name="ButtonConnectionProfile" Content="Connection Profile"
+            HorizontalAlignment="Left" Margin="10,9,0,0" VerticalAlignment="Top" Width="120"/>
+  </Grid>
+</Window>

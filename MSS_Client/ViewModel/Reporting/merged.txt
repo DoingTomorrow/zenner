@@ -1,0 +1,2551 @@
+
+--- ColumnToPrint.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Reporting.ColumnToPrint
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+#nullable disable
+namespace MSS_Client.ViewModel.Reporting
+{
+  public class ColumnToPrint
+  {
+    public string Header { get; set; }
+
+    public bool IsChecked { get; set; }
+
+    public string BoundFieldName { get; set; }
+  }
+}
+
+
+--- ConsumptionViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Reporting.ConsumptionViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Errors;
+using MSS.Business.Events;
+using MSS.Core.Model.DataFilters;
+using MSS.Core.Model.Meters;
+using MSS.DIConfiguration;
+using MSS.DTO.MessageHandler;
+using MSS.DTO.Meters;
+using MSS.DTO.Reporting;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MSS.Utils.Utils;
+using MSS_Client.ViewModel.GenericProgressDialog;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using NHibernate.Criterion;
+using NHibernate.Linq;
+using Ninject;
+using Ninject.Parameters;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
+using System.Windows.Input;
+using System.Windows.Media;
+using Telerik.Windows.Data;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Reporting
+{
+  public class ConsumptionViewModel : ValidationViewModelBase
+  {
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly IWindowFactory _windowFactory;
+    private BackgroundWorker _backgroundWorkerSync;
+    private RadObservableCollection<ReadingValuesForChartDTO> _getReadingValuesForCharts = new RadObservableCollection<ReadingValuesForChartDTO>();
+    private double _maxValue;
+
+    [Inject]
+    public ConsumptionViewModel(
+      IRepositoryFactory repositoryFactory,
+      IWindowFactory windowFactory,
+      MeterDTO selectedMeter,
+      DateTime startDate,
+      DateTime endDate,
+      MSS.Core.Model.DataFilters.Filter filter)
+    {
+      ConsumptionViewModel consumptionViewModel = this;
+      this._repositoryFactory = repositoryFactory;
+      this._windowFactory = windowFactory;
+      this.GetReadingValuesForCharts = new RadObservableCollection<ReadingValuesForChartDTO>();
+      List<long> valueIds = new List<long>();
+      List<ValueIdent.ValueIdPart_PhysicalQuantity> physicalQuantities = new List<ValueIdent.ValueIdPart_PhysicalQuantity>();
+      GenericProgressDialogViewModel vm = DIConfigurator.GetConfigurator().Get<GenericProgressDialogViewModel>((IParameter) new ConstructorArgument("progressDialogTitle", (object) Resources.METER_DATA_CHART_GENERATION_TITLE), (IParameter) new ConstructorArgument("progressDialogMessage", (object) Resources.METER_DATA_CHART_GENERATION));
+      this._backgroundWorkerSync = new BackgroundWorker()
+      {
+        WorkerReportsProgress = true,
+        WorkerSupportsCancellation = true
+      };
+      this._backgroundWorkerSync.DoWork += (DoWorkEventHandler) ((sender, args) => closure_0.CalculateConsumption(selectedMeter, startDate, endDate, filter, valueIds, physicalQuantities));
+      this._backgroundWorkerSync.RunWorkerCompleted += (RunWorkerCompletedEventHandler) ((sender, args) => vm.OnRequestClose(false));
+      this._backgroundWorkerSync.RunWorkerAsync();
+      this._windowFactory.CreateNewProgressDialog((IViewModel) vm, this._backgroundWorkerSync);
+    }
+
+    private void CalculateConsumption(
+      MeterDTO selectedMeter,
+      DateTime startDate,
+      DateTime endDate,
+      MSS.Core.Model.DataFilters.Filter filter,
+      List<long> valueIds,
+      List<ValueIdent.ValueIdPart_PhysicalQuantity> physicalQuantities)
+    {
+      if (filter != null)
+        TypeHelperExtensionMethods.ForEach<Rules>((IEnumerable<Rules>) this._repositoryFactory.GetRepository<MSS.Core.Model.DataFilters.Filter>().GetById((object) filter.Id).Rules, (Action<Rules>) (x =>
+        {
+          valueIds.Add(long.Parse(x.ValueId));
+          if (physicalQuantities.Contains(x.PhysicalQuantity))
+            return;
+          physicalQuantities.Add(x.PhysicalQuantity);
+        }));
+      IList<MeterReadingValue> querySelection = !valueIds.Contains(0L) ? this._repositoryFactory.GetSession().CreateCriteria<MeterReadingValue>("ReadingValues").Add((ICriterion) Restrictions.Eq("ReadingValues.MeterSerialNumber", (object) selectedMeter.SerialNumber)).Add((ICriterion) Restrictions.In("ReadingValues.ValueId", (ICollection) valueIds)).Add((ICriterion) Restrictions.Gt("ReadingValues.Date", (object) startDate)).Add((ICriterion) Restrictions.Lt("ReadingValues.Date", (object) endDate)).List<MeterReadingValue>() : this._repositoryFactory.GetSession().CreateCriteria<MeterReadingValue>("ReadingValues").Add((ICriterion) Restrictions.Eq("ReadingValues.MeterSerialNumber", (object) selectedMeter.SerialNumber)).Add((ICriterion) Restrictions.Gt("ReadingValues.Date", (object) startDate)).Add((ICriterion) Restrictions.Lt("ReadingValues.Date", (object) endDate)).List<MeterReadingValue>();
+      if (querySelection.Any<MeterReadingValue>())
+        this.MaxValue = querySelection.ToList<MeterReadingValue>().Max<MeterReadingValue>((Func<MeterReadingValue, double>) (x => x.Value));
+      querySelection = (IList<MeterReadingValue>) querySelection.OrderBy<MeterReadingValue, DateTime>((Func<MeterReadingValue, DateTime>) (x => x.Date)).ToList<MeterReadingValue>();
+      List<DateTime> energyDates = new List<DateTime>();
+      List<DateTime> temperatureDates = new List<DateTime>();
+      List<DateTime> volumeDates = new List<DateTime>();
+      physicalQuantities.ForEach((Action<ValueIdent.ValueIdPart_PhysicalQuantity>) (x =>
+      {
+        switch ((long) x)
+        {
+          case 0:
+            List<MeterReadingValue> energyRV1 = new List<MeterReadingValue>();
+            List<MeterReadingValue> temperatureRV1 = new List<MeterReadingValue>();
+            List<MeterReadingValue> volumeRV1 = new List<MeterReadingValue>();
+            TypeHelperExtensionMethods.ForEach<MeterReadingValue>((IEnumerable<MeterReadingValue>) querySelection, (Action<MeterReadingValue>) (y =>
+            {
+              if (y.PhysicalQuantity == 2L && !energyDates.Contains(y.Date.Date))
+              {
+                energyDates.Add(y.Date.Date);
+                energyRV1.Add(y);
+              }
+              DateTime date5;
+              if (y.PhysicalQuantity == 1L && !volumeDates.Contains(y.Date.Date))
+              {
+                volumeRV1.Add(y);
+                List<DateTime> dateTimeList = volumeDates;
+                date5 = y.Date;
+                DateTime date6 = date5.Date;
+                dateTimeList.Add(date6);
+              }
+              if (y.PhysicalQuantity != 6L)
+                return;
+              List<DateTime> dateTimeList3 = temperatureDates;
+              date5 = y.Date;
+              DateTime date7 = date5.Date;
+              if (!dateTimeList3.Contains(date7))
+              {
+                List<DateTime> dateTimeList4 = temperatureDates;
+                date5 = y.Date;
+                DateTime date8 = date5.Date;
+                dateTimeList4.Add(date8);
+                temperatureRV1.Add(y);
+              }
+            }));
+            this.CreateReadingValuesForChart((IList<MeterReadingValue>) temperatureRV1, (Brush) Brushes.DarkGoldenrod, (Brush) Brushes.Blue);
+            this.CreateReadingValuesForChart((IList<MeterReadingValue>) volumeRV1, (Brush) Brushes.BurlyWood, (Brush) Brushes.Red);
+            this.CreateReadingValuesForChart((IList<MeterReadingValue>) energyRV1, (Brush) Brushes.Yellow, (Brush) Brushes.Green);
+            break;
+          case 1:
+            List<MeterReadingValue> volumeRV2 = new List<MeterReadingValue>();
+            TypeHelperExtensionMethods.ForEach<MeterReadingValue>((IEnumerable<MeterReadingValue>) querySelection, (Action<MeterReadingValue>) (y =>
+            {
+              if (y.PhysicalQuantity != 1L || volumeDates.Contains(y.Date.Date))
+                return;
+              volumeRV2.Add(y);
+              volumeDates.Add(y.Date.Date);
+            }));
+            this.CreateReadingValuesForChart((IList<MeterReadingValue>) volumeRV2, (Brush) Brushes.BurlyWood, (Brush) Brushes.Red);
+            break;
+          case 2:
+            List<MeterReadingValue> energyRV2 = new List<MeterReadingValue>();
+            TypeHelperExtensionMethods.ForEach<MeterReadingValue>((IEnumerable<MeterReadingValue>) querySelection, (Action<MeterReadingValue>) (y =>
+            {
+              if (y.PhysicalQuantity != 2L || energyDates.Contains(y.Date.Date))
+                return;
+              energyDates.Add(y.Date.Date);
+              energyRV2.Add(y);
+            }));
+            this.CreateReadingValuesForChart((IList<MeterReadingValue>) energyRV2, (Brush) Brushes.Yellow, (Brush) Brushes.Green);
+            break;
+          case 6:
+            List<MeterReadingValue> temperatureRV2 = new List<MeterReadingValue>();
+            TypeHelperExtensionMethods.ForEach<MeterReadingValue>((IEnumerable<MeterReadingValue>) querySelection, (Action<MeterReadingValue>) (y =>
+            {
+              if (y.PhysicalQuantity != 6L || temperatureDates.Contains(y.Date.Date))
+                return;
+              temperatureDates.Add(y.Date.Date);
+              temperatureRV2.Add(y);
+            }));
+            this.CreateReadingValuesForChart((IList<MeterReadingValue>) temperatureRV2, (Brush) Brushes.DarkGoldenrod, (Brush) Brushes.Blue);
+            break;
+        }
+      }));
+      IOrderedEnumerable<ReadingValuesForChartDTO> orderedEnumerable = this.GetReadingValuesForCharts.OrderBy<ReadingValuesForChartDTO, DateTime>((Func<ReadingValuesForChartDTO, DateTime>) (x => x.Date));
+      this.GetReadingValuesForCharts = new RadObservableCollection<ReadingValuesForChartDTO>();
+      TypeHelperExtensionMethods.ForEach<ReadingValuesForChartDTO>((IEnumerable<ReadingValuesForChartDTO>) orderedEnumerable, (Action<ReadingValuesForChartDTO>) (x =>
+      {
+        x.ValueId = Math.Round(x.ValueId, 3);
+        this.GetReadingValuesForCharts.Add(x);
+      }));
+    }
+
+    private void CreateReadingValuesForChart(
+      IList<MeterReadingValue> readingValuesForSelectedMeter,
+      Brush estimationValueColor,
+      Brush realValueColor)
+    {
+      List<MeterReadingValue> readingValuesForFirstDaysOfTheMonth = new List<MeterReadingValue>();
+      if (!readingValuesForSelectedMeter.Any<MeterReadingValue>())
+        return;
+      DateTime dateTime1 = readingValuesForSelectedMeter.First<MeterReadingValue>().Date;
+      if (dateTime1.Day != 1)
+        readingValuesForFirstDaysOfTheMonth.Add(readingValuesForSelectedMeter.First<MeterReadingValue>());
+      TypeHelperExtensionMethods.ForEach<MeterReadingValue>((IEnumerable<MeterReadingValue>) readingValuesForSelectedMeter, (Action<MeterReadingValue>) (x =>
+      {
+        if (x.Date.Day != 1)
+          return;
+        readingValuesForFirstDaysOfTheMonth.Add(x);
+      }));
+      dateTime1 = readingValuesForSelectedMeter.Last<MeterReadingValue>().Date;
+      if (dateTime1.Day != 1 && readingValuesForSelectedMeter.Count != 1)
+      {
+        dateTime1 = readingValuesForSelectedMeter.Last<MeterReadingValue>().Date;
+        int month1 = dateTime1.Month;
+        dateTime1 = readingValuesForFirstDaysOfTheMonth.Last<MeterReadingValue>().Date;
+        int month2 = dateTime1.Month;
+        if (month1 != month2)
+          readingValuesForFirstDaysOfTheMonth.Add(readingValuesForSelectedMeter.Last<MeterReadingValue>());
+      }
+      List<ReadingValuesForChartDTO> valuesForChartDtoList1 = new List<ReadingValuesForChartDTO>();
+      MeterReadingValue meterReadingValue1 = readingValuesForSelectedMeter.FirstOrDefault<MeterReadingValue>();
+      if (meterReadingValue1 != null)
+      {
+        List<ReadingValuesForChartDTO> valuesForChartDtoList2 = valuesForChartDtoList1;
+        ReadingValuesForChartDTO valuesForChartDto1 = new ReadingValuesForChartDTO();
+        valuesForChartDto1.Color = realValueColor;
+        valuesForChartDto1.IsEstimation = false;
+        valuesForChartDto1.ValueId = meterReadingValue1.Value;
+        ReadingValuesForChartDTO valuesForChartDto2 = valuesForChartDto1;
+        dateTime1 = meterReadingValue1.Date;
+        string str1 = dateTime1.ToString("MMM", (IFormatProvider) CultureInfo.InvariantCulture);
+        dateTime1 = meterReadingValue1.Date;
+        // ISSUE: variable of a boxed type
+        __Boxed<int> year = (System.ValueType) dateTime1.Year;
+        string str2 = str1 + " " + (object) year;
+        valuesForChartDto2.Month = str2;
+        valuesForChartDto1.Date = meterReadingValue1.Date;
+        valuesForChartDto1.LastValue = meterReadingValue1.Value;
+        ReadingValuesForChartDTO valuesForChartDto3 = valuesForChartDto1;
+        valuesForChartDtoList2.Add(valuesForChartDto3);
+      }
+      for (int index = 0; index < readingValuesForFirstDaysOfTheMonth.Count - 1; ++index)
+      {
+        dateTime1 = readingValuesForFirstDaysOfTheMonth[index].Date;
+        int month = dateTime1.Month;
+        dateTime1 = readingValuesForFirstDaysOfTheMonth[index + 1].Date;
+        int num = dateTime1.Month - 1;
+        if (month != num && valuesForChartDtoList1.Any<ReadingValuesForChartDTO>() && this.MonthDifference(readingValuesForFirstDaysOfTheMonth[index].Date, valuesForChartDtoList1.Last<ReadingValuesForChartDTO>().Date) != 1 && this.MonthDifference(readingValuesForFirstDaysOfTheMonth[index].Date, valuesForChartDtoList1.Last<ReadingValuesForChartDTO>().Date) != 0)
+        {
+          DateTime rValue = readingValuesForFirstDaysOfTheMonth[index].Date;
+          int addedMonths = 0;
+          for (; rValue < readingValuesForFirstDaysOfTheMonth[index + 1].Date && this.MonthDifference(readingValuesForFirstDaysOfTheMonth[index + 1].Date, rValue) != 1; rValue = rValue.AddMonths(1))
+          {
+            ++addedMonths;
+            this.AddEstimatedReadingValue((IList<MeterReadingValue>) readingValuesForFirstDaysOfTheMonth, index, readingValuesForSelectedMeter, (IList<ReadingValuesForChartDTO>) valuesForChartDtoList1, addedMonths, estimationValueColor);
+          }
+        }
+        else if (valuesForChartDtoList1.Any<ReadingValuesForChartDTO>() && this.MonthDifference(readingValuesForFirstDaysOfTheMonth[index].Date, valuesForChartDtoList1.Last<ReadingValuesForChartDTO>().Date) == 1)
+        {
+          ConsumptionViewModel.AddRealReadingValue(valuesForChartDtoList1, readingValuesForFirstDaysOfTheMonth, index, true, realValueColor, estimationValueColor);
+          DateTime rValue = valuesForChartDtoList1.Last<ReadingValuesForChartDTO>().Date;
+          int addedMonths = 0;
+          for (; rValue < readingValuesForFirstDaysOfTheMonth[index + 1].Date && this.MonthDifference(readingValuesForFirstDaysOfTheMonth[index + 1].Date, rValue) != 1; rValue = rValue.AddMonths(1))
+          {
+            ++addedMonths;
+            this.AddEstimatedReadingValue((IList<MeterReadingValue>) readingValuesForFirstDaysOfTheMonth, index, readingValuesForSelectedMeter, (IList<ReadingValuesForChartDTO>) valuesForChartDtoList1, addedMonths, estimationValueColor);
+          }
+        }
+        else if (this.MonthDifference(readingValuesForFirstDaysOfTheMonth[index + 1].Date, readingValuesForFirstDaysOfTheMonth[index].Date) != 1)
+        {
+          DateTime dateTime2 = readingValuesForFirstDaysOfTheMonth[index].Date;
+          int addedMonths = 0;
+          for (; dateTime2 < readingValuesForFirstDaysOfTheMonth[index + 1].Date && this.MonthDifference(readingValuesForFirstDaysOfTheMonth[index + 1].Date, dateTime2) != 1 && this.MonthDifference(dateTime2, readingValuesForFirstDaysOfTheMonth[index + 1].Date) != 0; dateTime2 = dateTime2.AddMonths(1))
+          {
+            ++addedMonths;
+            this.AddEstimatedReadingValue((IList<MeterReadingValue>) readingValuesForFirstDaysOfTheMonth, index, readingValuesForSelectedMeter, (IList<ReadingValuesForChartDTO>) valuesForChartDtoList1, addedMonths, estimationValueColor);
+          }
+        }
+        else
+          ConsumptionViewModel.AddRealReadingValue(valuesForChartDtoList1, readingValuesForFirstDaysOfTheMonth, index, false, realValueColor, estimationValueColor);
+      }
+      MeterReadingValue meterReadingValue2 = readingValuesForSelectedMeter.LastOrDefault<MeterReadingValue>();
+      if (meterReadingValue2 != null && readingValuesForSelectedMeter.Count != 1)
+      {
+        if (readingValuesForFirstDaysOfTheMonth.Count != 0 && this.MonthDifference(meterReadingValue2.Date, valuesForChartDtoList1.Last<ReadingValuesForChartDTO>().Date) != 1 && this.MonthDifference(valuesForChartDtoList1.Last<ReadingValuesForChartDTO>().Date, meterReadingValue2.Date) != 0)
+        {
+          DateTime lValue = valuesForChartDtoList1.Last<ReadingValuesForChartDTO>().Date;
+          int months = 0;
+          for (; lValue < meterReadingValue2.Date && this.MonthDifference(lValue, meterReadingValue2.Date) != 1; lValue = lValue.AddMonths(1))
+          {
+            ++months;
+            double estimation = this.CreateEstimation(lValue.AddMonths(months), readingValuesForSelectedMeter);
+            List<ReadingValuesForChartDTO> valuesForChartDtoList3 = valuesForChartDtoList1;
+            ReadingValuesForChartDTO valuesForChartDto4 = new ReadingValuesForChartDTO();
+            ReadingValuesForChartDTO valuesForChartDto5 = valuesForChartDto4;
+            dateTime1 = lValue.AddMonths(1);
+            string str3 = dateTime1.ToString("MMM", (IFormatProvider) CultureInfo.InvariantCulture);
+            dateTime1 = lValue.AddMonths(1);
+            // ISSUE: variable of a boxed type
+            __Boxed<int> year = (System.ValueType) dateTime1.Year;
+            string str4 = str3 + " " + (object) year;
+            valuesForChartDto5.Month = str4;
+            valuesForChartDto4.ValueId = estimation - valuesForChartDtoList1.Last<ReadingValuesForChartDTO>().LastValue;
+            valuesForChartDto4.Color = estimationValueColor;
+            valuesForChartDto4.IsEstimation = true;
+            valuesForChartDto4.Date = lValue.AddMonths(1);
+            valuesForChartDto4.LastValue = estimation;
+            ReadingValuesForChartDTO valuesForChartDto6 = valuesForChartDto4;
+            valuesForChartDtoList3.Add(valuesForChartDto6);
+          }
+        }
+        dateTime1 = meterReadingValue2.Date;
+        int month3 = dateTime1.Month;
+        dateTime1 = valuesForChartDtoList1.Last<ReadingValuesForChartDTO>().Date;
+        int month4 = dateTime1.Month;
+        if (month3 != month4)
+        {
+          List<ReadingValuesForChartDTO> valuesForChartDtoList4 = valuesForChartDtoList1;
+          ReadingValuesForChartDTO valuesForChartDto7 = new ReadingValuesForChartDTO();
+          valuesForChartDto7.Color = realValueColor;
+          valuesForChartDto7.IsEstimation = false;
+          valuesForChartDto7.ValueId = meterReadingValue2.Value - valuesForChartDtoList1.Last<ReadingValuesForChartDTO>().LastValue;
+          ReadingValuesForChartDTO valuesForChartDto8 = valuesForChartDto7;
+          dateTime1 = meterReadingValue2.Date;
+          string str5 = dateTime1.ToString("MMM", (IFormatProvider) CultureInfo.InvariantCulture);
+          dateTime1 = meterReadingValue2.Date;
+          // ISSUE: variable of a boxed type
+          __Boxed<int> year = (System.ValueType) dateTime1.Year;
+          string str6 = str5 + " " + (object) year;
+          valuesForChartDto8.Month = str6;
+          valuesForChartDto7.Date = meterReadingValue2.Date;
+          valuesForChartDto7.LastValue = meterReadingValue2.Value;
+          ReadingValuesForChartDTO valuesForChartDto9 = valuesForChartDto7;
+          valuesForChartDtoList4.Add(valuesForChartDto9);
+        }
+      }
+      valuesForChartDtoList1.ForEach((Action<ReadingValuesForChartDTO>) (x => this.GetReadingValuesForCharts.Add(x)));
+    }
+
+    public int MonthDifference(DateTime lValue, DateTime rValue)
+    {
+      return lValue.Month - rValue.Month + 12 * (lValue.Year - rValue.Year);
+    }
+
+    private void AddEstimatedReadingValue(
+      IList<MeterReadingValue> readingValuesForFirstDaysOfTheMonth,
+      int rv,
+      IList<MeterReadingValue> readingValuesForSelectedMeter,
+      IList<ReadingValuesForChartDTO> readingValuesWithEstimations,
+      int addedMonths,
+      Brush estimationValueColor)
+    {
+      double estimation = this.CreateEstimation(readingValuesForFirstDaysOfTheMonth[rv].Date.AddMonths(addedMonths), readingValuesForSelectedMeter);
+      IList<ReadingValuesForChartDTO> valuesForChartDtoList = readingValuesWithEstimations;
+      ReadingValuesForChartDTO valuesForChartDto1 = new ReadingValuesForChartDTO();
+      ReadingValuesForChartDTO valuesForChartDto2 = valuesForChartDto1;
+      DateTime dateTime = readingValuesForFirstDaysOfTheMonth[rv].Date;
+      dateTime = dateTime.AddMonths(addedMonths);
+      string str1 = dateTime.ToString("MMM", (IFormatProvider) CultureInfo.InvariantCulture);
+      dateTime = readingValuesForFirstDaysOfTheMonth[rv].Date;
+      dateTime = dateTime.AddMonths(addedMonths);
+      // ISSUE: variable of a boxed type
+      __Boxed<int> year = (System.ValueType) dateTime.Year;
+      string str2 = str1 + " " + (object) year;
+      valuesForChartDto2.Month = str2;
+      valuesForChartDto1.ValueId = estimation - readingValuesWithEstimations.Last<ReadingValuesForChartDTO>().LastValue;
+      valuesForChartDto1.Color = estimationValueColor;
+      valuesForChartDto1.IsEstimation = true;
+      valuesForChartDto1.Date = readingValuesForFirstDaysOfTheMonth[rv].Date.AddMonths(addedMonths);
+      valuesForChartDto1.LastValue = estimation;
+      ReadingValuesForChartDTO valuesForChartDto3 = valuesForChartDto1;
+      valuesForChartDtoList.Add(valuesForChartDto3);
+    }
+
+    private static void AddRealReadingValue(
+      List<ReadingValuesForChartDTO> readingValuesWithEstimations,
+      List<MeterReadingValue> readingValuesForFirstDaysOfTheMonth,
+      int rv,
+      bool isCurrentValue,
+      Brush realValueColor,
+      Brush estimationValueColor)
+    {
+      if (isCurrentValue)
+        readingValuesWithEstimations.Add(new ReadingValuesForChartDTO()
+        {
+          Month = readingValuesForFirstDaysOfTheMonth[rv].Date.ToString("MMM", (IFormatProvider) CultureInfo.InvariantCulture) + " " + (object) readingValuesForFirstDaysOfTheMonth[rv].Date.Year,
+          ValueId = readingValuesForFirstDaysOfTheMonth[rv].Value - readingValuesWithEstimations.Last<ReadingValuesForChartDTO>().LastValue,
+          Color = readingValuesWithEstimations.Last<ReadingValuesForChartDTO>().IsEstimation ? estimationValueColor : realValueColor,
+          IsEstimation = false,
+          Date = readingValuesForFirstDaysOfTheMonth[rv].Date,
+          LastValue = readingValuesForFirstDaysOfTheMonth[rv].Value
+        });
+      else
+        readingValuesWithEstimations.Add(new ReadingValuesForChartDTO()
+        {
+          Month = readingValuesForFirstDaysOfTheMonth[rv + 1].Date.ToString("MMM", (IFormatProvider) CultureInfo.InvariantCulture) + " " + (object) readingValuesForFirstDaysOfTheMonth[rv + 1].Date.Year,
+          ValueId = readingValuesForFirstDaysOfTheMonth[rv + 1].Value - readingValuesWithEstimations.Last<ReadingValuesForChartDTO>().LastValue,
+          Color = readingValuesWithEstimations.Last<ReadingValuesForChartDTO>().IsEstimation ? estimationValueColor : realValueColor,
+          IsEstimation = false,
+          Date = readingValuesForFirstDaysOfTheMonth[rv + 1].Date,
+          LastValue = readingValuesForFirstDaysOfTheMonth[rv + 1].Value
+        });
+    }
+
+    private double CreateEstimation(
+      DateTime target,
+      IList<MeterReadingValue> readingValuesForSelectedMeter)
+    {
+      if (readingValuesForSelectedMeter.Any<MeterReadingValue>())
+      {
+        List<DateTime> list = readingValuesForSelectedMeter.Select<MeterReadingValue, DateTime>((Func<MeterReadingValue, DateTime>) (x => x.Date)).ToList<DateTime>();
+        int index = list.ToList<DateTime>().BinarySearch(target);
+        if (index < 0)
+          index = ~index;
+        if (index >= list.Count)
+          --index;
+        if (index != 0)
+        {
+          DateTime date1 = readingValuesForSelectedMeter[index].Date;
+          DateTime date2 = date1.Date;
+          date1 = readingValuesForSelectedMeter[index - 1].Date;
+          DateTime date3 = date1.Date;
+          TimeSpan timeSpan = date2 - date3;
+          int days = timeSpan.Days;
+          double num = readingValuesForSelectedMeter[index].Value - readingValuesForSelectedMeter[index - 1].Value;
+          timeSpan = target - readingValuesForSelectedMeter[index - 1].Date;
+          return (double) timeSpan.Days / (double) days * num + readingValuesForSelectedMeter[index - 1].Value;
+        }
+      }
+      return 0.0;
+    }
+
+    public RadObservableCollection<ReadingValuesForChartDTO> GetReadingValuesForCharts
+    {
+      get => this._getReadingValuesForCharts;
+      set
+      {
+        this._getReadingValuesForCharts = value;
+        this.OnPropertyChanged(nameof (GetReadingValuesForCharts));
+      }
+    }
+
+    public override ICommand CancelWindowCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          MSS.DTO.Message.Message message = new MSS.DTO.Message.Message()
+          {
+            MessageType = MessageTypeEnum.Warning,
+            MessageText = MessageCodes.OperationCancelled.GetStringValue()
+          };
+          EventPublisher.Publish<ActionUpdated>(new ActionUpdated()
+          {
+            Message = message
+          }, (IViewModel) this);
+          this.OnRequestClose(false);
+        }));
+      }
+    }
+
+    public double MaxValue
+    {
+      get => this._maxValue;
+      set
+      {
+        this._maxValue = value;
+        this.OnPropertyChanged(nameof (MaxValue));
+      }
+    }
+  }
+}
+
+
+--- ExportFileSettingsViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Reporting.ExportFileSettingsViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using FluentNHibernate.Conventions;
+using MSS.Business.Events;
+using MSS.Business.Modules.Reporting;
+using MSS.Business.Modules.UsersManagement;
+using MSS.Business.Utils;
+using MSS.Core.Model.UsersManagement;
+using MSS.DIConfiguration;
+using MSS.DTO.MessageHandler;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MSS_Client.Utils;
+using MSS_Client.ViewModel.GenericProgressDialog;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using Ninject;
+using Ninject.Parameters;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Windows.Input;
+using Telerik.Windows.Data;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Reporting
+{
+  public class ExportFileSettingsViewModel : ValidationViewModelBase
+  {
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly IWindowFactory _windowFactory;
+    private bool _dataExportLastDaysChoice;
+    private int _numberOfDaysToExport;
+    private string _countrySelectorHeight = "0";
+    private bool _sasExportType;
+    private bool _csvFileType;
+    private bool _xmlFileType;
+    private bool _excelFileType;
+    private bool _commaDecimalSeparator;
+    private bool _semicolonValueSeparator;
+    private RadObservableCollection<Country> _countryList;
+    private BackgroundWorker _backgroundWorkerExport;
+
+    [Inject]
+    public ExportFileSettingsViewModel(
+      IRepositoryFactory repositoryFactory,
+      IWindowFactory windowFactory)
+    {
+      this._windowFactory = windowFactory;
+      this._repositoryFactory = repositoryFactory;
+      this.CountryList = this.GetCountries();
+      this.SelectedCountries = new RadObservableCollection<Country>();
+      this.CsvFileType = true;
+      this.CommaDecimalSeparator = true;
+      this.SemicolonValueSeparator = true;
+    }
+
+    public bool DataExportLastDaysChoice
+    {
+      get => this._dataExportLastDaysChoice;
+      set
+      {
+        this._dataExportLastDaysChoice = value;
+        this.OnPropertyChanged(nameof (DataExportLastDaysChoice));
+      }
+    }
+
+    public int NumberOfDaysToExport
+    {
+      get => this._numberOfDaysToExport;
+      set
+      {
+        this._numberOfDaysToExport = value;
+        this.OnPropertyChanged(nameof (NumberOfDaysToExport));
+      }
+    }
+
+    public string CountrySelectorHeight
+    {
+      get => this._countrySelectorHeight;
+      set
+      {
+        this._countrySelectorHeight = value;
+        this.OnPropertyChanged(nameof (CountrySelectorHeight));
+      }
+    }
+
+    public bool SasExportType
+    {
+      get => this._sasExportType;
+      set
+      {
+        this._sasExportType = value;
+        this.CountrySelectorHeight = this._sasExportType ? "3*" : "0";
+        this.OnPropertyChanged("SelectedCountries");
+        this.OnPropertyChanged(nameof (SasExportType));
+      }
+    }
+
+    public bool CsvFileType
+    {
+      get => this._csvFileType;
+      set
+      {
+        this._csvFileType = value;
+        this.OnPropertyChanged(nameof (CsvFileType));
+      }
+    }
+
+    public bool XmlFileType
+    {
+      get => this._xmlFileType;
+      set
+      {
+        this._xmlFileType = value;
+        this.OnPropertyChanged(nameof (XmlFileType));
+      }
+    }
+
+    public bool ExcelFileType
+    {
+      get => this._excelFileType;
+      set
+      {
+        this._excelFileType = value;
+        this.OnPropertyChanged(nameof (ExcelFileType));
+      }
+    }
+
+    public bool CommaDecimalSeparator
+    {
+      get => this._commaDecimalSeparator;
+      set
+      {
+        this._commaDecimalSeparator = value;
+        this.OnPropertyChanged(nameof (CommaDecimalSeparator));
+      }
+    }
+
+    public bool SemicolonValueSeparator
+    {
+      get => this._semicolonValueSeparator;
+      set
+      {
+        this._semicolonValueSeparator = value;
+        this.OnPropertyChanged(nameof (SemicolonValueSeparator));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_Client_Reporting_Dialog_CountriesErrorToolTip")]
+    public RadObservableCollection<Country> SelectedCountries { get; set; }
+
+    public Country Country
+    {
+      set => this.OnPropertyChanged("SelectedCountries");
+    }
+
+    public RadObservableCollection<Country> GetCountries()
+    {
+      return new UsersManager(this._repositoryFactory).GetCountries();
+    }
+
+    public RadObservableCollection<Country> CountryList
+    {
+      get => this._countryList;
+      set
+      {
+        this._countryList = value;
+        this.OnPropertyChanged(nameof (CountryList));
+      }
+    }
+
+    private void CancelProcess(object sender, EventArgs e)
+    {
+      this._backgroundWorkerExport.CancelAsync();
+    }
+
+    public ICommand ExportCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) delegate
+        {
+          DeterminateProgressDialogViewModel pd = DIConfigurator.GetConfigurator().Get<DeterminateProgressDialogViewModel>((IParameter) new ConstructorArgument("progressDialogTitle", (object) Resources.MSS_Client_Export), (IParameter) new ConstructorArgument("progressDialogMessage", (object) Resources.EXPORT_INSTALLATION_ORDER_TEXT));
+          this._backgroundWorkerExport = new BackgroundWorker()
+          {
+            WorkerReportsProgress = true,
+            WorkerSupportsCancellation = true
+          };
+          this._backgroundWorkerExport.DoWork += (DoWorkEventHandler) ((sender, args) => new ReportingManager(this._repositoryFactory).ExportAllReadingValues(this.DataExportLastDaysChoice, this.NumberOfDaysToExport, this.SasExportType, this.CsvFileType, this.XmlFileType, this.ExcelFileType, this.CommaDecimalSeparator, this.SemicolonValueSeparator, this._backgroundWorkerExport, args, this.SelectedCountries.ToList<Country>()));
+          this._backgroundWorkerExport.ProgressChanged += (ProgressChangedEventHandler) ((sender, e) => EventPublisher.Publish<ProgressBarValueChanged>(new ProgressBarValueChanged()
+          {
+            Value = e.ProgressPercentage
+          }, (IViewModel) this));
+          this._backgroundWorkerExport.RunWorkerCompleted += (RunWorkerCompletedEventHandler) ((sender, args) =>
+          {
+            pd.OnRequestClose(false);
+            if (args.Cancelled)
+              MessageHandlingManager.ShowWarningMessage(Resources.MSS_MessageCodes_Cancel);
+            else if (args.Error != null)
+            {
+              MSS.Business.Errors.MessageHandler.LogException(args.Error);
+              MessageHandlingManager.ShowExceptionMessageDialog(MSSHelper.GetErrorMessage(args.Error), this._windowFactory);
+            }
+            else
+            {
+              MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_Synchronization_Succedded);
+              EventPublisher.Publish<ActionSyncFinished>(new ActionSyncFinished()
+              {
+                Message = new MSS.DTO.Message.Message()
+                {
+                  MessageType = MessageTypeEnum.Success,
+                  MessageText = Resources.MSS_MessageCodes_SuccessOperation
+                }
+              }, (IViewModel) this);
+            }
+          });
+          this.OnRequestClose(false);
+          this._backgroundWorkerExport.RunWorkerAsync();
+          this._windowFactory.CreateNewProgressDialog((IViewModel) pd, this._backgroundWorkerExport);
+        });
+      }
+    }
+
+    public override List<string> ValidateProperty(string propertyName)
+    {
+      string propertyName1 = this.GetPropertyName<RadObservableCollection<Country>>((Expression<Func<RadObservableCollection<Country>>>) (() => this.SelectedCountries));
+      if (!(propertyName == propertyName1))
+        return new List<string>();
+      ICollection<string> source = (ICollection<string>) new Collection<string>();
+      if (this.SasExportType && EnumerableExtensionsForConventions.IsEmpty<Country>((IEnumerable<Country>) this.SelectedCountries))
+      {
+        source.Add(Resources.MSS_Client_Reporting_Dialog_CountriesErrorToolTip);
+        this.IsValid = false;
+      }
+      return source.ToList<string>();
+    }
+
+    public ICommand CancelCommand
+    {
+      get => (ICommand) new RelayCommand((Action<object>) (Delegate => this.OnRequestClose(false)));
+    }
+  }
+}
+
+
+--- ExportJobViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Reporting.ExportJobViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using FluentNHibernate.Conventions;
+using MSS.Business.Errors;
+using MSS.Business.Events;
+using MSS.Business.Modules.Reporting;
+using MSS.Business.Modules.UsersManagement;
+using MSS.Business.Utils;
+using MSS.Core.Model.Reporting;
+using MSS.Core.Model.UsersManagement;
+using MSS.DTO.MessageHandler;
+using MSS.DTO.Reporting;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MSS.Utils.Utils;
+using MSS_Client.Utils;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using Newtonsoft.Json;
+using Ninject;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Windows.Forms;
+using System.Windows.Input;
+using Telerik.Windows.Data;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Reporting
+{
+  public class ExportJobViewModel : ValidationViewModelBase
+  {
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly string _action;
+    private readonly ReportingManager _reportingManager;
+    private Guid _jobId;
+    private ViewModelBase _messageUserControl;
+    private RadObservableCollection<Country> _countryList;
+    private DateTime _startDateValue;
+    private bool _dataExportLastDaysChoice;
+    private int _numberOfDaysToExport;
+    private bool _sasExportType;
+    private bool _csvFileType;
+    private bool _xmlFileType;
+    private bool _excelFileType;
+    private bool _commaDecimalSeparator;
+    private bool _semicolonValueSeparator;
+    private string _folderPath;
+    private string _countrySelectorHeight = "0";
+
+    [Inject]
+    public ExportJobViewModel(
+      IRepositoryFactory repositoryFactory,
+      AutomatedExportJobDTO exportJob,
+      string action)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._action = action;
+      this.SelectedCountries = new RadObservableCollection<Country>();
+      this._reportingManager = new ReportingManager(this._repositoryFactory);
+      this.DialogTitle = this.GetDialogTitle(action);
+      this.CommaDescription = ReportingHelper.GetLocalizedCharacterName(',');
+      this.DotDescription = ReportingHelper.GetLocalizedCharacterName('.');
+      this.SemicolonDescription = ReportingHelper.GetLocalizedCharacterName(';');
+      this.InitContext(action, exportJob);
+    }
+
+    private string GetDialogTitle(string action)
+    {
+      switch (action)
+      {
+        case "create":
+          return Resources.MSS_Client_Reporting_AutomatedJobCreateDialog_Title;
+        case "edit":
+          return Resources.MSS_Client_Reporting_AutomatedJobEditDialog_Title;
+        default:
+          return string.Empty;
+      }
+    }
+
+    private void InitContext(string action, AutomatedExportJobDTO exportJob)
+    {
+      if (action == "create")
+      {
+        this.StartDateValue = new AutomatedExportJobDTO().StartDate;
+        this.CsvFileType = true;
+        this.CommaDecimalSeparator = true;
+        this.SemicolonValueSeparator = true;
+        this.CountryList = this.GetCountries();
+      }
+      if (!(action == "edit"))
+        return;
+      this._jobId = exportJob.Id;
+      this.StartDateValue = exportJob.StartDate;
+      this.SelectedJobPeriodicityId = this.GetJobPeriodicities.First<AutomatedExportJobPeriodicityDTO>((Func<AutomatedExportJobPeriodicityDTO, bool>) (jp => jp.AutomatedExportPeriodicityEnum == exportJob.Periodicity)).Id;
+      this.ArchiveAfterExport = exportJob.ArchiveAfterExport;
+      this.DeleteAfterExport = exportJob.DeleteAfterExport;
+      this.FolderPath = exportJob.ExportPath;
+      this.DataExportLastDaysChoice = exportJob.DataToExport.Definition == "FromTheLastXDays";
+      this.NumberOfDaysToExport = exportJob.DataToExport.NumberOfDays;
+      this.SasExportType = exportJob.ExportFor == "SAS";
+      this.CsvFileType = exportJob.ExportedFileType == "CSV";
+      this.XmlFileType = exportJob.ExportedFileType == "XML";
+      this.ExcelFileType = exportJob.ExportedFileType == "EXCEL";
+      this.CommaDecimalSeparator = exportJob.DecimalSeparator == ReportingHelper.GetLocalizedCharacterName(',');
+      this.SemicolonValueSeparator = exportJob.ValueSeparator == ReportingHelper.GetLocalizedCharacterName(';');
+      this.SelectedCountries = this._reportingManager.GetCountriesForExportJob(exportJob);
+      this.CountryList = new RadObservableCollection<Country>(this.GetCountries().Where<Country>((Func<Country, bool>) (c => !this.SelectedCountries.Contains(c))));
+    }
+
+    public ViewModelBase MessageUserControl
+    {
+      get => this._messageUserControl;
+      set
+      {
+        this._messageUserControl = value;
+        this.OnPropertyChanged(nameof (MessageUserControl));
+      }
+    }
+
+    public override List<string> ValidateProperty(string propertyName)
+    {
+      string propertyName1 = this.GetPropertyName<int>((Expression<Func<int>>) (() => this.SelectedJobPeriodicityId));
+      string propertyName2 = this.GetPropertyName<RadObservableCollection<Country>>((Expression<Func<RadObservableCollection<Country>>>) (() => this.SelectedCountries));
+      if (propertyName == propertyName1)
+      {
+        ICollection<string> source = (ICollection<string>) new Collection<string>();
+        if (this.SelectedJobPeriodicityId == 0)
+        {
+          source.Add(Resources.MSS_Client_AutomatedExportJob_SelectedJobPeriodicityErrorToolTip);
+          this.IsValid = false;
+        }
+        return source.ToList<string>();
+      }
+      if (!(propertyName == propertyName2))
+        return new List<string>();
+      ICollection<string> source1 = (ICollection<string>) new Collection<string>();
+      if (this.SasExportType && EnumerableExtensionsForConventions.IsEmpty<Country>((IEnumerable<Country>) this.SelectedCountries))
+      {
+        source1.Add(Resources.MSS_Client_Reporting_Dialog_CountriesErrorToolTip);
+        this.IsValid = false;
+      }
+      return source1.ToList<string>();
+    }
+
+    public RadObservableCollection<Country> GetCountries()
+    {
+      return new UsersManager(this._repositoryFactory).GetCountries();
+    }
+
+    public RadObservableCollection<Country> CountryList
+    {
+      get => this._countryList;
+      set
+      {
+        this._countryList = value;
+        this.OnPropertyChanged(nameof (CountryList));
+      }
+    }
+
+    private void SaveData()
+    {
+      if (this._action == "create")
+        this.CreateAutomatedJob();
+      if (!(this._action == "edit"))
+        return;
+      this.EditAutomatedJob();
+    }
+
+    private void CreateAutomatedJob()
+    {
+      string str = "CSV";
+      char ch1 = this.CommaDecimalSeparator ? ',' : '.';
+      char ch2 = this.SemicolonValueSeparator ? ';' : ',';
+      if (this.XmlFileType)
+      {
+        str = "XML";
+        ch1 = ch2 = char.MinValue;
+      }
+      if (this.ExcelFileType)
+      {
+        str = "EXCEL";
+        ch1 = ch2 = char.MinValue;
+      }
+      AutomatedExportJob automatedExportJob = new AutomatedExportJob()
+      {
+        Periodicity = this.GetJobPeriodicities.First<AutomatedExportJobPeriodicityDTO>((Func<AutomatedExportJobPeriodicityDTO, bool>) (jp => jp.Id == this.SelectedJobPeriodicityId)).AutomatedExportPeriodicityEnum,
+        Type = AutomatedExportJobTypeEnum.ReadingValues,
+        ArchiveAfterExport = this.ArchiveAfterExport,
+        DeleteAfterExport = this.DeleteAfterExport,
+        StartDate = this.StartDateValue,
+        LastExecutionTime = new DateTime?(),
+        DataToExport = JsonConvert.SerializeObject((object) new DataToExport()
+        {
+          Definition = (this.DataExportLastDaysChoice ? "FromTheLastXDays" : "NotYetExported"),
+          NumberOfDays = (this.DataExportLastDaysChoice ? this.NumberOfDaysToExport : 0)
+        }),
+        ExportFor = this.SasExportType ? "SAS" : "GMM",
+        ExportedFileType = str,
+        DecimalSeparator = ch1,
+        ValueSeparator = ch2,
+        Path = this.FolderPath
+      };
+      this._reportingManager.CreateExportJob(automatedExportJob);
+      if (!this.SasExportType)
+        return;
+      this._reportingManager.CreateSasJobCountryConnections(automatedExportJob, this.SelectedCountries);
+    }
+
+    private void EditAutomatedJob()
+    {
+      AutomatedExportJob byId = this._repositoryFactory.GetRepository<AutomatedExportJob>().GetById((object) this._jobId);
+      byId.Periodicity = (AutomatedExportJobPeriodicityEnum) Enum.Parse(typeof (AutomatedExportJobPeriodicityEnum), this.GetJobPeriodicities.First<AutomatedExportJobPeriodicityDTO>((Func<AutomatedExportJobPeriodicityDTO, bool>) (jp => jp.Id == this.SelectedJobPeriodicityId)).AutomatedExportJobPeriodicity);
+      byId.Type = AutomatedExportJobTypeEnum.ReadingValues;
+      byId.ArchiveAfterExport = this.ArchiveAfterExport;
+      byId.DeleteAfterExport = this.DeleteAfterExport;
+      byId.StartDate = this.StartDateValue;
+      byId.DataToExport = JsonConvert.SerializeObject((object) new DataToExport()
+      {
+        Definition = (this.DataExportLastDaysChoice ? "FromTheLastXDays" : "NotYetExported"),
+        NumberOfDays = (this.DataExportLastDaysChoice ? this.NumberOfDaysToExport : 0)
+      });
+      byId.ExportFor = this.SasExportType ? "SAS" : "GMM";
+      string str = "CSV";
+      if (this.XmlFileType)
+        str = "XML";
+      if (this.ExcelFileType)
+        str = "EXCEL";
+      byId.ExportedFileType = str;
+      byId.DecimalSeparator = this.CommaDecimalSeparator ? ',' : '.';
+      byId.ValueSeparator = this.SemicolonValueSeparator ? ';' : ',';
+      this._reportingManager.UpdateExportJob(byId);
+      if (!this.SasExportType)
+        return;
+      this._reportingManager.UpdateSasJobCountryConnections(byId, this.SelectedCountries);
+    }
+
+    public ICommand ExportJobOkCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) delegate
+        {
+          if (this.IsValid)
+          {
+            this.SaveData();
+            MSS.DTO.Message.Message message = new MSS.DTO.Message.Message()
+            {
+              MessageType = MessageTypeEnum.Success,
+              MessageText = MessageCodes.Success_Save.GetStringValue()
+            };
+            EventPublisher.Publish<ActionUpdated>(new ActionUpdated()
+            {
+              Message = message
+            }, (IViewModel) this);
+            this.OnRequestClose(true);
+          }
+          else
+            this.MessageUserControl = MessageHandlingManager.ShowValidationMessage(new MSS.DTO.Message.Message()
+            {
+              MessageType = MessageTypeEnum.Validation,
+              MessageText = MessageCodes.ValidationError.GetStringValue()
+            }.MessageText);
+        });
+      }
+    }
+
+    public override ICommand CancelWindowCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          MSS.DTO.Message.Message message = new MSS.DTO.Message.Message()
+          {
+            MessageType = MessageTypeEnum.Warning,
+            MessageText = MessageCodes.OperationCancelled.GetStringValue()
+          };
+          EventPublisher.Publish<ActionUpdated>(new ActionUpdated()
+          {
+            Message = message
+          }, (IViewModel) this);
+          this.OnRequestClose(false);
+        }));
+      }
+    }
+
+    public IEnumerable<AutomatedExportJobPeriodicityDTO> GetJobPeriodicities
+    {
+      get
+      {
+        return MSSHelper.GetListOfObjectsFromEnum<AutomatedExportJobPeriodicityEnum, AutomatedExportJobPeriodicityDTO>();
+      }
+    }
+
+    public ICommand BrowseWindowCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog()
+          {
+            ShowNewFolderButton = true
+          };
+          if (folderBrowserDialog.ShowDialog() != DialogResult.OK)
+            return;
+          this.FolderPath = folderBrowserDialog.SelectedPath;
+        }));
+      }
+    }
+
+    public string DialogTitle { get; set; }
+
+    [Required(ErrorMessage = "MSS_Client_AutomatedExportJob_SelectedJobPeriodicityErrorToolTip")]
+    public int SelectedJobPeriodicityId { get; set; }
+
+    [Required(ErrorMessage = "MSS_Client_AutomatedExportJob_StartDateErrorToolTip")]
+    public DateTime StartDateValue
+    {
+      get => this._startDateValue;
+      set
+      {
+        this._startDateValue = value;
+        this.OnPropertyChanged(nameof (StartDateValue));
+      }
+    }
+
+    public bool ArchiveAfterExport { get; set; }
+
+    public bool DeleteAfterExport { get; set; }
+
+    public bool DataExportLastDaysChoice
+    {
+      get => this._dataExportLastDaysChoice;
+      set
+      {
+        this._dataExportLastDaysChoice = value;
+        this.OnPropertyChanged(nameof (DataExportLastDaysChoice));
+      }
+    }
+
+    public int NumberOfDaysToExport
+    {
+      get => this._numberOfDaysToExport;
+      set
+      {
+        this._numberOfDaysToExport = value;
+        this.OnPropertyChanged(nameof (NumberOfDaysToExport));
+      }
+    }
+
+    public bool SasExportType
+    {
+      get => this._sasExportType;
+      set
+      {
+        this._sasExportType = value;
+        this.CountrySelectorHeight = this._sasExportType ? "3*" : "0";
+        this.OnPropertyChanged("SelectedCountries");
+        this.OnPropertyChanged(nameof (SasExportType));
+      }
+    }
+
+    public bool CsvFileType
+    {
+      get => this._csvFileType;
+      set
+      {
+        this._csvFileType = value;
+        this.OnPropertyChanged(nameof (CsvFileType));
+      }
+    }
+
+    public bool XmlFileType
+    {
+      get => this._xmlFileType;
+      set
+      {
+        this._xmlFileType = value;
+        this.OnPropertyChanged(nameof (XmlFileType));
+      }
+    }
+
+    public bool ExcelFileType
+    {
+      get => this._excelFileType;
+      set
+      {
+        this._excelFileType = value;
+        this.OnPropertyChanged(nameof (ExcelFileType));
+      }
+    }
+
+    public bool CommaDecimalSeparator
+    {
+      get => this._commaDecimalSeparator;
+      set
+      {
+        this._commaDecimalSeparator = value;
+        this.OnPropertyChanged(nameof (CommaDecimalSeparator));
+      }
+    }
+
+    public bool SemicolonValueSeparator
+    {
+      get => this._semicolonValueSeparator;
+      set
+      {
+        this._semicolonValueSeparator = value;
+        this.OnPropertyChanged(nameof (SemicolonValueSeparator));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_Client_Reporting_AutomatedJobCreateDialog_NoPathWasSelected_Message")]
+    public string FolderPath
+    {
+      get => this._folderPath;
+      set
+      {
+        this._folderPath = value;
+        this.OnPropertyChanged(nameof (FolderPath));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_Client_Reporting_Dialog_CountriesErrorToolTip")]
+    public RadObservableCollection<Country> SelectedCountries { get; set; }
+
+    public Country Country
+    {
+      set => this.OnPropertyChanged("SelectedCountries");
+    }
+
+    public string CountrySelectorHeight
+    {
+      get => this._countrySelectorHeight;
+      set
+      {
+        this._countrySelectorHeight = value;
+        this.OnPropertyChanged(nameof (CountrySelectorHeight));
+      }
+    }
+
+    public string CommaDescription { get; set; }
+
+    public string DotDescription { get; set; }
+
+    public string SemicolonDescription { get; set; }
+  }
+}
+
+
+--- MinomatCommunicationLogDetailsViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Reporting.MinomatCommunicationLogDetailsViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.DTO.Reporting;
+using MVVM.ViewModel;
+using Ninject;
+using System;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Reporting
+{
+  public class MinomatCommunicationLogDetailsViewModel : ViewModelBase
+  {
+    private readonly MinomatCommunicationLogDTO _selectedMinomatComLog;
+
+    [Inject]
+    public MinomatCommunicationLogDetailsViewModel(MinomatCommunicationLogDTO selectedMinomatComLog)
+    {
+      this._selectedMinomatComLog = selectedMinomatComLog;
+    }
+
+    public string MasterRadioId => this._selectedMinomatComLog.MasterRadioId;
+
+    public DateTime TimePoint => this._selectedMinomatComLog.TimePoint;
+
+    public string GsmID => this._selectedMinomatComLog.GsmID;
+
+    public string SessionKey => this._selectedMinomatComLog.SessionKey;
+
+    public string ChallengeKey => this._selectedMinomatComLog.ChallengeKey;
+
+    public string RawData => this._selectedMinomatComLog.RawData;
+
+    public string SCGICommand => this._selectedMinomatComLog.SCGICommand;
+
+    public bool IsIncoming => this._selectedMinomatComLog.IsIncoming;
+  }
+}
+
+
+--- PrintOptionsViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Reporting.PrintOptionsViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.DIConfiguration;
+using MSS.DTO.Meters;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using Ninject;
+using Ninject.Parameters;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows.Controls;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Reporting
+{
+  public class PrintOptionsViewModel : ViewModelBase
+  {
+    private IRepositoryFactory _repositoryFactory;
+    private IWindowFactory _windowFactory;
+    private IEnumerable<MeterReadingValueDTO> _readingValues;
+    private ObservableCollection<ColumnToPrint> _columnsToPrint;
+    private bool _isPrintAllChecked;
+    private bool _isPrintSelectedChecked;
+    private bool _isFitToPageWidthChecked;
+    private string _titleOfPrint;
+
+    public PrintOptionsViewModel(
+      IRepositoryFactory repositoryFactory,
+      IWindowFactory windowFactory,
+      IEnumerable<MeterReadingValueDTO> readingValues)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._windowFactory = windowFactory;
+      this._readingValues = readingValues;
+      this._isPrintSelectedChecked = false;
+      this._isPrintAllChecked = !this._isPrintSelectedChecked;
+      this._isFitToPageWidthChecked = true;
+      this.InitListBoxItems();
+    }
+
+    public ICommand PrintPreviewCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (_ =>
+        {
+          PrintDialog printDialog = new PrintDialog();
+          if (!printDialog.ShowDialog().GetValueOrDefault())
+            return;
+          this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<ReadingValuesPrintPreviewViewModel>((IParameter) new ConstructorArgument("readingValues", (object) this._readingValues), (IParameter) new ConstructorArgument("columnsToPrint", (object) this.ColumnsToPrint.ToList<ColumnToPrint>()), (IParameter) new ConstructorArgument("printDialog", (object) printDialog), (IParameter) new ConstructorArgument("title", (object) this.TitleOfPrint)));
+        }));
+      }
+    }
+
+    public ObservableCollection<ColumnToPrint> ColumnsToPrint
+    {
+      get => this._columnsToPrint;
+      set
+      {
+        this._columnsToPrint = value;
+        this.OnPropertyChanged(nameof (ColumnsToPrint));
+      }
+    }
+
+    public bool IsPrintAllChecked
+    {
+      get => this._isPrintAllChecked;
+      set
+      {
+        this._isPrintAllChecked = value;
+        this.OnPropertyChanged(nameof (IsPrintAllChecked));
+      }
+    }
+
+    public bool IsPrintSelectedChecked
+    {
+      get => this._isPrintSelectedChecked;
+      set
+      {
+        this._isPrintAllChecked = value;
+        this.OnPropertyChanged(nameof (IsPrintSelectedChecked));
+      }
+    }
+
+    public bool IsFitToPageWidthChecked
+    {
+      get => this._isFitToPageWidthChecked;
+      set
+      {
+        this._isFitToPageWidthChecked = value;
+        this.OnPropertyChanged(nameof (IsFitToPageWidthChecked));
+      }
+    }
+
+    public string TitleOfPrint
+    {
+      get => this._titleOfPrint;
+      set
+      {
+        this._titleOfPrint = value;
+        this.OnPropertyChanged(nameof (TitleOfPrint));
+      }
+    }
+
+    private void InitListBoxItems()
+    {
+      this._columnsToPrint = new ObservableCollection<ColumnToPrint>();
+      this._columnsToPrint.Add(new ColumnToPrint()
+      {
+        Header = Resources.MSS_Client_ReadingValues_Date,
+        IsChecked = true,
+        BoundFieldName = "Date"
+      });
+      this._columnsToPrint.Add(new ColumnToPrint()
+      {
+        Header = Resources.MSS_Client_Structures_Header_SerialNumber,
+        IsChecked = true,
+        BoundFieldName = "MeterSerialNumber"
+      });
+      this._columnsToPrint.Add(new ColumnToPrint()
+      {
+        Header = Resources.MSS_Client_ReadingValues_Value,
+        IsChecked = true,
+        BoundFieldName = "Value"
+      });
+      this._columnsToPrint.Add(new ColumnToPrint()
+      {
+        Header = Resources.MSS_Client_DataFilters_PhysicalQuantity,
+        IsChecked = true,
+        BoundFieldName = "PhysicalQuantity"
+      });
+      this._columnsToPrint.Add(new ColumnToPrint()
+      {
+        Header = Resources.MSS_Client_DataFilters_MeterType,
+        IsChecked = true,
+        BoundFieldName = "MeterType"
+      });
+      this._columnsToPrint.Add(new ColumnToPrint()
+      {
+        Header = Resources.MSS_Client_DataFilters_Calculation,
+        IsChecked = true,
+        BoundFieldName = "Calculation"
+      });
+      this._columnsToPrint.Add(new ColumnToPrint()
+      {
+        Header = Resources.MSS_Client_DataFilters_CalculationStart,
+        IsChecked = true,
+        BoundFieldName = "CalculationStart"
+      });
+      this._columnsToPrint.Add(new ColumnToPrint()
+      {
+        Header = Resources.MSS_Client_DataFilters_StorageInterval,
+        IsChecked = true,
+        BoundFieldName = "StorageInterval"
+      });
+      this._columnsToPrint.Add(new ColumnToPrint()
+      {
+        Header = Resources.MSS_Client_DataFilters_Creation,
+        IsChecked = true,
+        BoundFieldName = "Creation"
+      });
+    }
+  }
+}
+
+
+--- ReadingValuesPrintPreviewViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Reporting.ReadingValuesPrintPreviewViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Utils;
+using MSS.DTO.Meters;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using System;
+using System.Collections.Generic;
+using System.Printing;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Reporting
+{
+  public class ReadingValuesPrintPreviewViewModel : ViewModelBase
+  {
+    private PrintDialog _printDialog;
+    private Thickness _margins;
+    private const double LEFT_MARGIN = 25.0;
+    private const double TOP_MARGIN = 25.0;
+    private const double RIGHT_MARGIN = 25.0;
+    private const double BOTTOM_MARGIN = 25.0;
+    private string _title;
+    private double _gridHeight;
+    private double _gridWidth;
+    private IEnumerable<MeterReadingValueDTO> _meterReadingValues;
+    private bool _isDateChecked;
+    private bool _isMeterSerialNumberChecked;
+    private bool _isValueChecked;
+    private bool _isPhysicalQuantityChecked;
+    private bool _isMeterTypeChecked;
+    private bool _isCalculationChecked;
+    private bool _isCalculationStartChecked;
+    private bool _isStorageIntervalChecked;
+    private bool _isCreationChecked;
+
+    public ReadingValuesPrintPreviewViewModel(
+      IEnumerable<MeterReadingValueDTO> readingValues,
+      List<ColumnToPrint> columnsToPrint,
+      PrintDialog printDialog,
+      string title)
+    {
+      this._meterReadingValues = readingValues;
+      this._printDialog = printDialog;
+      this._title = title;
+      foreach (ColumnToPrint columnToPrint in columnsToPrint)
+        this.GetType().GetProperty("Is" + columnToPrint.BoundFieldName + "Checked").SetValue((object) this, (object) columnToPrint.IsChecked);
+      this._margins = new Thickness(25.0, 25.0, 25.0, 25.0);
+      PrintCapabilities printCapabilities = printDialog.PrintQueue.GetPrintCapabilities(printDialog.PrintTicket);
+      this._gridWidth = printCapabilities.PageImageableArea.ExtentWidth - this._margins.Left - this._margins.Right;
+      this._gridHeight = printCapabilities.PageImageableArea.ExtentHeight - this._margins.Top - this._margins.Bottom;
+    }
+
+    public string Title
+    {
+      get => this._title;
+      set
+      {
+        this._title = value;
+        this.OnPropertyChanged(nameof (Title));
+      }
+    }
+
+    public bool IsTitleVisible => !string.IsNullOrEmpty(this.Title);
+
+    public double PageHeight
+    {
+      get => this._gridHeight;
+      set
+      {
+        this._gridHeight = value;
+        this.OnPropertyChanged("GridHeight");
+      }
+    }
+
+    public double GridWidth
+    {
+      get => this._gridWidth;
+      set
+      {
+        this._gridWidth = value;
+        this.OnPropertyChanged(nameof (GridWidth));
+      }
+    }
+
+    public IEnumerable<MeterReadingValueDTO> MeterReadingValues
+    {
+      get => this._meterReadingValues;
+      set
+      {
+        this._meterReadingValues = value;
+        this.OnPropertyChanged(nameof (MeterReadingValues));
+      }
+    }
+
+    public bool IsDateChecked
+    {
+      get => this._isDateChecked;
+      set
+      {
+        this._isDateChecked = value;
+        this.OnPropertyChanged(nameof (IsDateChecked));
+      }
+    }
+
+    public bool IsMeterSerialNumberChecked
+    {
+      get => this._isMeterSerialNumberChecked;
+      set
+      {
+        this._isMeterSerialNumberChecked = value;
+        this.OnPropertyChanged(nameof (IsMeterSerialNumberChecked));
+      }
+    }
+
+    public bool IsValueChecked
+    {
+      get => this._isValueChecked;
+      set
+      {
+        this._isValueChecked = value;
+        this.OnPropertyChanged(nameof (IsValueChecked));
+      }
+    }
+
+    public bool IsPhysicalQuantityChecked
+    {
+      get => this._isPhysicalQuantityChecked;
+      set
+      {
+        this._isPhysicalQuantityChecked = value;
+        this.OnPropertyChanged(nameof (IsPhysicalQuantityChecked));
+      }
+    }
+
+    public bool IsMeterTypeChecked
+    {
+      get => this._isMeterTypeChecked;
+      set
+      {
+        this._isMeterTypeChecked = value;
+        this.OnPropertyChanged(nameof (IsMeterTypeChecked));
+      }
+    }
+
+    public bool IsCalculationChecked
+    {
+      get => this._isCalculationChecked;
+      set
+      {
+        this._isCalculationChecked = value;
+        this.OnPropertyChanged(nameof (IsCalculationChecked));
+      }
+    }
+
+    public bool IsCalculationStartChecked
+    {
+      get => this._isCalculationStartChecked;
+      set
+      {
+        this._isCalculationStartChecked = value;
+        this.OnPropertyChanged(nameof (IsCalculationStartChecked));
+      }
+    }
+
+    public bool IsStorageIntervalChecked
+    {
+      get => this._isStorageIntervalChecked;
+      set
+      {
+        this._isStorageIntervalChecked = value;
+        this.OnPropertyChanged(nameof (IsStorageIntervalChecked));
+      }
+    }
+
+    public bool IsCreationChecked
+    {
+      get => this._isCreationChecked;
+      set
+      {
+        this._isCreationChecked = value;
+        this.OnPropertyChanged(nameof (IsCreationChecked));
+      }
+    }
+
+    public ICommand PrintCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          try
+          {
+            new UIPrinter().Print(parameter as Grid, this._printDialog, this._margins);
+            this.OnRequestClose(false);
+          }
+          catch (PrintAborted ex)
+          {
+          }
+        }));
+      }
+    }
+  }
+}
+
+
+--- ReportingViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Reporting.ReportingViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using AutoMapper;
+using Microsoft.Win32;
+using MSS.Business.DTO;
+using MSS.Business.Errors;
+using MSS.Business.Events;
+using MSS.Business.Modules.Reporting;
+using MSS.Business.Modules.StructuresManagement;
+using MSS.Business.Modules.UsersManagement;
+using MSS.Business.Utils;
+using MSS.Core.Model.DataFilters;
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.Reporting;
+using MSS.Core.Model.Structures;
+using MSS.DIConfiguration;
+using MSS.DTO.MessageHandler;
+using MSS.DTO.Meters;
+using MSS.DTO.Reporting;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MSS.MDMCommunication.Business.Managers;
+using MSS.Utils.Utils;
+using MSS_Client.Utils;
+using MSS_Client.ViewModel.DataFilters;
+using MSS_Client.ViewModel.GenericProgressDialog;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Linq;
+using NHibernate.Type;
+using Ninject;
+using Ninject.Parameters;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Reporting
+{
+  public class ReportingViewModel : ValidationViewModelBase
+  {
+    private ViewModelBase _messageUserControlAutomatedExports;
+    private ViewModelBase _messageUserControlMeterData;
+    private BackgroundWorker _backgroundWorkerMDM;
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly IWindowFactory _windowFactory;
+    private readonly StructuresManager _structuresManager;
+    private BackgroundWorker _backgroundWorkerSync;
+    private IList<string> foundMeters = (IList<string>) new List<string>();
+    private string _pageSize = string.Empty;
+    private bool _isPrintButtonEnabled;
+    private IEnumerable<MSS.Core.Model.DataFilters.Filter> _filterCollection;
+    private MSS.Core.Model.DataFilters.Filter _selectedFilter;
+    private DateTime? _startDate;
+    private DateTime? _endDateJobLogValue;
+    private DateTime? _endDate;
+    private IEnumerable<MeterReadingValue> _readingValues = (IEnumerable<MeterReadingValue>) new List<MeterReadingValue>();
+    private IEnumerable<MeterReadingValueDTO> _readingValuesDto = (IEnumerable<MeterReadingValueDTO>) new List<MeterReadingValueDTO>();
+    private StructureType _selectedType;
+    private IEnumerable<StructureNodeDTO> _structureNodeCollection;
+    private StructureNodeDTO _selectedStructureNodeDto;
+    private bool _isFiltered;
+    private bool _isMonthly;
+    private bool _isDaily;
+    private bool _isYearly;
+    private DateTime? _startDateJobLogValue;
+    private int _alternationCountNumber = 2;
+    private bool _isAutomatedExportsTabVisible;
+    private bool _isCreateAutomatedExportVisible;
+    private bool _isDeleteAutomatedExportVisible;
+    private bool _isMeterDataTabVisible;
+    private bool _meterDataExportVisibility;
+
+    [Inject]
+    public ReportingViewModel(IRepositoryFactory repositoryFactory, IWindowFactory windowFactory)
+    {
+      this.PageSize = MSS.Business.Utils.AppContext.Current.GetParameterValue<string>(nameof (PageSize));
+      this._repositoryFactory = repositoryFactory;
+      this._windowFactory = windowFactory;
+      Mapper.CreateMap<JobLogs, JobLogsDTO>().ForMember((Expression<Func<JobLogsDTO, object>>) (j => j.JobName), (Action<IMemberConfigurationExpression<JobLogs>>) (j => j.ResolveUsing((Func<JobLogs, object>) (jl => (object) jl.Job.JobDefinition.Name))));
+      Mapper.CreateMap<MeterReadingValue, MeterReadingValueDTO>();
+      EventPublisher.Register<ActionSyncFinished>(new Action<ActionSyncFinished>(this.CreateMessage));
+      this._structuresManager = new StructuresManager(this._repositoryFactory);
+      this.StructureNodeCollection = (IEnumerable<StructureNodeDTO>) this._structuresManager.GetStructureNodesCollection(StructureTypeEnum.Physical);
+      ObservableCollection<StructureType> observableCollection = new ObservableCollection<StructureType>();
+      observableCollection.Add(new StructureType()
+      {
+        IdEnum = StructureTypeEnum.Physical,
+        Name = Resources.MSS_Client_Orders_PhysicalStructure
+      });
+      observableCollection.Add(new StructureType()
+      {
+        IdEnum = StructureTypeEnum.Logical,
+        Name = Resources.MSS_Client_Orders_LogicalStructure
+      });
+      this.StructureTypeCollection = observableCollection;
+      this.SelectedType = this.StructureTypeCollection.First<StructureType>();
+      this.FilterCollection = (IEnumerable<MSS.Core.Model.DataFilters.Filter>) this._repositoryFactory.GetRepository<MSS.Core.Model.DataFilters.Filter>().GetAll().OrderBy<MSS.Core.Model.DataFilters.Filter, string>((Func<MSS.Core.Model.DataFilters.Filter, string>) (f => f.Name));
+      this.SelectedFilter = this.FilterCollection.FirstOrDefault<MSS.Core.Model.DataFilters.Filter>((Func<MSS.Core.Model.DataFilters.Filter, bool>) (x => x.Name == "Any"));
+      this.IsFiltered = false;
+      this.IsDaily = true;
+      DateTime now = DateTime.Now;
+      this.StartDate = new DateTime?(now.Subtract(new TimeSpan(3, 0, 0, 0)));
+      now = DateTime.Now;
+      this.EndDate = new DateTime?(now.AddDays(3.0));
+      EventPublisher.Register<ActionSearchByText>(new Action<ActionSearchByText>(this.UpdateMeterReadingValuesDTO));
+      this.IsPrintButtonEnabled = false;
+      UsersManager usersManager1 = new UsersManager(this._repositoryFactory);
+      bool flag1 = usersManager1.HasRight(OperationEnum.AutomatedExportView.ToString());
+      bool flag2 = usersManager1.HasRight(OperationEnum.AutomatedExportCreate.ToString());
+      UsersManager usersManager2 = usersManager1;
+      OperationEnum operationEnum = OperationEnum.AutomatedExportDelete;
+      string operation1 = operationEnum.ToString();
+      bool flag3 = usersManager2.HasRight(operation1);
+      this.IsAutomatedExportsTabVisible = flag1;
+      this.IsCreateAutomatedExportVisible = flag1 & flag2;
+      this.IsDeleteAutomatedExportVisible = flag1 & flag3;
+      UsersManager usersManager3 = usersManager1;
+      operationEnum = OperationEnum.ReadingDataView;
+      string operation2 = operationEnum.ToString();
+      this.IsMeterDataTabVisible = usersManager3.HasRight(operation2);
+      UsersManager usersManager4 = usersManager1;
+      operationEnum = OperationEnum.ReadingDataExport;
+      string operation3 = operationEnum.ToString();
+      this.MeterDataExportVisibility = usersManager4.HasRight(operation3);
+      this.IsMeterDataTabSelected = this.IsMeterDataTabVisible;
+      this.IsAutomatedExportJobTabSelected = !this.IsMeterDataTabVisible;
+    }
+
+    public ICommand GetConsumptionCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          if (parameter != null)
+          {
+            if (((StructureNodeDTO) parameter).Entity is MeterDTO entity2)
+              this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<ConsumptionViewModel>((IParameter) new ConstructorArgument("selectedMeter", (object) entity2), (IParameter) new ConstructorArgument("startDate", (object) this.StartDate), (IParameter) new ConstructorArgument("endDate", (object) this.EndDate), (IParameter) new ConstructorArgument("filter", (object) this.SelectedFilter)));
+            else
+              MSSUIHelper.ShowWarningDialog(this._windowFactory, MessageCodes.Warning.ToString(), Resources.MSS_Client_Consumption_MissingMeterSelection_Warning, false);
+          }
+          else
+            MSSUIHelper.ShowWarningDialog(this._windowFactory, MessageCodes.Warning.ToString(), Resources.MSS_Client_Consumption_MissingMeterSelection_Warning, false);
+        }));
+      }
+    }
+
+    public ICommand CreateJobCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) delegate
+        {
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<ExportJobViewModel>((IParameter) new ConstructorArgument("action", (object) "create")));
+          this.MessageUserControlAutomatedExports = !newModalDialog.HasValue || !newModalDialog.Value ? MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage) : MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          this.OnPropertyChanged("GetJobs");
+        });
+      }
+    }
+
+    public ICommand EditJobCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          AutomatedExportJobDTO automatedExportJobDto = parameter as AutomatedExportJobDTO;
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<ExportJobViewModel>((IParameter) new ConstructorArgument("exportJob", (object) automatedExportJobDto), (IParameter) new ConstructorArgument("action", (object) "edit")));
+          if (newModalDialog.HasValue && newModalDialog.Value)
+          {
+            this._repositoryFactory.GetRepository<AutomatedExportJob>().Refresh((object) automatedExportJobDto.Id);
+            this.MessageUserControlAutomatedExports = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          }
+          else
+            this.MessageUserControlAutomatedExports = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+          this.OnPropertyChanged("GetJobs");
+        }));
+      }
+    }
+
+    public ICommand DeleteJobCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          try
+          {
+            AutomatedExportJobDTO automatedExportJobDto = parameter as AutomatedExportJobDTO;
+            new ReportingManager(this._repositoryFactory).DeleteExportJob(this._repositoryFactory.GetRepository<AutomatedExportJob>().GetById((object) automatedExportJobDto.Id));
+            this.MessageUserControlAutomatedExports = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          }
+          catch (Exception ex)
+          {
+            this.MessageUserControlAutomatedExports = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+            throw;
+          }
+          this.OnPropertyChanged("GetJobs");
+        }));
+      }
+    }
+
+    public ICommand ExportAllReadingValues
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) delegate
+        {
+          this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<ExportFileSettingsViewModel>());
+        });
+      }
+    }
+
+    public ICommand SearchCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          string searchText = parameter as string;
+          if (string.IsNullOrEmpty(searchText))
+            return;
+          foreach (StructureNodeDTO structureNode in this.StructureNodeCollection)
+          {
+            IEnumerable<StructureNodeDTO> source1 = StructuresHelper.Descendants(structureNode).Where<StructureNodeDTO>((Func<StructureNodeDTO, bool>) (n =>
+            {
+              if (n.Name.Contains(searchText) || n.Description != null && n.Description.Contains(searchText))
+                return true;
+              return n.Entity is MeterDTO && ((MeterDTO) n.Entity).SerialNumber.Contains(searchText);
+            }));
+            if (!(source1 is IList<StructureNodeDTO> structureNodeDtoList2))
+              structureNodeDtoList2 = (IList<StructureNodeDTO>) source1.ToList<StructureNodeDTO>();
+            IList<StructureNodeDTO> source2 = structureNodeDtoList2;
+            structureNode.IsExpanded = source2.Any<StructureNodeDTO>();
+            foreach (StructureNodeDTO structureNodeDto in (IEnumerable<StructureNodeDTO>) source2)
+              structureNodeDto.BackgroundColor = (Brush) Brushes.LightGreen;
+          }
+        }));
+      }
+    }
+
+    public ICommand OpenFilterCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<FilterViewModel>());
+          this.RefreshFilter(new RefreshFilters()
+          {
+            isRefresh = true
+          });
+        }));
+      }
+    }
+
+    public ICommand SearchForReadingValues
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          GenericProgressDialogViewModel vm = DIConfigurator.GetConfigurator().Get<GenericProgressDialogViewModel>((IParameter) new ConstructorArgument("progressDialogTitle", (object) Resources.METER_DATA_LOAD_READING_VALUES_TITLE), (IParameter) new ConstructorArgument("progressDialogMessage", (object) Resources.METER_DATA_LOAD_READING_VALUES));
+          this._backgroundWorkerSync = new BackgroundWorker()
+          {
+            WorkerReportsProgress = true,
+            WorkerSupportsCancellation = true
+          };
+          this._backgroundWorkerSync.DoWork += (DoWorkEventHandler) ((sender, args) =>
+          {
+            try
+            {
+              this.AlternationCountNumber = 2;
+              MappingsManager.MeterReadingValue_to_MeterReadingValueDTO();
+              StructureNodeDTO node = (StructureNodeDTO) parameter;
+              this.foundMeters = (IList<string>) new List<string>();
+              this.GetMetersFromList(node);
+              string[] array = this.foundMeters.ToArray<string>();
+              bool isAny = new List<long>().Contains(0L);
+              if (this.IsFiltered)
+              {
+                if (this.IsDaily)
+                  this.GetFilteredReadingValues(array, this.SelectedFilter.Rules, "day", isAny);
+                if (this.IsMonthly)
+                  this.GetFilteredReadingValues(array, this.SelectedFilter.Rules, "month", isAny);
+                if (!this.IsYearly)
+                  return;
+                this.GetFilteredReadingValues(array, this.SelectedFilter.Rules, "year", isAny);
+              }
+              else
+              {
+                IList<MeterReadingValue> source;
+                if (isAny)
+                {
+                  source = this._repositoryFactory.GetSession().CreateCriteria<MeterReadingValue>("ReadingValues").Add((ICriterion) Restrictions.In("ReadingValues.MeterSerialNumber", (object[]) array)).Add((ICriterion) Restrictions.Gt("ReadingValues.Date", (object) this.StartDate)).Add((ICriterion) Restrictions.Lt("ReadingValues.Date", (object) this.EndDate)).List<MeterReadingValue>();
+                }
+                else
+                {
+                  ICriteria criteria = this._repositoryFactory.GetSession().CreateCriteria<MeterReadingValue>("ReadingValues").Add((ICriterion) Restrictions.In("ReadingValues.MeterSerialNumber", (object[]) array)).Add((ICriterion) Restrictions.Gt("ReadingValues.Date", (object) this.StartDate)).Add((ICriterion) Restrictions.Lt("ReadingValues.Date", (object) this.EndDate));
+                  this.GetCriteria(criteria, this.SelectedFilter.Rules);
+                  source = criteria.List<MeterReadingValue>();
+                }
+                this.ReadingValuesDto = (IEnumerable<MeterReadingValueDTO>) Mapper.Map<IEnumerable<MeterReadingValue>, ObservableCollection<MeterReadingValueDTO>>((IEnumerable<MeterReadingValue>) source);
+                this.SetRowColors(this.ReadingValuesDto.ToList<MeterReadingValueDTO>());
+                this.MeterReadingValuesDTO = Mapper.Map<IEnumerable<MeterReadingValue>, ObservableCollection<MeterReadingValueDTO>>(this.ReadingValues);
+                Application.Current.Dispatcher.Invoke<ViewModelBase>((Func<ViewModelBase>) (() => this.MessageUserControlMeterData = MessageHandlingManager.ShowSuccessMessage(MessageCodes.Success_Operation.GetStringValue())));
+              }
+            }
+            catch (Exception ex)
+            {
+              Application.Current.Dispatcher.Invoke((Action) (() =>
+              {
+                this.MessageUserControlMeterData = MessageHandlingManager.ShowWarningMessage(MessageCodes.Error.GetStringValue() + " " + ex.Message);
+                MSS.Business.Errors.MessageHandler.LogException(ex.Message);
+                MessageHandlingManager.ShowExceptionMessageDialog(ex.Message, this._windowFactory);
+              }));
+            }
+          });
+          this._backgroundWorkerSync.RunWorkerCompleted += (RunWorkerCompletedEventHandler) ((sender, args) => vm.OnRequestClose(false));
+          this._backgroundWorkerSync.RunWorkerAsync();
+          this._windowFactory.CreateNewProgressDialog((IViewModel) vm, this._backgroundWorkerSync);
+        }));
+      }
+    }
+
+    public ICommand ExportDataCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (_ =>
+        {
+          if (this.ReadingValuesDto == null || this.ReadingValuesDto.ToList<MeterReadingValueDTO>().Count == 0)
+            return;
+          CultureInfo cultureInfo = (CultureInfo) Thread.CurrentThread.CurrentCulture.Clone();
+          Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+          ReportingManager reportingManager = new ReportingManager(this._repositoryFactory);
+          SaveFileDialog saveFileDialog = new SaveFileDialog()
+          {
+            Filter = "CSV Document|*.csv",
+            Title = "Save structure to file"
+          };
+          bool? nullable = saveFileDialog.ShowDialog();
+          if (saveFileDialog.FileName == string.Empty)
+            return;
+          List<string[]> readingValuesList = reportingManager.CreateReadingValuesList(this.ReadingValuesDto.ToList<MeterReadingValueDTO>());
+          try
+          {
+            if (nullable.HasValue && nullable.Value)
+            {
+              try
+              {
+                List<string[]> nodeList = CSVManager.AddQuatForCSV(readingValuesList);
+                new CSVManager().WriteToFile(saveFileDialog.FileName, nodeList);
+                this.MessageUserControlMeterData = MessageHandlingManager.ShowSuccessMessage(MessageCodes.Success_Operation.GetStringValue());
+              }
+              catch (Exception ex)
+              {
+                this.MessageUserControlMeterData = MessageHandlingManager.ShowWarningMessage(MessageCodes.Error.GetStringValue() + " " + ex.Message);
+                MSS.Business.Errors.MessageHandler.LogException(ex.Message);
+                MessageHandlingManager.ShowExceptionMessageDialog(ex.Message, this._windowFactory);
+              }
+            }
+            else
+              this.MessageUserControlMeterData = MessageHandlingManager.ShowWarningMessage(MessageCodes.OperationCancelled.GetStringValue());
+          }
+          finally
+          {
+            Thread.CurrentThread.CurrentCulture = cultureInfo;
+          }
+        }));
+      }
+    }
+
+    public ICommand PrintCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (_ => this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<PrintOptionsViewModel>((IParameter) new ConstructorArgument("repositoryFactory", (object) this._repositoryFactory), (IParameter) new ConstructorArgument("windowFactory", (object) this._windowFactory), (IParameter) new ConstructorArgument("readingValues", (object) this.ReadingValuesDto)))));
+      }
+    }
+
+    public ICommand MDMExportCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          GenericProgressDialogViewModel vm = DIConfigurator.GetConfigurator().Get<GenericProgressDialogViewModel>((IParameter) new ConstructorArgument("progressDialogTitle", (object) Resources.MSS_Client_MDMExportTitle), (IParameter) new ConstructorArgument("progressDialogMessage", (object) Resources.MSS_Client_MDMExportMessage));
+          this._backgroundWorkerMDM = new BackgroundWorker()
+          {
+            WorkerReportsProgress = true,
+            WorkerSupportsCancellation = true
+          };
+          this._backgroundWorkerMDM.DoWork += (DoWorkEventHandler) ((sender, args) =>
+          {
+            MDMManager mdmManager = new MDMManager(this._repositoryFactory);
+            mdmManager.SavePortfolioRecord();
+            mdmManager.SaveBuildingRecord();
+            mdmManager.SaveTenantInfoRecord();
+            mdmManager.SaveTenantFlatRecord();
+            mdmManager.SaveDeviceInfoRecord();
+            mdmManager.SaveReadDataRecord();
+            mdmManager.SaveAddressRecord();
+            mdmManager.SaveDCUInfoRecord();
+            mdmManager.SaveDCUConnectionRecord();
+            mdmManager.SaveAMRRouteRecord();
+            mdmManager.SaveTestConfigRunRecord();
+            mdmManager.SaveTestConfigDeviceRecord();
+          });
+          this._backgroundWorkerMDM.RunWorkerCompleted += (RunWorkerCompletedEventHandler) ((sender, args) =>
+          {
+            vm.OnRequestClose(false);
+            if (args.Cancelled)
+              this.MessageUserControlAutomatedExports = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_MDMJobs_Cancelled);
+            else if (args.Error != null)
+            {
+              MSS.Business.Errors.MessageHandler.LogException(args.Error);
+              MessageHandlingManager.ShowExceptionMessageDialog(MSSHelper.GetErrorMessage(args.Error), this._windowFactory);
+            }
+            else
+              this.MessageUserControlAutomatedExports = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_MDMJobs_Succedded);
+          });
+          this._backgroundWorkerMDM.RunWorkerAsync();
+          this._windowFactory.CreateNewProgressDialog((IViewModel) vm, this._backgroundWorkerMDM);
+        }));
+      }
+    }
+
+    public ObservableCollection<MeterReadingValueDTO> MeterReadingValuesDTO { get; set; }
+
+    public string PageSize
+    {
+      get => this._pageSize;
+      set
+      {
+        this._pageSize = value;
+        this.OnPropertyChanged(nameof (PageSize));
+      }
+    }
+
+    public bool IsPrintButtonEnabled
+    {
+      get => this._isPrintButtonEnabled;
+      set
+      {
+        this._isPrintButtonEnabled = value;
+        this.OnPropertyChanged(nameof (IsPrintButtonEnabled));
+      }
+    }
+
+    public IEnumerable<MSS.Core.Model.DataFilters.Filter> FilterCollection
+    {
+      get => this._filterCollection;
+      set
+      {
+        this._filterCollection = value;
+        this.OnPropertyChanged(nameof (FilterCollection));
+      }
+    }
+
+    public MSS.Core.Model.DataFilters.Filter SelectedFilter
+    {
+      get => this._selectedFilter;
+      set
+      {
+        this._selectedFilter = value;
+        this.OnPropertyChanged(nameof (SelectedFilter));
+      }
+    }
+
+    public DateTime? StartDate
+    {
+      get => this._startDate;
+      set
+      {
+        this._startDate = value;
+        this.OnPropertyChanged(nameof (StartDate));
+      }
+    }
+
+    public DateTime? EndDateJobLogValue
+    {
+      get => this._endDateJobLogValue;
+      set
+      {
+        this._endDateJobLogValue = value;
+        this.ValidateProperty("JobEntityNumberValue");
+        this.OnPropertyChanged(nameof (EndDateJobLogValue));
+      }
+    }
+
+    public DateTime? EndDate
+    {
+      get => this._endDate;
+      set
+      {
+        this._endDate = value;
+        this.OnPropertyChanged(nameof (EndDate));
+      }
+    }
+
+    public IEnumerable<MeterReadingValue> ReadingValues
+    {
+      get => this._readingValues;
+      set
+      {
+        this._readingValues = value;
+        this.OnPropertyChanged(nameof (ReadingValues));
+      }
+    }
+
+    public IEnumerable<MeterReadingValueDTO> ReadingValuesDto
+    {
+      get => this._readingValuesDto;
+      set
+      {
+        this._readingValuesDto = value;
+        this.OnPropertyChanged(nameof (ReadingValuesDto));
+        this.IsPrintButtonEnabled = this._readingValuesDto != null && this._readingValuesDto.ToList<MeterReadingValueDTO>().Any<MeterReadingValueDTO>();
+      }
+    }
+
+    public StructureType SelectedType
+    {
+      get => this._selectedType;
+      set
+      {
+        this._selectedType = value;
+        this.StructureNodeCollection = (IEnumerable<StructureNodeDTO>) this._structuresManager.GetStructureNodesCollection(this.SelectedType.IdEnum == StructureTypeEnum.Logical ? StructureTypeEnum.Logical : StructureTypeEnum.Physical);
+        this.OnPropertyChanged(nameof (SelectedType));
+      }
+    }
+
+    public ObservableCollection<StructureType> StructureTypeCollection { get; set; }
+
+    public IEnumerable<StructureNodeDTO> StructureNodeCollection
+    {
+      get => this._structureNodeCollection;
+      set
+      {
+        this._structureNodeCollection = value;
+        this.OnPropertyChanged(nameof (StructureNodeCollection));
+      }
+    }
+
+    public StructureNodeDTO SelectedStructureNodeItem
+    {
+      get => this._selectedStructureNodeDto;
+      set
+      {
+        this._selectedStructureNodeDto = value;
+        this.OnPropertyChanged(nameof (SelectedStructureNodeItem));
+      }
+    }
+
+    public ViewModelBase MessageUserControlAutomatedExports
+    {
+      get => this._messageUserControlAutomatedExports;
+      set
+      {
+        this._messageUserControlAutomatedExports = value;
+        this.OnPropertyChanged(nameof (MessageUserControlAutomatedExports));
+      }
+    }
+
+    public ViewModelBase MessageUserControlMeterData
+    {
+      get => this._messageUserControlMeterData;
+      set
+      {
+        this._messageUserControlMeterData = value;
+        this.OnPropertyChanged(nameof (MessageUserControlMeterData));
+      }
+    }
+
+    public bool IsFiltered
+    {
+      get => this._isFiltered;
+      set
+      {
+        this._isFiltered = value;
+        this.OnPropertyChanged(nameof (IsFiltered));
+      }
+    }
+
+    public bool IsMonthly
+    {
+      get => this._isMonthly;
+      set
+      {
+        this._isMonthly = value;
+        this.OnPropertyChanged(nameof (IsMonthly));
+      }
+    }
+
+    public bool IsDaily
+    {
+      get => this._isDaily;
+      set
+      {
+        this._isDaily = value;
+        this.OnPropertyChanged(nameof (IsDaily));
+      }
+    }
+
+    public bool IsYearly
+    {
+      get => this._isYearly;
+      set
+      {
+        this._isYearly = value;
+        this.OnPropertyChanged(nameof (IsYearly));
+      }
+    }
+
+    public DateTime? StartDateJobLogValue
+    {
+      get => this._startDateJobLogValue;
+      set
+      {
+        this._startDateJobLogValue = value;
+        this.ValidateProperty("JobEntityNumberValue");
+        this.OnPropertyChanged(nameof (StartDateJobLogValue));
+      }
+    }
+
+    public int AlternationCountNumber
+    {
+      get => this._alternationCountNumber;
+      set
+      {
+        this._alternationCountNumber = value;
+        this.OnPropertyChanged(nameof (AlternationCountNumber));
+      }
+    }
+
+    public bool IsAutomatedExportJobTabSelected { get; set; }
+
+    public bool IsMeterDataTabSelected { get; set; }
+
+    public bool IsAutomatedExportsTabVisible
+    {
+      get => this._isAutomatedExportsTabVisible;
+      set
+      {
+        this._isAutomatedExportsTabVisible = value;
+        this.OnPropertyChanged(nameof (IsAutomatedExportsTabVisible));
+      }
+    }
+
+    public bool IsCreateAutomatedExportVisible
+    {
+      get => this._isCreateAutomatedExportVisible;
+      set
+      {
+        this._isCreateAutomatedExportVisible = value;
+        this.OnPropertyChanged(nameof (IsCreateAutomatedExportVisible));
+      }
+    }
+
+    public bool IsDeleteAutomatedExportVisible
+    {
+      get => this._isDeleteAutomatedExportVisible;
+      set
+      {
+        this._isDeleteAutomatedExportVisible = value;
+        this.OnPropertyChanged(nameof (IsDeleteAutomatedExportVisible));
+      }
+    }
+
+    public bool IsMeterDataTabVisible
+    {
+      get => this._isMeterDataTabVisible;
+      set
+      {
+        this._isMeterDataTabVisible = value;
+        this.OnPropertyChanged(nameof (IsMeterDataTabVisible));
+      }
+    }
+
+    public bool MeterDataExportVisibility
+    {
+      get => this._meterDataExportVisibility;
+      set
+      {
+        this._meterDataExportVisibility = value;
+        this.OnPropertyChanged(nameof (MeterDataExportVisibility));
+      }
+    }
+
+    private void RefreshFilter(RefreshFilters obj)
+    {
+      if (!obj.isRefresh)
+        return;
+      string selectedName = this.SelectedFilter.Name;
+      this._repositoryFactory.GetSession().Clear();
+      this.FilterCollection = (IEnumerable<MSS.Core.Model.DataFilters.Filter>) this._repositoryFactory.GetRepository<MSS.Core.Model.DataFilters.Filter>().GetAll().OrderBy<MSS.Core.Model.DataFilters.Filter, string>((Func<MSS.Core.Model.DataFilters.Filter, string>) (f => f.Name));
+      this.SelectedFilter = this.FilterCollection.FirstOrDefault<MSS.Core.Model.DataFilters.Filter>((Func<MSS.Core.Model.DataFilters.Filter, bool>) (x => x.Name == selectedName)) ?? this.FilterCollection.FirstOrDefault<MSS.Core.Model.DataFilters.Filter>((Func<MSS.Core.Model.DataFilters.Filter, bool>) (x => true));
+    }
+
+    private void UpdateMeterReadingValuesDTO(ActionSearchByText actionSearchByText)
+    {
+      string searchedText = actionSearchByText.SearchedText;
+      if (!(searchedText != string.Empty))
+        return;
+      bool flag = false;
+      foreach (MeterReadingValueDTO meterReadingValueDto in this.ReadingValuesDto)
+      {
+        if (meterReadingValueDto.MeterSerialNumber.Contains(searchedText))
+        {
+          flag = true;
+          meterReadingValueDto.BackgroundColor = (Brush) Brushes.LightGreen;
+        }
+        else
+          meterReadingValueDto.BackgroundColor = (Brush) Brushes.Transparent;
+      }
+      this.AlternationCountNumber = flag ? 0 : 2;
+    }
+
+    public void GetMetersFromList(StructureNodeDTO node)
+    {
+      if (node.Entity is MeterDTO)
+        this.foundMeters.Add((node.Entity as MeterDTO).SerialNumber);
+      foreach (StructureNodeDTO subNode in (Collection<StructureNodeDTO>) node.SubNodes)
+      {
+        if (subNode.Entity is MeterDTO)
+          this.foundMeters.Add((subNode.Entity as MeterDTO).SerialNumber);
+        if (subNode.SubNodes.Count != 0)
+          this.GetMetersFromList(subNode);
+      }
+    }
+
+    private void CreateMessage(ActionSyncFinished messageFinished)
+    {
+      if (messageFinished.Message.MessageType != MessageTypeEnum.Success)
+        return;
+      this.MessageUserControlAutomatedExports = MessageHandlingManager.ShowSuccessMessage(messageFinished.Message.MessageText);
+    }
+
+    public IEnumerable<AutomatedExportJobDTO> GetJobs
+    {
+      get
+      {
+        IList<AutomatedExportJob> all = this._repositoryFactory.GetRepository<AutomatedExportJob>().GetAll();
+        MappingsManager.AutomatedExportJob_to_AutomatedExportJobDTO();
+        return (IEnumerable<AutomatedExportJobDTO>) Mapper.Map<IList<AutomatedExportJob>, IList<AutomatedExportJobDTO>>(all);
+      }
+    }
+
+    private void GetFilteredReadingValues(
+      string[] serialNumbers,
+      IList<Rules> rules,
+      string selection,
+      bool isAny)
+    {
+      MappingsManager.MeterReadingValue_to_MeterReadingValueDTO();
+      DetachedCriteria dc = DetachedCriteria.For<MeterReadingValue>("RD").SetProjection((IProjection) Projections.ProjectionList().Add((IProjection) Projections.Max("RD.Date"), "MaxDate").Add((IProjection) Projections.GroupProperty((IProjection) Projections.Property("MeterId"))).Add((IProjection) Projections.GroupProperty(Projections.SqlFunction(selection, (IType) NHibernateUtil.DateTime, (IProjection) Projections.Property("RD.Date"))))).Add((ICriterion) Restrictions.EqProperty("ReadingValues.Date", (IProjection) Projections.Max("RD.Date"))).Add((ICriterion) Restrictions.EqProperty("ReadingValues.MeterId", "RD.MeterId"));
+      IList<MeterReadingValue> source;
+      if (isAny)
+      {
+        source = this._repositoryFactory.GetSession().CreateCriteria<MeterReadingValue>("ReadingValues").Add((ICriterion) Subqueries.Exists(dc)).Add((ICriterion) Restrictions.In("ReadingValues.MeterSerialNumber", (object[]) serialNumbers)).Add((ICriterion) Restrictions.Gt("ReadingValues.Date", (object) this.StartDate)).Add((ICriterion) Restrictions.Lt("ReadingValues.Date", (object) this.EndDate)).List<MeterReadingValue>();
+      }
+      else
+      {
+        ICriteria criteria = this._repositoryFactory.GetSession().CreateCriteria<MeterReadingValue>("ReadingValues").Add((ICriterion) Subqueries.Exists(dc)).Add((ICriterion) Restrictions.In("ReadingValues.MeterSerialNumber", (object[]) serialNumbers)).Add((ICriterion) Restrictions.Gt("ReadingValues.Date", (object) this.StartDate)).Add((ICriterion) Restrictions.Lt("ReadingValues.Date", (object) this.EndDate));
+        this.GetCriteria(criteria, rules);
+        source = criteria.List<MeterReadingValue>();
+      }
+      this.ReadingValuesDto = (IEnumerable<MeterReadingValueDTO>) Mapper.Map<IEnumerable<MeterReadingValue>, ObservableCollection<MeterReadingValueDTO>>((IEnumerable<MeterReadingValue>) source);
+    }
+
+    private ICriteria GetCriteria(ICriteria criteria, IList<Rules> rules)
+    {
+      Disjunction disjunction = Restrictions.Disjunction();
+      TypeHelperExtensionMethods.ForEach<Rules>((IEnumerable<Rules>) rules, (Action<Rules>) (x =>
+      {
+        Conjunction conjunction = Restrictions.Conjunction();
+        if (x.Calculation != 0)
+          conjunction.Add((ICriterion) Restrictions.Eq("ReadingValues.Calculation", (object) (long) x.Calculation));
+        if (x.CalculationStart != 0)
+          conjunction.Add((ICriterion) Restrictions.Eq("ReadingValues.CalculationStart", (object) (long) x.CalculationStart));
+        if (x.MeterType != 0)
+          conjunction.Add((ICriterion) Restrictions.Eq("ReadingValues.MeterType", (object) (long) x.MeterType));
+        if (x.PhysicalQuantity != 0)
+          conjunction.Add((ICriterion) Restrictions.Eq("ReadingValues.PhysicalQuantity", (object) (long) x.PhysicalQuantity));
+        if (x.StorageInterval != 0)
+          conjunction.Add((ICriterion) Restrictions.Eq("ReadingValues.StorageInterval", (object) (long) x.StorageInterval));
+        if (x.Creation != 0)
+          conjunction.Add((ICriterion) Restrictions.Eq("ReadingValues.Creation", (object) (long) x.Creation));
+        if (x.RuleIndex != 0)
+          conjunction.Add((ICriterion) Restrictions.Eq("ReadingValues.RuleIndex", (object) (long) x.RuleIndex));
+        disjunction.Add((ICriterion) conjunction);
+      }));
+      criteria.Add((ICriterion) disjunction);
+      return criteria;
+    }
+
+    private bool ReadingValuesCriteria(MeterReadingValue readingValue, Guid meterId)
+    {
+      DateTime? nullable;
+      int num1;
+      if (this.StartDate.HasValue)
+      {
+        nullable = this.EndDate;
+        num1 = nullable.HasValue ? 1 : 0;
+      }
+      else
+        num1 = 0;
+      if (num1 != 0)
+      {
+        int num2;
+        if (readingValue.MeterId == meterId)
+        {
+          DateTime date1 = readingValue.Date;
+          nullable = this.EndDate;
+          if ((nullable.HasValue ? (date1 <= nullable.GetValueOrDefault() ? 1 : 0) : 0) != 0)
+          {
+            DateTime date2 = readingValue.Date;
+            nullable = this.StartDate;
+            num2 = nullable.HasValue ? (date2 >= nullable.GetValueOrDefault() ? 1 : 0) : 0;
+            goto label_8;
+          }
+        }
+        num2 = 0;
+label_8:
+        return num2 != 0;
+      }
+      nullable = this.StartDate;
+      int num3;
+      if (nullable.HasValue)
+      {
+        nullable = this.EndDate;
+        num3 = !nullable.HasValue ? 1 : 0;
+      }
+      else
+        num3 = 0;
+      if (num3 != 0)
+      {
+        int num4;
+        if (readingValue.MeterId == meterId)
+        {
+          DateTime date = readingValue.Date;
+          nullable = this.StartDate;
+          num4 = nullable.HasValue ? (date >= nullable.GetValueOrDefault() ? 1 : 0) : 0;
+        }
+        else
+          num4 = 0;
+        return num4 != 0;
+      }
+      nullable = this.StartDate;
+      int num5;
+      if (!nullable.HasValue)
+      {
+        nullable = this.EndDate;
+        num5 = nullable.HasValue ? 1 : 0;
+      }
+      else
+        num5 = 0;
+      if (num5 == 0)
+        return readingValue.MeterId == meterId;
+      int num6;
+      if (readingValue.MeterId == meterId)
+      {
+        DateTime date = readingValue.Date;
+        nullable = this.EndDate;
+        num6 = nullable.HasValue ? (date <= nullable.GetValueOrDefault() ? 1 : 0) : 0;
+      }
+      else
+        num6 = 0;
+      return num6 != 0;
+    }
+
+    private void SetRowColors(List<MeterReadingValueDTO> readingValues)
+    {
+      if (readingValues.Count <= 0)
+        return;
+      DateTime date = readingValues[0].Date;
+      bool flag = true;
+      foreach (MeterReadingValueDTO readingValue in readingValues)
+      {
+        if (readingValue.Date != date)
+        {
+          date = readingValue.Date;
+          flag = !flag;
+        }
+        readingValue.IsDarkRowColor = flag;
+      }
+    }
+  }
+}
+

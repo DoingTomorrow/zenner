@@ -1,0 +1,3591 @@
+
+--- AssemblyInfo.cs ---
+
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Windows;
+
+[assembly: AssemblyTitle("CommonWPF")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("CommonWPF")]
+[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyTrademark("")]
+[assembly: ComVisible(false)]
+[assembly: ThemeInfo(ResourceDictionaryLocation.None, ResourceDictionaryLocation.SourceAssembly)]
+[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.0.0")]
+
+
+--- CommonExceptionViewer.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: CommonWPF.CommonExceptionViewer
+// Assembly: CommonWPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FC3FF060-22A9-4729-A79E-14B5F4740E69
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonWPF.dll
+
+using System;
+
+#nullable disable
+namespace CommonWPF
+{
+  public static class CommonExceptionViewer
+  {
+    public static void Show(Exception ex, string headerInfo = null)
+    {
+      ExceptionViewer.Show(ex, headerInfo);
+    }
+  }
+}
+
+
+--- CommonIuwSysInfoDecoder.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: CommonWPF.CommonIuwSysInfoDecoder
+// Assembly: CommonWPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FC3FF060-22A9-4729-A79E-14B5F4740E69
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonWPF.dll
+
+#nullable disable
+namespace CommonWPF
+{
+  public static class CommonIuwSysInfoDecoder
+  {
+    public static void Show() => IuwSysInfoDecoder.ShowModal();
+  }
+}
+
+
+--- DataGridSorter.xaml.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: CommonWPF.DataGridSorter
+// Assembly: CommonWPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FC3FF060-22A9-4729-A79E-14B5F4740E69
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonWPF.dll
+
+using System;
+using System.CodeDom.Compiler;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.Globalization;
+using System.IO;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Data;
+using System.Windows.Input;
+using System.Windows.Markup;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+
+#nullable disable
+namespace CommonWPF
+{
+  public partial class DataGridSorter : Window, IComponentConnector, IStyleConnector
+  {
+    private DataGridSorter.SortWindowInputClass MyInputClass;
+    internal Grid GridMain;
+    internal GmmCorporateControl gmmCorporateControl1;
+    internal Grid GridTables;
+    internal StackPanel StackPanelButtons;
+    internal Button ButtonAdd;
+    internal Button ButtonRemove;
+    internal Button ButtonClear;
+    internal ListBox ListBoxColumnHeaders;
+    internal DataGrid DataGridSortData;
+    internal Button ButtonCancel;
+    internal Button ButtonAccept;
+    private bool _contentLoaded;
+
+    private ObservableCollection<DataGridSorter.SortEntry> MyObservailableSortEntryList { get; set; }
+
+    private ObservableCollection<DataGridSorter.HeaderEntry> MyColumnHeaderList { get; set; }
+
+    internal DataGridSorter(DataGridSorter.SortWindowInputClass TheInputClass)
+    {
+      this.InitializeComponent();
+      this.MyInputClass = TheInputClass;
+      this.MyObservailableSortEntryList = new ObservableCollection<DataGridSorter.SortEntry>();
+      this.DataGridSortData.ItemsSource = (IEnumerable) this.MyObservailableSortEntryList;
+      this.MyColumnHeaderList = new ObservableCollection<DataGridSorter.HeaderEntry>();
+      foreach (string theColumnHeader in TheInputClass.TheColumnHeaders)
+        this.MyColumnHeaderList.Add(new DataGridSorter.HeaderEntry(theColumnHeader));
+      this.ListBoxColumnHeaders.ItemsSource = (IEnumerable) this.MyColumnHeaderList;
+      if (this.MyColumnHeaderList.Count > 0)
+        this.ListBoxColumnHeaders.SelectedIndex = 0;
+      foreach (DataGridSorter.SortEntry theSortEntry in this.MyInputClass.TheSortEntryList)
+      {
+        this.MyColumnHeaderList.Remove(new DataGridSorter.HeaderEntry(theSortEntry.HeaderName));
+        this.MyObservailableSortEntryList.Add(new DataGridSorter.SortEntry(theSortEntry.HeaderName, theSortEntry.SortDirectionIsAscending));
+      }
+    }
+
+    private void ButtonCancel_Click(object sender, RoutedEventArgs e)
+    {
+      this.MyInputClass.SortTheDatagrid = false;
+      this.Close();
+    }
+
+    private void ButtonAccept_Click(object sender, RoutedEventArgs e)
+    {
+      this.MyInputClass.SortTheDatagrid = true;
+      this.MyInputClass.TheSortEntryList = new List<DataGridSorter.SortEntry>();
+      foreach (DataGridSorter.SortEntry observailableSortEntry in (Collection<DataGridSorter.SortEntry>) this.MyObservailableSortEntryList)
+        this.MyInputClass.TheSortEntryList.Add(observailableSortEntry);
+      this.Close();
+    }
+
+    private void ButtonAdd_Click(object sender, RoutedEventArgs e)
+    {
+      if (this.ListBoxColumnHeaders.SelectedItem == null)
+        return;
+      DataGridSorter.HeaderEntry selectedItem = (DataGridSorter.HeaderEntry) this.ListBoxColumnHeaders.SelectedItem;
+      this.MyColumnHeaderList.Remove(selectedItem);
+      this.MyObservailableSortEntryList.Add(new DataGridSorter.SortEntry(selectedItem.HeaderName, true));
+    }
+
+    private void ButtonRemove_Click(object sender, RoutedEventArgs e)
+    {
+      if (this.DataGridSortData.SelectedIndex < 0)
+        return;
+      DataGridSorter.SortEntry selectedItem = (DataGridSorter.SortEntry) this.DataGridSortData.SelectedItem;
+      this.MyObservailableSortEntryList.Remove(selectedItem);
+      this.MyColumnHeaderList.Add(new DataGridSorter.HeaderEntry(selectedItem.HeaderName));
+    }
+
+    private void ButtonClear_Click(object sender, RoutedEventArgs e)
+    {
+      for (int index = 0; index < this.DataGridSortData.Items.Count; ++index)
+        this.MyColumnHeaderList.Add(new DataGridSorter.HeaderEntry(((DataGridSorter.SortEntry) this.DataGridSortData.Items[index]).HeaderName));
+      this.MyObservailableSortEntryList.Clear();
+    }
+
+    private void ToggleButton_Checked(object sender, RoutedEventArgs e)
+    {
+      ((DataGridSorter.SortEntry) ((FrameworkElement) e.Source).DataContext).SortDirectionIsAscending = true;
+    }
+
+    private void ToggleButton_Unchecked(object sender, RoutedEventArgs e)
+    {
+      ((DataGridSorter.SortEntry) ((FrameworkElement) e.Source).DataContext).SortDirectionIsAscending = false;
+    }
+
+    private void ListBoxColumnHeaders_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+      if (this.ListBoxColumnHeaders.SelectedItem == null)
+        return;
+      HitTestResult hitTestResult = VisualTreeHelper.HitTest((Visual) this.ListBoxColumnHeaders, Mouse.GetPosition((IInputElement) this.ListBoxColumnHeaders));
+      if ((hitTestResult.VisualHit is TextBlock || hitTestResult.VisualHit is Border) && (!(hitTestResult.VisualHit is Border) || ((FrameworkElement) hitTestResult.VisualHit).TemplatedParent is ListBoxItem))
+      {
+        DataGridSorter.HeaderEntry selectedItem = (DataGridSorter.HeaderEntry) this.ListBoxColumnHeaders.SelectedItem;
+        this.MyColumnHeaderList.Remove(selectedItem);
+        this.MyObservailableSortEntryList.Add(new DataGridSorter.SortEntry(selectedItem.HeaderName, true));
+      }
+    }
+
+    private void DataGridSortData_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+      if (this.DataGridSortData.SelectedIndex < 0)
+        return;
+      HitTestResult hitTestResult = VisualTreeHelper.HitTest((Visual) this.ListBoxColumnHeaders, Mouse.GetPosition((IInputElement) this.DataGridSortData));
+      if (hitTestResult == null || !(hitTestResult.VisualHit is TextBlock) && !(hitTestResult.VisualHit is Border) || hitTestResult.VisualHit is Border && !(((FrameworkElement) hitTestResult.VisualHit).Parent is DataGridCell))
+        return;
+      DataGridSorter.SortEntry selectedItem = (DataGridSorter.SortEntry) this.DataGridSortData.SelectedItem;
+      this.MyObservailableSortEntryList.Remove(selectedItem);
+      this.MyColumnHeaderList.Add(new DataGridSorter.HeaderEntry(selectedItem.HeaderName));
+    }
+
+    public static void ShowDatagridSorterAndSortDataGrid(DataGrid TheDataGrid)
+    {
+      DataGridSorter.SortWindowInputClass TheInputClass = new DataGridSorter.SortWindowInputClass();
+      for (int index = 0; index < TheDataGrid.Columns.Count; ++index)
+        TheInputClass.TheColumnHeaders.Add(TheDataGrid.Columns[index].Header.ToString());
+      foreach (DataGridSorter.ColumnHeaderSortParameter headerSortParameter in DataGridSorter.GetSortParametersFromDatagrid(TheDataGrid))
+        TheInputClass.TheSortEntryList.Add(new DataGridSorter.SortEntry(headerSortParameter.ColumnHeader, headerSortParameter.SortDirection == ListSortDirection.Ascending));
+      new DataGridSorter(TheInputClass).ShowDialog();
+      List<DataGridSorter.ColumnHeaderSortParameter> TheSortParameters = new List<DataGridSorter.ColumnHeaderSortParameter>();
+      if (!TheInputClass.SortTheDatagrid)
+        return;
+      foreach (DataGridSorter.SortEntry theSortEntry in TheInputClass.TheSortEntryList)
+      {
+        ListSortDirection TheSortDirection = !theSortEntry.SortDirectionIsAscending ? ListSortDirection.Descending : ListSortDirection.Ascending;
+        DataGridSorter.ColumnHeaderSortParameter headerSortParameter = new DataGridSorter.ColumnHeaderSortParameter(theSortEntry.HeaderName, TheSortDirection);
+        TheSortParameters.Add(headerSortParameter);
+      }
+      DataGridSorter.SortDataGrid(TheDataGrid, TheSortParameters);
+    }
+
+    public static void SortDataGrid(
+      DataGrid dataGrid,
+      List<DataGridSorter.ColumnIndexSortParameter> TheSortParameters)
+    {
+      dataGrid.Items.SortDescriptions.Clear();
+      foreach (DataGridSorter.ColumnIndexSortParameter theSortParameter in TheSortParameters)
+      {
+        if (dataGrid.Columns.Count > theSortParameter.ColumnIndex)
+        {
+          DataGridColumn column = dataGrid.Columns[theSortParameter.ColumnIndex];
+          dataGrid.Items.SortDescriptions.Add(new SortDescription(column.SortMemberPath, theSortParameter.SortDirection));
+        }
+      }
+      foreach (DataGridColumn column in (Collection<DataGridColumn>) dataGrid.Columns)
+        column.SortDirection = new ListSortDirection?();
+      foreach (DataGridSorter.ColumnIndexSortParameter theSortParameter in TheSortParameters)
+      {
+        if (dataGrid.Columns.Count > theSortParameter.ColumnIndex)
+          dataGrid.Columns[theSortParameter.ColumnIndex].SortDirection = new ListSortDirection?(theSortParameter.SortDirection);
+      }
+      dataGrid.Items.Refresh();
+    }
+
+    public static void SortDataGrid(
+      DataGrid TheDataGrid,
+      List<DataGridSorter.ColumnHeaderSortParameter> TheSortParameters)
+    {
+      List<DataGridSorter.ColumnIndexSortParameter> TheSortParameters1 = new List<DataGridSorter.ColumnIndexSortParameter>();
+      foreach (DataGridSorter.ColumnHeaderSortParameter theSortParameter in TheSortParameters)
+      {
+        bool flag = false;
+        for (int index = 0; index < TheDataGrid.Columns.Count; ++index)
+        {
+          if (TheDataGrid.Columns[index].Header != null && TheDataGrid.Columns[index].Header.ToString() == theSortParameter.ColumnHeader)
+          {
+            flag = true;
+            TheSortParameters1.Add(new DataGridSorter.ColumnIndexSortParameter(index, theSortParameter.SortDirection));
+            break;
+          }
+        }
+        if (flag)
+          ;
+      }
+      DataGridSorter.SortDataGrid(TheDataGrid, TheSortParameters1);
+    }
+
+    public static List<DataGridSorter.ColumnHeaderSortParameter> GetSortParametersFromDatagrid(
+      DataGrid TheGrid)
+    {
+      List<DataGridSorter.ColumnHeaderSortParameter> parametersFromDatagrid = new List<DataGridSorter.ColumnHeaderSortParameter>();
+      foreach (SortDescription sortDescription in (Collection<SortDescription>) TheGrid.Items.SortDescriptions)
+        parametersFromDatagrid.Add(new DataGridSorter.ColumnHeaderSortParameter(sortDescription.PropertyName, sortDescription.Direction));
+      return parametersFromDatagrid;
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    public void InitializeComponent()
+    {
+      if (this._contentLoaded)
+        return;
+      this._contentLoaded = true;
+      Application.LoadComponent((object) this, new Uri("/CommonWPF;component/datagridsorter.xaml", UriKind.Relative));
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    internal Delegate _CreateDelegate(Type delegateType, string handler)
+    {
+      return Delegate.CreateDelegate(delegateType, (object) this, handler);
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    void IComponentConnector.Connect(int connectionId, object target)
+    {
+      switch (connectionId)
+      {
+        case 1:
+          this.GridMain = (Grid) target;
+          break;
+        case 2:
+          this.gmmCorporateControl1 = (GmmCorporateControl) target;
+          break;
+        case 3:
+          this.GridTables = (Grid) target;
+          break;
+        case 4:
+          this.StackPanelButtons = (StackPanel) target;
+          break;
+        case 5:
+          this.ButtonAdd = (Button) target;
+          this.ButtonAdd.Click += new RoutedEventHandler(this.ButtonAdd_Click);
+          break;
+        case 6:
+          this.ButtonRemove = (Button) target;
+          this.ButtonRemove.Click += new RoutedEventHandler(this.ButtonRemove_Click);
+          break;
+        case 7:
+          this.ButtonClear = (Button) target;
+          this.ButtonClear.Click += new RoutedEventHandler(this.ButtonClear_Click);
+          break;
+        case 8:
+          this.ListBoxColumnHeaders = (ListBox) target;
+          this.ListBoxColumnHeaders.MouseDoubleClick += new MouseButtonEventHandler(this.ListBoxColumnHeaders_MouseDoubleClick);
+          break;
+        case 9:
+          this.DataGridSortData = (DataGrid) target;
+          this.DataGridSortData.MouseDoubleClick += new MouseButtonEventHandler(this.DataGridSortData_MouseDoubleClick);
+          break;
+        case 11:
+          this.ButtonCancel = (Button) target;
+          this.ButtonCancel.Click += new RoutedEventHandler(this.ButtonCancel_Click);
+          break;
+        case 12:
+          this.ButtonAccept = (Button) target;
+          this.ButtonAccept.Click += new RoutedEventHandler(this.ButtonAccept_Click);
+          break;
+        default:
+          this._contentLoaded = true;
+          break;
+      }
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    void IStyleConnector.Connect(int connectionId, object target)
+    {
+      if (connectionId != 10)
+        return;
+      ((ToggleButton) target).Checked += new RoutedEventHandler(this.ToggleButton_Checked);
+      ((ToggleButton) target).Unchecked += new RoutedEventHandler(this.ToggleButton_Unchecked);
+    }
+
+    public class ColumnIndexSortParameter
+    {
+      public int ColumnIndex;
+      public ListSortDirection SortDirection;
+
+      public ColumnIndexSortParameter(int TheColumnIndex, ListSortDirection TheSortDirection)
+      {
+        this.ColumnIndex = TheColumnIndex;
+        this.SortDirection = TheSortDirection;
+      }
+    }
+
+    public class ColumnHeaderSortParameter
+    {
+      public string ColumnHeader;
+      public ListSortDirection SortDirection;
+
+      public ColumnHeaderSortParameter(string TheColumnHeader, ListSortDirection TheSortDirection)
+      {
+        this.ColumnHeader = TheColumnHeader;
+        this.SortDirection = TheSortDirection;
+      }
+
+      public ColumnHeaderSortParameter()
+      {
+        this.ColumnHeader = string.Empty;
+        this.SortDirection = ListSortDirection.Ascending;
+      }
+    }
+
+    public class HeaderImageConverter : IValueConverter
+    {
+      public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+      {
+        MemoryStream memoryStream = new MemoryStream();
+        ((System.Drawing.Image) value).Save((Stream) memoryStream, ImageFormat.Bmp);
+        BitmapImage bitmapImage = new BitmapImage();
+        bitmapImage.BeginInit();
+        memoryStream.Seek(0L, SeekOrigin.Begin);
+        bitmapImage.StreamSource = (Stream) memoryStream;
+        bitmapImage.EndInit();
+        return (object) bitmapImage;
+      }
+
+      public object ConvertBack(
+        object value,
+        Type targetType,
+        object parameter,
+        CultureInfo culture)
+      {
+        throw new NotImplementedException();
+      }
+    }
+
+    internal class SortWindowInputClass
+    {
+      internal List<string> TheColumnHeaders;
+      internal List<DataGridSorter.SortEntry> TheSortEntryList;
+      internal bool SortTheDatagrid;
+
+      internal SortWindowInputClass()
+      {
+        this.TheColumnHeaders = new List<string>();
+        this.TheSortEntryList = new List<DataGridSorter.SortEntry>();
+        this.SortTheDatagrid = false;
+      }
+    }
+
+    public class HeaderEntry : INotifyPropertyChanged
+    {
+      private string _headername;
+
+      public string HeaderName
+      {
+        get => this._headername;
+        set
+        {
+          this._headername = value;
+          this.onPropertyChanged(nameof (HeaderName));
+        }
+      }
+
+      public HeaderEntry(string TheHeaderName) => this.HeaderName = TheHeaderName;
+
+      public event PropertyChangedEventHandler PropertyChanged;
+
+      event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
+      {
+        add => this.PropertyChanged += value;
+        remove => this.PropertyChanged -= value;
+      }
+
+      protected void onPropertyChanged(string PropertyName)
+      {
+        PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+        if (propertyChanged == null)
+          return;
+        propertyChanged((object) this, new PropertyChangedEventArgs(PropertyName));
+      }
+    }
+
+    public class SortEntry : INotifyPropertyChanged
+    {
+      private string _headername;
+      private bool _sortdirectionisascending;
+
+      public string HeaderName
+      {
+        get => this._headername;
+        set
+        {
+          this._headername = value;
+          this.onPropertyChanged(nameof (HeaderName));
+        }
+      }
+
+      public bool SortDirectionIsAscending
+      {
+        get => this._sortdirectionisascending;
+        set
+        {
+          this._sortdirectionisascending = value;
+          this.onPropertyChanged(nameof (SortDirectionIsAscending));
+        }
+      }
+
+      public SortEntry(string TheHeaderName, bool SortAscending)
+      {
+        this.HeaderName = TheHeaderName;
+        this.SortDirectionIsAscending = SortAscending;
+      }
+
+      public event PropertyChangedEventHandler PropertyChanged;
+
+      event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
+      {
+        add => this.PropertyChanged += value;
+        remove => this.PropertyChanged -= value;
+      }
+
+      protected void onPropertyChanged(string PropertyName)
+      {
+        PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+        if (propertyChanged == null)
+          return;
+        propertyChanged((object) this, new PropertyChangedEventArgs(PropertyName));
+      }
+    }
+  }
+}
+
+
+--- EnterOneValue.xaml.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: CommonWPF.EnterOneValue
+// Assembly: CommonWPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FC3FF060-22A9-4729-A79E-14B5F4740E69
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonWPF.dll
+
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Markup;
+
+#nullable disable
+namespace CommonWPF
+{
+  public partial class EnterOneValue : Window, IComponentConnector
+  {
+    private string returnValue;
+    internal Button ButtonOk;
+    internal TextBlock TextBlockInfo;
+    internal TextBox TextBoxValue;
+    private bool _contentLoaded;
+
+    private EnterOneValue(string title, string info, string defaultValue)
+    {
+      this.InitializeComponent();
+      this.Title = title;
+      this.TextBlockInfo.Text = info;
+      this.TextBoxValue.Text = defaultValue;
+    }
+
+    public static string GetOneValue(string title, string info, string defaultValue = null)
+    {
+      EnterOneValue enterOneValue = new EnterOneValue(title, info, defaultValue);
+      enterOneValue.ShowDialog();
+      return enterOneValue.returnValue;
+    }
+
+    private void ButtonOk_Click(object sender, RoutedEventArgs e)
+    {
+      this.returnValue = this.TextBoxValue.Text.Trim();
+      this.Close();
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    public void InitializeComponent()
+    {
+      if (this._contentLoaded)
+        return;
+      this._contentLoaded = true;
+      Application.LoadComponent((object) this, new Uri("/CommonWPF;component/enteronevalue.xaml", UriKind.Relative));
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    internal Delegate _CreateDelegate(Type delegateType, string handler)
+    {
+      return Delegate.CreateDelegate(delegateType, (object) this, handler);
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    void IComponentConnector.Connect(int connectionId, object target)
+    {
+      switch (connectionId)
+      {
+        case 1:
+          this.ButtonOk = (Button) target;
+          this.ButtonOk.Click += new RoutedEventHandler(this.ButtonOk_Click);
+          break;
+        case 2:
+          this.TextBlockInfo = (TextBlock) target;
+          break;
+        case 3:
+          this.TextBoxValue = (TextBox) target;
+          break;
+        default:
+          this._contentLoaded = true;
+          break;
+      }
+    }
+  }
+}
+
+
+--- ExceptionLayer.xaml.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: CommonWPF.ExceptionLayer
+// Assembly: CommonWPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FC3FF060-22A9-4729-A79E-14B5F4740E69
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonWPF.dll
+
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Markup;
+
+#nullable disable
+namespace CommonWPF
+{
+  public partial class ExceptionLayer : UserControl, IComponentConnector
+  {
+    internal Label LabelInnerException;
+    internal TextBlock TextBlockMessage;
+    internal TextBlock TextBlockStackTrace;
+    internal ContentPresenter NextLayer;
+    private bool _contentLoaded;
+
+    public ExceptionLayer() => this.InitializeComponent();
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    public void InitializeComponent()
+    {
+      if (this._contentLoaded)
+        return;
+      this._contentLoaded = true;
+      Application.LoadComponent((object) this, new Uri("/CommonWPF;component/exceptionlayer.xaml", UriKind.Relative));
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    void IComponentConnector.Connect(int connectionId, object target)
+    {
+      switch (connectionId)
+      {
+        case 1:
+          this.LabelInnerException = (Label) target;
+          break;
+        case 2:
+          this.TextBlockMessage = (TextBlock) target;
+          break;
+        case 3:
+          this.TextBlockStackTrace = (TextBlock) target;
+          break;
+        case 4:
+          this.NextLayer = (ContentPresenter) target;
+          break;
+        default:
+          this._contentLoaded = true;
+          break;
+      }
+    }
+  }
+}
+
+
+--- ExceptionViewer.xaml.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: CommonWPF.ExceptionViewer
+// Assembly: CommonWPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FC3FF060-22A9-4729-A79E-14B5F4740E69
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonWPF.dll
+
+using NLog;
+using System;
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Markup;
+
+#nullable disable
+namespace CommonWPF
+{
+  public partial class ExceptionViewer : Window, IComponentConnector
+  {
+    private static Logger ExceptionLogger = LogManager.GetLogger(nameof (ExceptionLogger));
+    private List<TextBlock> StackTraceBlocks;
+    private StringBuilder exceptionText = new StringBuilder();
+    internal StackPanel StackPanalAnchor;
+    internal CheckBox CheckBoxStackTrace;
+    internal Button ButtonCopy;
+    internal TextBlock TextBlockHeaderText;
+    internal ExceptionLayer ExceptionLayer1;
+    private bool _contentLoaded;
+
+    public static void Show(Exception ex, string headerInfo = null)
+    {
+      new ExceptionViewer(ex, headerInfo).ShowDialog();
+    }
+
+    public ExceptionViewer(Exception ex, string headerInfo)
+    {
+      this.InitializeComponent();
+      if (!string.IsNullOrEmpty(headerInfo))
+      {
+        this.exceptionText.AppendLine(headerInfo);
+        this.TextBlockHeaderText.Text = headerInfo;
+        this.TextBlockHeaderText.Visibility = Visibility.Visible;
+      }
+      else
+        this.TextBlockHeaderText.Visibility = Visibility.Collapsed;
+      this.exceptionText.AppendLine(ex.ToString());
+      this.ExceptionLayer1.TextBlockMessage.Text = ex.GetType().Name + Environment.NewLine + ex.Message;
+      this.ExceptionLayer1.TextBlockStackTrace.Text = ex.StackTrace;
+      this.StackTraceBlocks = new List<TextBlock>();
+      this.StackTraceBlocks.Add(this.ExceptionLayer1.TextBlockStackTrace);
+      this.WorkInnerException(ex, this.ExceptionLayer1);
+      ExceptionViewer.ExceptionLogger.Error(this.exceptionText.ToString());
+    }
+
+    private void WorkInnerException(Exception theException, ExceptionLayer workLayer)
+    {
+      StackPanel stackPanel = new StackPanel();
+      workLayer.NextLayer.Content = (object) stackPanel;
+      if (theException.InnerException != null)
+      {
+        ExceptionLayer exceptionLayer = new ExceptionLayer();
+        exceptionLayer.LabelInnerException.Visibility = Visibility.Visible;
+        exceptionLayer.Margin = new Thickness(20.0, 20.0, 0.0, 0.0);
+        exceptionLayer.TextBlockMessage.Text = theException.InnerException.GetType().Name + Environment.NewLine + theException.InnerException.Message;
+        exceptionLayer.TextBlockStackTrace.Text = theException.InnerException.StackTrace;
+        stackPanel.Children.Add((UIElement) exceptionLayer);
+        this.StackTraceBlocks.Add(exceptionLayer.TextBlockStackTrace);
+        if (theException.InnerException.InnerException != null)
+          this.WorkInnerException(theException.InnerException, exceptionLayer);
+      }
+      if (!(theException is AggregateException))
+        return;
+      foreach (Exception innerException in ((AggregateException) theException).InnerExceptions)
+      {
+        ExceptionLayer exceptionLayer = new ExceptionLayer();
+        exceptionLayer.LabelInnerException.Content = (object) "Inner aggregate exception";
+        exceptionLayer.LabelInnerException.Visibility = Visibility.Visible;
+        exceptionLayer.Margin = new Thickness(0.0, 20.0, 0.0, 0.0);
+        exceptionLayer.TextBlockMessage.Text = innerException.GetType().Name + Environment.NewLine + innerException.Message;
+        exceptionLayer.TextBlockStackTrace.Text = innerException.StackTrace;
+        stackPanel.Children.Add((UIElement) exceptionLayer);
+        this.StackTraceBlocks.Add(exceptionLayer.TextBlockStackTrace);
+        this.exceptionText.AppendLine();
+        this.exceptionText.AppendLine("Exception at aggregate exceptions list");
+        this.exceptionText.AppendLine(innerException.ToString());
+        if (innerException.InnerException != null)
+          this.WorkInnerException(innerException, exceptionLayer);
+      }
+    }
+
+    private void CheckBoxStackTrace_Checked(object sender, RoutedEventArgs e)
+    {
+      this.WindowState = WindowState.Maximized;
+      foreach (UIElement stackTraceBlock in this.StackTraceBlocks)
+        stackTraceBlock.Visibility = Visibility.Visible;
+    }
+
+    private void CheckBoxStackTrace_Unchecked(object sender, RoutedEventArgs e)
+    {
+      foreach (UIElement stackTraceBlock in this.StackTraceBlocks)
+        stackTraceBlock.Visibility = Visibility.Collapsed;
+    }
+
+    private void ButtonCopy_Click(object sender, RoutedEventArgs e)
+    {
+      Clipboard.SetDataObject((object) this.exceptionText.ToString());
+      int num = (int) MessageBox.Show("Exception text copied to clipboard");
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    public void InitializeComponent()
+    {
+      if (this._contentLoaded)
+        return;
+      this._contentLoaded = true;
+      Application.LoadComponent((object) this, new Uri("/CommonWPF;component/exceptionviewer.xaml", UriKind.Relative));
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    internal Delegate _CreateDelegate(Type delegateType, string handler)
+    {
+      return Delegate.CreateDelegate(delegateType, (object) this, handler);
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    void IComponentConnector.Connect(int connectionId, object target)
+    {
+      switch (connectionId)
+      {
+        case 1:
+          this.StackPanalAnchor = (StackPanel) target;
+          break;
+        case 2:
+          this.CheckBoxStackTrace = (CheckBox) target;
+          this.CheckBoxStackTrace.Checked += new RoutedEventHandler(this.CheckBoxStackTrace_Checked);
+          this.CheckBoxStackTrace.Unchecked += new RoutedEventHandler(this.CheckBoxStackTrace_Unchecked);
+          break;
+        case 3:
+          this.ButtonCopy = (Button) target;
+          this.ButtonCopy.Click += new RoutedEventHandler(this.ButtonCopy_Click);
+          break;
+        case 4:
+          this.TextBlockHeaderText = (TextBlock) target;
+          break;
+        case 5:
+          this.ExceptionLayer1 = (ExceptionLayer) target;
+          break;
+        default:
+          this._contentLoaded = true;
+          break;
+      }
+    }
+  }
+}
+
+
+--- GmmCorporateControl.xaml.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: CommonWPF.GmmCorporateControl
+// Assembly: CommonWPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FC3FF060-22A9-4729-A79E-14B5F4740E69
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonWPF.dll
+
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Markup;
+
+#nullable disable
+namespace CommonWPF
+{
+  public partial class GmmCorporateControl : UserControl, IComponentConnector
+  {
+    internal Image image0;
+    internal Image image1;
+    internal Image image2;
+    private bool _contentLoaded;
+
+    public GmmCorporateControl() => this.InitializeComponent();
+
+    private void UserControl_Loaded(object sender, RoutedEventArgs e)
+    {
+      this.Language = XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.Name);
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    public void InitializeComponent()
+    {
+      if (this._contentLoaded)
+        return;
+      this._contentLoaded = true;
+      Application.LoadComponent((object) this, new Uri("/CommonWPF;component/gmmcorporatecontrol.xaml", UriKind.Relative));
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    void IComponentConnector.Connect(int connectionId, object target)
+    {
+      switch (connectionId)
+      {
+        case 1:
+          ((FrameworkElement) target).Loaded += new RoutedEventHandler(this.UserControl_Loaded);
+          break;
+        case 2:
+          this.image0 = (Image) target;
+          break;
+        case 3:
+          this.image1 = (Image) target;
+          break;
+        case 4:
+          this.image2 = (Image) target;
+          break;
+        default:
+          this._contentLoaded = true;
+          break;
+      }
+    }
+  }
+}
+
+
+--- GmmGraphicControl.xaml.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: CommonWPF.GmmGraphicControl
+// Assembly: CommonWPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FC3FF060-22A9-4729-A79E-14B5F4740E69
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonWPF.dll
+
+using System;
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Markup;
+using System.Windows.Media;
+using System.Windows.Shapes;
+
+#nullable disable
+namespace CommonWPF
+{
+  public partial class GmmGraphicControl : UserControl, IComponentConnector
+  {
+    private GmmGraphicControl.GraphicData MyGraphicData;
+    internal Canvas CanvasDrawing;
+    private bool _contentLoaded;
+
+    public GmmGraphicControl()
+    {
+      this.InitializeComponent();
+      this.MyGraphicData = (GmmGraphicControl.GraphicData) null;
+    }
+
+    private void CanvasDrawing_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+    }
+
+    private void CanvasDrawing_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+    }
+
+    public void ClearGraphic() => this.CanvasDrawing.Children.Clear();
+
+    public void ShowGraphic(GmmGraphicControl.GraphicData TheGraphicData)
+    {
+      this.MyGraphicData = TheGraphicData;
+      if (this.MyGraphicData.MyPointSizeDivider < 10.0 || this.MyGraphicData.MyPointSizeDivider > 2000.0)
+        throw new ApplicationException("GmmGraphicControl: Invalid point size factor (" + this.MyGraphicData.MyPointSizeDivider.ToString() + ")");
+      this.MyGraphicData.MyRange.MinY = 0.0;
+      this.MyGraphicData.MyRange.MaxY = this.CanvasDrawing.ActualHeight;
+      this.MyGraphicData.MyRange.MinX = 0.0;
+      this.MyGraphicData.MyRange.MaxX = this.CanvasDrawing.ActualWidth;
+      FontFamily fontFamily = new FontFamily("Courier New");
+      double fontSize = this.GetFontSize(20.0);
+      double num1 = this.CanvasDrawing.ActualWidth / 10.0;
+      double num2 = this.CanvasDrawing.ActualHeight / 6.0;
+      double num3 = this.CanvasDrawing.ActualHeight / 5.0;
+      if (this.MyGraphicData.MyYLimits == null)
+        this.MyGraphicData.MyYLimits = this.GetYLimits(this.MyGraphicData);
+      if (this.MyGraphicData.MyXLimits == null)
+        this.MyGraphicData.MyXLimits = this.GetXLimits(this.MyGraphicData);
+      if (this.MyGraphicData.MyYAxis == null)
+      {
+        double TheStep = Math.Abs((this.MyGraphicData.MyYLimits.Max - this.MyGraphicData.MyYLimits.Min) / 5.0);
+        string TheCaption = "Y-Axis";
+        if (this.MyGraphicData.MyYAxisCaption != null)
+          TheCaption = this.MyGraphicData.MyYAxisCaption;
+        int num4 = 0;
+        if (this.MyGraphicData.MyYLimits.Min < 0.0)
+        {
+          while (true)
+          {
+            ++num4;
+            if ((double) (-1 * num4) * TheStep < this.MyGraphicData.MyYLimits.Min)
+              break;
+          }
+          this.MyGraphicData.MyYAxis = new GmmGraphicControl.Yaxis((double) (-1 * num4) * TheStep, TheStep, TheCaption, true);
+        }
+        else
+        {
+          int num5 = 0;
+          while (true)
+          {
+            ++num5;
+            if (TheStep * (double) num5 <= this.MyGraphicData.MyYLimits.Min)
+              this.MyGraphicData.MyYAxis = new GmmGraphicControl.Yaxis((double) (num5 - 1) * TheStep, TheStep, TheCaption, true);
+            else
+              break;
+          }
+        }
+      }
+      if (this.MyGraphicData.MyXAxis == null)
+      {
+        double TheStep = Math.Abs((this.MyGraphicData.MyXLimits.Max - this.MyGraphicData.MyXLimits.Min) / 5.0);
+        string TheCaption = "X-Axis";
+        if (this.MyGraphicData.MyXAxisCaption != null)
+          TheCaption = this.MyGraphicData.MyXAxisCaption;
+        int num6 = 0;
+        if (this.MyGraphicData.MyXLimits.Min < 0.0)
+        {
+          while (true)
+          {
+            ++num6;
+            if ((double) (-1 * num6) * TheStep < this.MyGraphicData.MyXLimits.Min)
+              break;
+          }
+          this.MyGraphicData.MyXAxis = new GmmGraphicControl.Xaxis((double) (-1 * num6) * TheStep, TheStep, TheCaption, true);
+        }
+        else
+        {
+          int num7 = 0;
+          while (true)
+          {
+            ++num7;
+            if (TheStep * (double) num7 <= this.MyGraphicData.MyXLimits.Min)
+              this.MyGraphicData.MyXAxis = new GmmGraphicControl.Xaxis((double) (num7 - 1) * TheStep, TheStep, TheCaption, true);
+            else
+              break;
+          }
+        }
+      }
+      if (this.MyGraphicData.ShowGrid && this.MyGraphicData.MyGrid == null)
+        this.MyGraphicData.AddGrid(this.MyGraphicData.MyXAxis.MyStarValue, this.MyGraphicData.MyXAxis.MyStep, this.MyGraphicData.MyYAxis.MyStarValue, this.MyGraphicData.MyYAxis.MyStep);
+      if (this.MyGraphicData.MyYAxis != null || this.MyGraphicData.MyXAxis != null)
+      {
+        this.MyGraphicData.MyRange.MinX = num1;
+        this.MyGraphicData.MyRange.MinY = num2;
+        this.MyGraphicData.MyRange.MaxY -= num2;
+        if (this.MyGraphicData.MyXAxis != null && this.MyGraphicData.MyXAxis.ShowValues)
+          this.MyGraphicData.MyRange.MinY = !(this.MyGraphicData.MyXAxis.Caption != string.Empty) ? num3 / 2.0 : num3;
+      }
+      if (this.MyGraphicData.MyXAxis != null)
+        this.MyGraphicData.MyRange.MaxX -= num1;
+      this.CanvasDrawing.Background = (Brush) new SolidColorBrush(this.MyGraphicData.MyBackGroundColor);
+      this.CanvasDrawing.Children.Clear();
+      double min1 = this.MyGraphicData.MyXLimits.Min;
+      double max1 = this.MyGraphicData.MyXLimits.Max;
+      double min2 = this.MyGraphicData.MyYLimits.Min;
+      double max2 = this.MyGraphicData.MyYLimits.Max;
+      double minY = this.MyGraphicData.MyRange.MinY;
+      double maxY = this.MyGraphicData.MyRange.MaxY;
+      double minX = this.MyGraphicData.MyRange.MinX;
+      double maxX = this.MyGraphicData.MyRange.MaxX;
+      if (this.MyGraphicData.MyGrid != null)
+      {
+        if (this.MyGraphicData.MyGrid.MyStepX <= 0.0)
+          throw new ApplicationException("GmmGraphicControl: Invalid Grid Stepx (" + this.MyGraphicData.MyGrid.MyStepX.ToString() + ")");
+        if (this.MyGraphicData.MyGrid.MyStepY <= 0.0)
+          throw new ApplicationException("GmmGraphicControl: Invalid Grid StepY " + this.MyGraphicData.MyGrid.MyStepY.ToString() + ")");
+        double num8 = 0.0;
+        double num9 = this.MyGraphicData.MyGrid.MyStepX / 1000.0;
+        while (true)
+        {
+          Polyline element = new Polyline();
+          double TheValue = this.MyGraphicData.MyGrid.MyStartX + num8 * this.MyGraphicData.MyGrid.MyStepX;
+          if (TheValue >= this.MyGraphicData.MyXLimits.Min - num9 && TheValue <= this.MyGraphicData.MyXLimits.Max + num9)
+          {
+            double min3 = this.MyGraphicData.MyYLimits.Min;
+            double max3 = this.MyGraphicData.MyYLimits.Max;
+            double x = this.TransValue(TheValue, min1, max1, minX, maxX);
+            double y1 = this.CanvasDrawing.ActualHeight - this.TransValue(min3, min2, max2, minY, maxY);
+            double y2 = this.CanvasDrawing.ActualHeight - this.TransValue(max3, min2, max2, minY, maxY);
+            System.Windows.Point point1 = new System.Windows.Point(x, y1);
+            System.Windows.Point point2 = new System.Windows.Point(x, y2);
+            element.Points.Add(point1);
+            element.Points.Add(point2);
+            element.Stroke = (Brush) new SolidColorBrush(this.MyGraphicData.MyGridColor);
+            element.StrokeThickness = 1.0;
+            this.CanvasDrawing.Children.Add((UIElement) element);
+          }
+          if (TheValue < this.MyGraphicData.MyXLimits.Max)
+            ++num8;
+          else
+            break;
+        }
+        double num10 = 0.0;
+        double num11 = this.MyGraphicData.MyGrid.MyStepY / 1000.0;
+        while (true)
+        {
+          Polyline element = new Polyline();
+          double TheValue1 = this.MyGraphicData.MyGrid.MyStartY + num10 * this.MyGraphicData.MyGrid.MyStepY;
+          if (TheValue1 >= this.MyGraphicData.MyYLimits.Min - num11 && TheValue1 <= this.MyGraphicData.MyYLimits.Max + num11)
+          {
+            double TheValue2 = min1;
+            double TheValue3 = max1;
+            double x1 = this.TransValue(TheValue2, min1, max1, minX, maxX);
+            double x2 = this.TransValue(TheValue3, min1, max1, minX, maxX);
+            double y = this.CanvasDrawing.ActualHeight - this.TransValue(TheValue1, min2, max2, minY, maxY);
+            System.Windows.Point point3 = new System.Windows.Point(x1, y);
+            System.Windows.Point point4 = new System.Windows.Point(x2, y);
+            element.Points.Add(point3);
+            element.Points.Add(point4);
+            element.Stroke = (Brush) new SolidColorBrush(this.MyGraphicData.MyGridColor);
+            element.StrokeThickness = 1.0;
+            this.CanvasDrawing.Children.Add((UIElement) element);
+          }
+          if (TheValue1 < this.MyGraphicData.MyYLimits.Max)
+            ++num10;
+          else
+            break;
+        }
+      }
+      if (this.MyGraphicData.MyYAxis != null)
+      {
+        if (this.MyGraphicData.MyYAxis.MyStep <= 0.0)
+          throw new ApplicationException("GmmGraphicControl: Invalid Y-Axis Step " + this.MyGraphicData.MyYAxis.MyStep.ToString() + ")");
+        Polyline element1 = new Polyline();
+        double TheValue4 = this.MyGraphicData.MyXLimits.Min >= 0.0 || this.MyGraphicData.MyXLimits.Max <= 0.0 ? this.MyGraphicData.MyXLimits.Min : 0.0;
+        double min4 = this.MyGraphicData.MyYLimits.Min;
+        double max4 = this.MyGraphicData.MyYLimits.Max;
+        double x3 = this.TransValue(TheValue4, min1, max1, minX, maxX);
+        double y3 = this.CanvasDrawing.ActualHeight - this.TransValue(min4, min2, max2, minY, maxY);
+        double y4 = this.CanvasDrawing.ActualHeight - this.TransValue(max4, min2, max2, minY, maxY);
+        System.Windows.Point point5 = new System.Windows.Point(x3, y3);
+        System.Windows.Point point6 = new System.Windows.Point(x3, y4);
+        element1.Points.Add(point5);
+        element1.Points.Add(point6);
+        element1.Stroke = (Brush) new SolidColorBrush(this.MyGraphicData.MyAxisColor);
+        element1.StrokeThickness = 3.0;
+        this.CanvasDrawing.Children.Add((UIElement) element1);
+        double num12 = this.MyGraphicData.MyYAxis.MyStep / 1000.0;
+        double num13 = 0.0;
+        int num14 = 0;
+        if (this.MyGraphicData.MyYAxis.ShowValues)
+        {
+          while (true)
+          {
+            double num15 = this.MyGraphicData.MyYAxis.MyStarValue + num13 * this.MyGraphicData.MyYAxis.MyStep;
+            if (num15 >= this.MyGraphicData.MyYLimits.Min - num12 && num15 <= this.MyGraphicData.MyYLimits.Max + num12 && num15.ToString().Length > num14)
+              num14 = num15.ToString().Length;
+            if (num15 <= this.MyGraphicData.MyYLimits.Max + num12)
+              ++num13;
+            else
+              break;
+          }
+        }
+        double num16 = 0.0;
+        while (true)
+        {
+          Polyline element2 = new Polyline();
+          double TheValue5 = this.MyGraphicData.MyYAxis.MyStarValue + num16 * this.MyGraphicData.MyYAxis.MyStep;
+          if (TheValue5 >= this.MyGraphicData.MyYLimits.Min - num12 && TheValue5 <= this.MyGraphicData.MyYLimits.Max + num12)
+          {
+            double x4 = this.TransValue(TheValue4, min1, max1, minX, maxX);
+            double x5 = x4 - this.CanvasDrawing.ActualWidth / 70.0;
+            double y5 = this.CanvasDrawing.ActualHeight - this.TransValue(TheValue5, min2, max2, minY, maxY);
+            System.Windows.Point point7 = new System.Windows.Point(x5, y5);
+            System.Windows.Point point8 = new System.Windows.Point(x4, y5);
+            element2.Points.Add(point7);
+            element2.Points.Add(point8);
+            element2.Stroke = (Brush) new SolidColorBrush(this.MyGraphicData.MyAxisColor);
+            element2.StrokeThickness = 3.0;
+            this.CanvasDrawing.Children.Add((UIElement) element2);
+            if (this.MyGraphicData.MyYAxis.ShowValues)
+            {
+              Label element3 = new Label();
+              element3.Content = (object) TheValue5.ToString().Trim();
+              element3.FontFamily = fontFamily;
+              element3.FontSize = fontSize;
+              double left = x5 - (double) num14 * element3.FontSize;
+              element3.Margin = new Thickness(left, y5 - 1.3 * element3.FontSize, 0.0, 0.0);
+              element3.Foreground = (Brush) new SolidColorBrush(this.MyGraphicData.MyLabelColor);
+              this.CanvasDrawing.Children.Add((UIElement) element3);
+            }
+          }
+          if (TheValue5 <= this.MyGraphicData.MyYLimits.Max + num12)
+            ++num16;
+          else
+            break;
+        }
+        Label element4 = new Label();
+        element4.Content = (object) this.MyGraphicData.MyYAxis.Caption;
+        element4.FontFamily = fontFamily;
+        element4.FontSize = fontSize;
+        element4.Margin = new Thickness(5.0, y4 / 3.0, 0.0, 0.0);
+        element4.Foreground = (Brush) new SolidColorBrush(this.MyGraphicData.MyLabelColor);
+        this.CanvasDrawing.Children.Add((UIElement) element4);
+      }
+      if (this.MyGraphicData.MyXAxis != null)
+      {
+        if (this.MyGraphicData.MyXAxis.MyStep <= 0.0)
+          throw new ApplicationException("GmmGraphicControl: Invalid X-Axis Step " + this.MyGraphicData.MyXAxis.MyStep.ToString() + ")");
+        Polyline element5 = new Polyline();
+        double min5 = this.MyGraphicData.MyXLimits.Min;
+        double max5 = this.MyGraphicData.MyXLimits.Max;
+        double TheValue6 = this.MyGraphicData.MyYLimits.Min >= 0.0 || this.MyGraphicData.MyYLimits.Max <= 0.0 ? this.MyGraphicData.MyYLimits.Min : 0.0;
+        double x6 = this.TransValue(min5, min1, max1, minX, maxX);
+        double x7 = this.TransValue(max5, min1, max1, minX, maxX);
+        double y6 = this.CanvasDrawing.ActualHeight - this.TransValue(TheValue6, min2, max2, minY, maxY);
+        System.Windows.Point point9 = new System.Windows.Point(x6, y6);
+        System.Windows.Point point10 = new System.Windows.Point(x7, y6);
+        element5.Points.Add(point9);
+        element5.Points.Add(point10);
+        element5.Stroke = (Brush) new SolidColorBrush(this.MyGraphicData.MyAxisColor);
+        element5.StrokeThickness = 3.0;
+        this.CanvasDrawing.Children.Add((UIElement) element5);
+        double num17 = this.MyGraphicData.MyXAxis.MyStep / 1000.0;
+        double num18 = 0.0;
+        double y7 = this.CanvasDrawing.ActualHeight - this.TransValue(TheValue6, min2, max2, minY, maxY);
+        double num19 = y7 + this.CanvasDrawing.ActualHeight / 50.0;
+        while (true)
+        {
+          Polyline element6 = new Polyline();
+          double TheValue7 = this.MyGraphicData.MyXAxis.MyStarValue + num18 * this.MyGraphicData.MyXAxis.MyStep;
+          if (TheValue7 >= this.MyGraphicData.MyXLimits.Min - num17 && TheValue7 <= this.MyGraphicData.MyXLimits.Max + num17)
+          {
+            double x8 = this.TransValue(TheValue7, min1, max1, minX, maxX);
+            System.Windows.Point point11 = new System.Windows.Point(x8, y7);
+            System.Windows.Point point12 = new System.Windows.Point(x8, num19);
+            element6.Points.Add(point11);
+            element6.Points.Add(point12);
+            element6.Stroke = (Brush) new SolidColorBrush(this.MyGraphicData.MyAxisColor);
+            element6.StrokeThickness = 3.0;
+            this.CanvasDrawing.Children.Add((UIElement) element6);
+            if (this.MyGraphicData.MyXAxis.ShowValues)
+            {
+              Label element7 = new Label();
+              element7.Content = (object) (this.MyGraphicData.MyXAxis.MyStarValue + num18 * this.MyGraphicData.MyXAxis.MyStep).ToString().Trim();
+              element7.FontFamily = fontFamily;
+              element7.FontSize = fontSize;
+              element7.Margin = new Thickness(x8 - fontSize, num19, 0.0, 0.0);
+              element7.Foreground = (Brush) new SolidColorBrush(this.MyGraphicData.MyLabelColor);
+              this.CanvasDrawing.Children.Add((UIElement) element7);
+            }
+          }
+          if (TheValue7 <= this.MyGraphicData.MyXLimits.Max + num17)
+            ++num18;
+          else
+            break;
+        }
+        Label element8 = new Label();
+        element8.Content = (object) this.MyGraphicData.MyXAxis.Caption;
+        element8.FontFamily = fontFamily;
+        element8.FontSize = fontSize;
+        double left = this.TransValue(max1, min1, max1, minX, maxX) - (double) element8.Content.ToString().Length * fontSize / 2.0;
+        double top = this.CanvasDrawing.ActualHeight - (this.CanvasDrawing.ActualHeight - num19) / 2.0;
+        element8.Margin = new Thickness(left, top, 0.0, 0.0);
+        element8.Foreground = (Brush) new SolidColorBrush(this.MyGraphicData.MyLabelColor);
+        this.CanvasDrawing.Children.Add((UIElement) element8);
+      }
+      if (this.MyGraphicData.MyGraphicType == GmmGraphicControl.GraphicType.Line)
+      {
+        foreach (GmmGraphicControl.LineClass lineClass in (IEnumerable<GmmGraphicControl.LineClass>) this.MyGraphicData.MyLines.Values)
+        {
+          this.CanvasDrawing.Children.Add((UIElement) this.GetLine(lineClass.MyValues, lineClass.MyColor, this.MyGraphicData));
+          if (lineClass.ShowMarker)
+          {
+            foreach (UIElement marker in this.GetMarkers(lineClass.MyValues, lineClass.MyMarkerColor, lineClass.FillMarker, this.MyGraphicData))
+              this.CanvasDrawing.Children.Add(marker);
+          }
+        }
+      }
+      else
+      {
+        foreach (GmmGraphicControl.XYLineClass xyLineClass in (IEnumerable<GmmGraphicControl.XYLineClass>) this.MyGraphicData.MyXYLines.Values)
+        {
+          this.CanvasDrawing.Children.Add((UIElement) this.GetLine(xyLineClass.MyValues, xyLineClass.MyColor, this.MyGraphicData));
+          if (xyLineClass.ShowMarker)
+          {
+            foreach (UIElement marker in this.GetMarkers(xyLineClass.MyValues, xyLineClass.MyMarkerColor, xyLineClass.FillMarker, this.MyGraphicData))
+              this.CanvasDrawing.Children.Add(marker);
+          }
+        }
+      }
+    }
+
+    private Polyline GetLine(
+      List<double> TheData,
+      Color TheColor,
+      GmmGraphicControl.GraphicData TheGraphicData)
+    {
+      Polyline line = new Polyline();
+      double min1 = TheGraphicData.MyYLimits.Min;
+      double max1 = TheGraphicData.MyYLimits.Max;
+      double min2 = TheGraphicData.MyXLimits.Min;
+      double max2 = TheGraphicData.MyXLimits.Max;
+      double minY = TheGraphicData.MyRange.MinY;
+      double maxY = TheGraphicData.MyRange.MaxY;
+      double minX = TheGraphicData.MyRange.MinX;
+      double maxX = TheGraphicData.MyRange.MaxX;
+      for (int index = 0; index < TheData.Count; ++index)
+      {
+        if ((double) index >= min2 && (double) index <= max2)
+        {
+          System.Windows.Point point = new System.Windows.Point(this.TransValue((double) index, min2, max2, minX, maxX), this.CanvasDrawing.ActualHeight - this.TransValue(TheData[index], min1, max1, minY, maxY));
+          line.Points.Add(point);
+        }
+      }
+      line.Stroke = (Brush) new SolidColorBrush(TheColor);
+      line.StrokeThickness = 2.0;
+      return line;
+    }
+
+    private Polyline GetLine(
+      List<GmmGraphicControl.XYData> TheData,
+      Color TheColor,
+      GmmGraphicControl.GraphicData TheGraphicData)
+    {
+      Polyline line = new Polyline();
+      double min1 = TheGraphicData.MyYLimits.Min;
+      double max1 = TheGraphicData.MyYLimits.Max;
+      double min2 = TheGraphicData.MyXLimits.Min;
+      double max2 = TheGraphicData.MyXLimits.Max;
+      double minY = TheGraphicData.MyRange.MinY;
+      double maxY = TheGraphicData.MyRange.MaxY;
+      double minX = TheGraphicData.MyRange.MinX;
+      double maxX = TheGraphicData.MyRange.MaxX;
+      for (int index = 0; index < TheData.Count; ++index)
+      {
+        if (TheData[index].X >= min2 && TheData[index].X <= max2)
+        {
+          System.Windows.Point point = new System.Windows.Point(this.TransValue(TheData[index].X, min2, max2, minX, maxX), this.CanvasDrawing.ActualHeight - this.TransValue(TheData[index].Y, min1, max1, minY, maxY));
+          line.Points.Add(point);
+        }
+      }
+      line.Stroke = (Brush) new SolidColorBrush(TheColor);
+      line.StrokeThickness = 2.0;
+      return line;
+    }
+
+    private List<Ellipse> GetMarkers(
+      List<double> TheData,
+      Color TheColor,
+      bool FillTheMarker,
+      GmmGraphicControl.GraphicData TheGraphicData)
+    {
+      List<Ellipse> markers = new List<Ellipse>();
+      double min1 = TheGraphicData.MyYLimits.Min;
+      double max1 = TheGraphicData.MyYLimits.Max;
+      double min2 = TheGraphicData.MyXLimits.Min;
+      double max2 = TheGraphicData.MyXLimits.Max;
+      double minY = TheGraphicData.MyRange.MinY;
+      double maxY = TheGraphicData.MyRange.MaxY;
+      double minX = TheGraphicData.MyRange.MinX;
+      double maxX = TheGraphicData.MyRange.MaxX;
+      for (int index = 0; index < TheData.Count; ++index)
+      {
+        if ((double) index >= min2 && (double) index <= max2)
+        {
+          double num1 = this.TransValue((double) index, min2, max2, minX, maxX);
+          double num2 = this.CanvasDrawing.ActualHeight - this.TransValue(TheData[index], min1, max1, minY, maxY);
+          Ellipse ellipse = new Ellipse();
+          double markerSize = this.GetMarkerSize(TheGraphicData.MyPointSizeDivider);
+          ellipse.Width = markerSize;
+          ellipse.Height = markerSize;
+          if (FillTheMarker)
+            ellipse.Fill = (Brush) new SolidColorBrush(TheColor);
+          ellipse.Stroke = (Brush) new SolidColorBrush(TheColor);
+          ellipse.Margin = new Thickness(num1 - ellipse.Width / 2.0, num2 - ellipse.Height / 2.0, 0.0, 0.0);
+          markers.Add(ellipse);
+        }
+      }
+      return markers;
+    }
+
+    private List<Ellipse> GetMarkers(
+      List<GmmGraphicControl.XYData> TheData,
+      Color TheColor,
+      bool FillTheMarker,
+      GmmGraphicControl.GraphicData TheGraphicData)
+    {
+      List<Ellipse> markers = new List<Ellipse>();
+      double min1 = TheGraphicData.MyYLimits.Min;
+      double max1 = TheGraphicData.MyYLimits.Max;
+      double min2 = TheGraphicData.MyXLimits.Min;
+      double max2 = TheGraphicData.MyXLimits.Max;
+      double minY = TheGraphicData.MyRange.MinY;
+      double maxY = TheGraphicData.MyRange.MaxY;
+      double minX = TheGraphicData.MyRange.MinX;
+      double maxX = TheGraphicData.MyRange.MaxX;
+      for (int index = 0; index < TheData.Count; ++index)
+      {
+        if (TheData[index].X >= min2 && TheData[index].Y <= max2)
+        {
+          double num1 = this.TransValue(TheData[index].X, min2, max2, minX, maxX);
+          double num2 = this.CanvasDrawing.ActualHeight - this.TransValue(TheData[index].Y, min1, max1, minY, maxY);
+          Ellipse ellipse = new Ellipse();
+          double markerSize = this.GetMarkerSize(TheGraphicData.MyPointSizeDivider);
+          ellipse.Width = markerSize;
+          ellipse.Height = markerSize;
+          if (FillTheMarker)
+            ellipse.Fill = (Brush) new SolidColorBrush(TheColor);
+          ellipse.Stroke = (Brush) new SolidColorBrush(TheColor);
+          ellipse.Margin = new Thickness(num1 - ellipse.Width / 2.0, num2 - ellipse.Height / 2.0, 0.0, 0.0);
+          markers.Add(ellipse);
+        }
+      }
+      return markers;
+    }
+
+    private double GetMarkerSize(double TheDivider)
+    {
+      return this.CanvasDrawing.ActualWidth * this.CanvasDrawing.ActualHeight / (this.CanvasDrawing.ActualWidth + this.CanvasDrawing.ActualHeight) / TheDivider;
+    }
+
+    private double GetFontSize(double TheDivider)
+    {
+      return this.CanvasDrawing.ActualWidth * this.CanvasDrawing.ActualHeight / (this.CanvasDrawing.ActualWidth + this.CanvasDrawing.ActualHeight) / TheDivider;
+    }
+
+    private double TransValue(
+      double TheValue,
+      double MinValue,
+      double MaxValue,
+      double TransMin,
+      double TransMax)
+    {
+      return TransMin + (TheValue - MinValue) / (MaxValue - MinValue) * (TransMax - TransMin);
+    }
+
+    private GmmGraphicControl.LimitClass GetYLimits(GmmGraphicControl.GraphicData TheGraphicData)
+    {
+      double TheMinValue = double.MaxValue;
+      double TheMaxValue = double.MinValue;
+      if (TheGraphicData.MyGraphicType == GmmGraphicControl.GraphicType.Line)
+      {
+        if (TheGraphicData.MyLines.Count > 0)
+        {
+          foreach (GmmGraphicControl.LineClass lineClass in (IEnumerable<GmmGraphicControl.LineClass>) TheGraphicData.MyLines.Values)
+          {
+            for (int index = 0; index < lineClass.MyValues.Count; ++index)
+            {
+              if (lineClass.MyValues[index] < TheMinValue)
+                TheMinValue = lineClass.MyValues[index];
+              if (lineClass.MyValues[index] > TheMaxValue)
+                TheMaxValue = lineClass.MyValues[index];
+            }
+          }
+          return new GmmGraphicControl.LimitClass(TheMinValue, TheMaxValue);
+        }
+      }
+      else if (TheGraphicData.MyXYLines.Count > 0)
+      {
+        foreach (GmmGraphicControl.XYLineClass xyLineClass in (IEnumerable<GmmGraphicControl.XYLineClass>) TheGraphicData.MyXYLines.Values)
+        {
+          for (int index = 0; index < xyLineClass.MyValues.Count; ++index)
+          {
+            if (xyLineClass.MyValues[index].Y > TheMaxValue)
+              TheMaxValue = xyLineClass.MyValues[index].Y;
+            if (xyLineClass.MyValues[index].Y < TheMinValue)
+              TheMinValue = xyLineClass.MyValues[index].Y;
+          }
+        }
+        return new GmmGraphicControl.LimitClass(TheMinValue, TheMaxValue);
+      }
+      return (GmmGraphicControl.LimitClass) null;
+    }
+
+    private GmmGraphicControl.LimitClass GetXLimits(GmmGraphicControl.GraphicData TheGraphicData)
+    {
+      if (TheGraphicData.MyGraphicType == GmmGraphicControl.GraphicType.Line)
+        return new GmmGraphicControl.LimitClass(0.0, (double) (TheGraphicData.MyCountOfValues - 1));
+      if (TheGraphicData.MyXYLines.Count <= 0)
+        return (GmmGraphicControl.LimitClass) null;
+      double TheMinValue = double.MaxValue;
+      double TheMaxValue = double.MinValue;
+      foreach (GmmGraphicControl.XYLineClass xyLineClass in (IEnumerable<GmmGraphicControl.XYLineClass>) TheGraphicData.MyXYLines.Values)
+      {
+        for (int index = 0; index < xyLineClass.MyValues.Count; ++index)
+        {
+          if (xyLineClass.MyValues[index].X > TheMaxValue)
+            TheMaxValue = xyLineClass.MyValues[index].X;
+          if (xyLineClass.MyValues[index].X < TheMinValue)
+            TheMinValue = xyLineClass.MyValues[index].X;
+        }
+      }
+      return new GmmGraphicControl.LimitClass(TheMinValue, TheMaxValue);
+    }
+
+    private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+      if (this.MyGraphicData == null)
+        return;
+      this.ShowGraphic(this.MyGraphicData);
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    public void InitializeComponent()
+    {
+      if (this._contentLoaded)
+        return;
+      this._contentLoaded = true;
+      Application.LoadComponent((object) this, new Uri("/CommonWPF;component/gmmgraphiccontrol.xaml", UriKind.Relative));
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    void IComponentConnector.Connect(int connectionId, object target)
+    {
+      switch (connectionId)
+      {
+        case 1:
+          ((FrameworkElement) target).SizeChanged += new SizeChangedEventHandler(this.UserControl_SizeChanged);
+          break;
+        case 2:
+          this.CanvasDrawing = (Canvas) target;
+          this.CanvasDrawing.MouseLeftButtonDown += new MouseButtonEventHandler(this.CanvasDrawing_MouseLeftButtonDown);
+          this.CanvasDrawing.MouseRightButtonDown += new MouseButtonEventHandler(this.CanvasDrawing_MouseRightButtonDown);
+          break;
+        default:
+          this._contentLoaded = true;
+          break;
+      }
+    }
+
+    public enum GraphicType
+    {
+      Line,
+      XY,
+    }
+
+    public class GraphicData
+    {
+      internal Color MyBackGroundColor;
+      internal Color MyLabelColor;
+      internal Color MyGridColor;
+      internal Color MyAxisColor;
+      internal SortedList<int, GmmGraphicControl.LineClass> MyLines;
+      internal SortedList<int, GmmGraphicControl.XYLineClass> MyXYLines;
+      internal GmmGraphicControl.GridClass MyGrid;
+      internal GmmGraphicControl.LimitClass MyYLimits;
+      internal GmmGraphicControl.LimitClass MyXLimits;
+      internal int MyCountOfValues;
+      internal GmmGraphicControl.GraphicRange MyRange;
+      internal GmmGraphicControl.Yaxis MyYAxis;
+      internal string MyYAxisCaption;
+      internal GmmGraphicControl.Xaxis MyXAxis;
+      internal string MyXAxisCaption;
+      internal double MyPointSizeDivider;
+      internal GmmGraphicControl.GraphicType MyGraphicType;
+      internal bool ShowGrid;
+
+      public GraphicData() => this.Initialize(GmmGraphicControl.GraphicType.Line);
+
+      public GraphicData(GmmGraphicControl.GraphicType TheGraphicType)
+      {
+        this.Initialize(TheGraphicType);
+      }
+
+      private void Initialize(GmmGraphicControl.GraphicType TheGraphicType)
+      {
+        this.MyGraphicType = TheGraphicType;
+        this.MyBackGroundColor = Colors.Black;
+        this.MyLabelColor = Colors.White;
+        this.MyGridColor = Colors.White;
+        this.MyAxisColor = Colors.White;
+        this.MyLines = new SortedList<int, GmmGraphicControl.LineClass>();
+        this.MyXYLines = new SortedList<int, GmmGraphicControl.XYLineClass>();
+        this.MyGrid = (GmmGraphicControl.GridClass) null;
+        this.MyRange = new GmmGraphicControl.GraphicRange();
+        this.MyYAxis = (GmmGraphicControl.Yaxis) null;
+        this.MyXAxisCaption = (string) null;
+        this.MyXAxis = (GmmGraphicControl.Xaxis) null;
+        this.MyXAxisCaption = (string) null;
+        this.MyYLimits = (GmmGraphicControl.LimitClass) null;
+        this.MyXLimits = (GmmGraphicControl.LimitClass) null;
+        this.MyPointSizeDivider = 50.0;
+        this.ShowGrid = false;
+      }
+
+      public void SetCaptuionAxisX(string TheCaption) => this.MyXAxisCaption = TheCaption;
+
+      public void SetCaptuionAxisY(string TheCaption) => this.MyYAxisCaption = TheCaption;
+
+      public void SetBackGroundColor(Color TheColor) => this.MyBackGroundColor = TheColor;
+
+      public void SetLabelColor(Color TheColor) => this.MyLabelColor = TheColor;
+
+      public void SetGridColor(Color TheColor) => this.MyGridColor = TheColor;
+
+      public void SetAxisColor(Color TheColor) => this.MyAxisColor = TheColor;
+
+      public void AddLine(int TheLineNumber, List<GmmGraphicControl.XYData> TheXYData)
+      {
+        if (this.MyGraphicType != GmmGraphicControl.GraphicType.XY)
+          throw new ApplicationException("Function not valid for Line-Graphic");
+        if (this.MyXYLines.Count <= 0)
+          this.MyXYLines[TheLineNumber] = new GmmGraphicControl.XYLineClass(TheXYData);
+        else
+          this.MyXYLines[TheLineNumber] = new GmmGraphicControl.XYLineClass(TheXYData);
+      }
+
+      public void AddLine(int TheLineNumber, List<double> TheData)
+      {
+        if (this.MyGraphicType != 0)
+          throw new ApplicationException("Function not valid for XY-Graphic");
+        if (this.MyLines.Count <= 0)
+        {
+          this.MyCountOfValues = TheData.Count;
+          this.MyLines[TheLineNumber] = new GmmGraphicControl.LineClass(TheData);
+        }
+        else
+        {
+          if (this.MyCountOfValues != TheData.Count)
+            throw new ApplicationException("AddLine: Invalid array length!");
+          this.MyLines[TheLineNumber] = new GmmGraphicControl.LineClass(TheData);
+        }
+      }
+
+      public void AddLine(
+        int TheLineNumber,
+        List<double> TheData,
+        Color TheLineColor,
+        bool ShowMarker,
+        Color TheMarkerColor,
+        bool FillMarker)
+      {
+        if (this.MyGraphicType != 0)
+          throw new ApplicationException("Function not valid for XY-Graphic");
+        if (this.MyLines.Count <= 0)
+        {
+          this.MyCountOfValues = TheData.Count;
+          this.MyLines[TheLineNumber] = new GmmGraphicControl.LineClass(TheData);
+        }
+        else
+        {
+          if (this.MyCountOfValues != TheData.Count)
+            throw new ApplicationException("AddLine: Invalid array length!");
+          this.MyLines[TheLineNumber] = new GmmGraphicControl.LineClass(TheData);
+          this.MyLines[TheLineNumber].SetColor(TheLineColor);
+          this.MyLines[TheLineNumber].SetShowMarkers(ShowMarker);
+          this.MyLines[TheLineNumber].SetMarkerColor(TheMarkerColor, FillMarker);
+        }
+      }
+
+      public void AddLine(
+        int TheLineNumber,
+        List<GmmGraphicControl.XYData> TheXYData,
+        Color TheLineColor,
+        bool ShowMarker,
+        Color TheMarkerColor,
+        bool FillMarker)
+      {
+        if (this.MyGraphicType != GmmGraphicControl.GraphicType.XY)
+          throw new ApplicationException("Function not valid for Line-Graphic");
+        this.MyXYLines[TheLineNumber] = this.MyXYLines.Count > 0 ? new GmmGraphicControl.XYLineClass(TheXYData) : new GmmGraphicControl.XYLineClass(TheXYData);
+        this.MyXYLines[TheLineNumber].SetColor(TheLineColor);
+        this.MyXYLines[TheLineNumber].SetShowMarkers(ShowMarker);
+        this.MyXYLines[TheLineNumber].SetMarkerColor(TheMarkerColor, FillMarker);
+      }
+
+      public void SetXLimits(double MinX, double MaxX)
+      {
+        this.MyXLimits = new GmmGraphicControl.LimitClass(MinX, MaxX);
+      }
+
+      public void SetYLimits(double MinY, double MaxY)
+      {
+        this.MyYLimits = new GmmGraphicControl.LimitClass(MinY, MaxY);
+      }
+
+      public void SetColor(int TheLine, Color TheColor)
+      {
+        if (this.MyGraphicType == GmmGraphicControl.GraphicType.Line)
+        {
+          if (!this.MyLines.Keys.Contains(TheLine))
+            throw new ApplicationException("Line " + TheLine.ToString() + " not available");
+          this.MyLines[TheLine].SetColor(TheColor);
+        }
+        else
+        {
+          if (!this.MyXYLines.Keys.Contains(TheLine))
+            throw new ApplicationException("Line " + TheLine.ToString() + " not available");
+          this.MyXYLines[TheLine].SetColor(TheColor);
+        }
+      }
+
+      public void SetMarkerColor(int TheLine, Color TheColor, bool FillMarker)
+      {
+        if (this.MyGraphicType == GmmGraphicControl.GraphicType.Line)
+        {
+          if (!this.MyLines.Keys.Contains(TheLine))
+            throw new ApplicationException("Line " + TheLine.ToString() + " not available");
+          this.MyLines[TheLine].SetMarkerColor(TheColor, FillMarker);
+        }
+        else
+        {
+          if (!this.MyXYLines.Keys.Contains(TheLine))
+            throw new ApplicationException("Line " + TheLine.ToString() + " not available");
+          this.MyXYLines[TheLine].SetMarkerColor(TheColor, FillMarker);
+        }
+      }
+
+      public void SetShowMarker(int TheLine, bool ShowMarker)
+      {
+        if (this.MyGraphicType == GmmGraphicControl.GraphicType.Line)
+        {
+          if (!this.MyLines.Keys.Contains(TheLine))
+            throw new ApplicationException("Line " + TheLine.ToString() + " not available");
+          this.MyLines[TheLine].SetShowMarkers(ShowMarker);
+        }
+        else
+        {
+          if (!this.MyXYLines.Keys.Contains(TheLine))
+            throw new ApplicationException("Line " + TheLine.ToString() + " not available");
+          this.MyXYLines[TheLine].SetShowMarkers(ShowMarker);
+        }
+      }
+
+      public void AddGrid(double StartX, double StepX, double StartY, double StepY)
+      {
+        this.MyGrid = new GmmGraphicControl.GridClass(StartX, StepX, StartY, StepY);
+        this.ShowGrid = true;
+      }
+
+      public void AddGrid()
+      {
+        this.MyGrid = (GmmGraphicControl.GridClass) null;
+        this.ShowGrid = true;
+      }
+
+      public void SetYAxis(
+        double TheStartValue,
+        double TheStep,
+        string TheCaption,
+        bool ShowValues)
+      {
+        this.MyYAxis = new GmmGraphicControl.Yaxis(TheStartValue, TheStep, TheCaption, ShowValues);
+      }
+
+      public void SetXAxis(
+        double TheStartValue,
+        double TheStep,
+        string TheCaption,
+        bool ShowValues)
+      {
+        this.MyXAxis = new GmmGraphicControl.Xaxis(TheStartValue, TheStep, TheCaption, ShowValues);
+      }
+
+      public void SetPointtSizeFactor(double TheValue) => this.MyPointSizeDivider = TheValue;
+    }
+
+    internal class GraphicRange
+    {
+      internal double MinX;
+      internal double MaxX;
+      internal double MinY;
+      internal double MaxY;
+    }
+
+    internal class LimitClass
+    {
+      internal double Min;
+      internal double Max;
+
+      internal LimitClass(double TheMinValue, double TheMaxValue)
+      {
+        this.Min = TheMinValue;
+        this.Max = TheMaxValue;
+      }
+    }
+
+    internal class LineClass
+    {
+      internal List<double> MyValues;
+      internal Color MyColor;
+      internal Color MyMarkerColor;
+      internal bool ShowMarker;
+      internal bool FillMarker;
+
+      internal LineClass(List<double> TheValues)
+      {
+        this.MyValues = TheValues;
+        this.MyColor = Colors.Yellow;
+        this.MyMarkerColor = Colors.Yellow;
+        this.ShowMarker = false;
+        this.FillMarker = false;
+      }
+
+      internal void SetColor(Color TheColor) => this.MyColor = TheColor;
+
+      internal void SetMarkerColor(Color TheColor, bool FillTheMarker)
+      {
+        this.MyMarkerColor = TheColor;
+        this.FillMarker = FillTheMarker;
+      }
+
+      internal void SetShowMarkers(bool ShowTheMarker) => this.ShowMarker = ShowTheMarker;
+    }
+
+    internal class XYLineClass
+    {
+      internal List<GmmGraphicControl.XYData> MyValues;
+      internal Color MyColor;
+      internal Color MyMarkerColor;
+      internal bool ShowMarker;
+      internal bool FillMarker;
+
+      internal XYLineClass(List<GmmGraphicControl.XYData> TheValues)
+      {
+        this.MyValues = TheValues;
+        this.MyColor = Colors.Yellow;
+        this.MyMarkerColor = Colors.Yellow;
+        this.ShowMarker = false;
+        this.FillMarker = false;
+      }
+
+      internal void SetColor(Color TheColor) => this.MyColor = TheColor;
+
+      internal void SetMarkerColor(Color TheColor, bool FillTheMarker)
+      {
+        this.MyMarkerColor = TheColor;
+        this.FillMarker = FillTheMarker;
+      }
+
+      internal void SetShowMarkers(bool ShowTheMarker) => this.ShowMarker = ShowTheMarker;
+    }
+
+    internal class GridClass
+    {
+      internal double MyStartX;
+      internal double MyStepX;
+      internal double MyStartY;
+      internal double MyStepY;
+
+      internal GridClass(double StartX, double StepX, double StartY, double StepY)
+      {
+        this.MyStartX = StartX;
+        this.MyStepX = StepX;
+        this.MyStartY = StartY;
+        this.MyStepY = StepY;
+      }
+    }
+
+    internal class Yaxis
+    {
+      internal double MyStarValue;
+      internal double MyStep;
+      internal bool ShowValues;
+      internal string Caption;
+
+      internal Yaxis(double TheStartValue, double TheStep, string TheCaption, bool ShowValues)
+      {
+        this.MyStarValue = TheStartValue;
+        this.MyStep = TheStep;
+        this.ShowValues = ShowValues;
+        this.Caption = TheCaption;
+      }
+    }
+
+    internal class Xaxis
+    {
+      internal double MyStarValue;
+      internal double MyStep;
+      internal bool ShowValues;
+      internal string Caption;
+
+      internal Xaxis(double TheStartValue, double TheStep, string TheCaption, bool ShowValues)
+      {
+        this.MyStarValue = TheStartValue;
+        this.MyStep = TheStep;
+        this.ShowValues = ShowValues;
+        this.Caption = TheCaption;
+      }
+    }
+
+    public class XYData
+    {
+      public double X { get; private set; }
+
+      public double Y { get; private set; }
+
+      public XYData(double DataX, double DataY)
+      {
+        this.X = DataX;
+        this.Y = DataY;
+      }
+    }
+  }
+}
+
+
+--- GmmMessage.xaml.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: CommonWPF.GmmMessage
+// Assembly: CommonWPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FC3FF060-22A9-4729-A79E-14B5F4740E69
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonWPF.dll
+
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Markup;
+using System.Windows.Media;
+
+#nullable disable
+namespace CommonWPF
+{
+  public partial class GmmMessage : Window, IComponentConnector
+  {
+    private bool WindowIsModal = false;
+    internal Button ButtonCancel;
+    internal Button ButtonOk;
+    internal Button ButtonPrint;
+    internal TextBox TextBoxMessage;
+    private bool _contentLoaded;
+
+    public static void Show(string message, string headerInfo = null, bool useCourier = false)
+    {
+      GmmMessage gmmMessage = new GmmMessage();
+      gmmMessage.TextBoxMessage.Text = message;
+      if (headerInfo != null)
+        gmmMessage.Title = headerInfo;
+      if (useCourier)
+        gmmMessage.TextBoxMessage.FontFamily = new FontFamily("Courier New");
+      gmmMessage.WindowIsModal = true;
+      gmmMessage.ShowDialog();
+    }
+
+    public static void Show_Ok(string message, string headerInfo = null, bool useCourier = false)
+    {
+      GmmMessage gmmMessage = new GmmMessage();
+      gmmMessage.TextBoxMessage.Text = message;
+      if (headerInfo != null)
+        gmmMessage.Title = headerInfo;
+      if (useCourier)
+        gmmMessage.TextBoxMessage.FontFamily = new FontFamily("Courier New");
+      gmmMessage.ShowDialog();
+    }
+
+    public static bool Show_OkCancel(string message, string headerInfo = null, bool useCurier = false)
+    {
+      GmmMessage gmmMessage = new GmmMessage(true);
+      gmmMessage.TextBoxMessage.Text = message;
+      if (headerInfo != null)
+        gmmMessage.Title = headerInfo;
+      if (useCurier)
+        gmmMessage.TextBoxMessage.FontFamily = new FontFamily("Courier New");
+      gmmMessage.ShowDialog();
+      return gmmMessage.DialogResult.HasValue && gmmMessage.DialogResult.Value;
+    }
+
+    internal GmmMessage(bool showCancle = false)
+    {
+      this.InitializeComponent();
+      if (!showCancle)
+        return;
+      this.ButtonCancel.Visibility = Visibility.Visible;
+    }
+
+    private void ButtonOk_Click(object sender, RoutedEventArgs e)
+    {
+      if (!this.WindowIsModal)
+        this.DialogResult = new bool?(true);
+      this.Close();
+    }
+
+    private void ButtonCancel_Click(object sender, RoutedEventArgs e)
+    {
+      if (!this.WindowIsModal)
+        this.DialogResult = new bool?(false);
+      this.Close();
+    }
+
+    private void ButtonPrint_Click(object sender, RoutedEventArgs e)
+    {
+      try
+      {
+        PrintDialog printDialog = new PrintDialog();
+        bool? nullable = printDialog.ShowDialog();
+        bool flag = true;
+        if (!(nullable.GetValueOrDefault() == flag & nullable.HasValue))
+          return;
+        printDialog.PrintVisual((Visual) this.TextBoxMessage, "");
+      }
+      catch (Exception ex)
+      {
+        ExceptionViewer.Show(ex);
+      }
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    public void InitializeComponent()
+    {
+      if (this._contentLoaded)
+        return;
+      this._contentLoaded = true;
+      Application.LoadComponent((object) this, new Uri("/CommonWPF;component/gmmmessage.xaml", UriKind.Relative));
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    internal Delegate _CreateDelegate(Type delegateType, string handler)
+    {
+      return Delegate.CreateDelegate(delegateType, (object) this, handler);
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    void IComponentConnector.Connect(int connectionId, object target)
+    {
+      switch (connectionId)
+      {
+        case 1:
+          this.ButtonCancel = (Button) target;
+          this.ButtonCancel.Click += new RoutedEventHandler(this.ButtonCancel_Click);
+          break;
+        case 2:
+          this.ButtonOk = (Button) target;
+          this.ButtonOk.Click += new RoutedEventHandler(this.ButtonOk_Click);
+          break;
+        case 3:
+          this.ButtonPrint = (Button) target;
+          this.ButtonPrint.Click += new RoutedEventHandler(this.ButtonPrint_Click);
+          break;
+        case 4:
+          this.TextBoxMessage = (TextBox) target;
+          break;
+        default:
+          this._contentLoaded = true;
+          break;
+      }
+    }
+  }
+}
+
+
+--- HeaderImageConverter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: CommonWPF.HeaderImageConverter
+// Assembly: CommonWPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FC3FF060-22A9-4729-A79E-14B5F4740E69
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonWPF.dll
+
+using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Globalization;
+using System.IO;
+using System.Windows.Data;
+using System.Windows.Media.Imaging;
+
+#nullable disable
+namespace CommonWPF
+{
+  public class HeaderImageConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      MemoryStream memoryStream = new MemoryStream();
+      ((Image) value).Save((Stream) memoryStream, ImageFormat.Bmp);
+      BitmapImage bitmapImage = new BitmapImage();
+      bitmapImage.BeginInit();
+      memoryStream.Seek(0L, SeekOrigin.Begin);
+      bitmapImage.StreamSource = (Stream) memoryStream;
+      bitmapImage.EndInit();
+      return (object) bitmapImage;
+    }
+
+    public object ConvertBack(
+      object value,
+      Type targetType,
+      object parameter,
+      CultureInfo culture)
+    {
+      throw new NotImplementedException();
+    }
+  }
+}
+
+
+--- IuwSysInfoDecoder.xaml.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: CommonWPF.IuwSysInfoDecoder
+// Assembly: CommonWPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FC3FF060-22A9-4729-A79E-14B5F4740E69
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonWPF.dll
+
+using System;
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Markup;
+using System.Windows.Media;
+
+#nullable disable
+namespace CommonWPF
+{
+  public partial class IuwSysInfoDecoder : Window, IComponentConnector
+  {
+    private SortedList<uint, CheckBox> TheBoxList;
+    private SortedList<uint, CheckBox> TheStateBoxList;
+    private bool LockEvent;
+    private bool ShowTheValue;
+    internal Grid GridMain;
+    internal TabControl TabControl1;
+    internal TabItem TabItemSysInfo;
+    internal Grid GridSysInfo;
+    internal GroupBox GroupBoxInput;
+    internal Grid GridInput;
+    internal DockPanel DockPanelHex;
+    internal Label LabelHex;
+    internal TextBox TextBoxHex;
+    internal DockPanel DockPanelDec;
+    internal Label LabelDec;
+    internal TextBox TextBoxDec;
+    internal DockPanel DockPanelBin;
+    internal Label LabelBin;
+    internal TextBox TextBoxBin;
+    internal GroupBox GroupBoxFlags;
+    internal Grid GridCheckBoxes;
+    internal CheckBox CheckBox0;
+    internal CheckBox CheckBox1;
+    internal CheckBox CheckBox2;
+    internal CheckBox CheckBox3;
+    internal CheckBox CheckBox4;
+    internal CheckBox CheckBox5;
+    internal CheckBox CheckBox6;
+    internal CheckBox CheckBox7;
+    internal CheckBox CheckBox8;
+    internal CheckBox CheckBox9;
+    internal CheckBox CheckBox10;
+    internal CheckBox CheckBox11;
+    internal CheckBox CheckBox12;
+    internal CheckBox CheckBox13;
+    internal CheckBox CheckBox14;
+    internal CheckBox CheckBox15;
+    internal CheckBox CheckBox16;
+    internal CheckBox CheckBox17;
+    internal CheckBox CheckBox18;
+    internal CheckBox CheckBox19;
+    internal CheckBox CheckBox20;
+    internal CheckBox CheckBox21;
+    internal CheckBox CheckBox22;
+    internal CheckBox CheckBox23;
+    internal CheckBox CheckBox24;
+    internal CheckBox CheckBox25;
+    internal CheckBox CheckBox26;
+    internal CheckBox CheckBox27;
+    internal CheckBox CheckBox28;
+    internal CheckBox CheckBox29;
+    internal CheckBox CheckBox30;
+    internal CheckBox CheckBox31;
+    internal TabItem TabItemState;
+    internal Grid GridStateInfo;
+    internal GroupBox GroupBoxStateInput;
+    internal Grid GridStateInput;
+    internal DockPanel DockPanelStateHex;
+    internal Label LabelStateHex;
+    internal TextBox TextBoxStateHex;
+    internal DockPanel DockPanelStateDec;
+    internal Label LabelStateDec;
+    internal TextBox TextBoxStateDec;
+    internal DockPanel DockPanelStateBin;
+    internal Label LabelStateBin;
+    internal TextBox TextBoxStateBin;
+    internal GroupBox GroupBoxStateFlags;
+    internal Grid GridCheckBoxesState;
+    internal CheckBox CheckBoxState0;
+    internal CheckBox CheckBoxState1;
+    internal CheckBox CheckBoxState2;
+    internal CheckBox CheckBoxState3;
+    internal CheckBox CheckBoxState4;
+    internal CheckBox CheckBoxState5;
+    internal CheckBox CheckBoxState6;
+    internal CheckBox CheckBoxState7;
+    internal CheckBox CheckBoxState8;
+    internal CheckBox CheckBoxState9;
+    internal CheckBox CheckBoxState10;
+    internal CheckBox CheckBoxState11;
+    internal CheckBox CheckBoxState12;
+    internal CheckBox CheckBoxState13;
+    internal CheckBox CheckBoxState14;
+    internal CheckBox CheckBoxState15;
+    private bool _contentLoaded;
+
+    public static void ShowModal() => new IuwSysInfoDecoder().ShowDialog();
+
+    public IuwSysInfoDecoder()
+    {
+      this.InitializeComponent();
+      LinearGradientBrush linearGradientBrush = new LinearGradientBrush(Colors.White, Colors.LightBlue, new System.Windows.Point(0.0, 0.0), new System.Windows.Point(0.0, 1.0));
+      this.Background = (Brush) linearGradientBrush;
+      this.GroupBoxInput.Background = (Brush) linearGradientBrush;
+      this.GroupBoxFlags.Background = (Brush) linearGradientBrush;
+      this.GroupBoxStateInput.Background = (Brush) linearGradientBrush;
+      this.GroupBoxStateFlags.Background = (Brush) linearGradientBrush;
+      this.LockEvent = false;
+      this.ShowTheValue = false;
+      this.FillBoxesList();
+      this.FillStateBoxesList();
+    }
+
+    private void FillBoxesList()
+    {
+      uint key1 = 1;
+      this.TheBoxList = new SortedList<uint, CheckBox>();
+      this.CheckBox0.Content = (object) (key1.ToString("X8") + " - Smart function event");
+      this.TheBoxList.Add(key1, this.CheckBox0);
+      uint key2 = key1 * 2U;
+      this.CheckBox1.Content = (object) (key2.ToString("X8") + " - NDC module is not able to use the selected communication scenario");
+      this.TheBoxList.Add(key2, this.CheckBox1);
+      uint key3 = key2 * 2U;
+      this.CheckBox2.Content = (object) (key3.ToString("X8") + " - ");
+      this.TheBoxList.Add(key3, this.CheckBox2);
+      uint key4 = key3 * 2U;
+      this.CheckBox3.Content = (object) (key4.ToString("X8") + " - Device in sleep (delivery mode)");
+      this.TheBoxList.Add(key4, this.CheckBox3);
+      uint key5 = key4 * 2U;
+      this.CheckBox4.Content = (object) (key5.ToString("X8") + " - NTAG I2C fault");
+      this.TheBoxList.Add(key5, this.CheckBox4);
+      uint key6 = key5 * 2U;
+      this.CheckBox5.Content = (object) (key6.ToString("X8") + " - Display interpreter error");
+      this.TheBoxList.Add(key6, this.CheckBox5);
+      uint key7 = key6 * 2U;
+      this.CheckBox6.Content = (object) (key7.ToString("X8") + " - Calculated battery live time over");
+      this.TheBoxList.Add(key7, this.CheckBox6);
+      uint key8 = key7 * 2U;
+      this.CheckBox7.Content = (object) (key8.ToString("X8") + " - Battery live time over detected by under voltage (Device works)");
+      this.TheBoxList.Add(key8, this.CheckBox7);
+      uint key9 = key8 * 2U;
+      this.CheckBox8.Content = (object) (key9.ToString("X8") + " - Write protection not active");
+      this.TheBoxList.Add(key9, this.CheckBox8);
+      uint key10 = key9 * 2U;
+      this.CheckBox9.Content = (object) (key10.ToString("X8") + " - Ultrasonic channel 1 corrupt");
+      this.TheBoxList.Add(key10, this.CheckBox9);
+      uint key11 = key10 * 2U;
+      this.CheckBox10.Content = (object) (key11.ToString("X8") + " - Ultrasonic channel 2 corrupt");
+      this.TheBoxList.Add(key11, this.CheckBox10);
+      uint key12 = key11 * 2U;
+      this.CheckBox11.Content = (object) (key12.ToString("X8") + " - Temperature sensor corrupt");
+      this.TheBoxList.Add(key12, this.CheckBox11);
+      uint key13 = key12 * 2U;
+      this.CheckBox12.Content = (object) (key13.ToString("X8") + " - Test-View is active");
+      this.TheBoxList.Add(key13, this.CheckBox12);
+      uint key14 = key13 * 2U;
+      this.CheckBox13.Content = (object) (key14.ToString("X8") + " - Reverse flow");
+      this.TheBoxList.Add(key14, this.CheckBox13);
+      uint key15 = key14 * 2U;
+      this.CheckBox14.Content = (object) (key15.ToString("X8") + " - Temperature out of range");
+      this.TheBoxList.Add(key15, this.CheckBox14);
+      uint key16 = key15 * 2U;
+      this.CheckBox15.Content = (object) (key16.ToString("X8") + " - Flow out of range");
+      this.TheBoxList.Add(key16, this.CheckBox15);
+      uint key17 = key16 * 2U;
+      this.CheckBox16.Content = (object) (key17.ToString("X8") + " - CRC error firmware code");
+      this.TheBoxList.Add(key17, this.CheckBox16);
+      uint key18 = key17 * 2U;
+      this.CheckBox17.Content = (object) (key18.ToString("X8") + " - CRC error configuration");
+      this.TheBoxList.Add(key18, this.CheckBox17);
+      uint key19 = key18 * 2U;
+      this.CheckBox18.Content = (object) (key19.ToString("X8") + " - ");
+      this.TheBoxList.Add(key19, this.CheckBox18);
+      uint key20 = key19 * 2U;
+      this.CheckBox19.Content = (object) (key20.ToString("X8") + " - ");
+      this.TheBoxList.Add(key20, this.CheckBox19);
+      uint key21 = key20 * 2U;
+      this.CheckBox20.Content = (object) (key21.ToString("X8") + " - ");
+      this.TheBoxList.Add(key21, this.CheckBox20);
+      uint key22 = key21 * 2U;
+      this.CheckBox21.Content = (object) (key22.ToString("X8") + " - ");
+      this.TheBoxList.Add(key22, this.CheckBox21);
+      uint key23 = key22 * 2U;
+      this.CheckBox22.Content = (object) (key23.ToString("X8") + " - Bubbles in the water");
+      this.TheBoxList.Add(key23, this.CheckBox22);
+      uint key24 = key23 * 2U;
+      this.CheckBox23.Content = (object) (key24.ToString("X8") + " - No water in the tube (or all ultrasonic channels corrupted)");
+      this.TheBoxList.Add(key24, this.CheckBox23);
+      uint key25 = key24 * 2U;
+      this.CheckBox24.Content = (object) (key25.ToString("X8") + " - ");
+      this.TheBoxList.Add(key25, this.CheckBox24);
+      uint key26 = key25 * 2U;
+      this.CheckBox25.Content = (object) (key26.ToString("X8") + " - ");
+      this.TheBoxList.Add(key26, this.CheckBox25);
+      uint key27 = key26 * 2U;
+      this.CheckBox26.Content = (object) (key27.ToString("X8") + " - ");
+      this.TheBoxList.Add(key27, this.CheckBox26);
+      uint key28 = key27 * 2U;
+      this.CheckBox27.Content = (object) (key28.ToString("X8") + " - ");
+      this.TheBoxList.Add(key28, this.CheckBox27);
+      uint key29 = key28 * 2U;
+      this.CheckBox28.Content = (object) (key29.ToString("X8") + " - ");
+      this.TheBoxList.Add(key29, this.CheckBox28);
+      uint key30 = key29 * 2U;
+      this.CheckBox29.Content = (object) (key30.ToString("X8") + " - The meter lost its accumulated data");
+      this.TheBoxList.Add(key30, this.CheckBox29);
+      uint key31 = key30 * 2U;
+      this.CheckBox30.Content = (object) (key31.ToString("X8") + " - TDC-Error");
+      this.TheBoxList.Add(key31, this.CheckBox30);
+      uint key32 = key31 * 2U;
+      this.CheckBox31.Content = (object) (key32.ToString("X8") + " - Battery down (Device out of order)");
+      this.TheBoxList.Add(key32, this.CheckBox31);
+    }
+
+    private void FillStateBoxesList()
+    {
+      uint key1 = 1;
+      this.TheStateBoxList = new SortedList<uint, CheckBox>();
+      this.CheckBoxState0.Content = (object) (key1.ToString("X4") + " - BatteryOver");
+      this.TheStateBoxList.Add(key1, this.CheckBoxState0);
+      uint key2 = key1 * 2U;
+      this.CheckBoxState1.Content = (object) (key2.ToString("X4") + " - BatteryWarning");
+      this.TheStateBoxList.Add(key2, this.CheckBoxState1);
+      uint key3 = key2 * 2U;
+      this.CheckBoxState2.Content = (object) (key3.ToString("X4") + " - BatteryError");
+      this.TheStateBoxList.Add(key3, this.CheckBoxState2);
+      uint key4 = key3 * 2U;
+      this.CheckBoxState3.Content = (object) (key4.ToString("X4") + " - AccuracyUnsafe");
+      this.TheStateBoxList.Add(key4, this.CheckBoxState3);
+      uint key5 = key4 * 2U;
+      this.CheckBoxState4.Content = (object) (key5.ToString("X4") + " - HardwareError");
+      this.TheStateBoxList.Add(key5, this.CheckBoxState4);
+      uint key6 = key5 * 2U;
+      this.CheckBoxState5.Content = (object) (key6.ToString("X4") + " - EmptyTube");
+      this.TheStateBoxList.Add(key6, this.CheckBoxState5);
+      uint key7 = key6 * 2U;
+      this.CheckBoxState6.Content = (object) (key7.ToString("X4") + " - FlowOutOfRange");
+      this.TheStateBoxList.Add(key7, this.CheckBoxState6);
+      uint key8 = key7 * 2U;
+      this.CheckBoxState7.Content = (object) (key8.ToString("X4") + " - Sleep");
+      this.TheStateBoxList.Add(key8, this.CheckBoxState7);
+      uint key9 = key8 * 2U;
+      this.CheckBoxState8.Content = (object) (key9.ToString("X4") + " - ");
+      this.TheStateBoxList.Add(key9, this.CheckBoxState8);
+      uint key10 = key9 * 2U;
+      this.CheckBoxState9.Content = (object) (key10.ToString("X4") + " - ");
+      this.TheStateBoxList.Add(key10, this.CheckBoxState9);
+      uint key11 = key10 * 2U;
+      this.CheckBoxState10.Content = (object) (key11.ToString("X4") + " - ");
+      this.TheStateBoxList.Add(key11, this.CheckBoxState10);
+      uint key12 = key11 * 2U;
+      this.CheckBoxState11.Content = (object) (key12.ToString("X4") + " - ");
+      this.TheStateBoxList.Add(key12, this.CheckBoxState11);
+      uint key13 = key12 * 2U;
+      this.CheckBoxState12.Content = (object) (key13.ToString("X4") + " - ");
+      this.TheStateBoxList.Add(key13, this.CheckBoxState12);
+      uint key14 = key13 * 2U;
+      this.CheckBoxState13.Content = (object) (key14.ToString("X4") + " - Reverse flow");
+      this.TheStateBoxList.Add(key14, this.CheckBoxState13);
+      uint key15 = key14 * 2U;
+      this.CheckBoxState14.Content = (object) (key15.ToString("X4") + " - NdcModuleBatteryWarning");
+      this.TheStateBoxList.Add(key15, this.CheckBoxState14);
+      uint key16 = key15 * 2U;
+      this.CheckBoxState15.Content = (object) (key16.ToString("X4") + " - NdcModuleConnectionLost");
+      this.TheStateBoxList.Add(key16, this.CheckBoxState15);
+      uint num = key16 * 2U;
+    }
+
+    private void ClearAllBoxes()
+    {
+      foreach (ToggleButton toggleButton in (IEnumerable<CheckBox>) this.TheBoxList.Values)
+        toggleButton.IsChecked = new bool?(false);
+    }
+
+    private void ShowBoxStates(uint TheValue)
+    {
+      foreach (KeyValuePair<uint, CheckBox> theBox in this.TheBoxList)
+        theBox.Value.IsChecked = new bool?(((int) TheValue & (int) theBox.Key) == (int) theBox.Key);
+    }
+
+    private void ShowBinaryValue()
+    {
+      string str = string.Empty;
+      int num = 0;
+      foreach (CheckBox checkBox in (IEnumerable<CheckBox>) this.TheBoxList.Values)
+      {
+        ++num;
+        str = !checkBox.IsChecked.Value ? "0" + str : "1" + str;
+        if (num >= 4)
+        {
+          num = 0;
+          str = " " + str;
+        }
+      }
+      this.TextBoxBin.Text = str;
+    }
+
+    private void ShowValue()
+    {
+      uint num = 0;
+      foreach (KeyValuePair<uint, CheckBox> theBox in this.TheBoxList)
+      {
+        if (theBox.Value.IsChecked.Value)
+          num += theBox.Key;
+      }
+      this.ShowTheValue = true;
+      if (this.TextBoxDec.Text.Trim() != string.Empty)
+      {
+        this.TextBoxHex.Text = string.Empty;
+        this.TextBoxDec.Text = num.ToString();
+      }
+      else
+      {
+        this.TextBoxHex.Text = num.ToString("X");
+        this.TextBoxDec.Text = string.Empty;
+      }
+      this.ShowBinaryValue();
+      this.ShowTheValue = false;
+    }
+
+    private void ClearAllStateBoxes()
+    {
+      foreach (ToggleButton toggleButton in (IEnumerable<CheckBox>) this.TheStateBoxList.Values)
+        toggleButton.IsChecked = new bool?(false);
+    }
+
+    private void ShowStateBoxStates(uint TheValue)
+    {
+      foreach (KeyValuePair<uint, CheckBox> theStateBox in this.TheStateBoxList)
+        theStateBox.Value.IsChecked = new bool?(((int) TheValue & (int) theStateBox.Key) == (int) theStateBox.Key);
+    }
+
+    private void ShowStateBinaryValue()
+    {
+      string str = string.Empty;
+      int num = 0;
+      foreach (CheckBox checkBox in (IEnumerable<CheckBox>) this.TheStateBoxList.Values)
+      {
+        ++num;
+        str = !checkBox.IsChecked.Value ? "0" + str : "1" + str;
+        if (num >= 4)
+        {
+          num = 0;
+          str = " " + str;
+        }
+      }
+      this.TextBoxStateBin.Text = str;
+    }
+
+    private void ShowStateValue()
+    {
+      uint num = 0;
+      foreach (KeyValuePair<uint, CheckBox> theStateBox in this.TheStateBoxList)
+      {
+        if (theStateBox.Value.IsChecked.Value)
+          num += theStateBox.Key;
+      }
+      this.ShowTheValue = true;
+      if (this.TextBoxStateDec.Text.Trim() != string.Empty)
+      {
+        this.TextBoxStateHex.Text = string.Empty;
+        this.TextBoxStateDec.Text = num.ToString();
+      }
+      else
+      {
+        this.TextBoxStateHex.Text = num.ToString("X");
+        this.TextBoxStateDec.Text = string.Empty;
+      }
+      this.ShowStateBinaryValue();
+      this.ShowTheValue = false;
+    }
+
+    private void TextBoxHex_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      if (this.ShowTheValue)
+        return;
+      if (!this.LockEvent)
+      {
+        this.LockEvent = true;
+        this.TextBoxBin.Clear();
+        this.TextBoxDec.Clear();
+        this.DecodeTheValue();
+      }
+      this.LockEvent = false;
+    }
+
+    private void TextBoxDec_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      if (this.ShowTheValue)
+        return;
+      if (!this.LockEvent)
+      {
+        this.LockEvent = true;
+        this.TextBoxBin.Clear();
+        this.TextBoxHex.Clear();
+        this.DecodeTheValue();
+      }
+      this.LockEvent = false;
+    }
+
+    private void TextBoxStateHex_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      if (this.ShowTheValue)
+        return;
+      if (!this.LockEvent)
+      {
+        this.LockEvent = true;
+        this.TextBoxStateBin.Clear();
+        this.TextBoxStateDec.Clear();
+        this.DecodeTheStateValue();
+      }
+      this.LockEvent = false;
+    }
+
+    private void TextBoxStateDec_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      if (this.ShowTheValue)
+        return;
+      if (!this.LockEvent)
+      {
+        this.LockEvent = true;
+        this.TextBoxStateBin.Clear();
+        this.TextBoxStateHex.Clear();
+        this.DecodeTheStateValue();
+      }
+      this.LockEvent = false;
+    }
+
+    private void CheckBox_Click(object sender, RoutedEventArgs e) => this.ShowValue();
+
+    private void CheckBoxState_Click(object sender, RoutedEventArgs e) => this.ShowStateValue();
+
+    private void DecodeTheValue()
+    {
+      try
+      {
+        bool flag = true;
+        uint TheValue = 0;
+        if (this.TextBoxDec.Text.Trim() != string.Empty)
+          TheValue = uint.Parse(this.TextBoxDec.Text.Trim());
+        else if (this.TextBoxHex.Text.Trim() != string.Empty)
+        {
+          TheValue = uint.Parse(this.TextBoxHex.Text.Trim(), NumberStyles.HexNumber);
+        }
+        else
+        {
+          this.ClearAllBoxes();
+          this.TextBoxBin.Clear();
+          flag = false;
+        }
+        if (!flag)
+          return;
+        this.ShowBoxStates(TheValue);
+        this.ShowBinaryValue();
+      }
+      catch
+      {
+        this.TextBoxBin.Clear();
+        this.ClearAllBoxes();
+      }
+    }
+
+    private void DecodeTheStateValue()
+    {
+      try
+      {
+        bool flag = true;
+        uint TheValue = 0;
+        if (this.TextBoxStateDec.Text.Trim() != string.Empty)
+          TheValue = uint.Parse(this.TextBoxStateDec.Text.Trim());
+        else if (this.TextBoxStateHex.Text.Trim() != string.Empty)
+        {
+          TheValue = uint.Parse(this.TextBoxStateHex.Text.Trim(), NumberStyles.HexNumber);
+        }
+        else
+        {
+          this.ClearAllStateBoxes();
+          this.TextBoxStateBin.Clear();
+          flag = false;
+        }
+        if (!flag)
+          return;
+        this.ShowStateBoxStates(TheValue);
+        this.ShowStateBinaryValue();
+      }
+      catch
+      {
+        this.TextBoxStateBin.Clear();
+        this.ClearAllStateBoxes();
+      }
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    public void InitializeComponent()
+    {
+      if (this._contentLoaded)
+        return;
+      this._contentLoaded = true;
+      Application.LoadComponent((object) this, new Uri("/CommonWPF;component/iuwsysinfodecoder.xaml", UriKind.Relative));
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    void IComponentConnector.Connect(int connectionId, object target)
+    {
+      switch (connectionId)
+      {
+        case 1:
+          this.GridMain = (Grid) target;
+          break;
+        case 2:
+          this.TabControl1 = (TabControl) target;
+          break;
+        case 3:
+          this.TabItemSysInfo = (TabItem) target;
+          break;
+        case 4:
+          this.GridSysInfo = (Grid) target;
+          break;
+        case 5:
+          this.GroupBoxInput = (GroupBox) target;
+          break;
+        case 6:
+          this.GridInput = (Grid) target;
+          break;
+        case 7:
+          this.DockPanelHex = (DockPanel) target;
+          break;
+        case 8:
+          this.LabelHex = (Label) target;
+          break;
+        case 9:
+          this.TextBoxHex = (TextBox) target;
+          this.TextBoxHex.TextChanged += new TextChangedEventHandler(this.TextBoxHex_TextChanged);
+          break;
+        case 10:
+          this.DockPanelDec = (DockPanel) target;
+          break;
+        case 11:
+          this.LabelDec = (Label) target;
+          break;
+        case 12:
+          this.TextBoxDec = (TextBox) target;
+          this.TextBoxDec.TextChanged += new TextChangedEventHandler(this.TextBoxDec_TextChanged);
+          break;
+        case 13:
+          this.DockPanelBin = (DockPanel) target;
+          break;
+        case 14:
+          this.LabelBin = (Label) target;
+          break;
+        case 15:
+          this.TextBoxBin = (TextBox) target;
+          break;
+        case 16:
+          this.GroupBoxFlags = (GroupBox) target;
+          break;
+        case 17:
+          this.GridCheckBoxes = (Grid) target;
+          break;
+        case 18:
+          this.CheckBox0 = (CheckBox) target;
+          this.CheckBox0.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 19:
+          this.CheckBox1 = (CheckBox) target;
+          this.CheckBox1.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 20:
+          this.CheckBox2 = (CheckBox) target;
+          this.CheckBox2.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 21:
+          this.CheckBox3 = (CheckBox) target;
+          this.CheckBox3.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 22:
+          this.CheckBox4 = (CheckBox) target;
+          this.CheckBox4.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 23:
+          this.CheckBox5 = (CheckBox) target;
+          this.CheckBox5.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 24:
+          this.CheckBox6 = (CheckBox) target;
+          this.CheckBox6.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 25:
+          this.CheckBox7 = (CheckBox) target;
+          this.CheckBox7.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 26:
+          this.CheckBox8 = (CheckBox) target;
+          this.CheckBox8.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 27:
+          this.CheckBox9 = (CheckBox) target;
+          this.CheckBox9.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 28:
+          this.CheckBox10 = (CheckBox) target;
+          this.CheckBox10.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 29:
+          this.CheckBox11 = (CheckBox) target;
+          this.CheckBox11.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 30:
+          this.CheckBox12 = (CheckBox) target;
+          this.CheckBox12.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 31:
+          this.CheckBox13 = (CheckBox) target;
+          this.CheckBox13.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 32:
+          this.CheckBox14 = (CheckBox) target;
+          this.CheckBox14.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 33:
+          this.CheckBox15 = (CheckBox) target;
+          this.CheckBox15.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 34:
+          this.CheckBox16 = (CheckBox) target;
+          this.CheckBox16.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 35:
+          this.CheckBox17 = (CheckBox) target;
+          this.CheckBox17.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 36:
+          this.CheckBox18 = (CheckBox) target;
+          this.CheckBox18.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 37:
+          this.CheckBox19 = (CheckBox) target;
+          this.CheckBox19.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 38:
+          this.CheckBox20 = (CheckBox) target;
+          this.CheckBox20.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 39:
+          this.CheckBox21 = (CheckBox) target;
+          this.CheckBox21.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 40:
+          this.CheckBox22 = (CheckBox) target;
+          this.CheckBox22.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 41:
+          this.CheckBox23 = (CheckBox) target;
+          this.CheckBox23.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 42:
+          this.CheckBox24 = (CheckBox) target;
+          this.CheckBox24.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 43:
+          this.CheckBox25 = (CheckBox) target;
+          this.CheckBox25.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 44:
+          this.CheckBox26 = (CheckBox) target;
+          this.CheckBox26.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 45:
+          this.CheckBox27 = (CheckBox) target;
+          this.CheckBox27.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 46:
+          this.CheckBox28 = (CheckBox) target;
+          this.CheckBox28.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 47:
+          this.CheckBox29 = (CheckBox) target;
+          this.CheckBox29.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 48:
+          this.CheckBox30 = (CheckBox) target;
+          this.CheckBox30.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 49:
+          this.CheckBox31 = (CheckBox) target;
+          this.CheckBox31.Click += new RoutedEventHandler(this.CheckBox_Click);
+          break;
+        case 50:
+          this.TabItemState = (TabItem) target;
+          break;
+        case 51:
+          this.GridStateInfo = (Grid) target;
+          break;
+        case 52:
+          this.GroupBoxStateInput = (GroupBox) target;
+          break;
+        case 53:
+          this.GridStateInput = (Grid) target;
+          break;
+        case 54:
+          this.DockPanelStateHex = (DockPanel) target;
+          break;
+        case 55:
+          this.LabelStateHex = (Label) target;
+          break;
+        case 56:
+          this.TextBoxStateHex = (TextBox) target;
+          this.TextBoxStateHex.TextChanged += new TextChangedEventHandler(this.TextBoxStateHex_TextChanged);
+          break;
+        case 57:
+          this.DockPanelStateDec = (DockPanel) target;
+          break;
+        case 58:
+          this.LabelStateDec = (Label) target;
+          break;
+        case 59:
+          this.TextBoxStateDec = (TextBox) target;
+          this.TextBoxStateDec.TextChanged += new TextChangedEventHandler(this.TextBoxStateDec_TextChanged);
+          break;
+        case 60:
+          this.DockPanelStateBin = (DockPanel) target;
+          break;
+        case 61:
+          this.LabelStateBin = (Label) target;
+          break;
+        case 62:
+          this.TextBoxStateBin = (TextBox) target;
+          break;
+        case 63:
+          this.GroupBoxStateFlags = (GroupBox) target;
+          break;
+        case 64:
+          this.GridCheckBoxesState = (Grid) target;
+          break;
+        case 65:
+          this.CheckBoxState0 = (CheckBox) target;
+          this.CheckBoxState0.Click += new RoutedEventHandler(this.CheckBoxState_Click);
+          break;
+        case 66:
+          this.CheckBoxState1 = (CheckBox) target;
+          this.CheckBoxState1.Click += new RoutedEventHandler(this.CheckBoxState_Click);
+          break;
+        case 67:
+          this.CheckBoxState2 = (CheckBox) target;
+          this.CheckBoxState2.Click += new RoutedEventHandler(this.CheckBoxState_Click);
+          break;
+        case 68:
+          this.CheckBoxState3 = (CheckBox) target;
+          this.CheckBoxState3.Click += new RoutedEventHandler(this.CheckBoxState_Click);
+          break;
+        case 69:
+          this.CheckBoxState4 = (CheckBox) target;
+          this.CheckBoxState4.Click += new RoutedEventHandler(this.CheckBoxState_Click);
+          break;
+        case 70:
+          this.CheckBoxState5 = (CheckBox) target;
+          this.CheckBoxState5.Click += new RoutedEventHandler(this.CheckBoxState_Click);
+          break;
+        case 71:
+          this.CheckBoxState6 = (CheckBox) target;
+          this.CheckBoxState6.Click += new RoutedEventHandler(this.CheckBoxState_Click);
+          break;
+        case 72:
+          this.CheckBoxState7 = (CheckBox) target;
+          this.CheckBoxState7.Click += new RoutedEventHandler(this.CheckBoxState_Click);
+          break;
+        case 73:
+          this.CheckBoxState8 = (CheckBox) target;
+          this.CheckBoxState8.Click += new RoutedEventHandler(this.CheckBoxState_Click);
+          break;
+        case 74:
+          this.CheckBoxState9 = (CheckBox) target;
+          this.CheckBoxState9.Click += new RoutedEventHandler(this.CheckBoxState_Click);
+          break;
+        case 75:
+          this.CheckBoxState10 = (CheckBox) target;
+          this.CheckBoxState10.Click += new RoutedEventHandler(this.CheckBoxState_Click);
+          break;
+        case 76:
+          this.CheckBoxState11 = (CheckBox) target;
+          this.CheckBoxState11.Click += new RoutedEventHandler(this.CheckBoxState_Click);
+          break;
+        case 77:
+          this.CheckBoxState12 = (CheckBox) target;
+          this.CheckBoxState12.Click += new RoutedEventHandler(this.CheckBoxState_Click);
+          break;
+        case 78:
+          this.CheckBoxState13 = (CheckBox) target;
+          this.CheckBoxState13.Click += new RoutedEventHandler(this.CheckBoxState_Click);
+          break;
+        case 79:
+          this.CheckBoxState14 = (CheckBox) target;
+          this.CheckBoxState14.Click += new RoutedEventHandler(this.CheckBoxState_Click);
+          break;
+        case 80:
+          this.CheckBoxState15 = (CheckBox) target;
+          this.CheckBoxState15.Click += new RoutedEventHandler(this.CheckBoxState_Click);
+          break;
+        default:
+          this._contentLoaded = true;
+          break;
+      }
+    }
+  }
+}
+
+
+--- NLogConfigSelector.xaml.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: CommonWPF.NLogConfigSelector
+// Assembly: CommonWPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FC3FF060-22A9-4729-A79E-14B5F4740E69
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonWPF.dll
+
+using NLog;
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Markup;
+
+#nullable disable
+namespace CommonWPF
+{
+  public partial class NLogConfigSelector : UserControl, IComponentConnector
+  {
+    private string pathToNLogFiles = string.Empty;
+    private string fileType = "NLog*";
+    private string NLogFile = "NLog.config";
+    private string fullNLogFile = string.Empty;
+    private string origNLogFile = string.Empty;
+    internal Grid ButtonSetOriginNLogFile;
+    internal ListView ListViewNLogConfigFiles;
+    internal Label LabelNLogconfigFiles;
+    internal ListBox ListBoxStatus;
+    internal Button ButtonSelectNLogFile;
+    internal Button ButtonSetOriginNLog;
+    private bool _contentLoaded;
+
+    public NLogConfigSelector()
+    {
+      this.InitializeComponent();
+      this.SetNLogConfigFilesPath(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName));
+    }
+
+    public void SetNLogConfigFilesPath(string pathToNLogConfigFiles)
+    {
+      this.pathToNLogFiles = !string.IsNullOrEmpty(pathToNLogConfigFiles) ? pathToNLogConfigFiles : throw new Exception("Wrong path to NLog files submitted !!!");
+      this.fullNLogFile = Path.Combine(this.pathToNLogFiles, this.NLogFile);
+      this.origNLogFile = Path.Combine(this.pathToNLogFiles, "original_" + this.NLogFile);
+      this.seachNLogConfigFilesFromPath();
+    }
+
+    private void ButtonSelectNLogFile_Click(object sender, RoutedEventArgs e)
+    {
+      if (this.ListViewNLogConfigFiles.SelectedItems.Count != 1)
+        return;
+      FileInfo tag = (FileInfo) ((FrameworkElement) this.ListViewNLogConfigFiles.SelectedItem).Tag;
+      if (!File.Exists(this.origNLogFile))
+      {
+        File.Move(this.fullNLogFile, this.origNLogFile);
+        this.ListBoxStatus.Items.Add((object) " origin NLog.config saved! ");
+      }
+      File.Copy(tag.FullName, this.fullNLogFile, true);
+      this.ListBoxStatus.Items.Add((object) (" set " + tag.Name + " to NLog.config! "));
+      LogManager.Configuration.Reload();
+      this.ListBoxStatus.Items.Add((object) " restart NLog ... done.  ");
+    }
+
+    private void ButtonSetOriginNLog_Click(object sender, RoutedEventArgs e)
+    {
+      if (File.Exists(this.origNLogFile))
+      {
+        File.Copy(this.origNLogFile, this.fullNLogFile, true);
+        this.ListBoxStatus.Items.Add((object) " original NLog config file set! ");
+      }
+      else
+        this.ListBoxStatus.Items.Add((object) "No original NLog config file found.");
+    }
+
+    private void seachNLogConfigFilesFromPath()
+    {
+      this.ListViewNLogConfigFiles.Items.Clear();
+      FileInfo[] files = new DirectoryInfo(this.pathToNLogFiles).GetFiles(this.fileType);
+      if (files.Length != 0)
+      {
+        foreach (FileInfo fileInfo in files)
+        {
+          if (fileInfo.Name.Contains(".config"))
+          {
+            ListViewItem newItem = new ListViewItem();
+            newItem.Tag = (object) fileInfo;
+            newItem.Content = (object) fileInfo.Name;
+            this.ListViewNLogConfigFiles.Items.Add((object) newItem);
+          }
+        }
+        this.ListBoxStatus.Items.Add((object) (" -> " + files.Length.ToString() + " NLog config files found."));
+      }
+      else
+        this.ListBoxStatus.Items.Add((object) "-!- No NLog config files found.");
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    public void InitializeComponent()
+    {
+      if (this._contentLoaded)
+        return;
+      this._contentLoaded = true;
+      Application.LoadComponent((object) this, new Uri("/CommonWPF;component/nlogconfigselector.xaml", UriKind.Relative));
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    void IComponentConnector.Connect(int connectionId, object target)
+    {
+      switch (connectionId)
+      {
+        case 1:
+          this.ButtonSetOriginNLogFile = (Grid) target;
+          break;
+        case 2:
+          this.ListViewNLogConfigFiles = (ListView) target;
+          break;
+        case 3:
+          this.LabelNLogconfigFiles = (Label) target;
+          break;
+        case 4:
+          this.ListBoxStatus = (ListBox) target;
+          break;
+        case 5:
+          this.ButtonSelectNLogFile = (Button) target;
+          this.ButtonSelectNLogFile.Click += new RoutedEventHandler(this.ButtonSelectNLogFile_Click);
+          break;
+        case 6:
+          this.ButtonSetOriginNLog = (Button) target;
+          this.ButtonSetOriginNLog.Click += new RoutedEventHandler(this.ButtonSetOriginNLog_Click);
+          break;
+        default:
+          this._contentLoaded = true;
+          break;
+      }
+    }
+  }
+}
+
+
+--- NLogManager.xaml.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: CommonWPF.NLogManager
+// Assembly: CommonWPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FC3FF060-22A9-4729-A79E-14B5F4740E69
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonWPF.dll
+
+using Microsoft.Win32;
+using System;
+using System.CodeDom.Compiler;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Markup;
+using ZENNER.CommonLibrary;
+
+#nullable disable
+namespace CommonWPF
+{
+  public partial class NLogManager : Window, IComponentConnector
+  {
+    private List<NLogFileRecord> NLogRecords;
+    private List<NLogFileRecord> VisibleNLogRecords;
+    internal DockPanel StackPanelSetup;
+    internal GroupBox GroupBoxNLogSetup;
+    internal TextBox TextBoxCurrentNLogSetup;
+    internal ComboBox ComboBoxSetupFiles;
+    internal Button ButtonChangeAndRestart;
+    internal Button ButtonChangeTemporary;
+    internal Button ButtonShowNLogOutputFile;
+    internal Button ButtonOpenNLogOutputFile;
+    internal Button ButtonDeleteNLogOutputFile;
+    internal Button ButtonSaveNLogOutputFile;
+    internal Button ButtonAddNLogOutputFile;
+    internal StackPanel StackPanelLoggers;
+    internal Label LabelStartDate;
+    internal TextBox TextBoxMessage;
+    internal DataGrid DataGridNlogFileData;
+    private bool _contentLoaded;
+
+    public NLogManager()
+    {
+      this.InitializeComponent();
+      this.ComboBoxSetupFiles.ItemsSource = (IEnumerable) NLogSupport.NLogSetupFileNames;
+      this.ComboBoxSetupFiles.SelectedItem = (object) NLogSupport.GetActiveNLogConfigurationFileName();
+      this.TextBoxCurrentNLogSetup.Text = NLogSupport.GetCurrentNLogSetup();
+    }
+
+    public NLogManager(bool loadNLogOutputFile)
+      : this()
+    {
+      try
+      {
+        if (!loadNLogOutputFile)
+          return;
+        this.NLogRecords = NLogSupport.GetNLogOutputfileRecords();
+        this.ShowNLogRecords();
+      }
+      catch
+      {
+      }
+    }
+
+    public NLogManager(string loadFilePath)
+      : this()
+    {
+      try
+      {
+        if (!File.Exists(loadFilePath))
+          return;
+        this.NLogRecords = NLogSupport.GetNLogOutputfileRecords(loadFilePath);
+        this.ShowNLogRecords();
+      }
+      catch
+      {
+      }
+    }
+
+    private void ComboBoxSetupFiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (this.ComboBoxSetupFiles.SelectedItem == null)
+        return;
+      this.TextBoxCurrentNLogSetup.Text = NLogSupport.GetCurrentNLogSetup();
+    }
+
+    private void ButtonChangeAndRestart_Click(object sender, RoutedEventArgs e)
+    {
+      if (!NLogSupport.ChangeDefaultToSetupFile(this.ComboBoxSetupFiles.SelectedItem.ToString()))
+        return;
+      this.DialogResult = new bool?(true);
+      this.Close();
+    }
+
+    private void ButtonChangeTemporary_Click(object sender, RoutedEventArgs e)
+    {
+      NLogSupport.ChangeTemporaryToSetupFile(this.ComboBoxSetupFiles.SelectedItem.ToString());
+      this.TextBoxCurrentNLogSetup.Text = NLogSupport.GetCurrentNLogSetup();
+    }
+
+    private void ButtonDeleteNLogOutputFile_Click(object sender, RoutedEventArgs e)
+    {
+      try
+      {
+        NLogSupport.DeleteNLogOutputFile();
+      }
+      catch (Exception ex)
+      {
+        ExceptionViewer.Show(ex);
+      }
+    }
+
+    private void ButtonSaveNLogOutputFile_Click(object sender, RoutedEventArgs e)
+    {
+      try
+      {
+        SaveFileDialog saveFileDialog = new SaveFileDialog();
+        saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        saveFileDialog.FileName = "NLogOut_" + DateTime.Now.ToString("yyMMdd_HHmm") + ".json";
+        bool? nullable = saveFileDialog.ShowDialog();
+        bool flag = true;
+        if (!(nullable.GetValueOrDefault() == flag & nullable.HasValue))
+          return;
+        NLogSupport.SaveLogFile(saveFileDialog.FileName);
+      }
+      catch (Exception ex)
+      {
+        ExceptionViewer.Show(ex);
+      }
+    }
+
+    private void ButtonShowNLogOutputFile_Click(object sender, RoutedEventArgs e)
+    {
+      this.NLogRecords = NLogSupport.GetNLogOutputfileRecords();
+      this.ShowNLogRecords();
+    }
+
+    private void ButtonOpenNLogOutputFile_Click(object sender, RoutedEventArgs e)
+    {
+      try
+      {
+        OpenFileDialog openFileDialog = new OpenFileDialog();
+        openFileDialog.Filter = "NLog output file(*.json)|*.json| All files (*.*)|*.*";
+        openFileDialog.FilterIndex = 1;
+        openFileDialog.RestoreDirectory = true;
+        openFileDialog.Title = "Open file which contains json coded NLog records";
+        openFileDialog.CheckFileExists = true;
+        bool? nullable = openFileDialog.ShowDialog();
+        bool flag = true;
+        if (!(nullable.GetValueOrDefault() == flag & nullable.HasValue))
+          return;
+        this.NLogRecords = NLogSupport.GetNLogOutputfileRecords(openFileDialog.FileName);
+        this.ShowNLogRecords();
+      }
+      catch (Exception ex)
+      {
+        ExceptionViewer.Show(ex);
+      }
+    }
+
+    private void ButtonAddNLogOutputFile_Click(object sender, RoutedEventArgs e)
+    {
+      try
+      {
+        OpenFileDialog openFileDialog = new OpenFileDialog();
+        openFileDialog.Filter = "Text file(*.txt)|*.txt| All files (*.*)|*.*";
+        openFileDialog.FilterIndex = 1;
+        openFileDialog.RestoreDirectory = true;
+        openFileDialog.Title = "Open file to add NLog output";
+        openFileDialog.CheckFileExists = true;
+        bool? nullable = openFileDialog.ShowDialog();
+        bool flag = true;
+        if (!(nullable.GetValueOrDefault() == flag & nullable.HasValue))
+          return;
+        StringBuilder fileContent = new StringBuilder(File.ReadAllText(openFileDialog.FileName));
+        NLogSupport.AddNlogOutputfileContent(fileContent);
+        string str = openFileDialog.FileName + ".save";
+        if (File.Exists(str))
+          File.Delete(str);
+        File.Move(openFileDialog.FileName, str);
+        File.WriteAllText(openFileDialog.FileName, fileContent.ToString());
+      }
+      catch (Exception ex)
+      {
+        ExceptionViewer.Show(ex);
+      }
+    }
+
+    private void ShowNLogRecords()
+    {
+      this.StackPanelLoggers.Children.Clear();
+      List<string> stringList = new List<string>();
+      foreach (NLogFileRecord nlogRecord in this.NLogRecords)
+      {
+        if (!stringList.Contains(nlogRecord.LoggerName))
+          stringList.Add(nlogRecord.LoggerName);
+      }
+      stringList.Sort();
+      foreach (string str in stringList)
+      {
+        CheckBox element = new CheckBox();
+        element.Content = (object) str;
+        element.Checked += new RoutedEventHandler(this.LoggerSelectionChanged);
+        element.Unchecked += new RoutedEventHandler(this.LoggerSelectionChanged);
+        this.StackPanelLoggers.Children.Add((UIElement) element);
+      }
+      if (this.NLogRecords.Count > 0)
+        this.LabelStartDate.Content = (object) this.NLogRecords[0].LogTime.ToShortDateString();
+      this.DataGridNlogFileData.ItemsSource = (IEnumerable) this.NLogRecords;
+    }
+
+    private void LoggerSelectionChanged(object sender, RoutedEventArgs e)
+    {
+      List<string> stringList = new List<string>();
+      foreach (CheckBox child in this.StackPanelLoggers.Children)
+      {
+        if (child.IsChecked.Value)
+        {
+          string str = child.Content.ToString();
+          stringList.Add(str);
+        }
+      }
+      this.VisibleNLogRecords = new List<NLogFileRecord>();
+      foreach (NLogFileRecord nlogRecord in this.NLogRecords)
+      {
+        if (!stringList.Contains(nlogRecord.LoggerName))
+          this.VisibleNLogRecords.Add(nlogRecord);
+      }
+      this.DataGridNlogFileData.ItemsSource = (IEnumerable) this.VisibleNLogRecords;
+    }
+
+    private void DataGridNlogFileData_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+      if (this.DataGridNlogFileData.SelectedItem == null || !(this.DataGridNlogFileData.SelectedItem is NLogFileRecord))
+        return;
+      NLogFileRecord selectedItem = (NLogFileRecord) this.DataGridNlogFileData.SelectedItem;
+      if (selectedItem.Message == null)
+        return;
+      this.TextBoxMessage.Text = selectedItem.Message;
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    public void InitializeComponent()
+    {
+      if (this._contentLoaded)
+        return;
+      this._contentLoaded = true;
+      Application.LoadComponent((object) this, new Uri("/CommonWPF;component/nlogmanager.xaml", UriKind.Relative));
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    internal Delegate _CreateDelegate(Type delegateType, string handler)
+    {
+      return Delegate.CreateDelegate(delegateType, (object) this, handler);
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    void IComponentConnector.Connect(int connectionId, object target)
+    {
+      switch (connectionId)
+      {
+        case 1:
+          this.StackPanelSetup = (DockPanel) target;
+          break;
+        case 2:
+          this.GroupBoxNLogSetup = (GroupBox) target;
+          break;
+        case 3:
+          this.TextBoxCurrentNLogSetup = (TextBox) target;
+          break;
+        case 4:
+          this.ComboBoxSetupFiles = (ComboBox) target;
+          this.ComboBoxSetupFiles.SelectionChanged += new SelectionChangedEventHandler(this.ComboBoxSetupFiles_SelectionChanged);
+          break;
+        case 5:
+          this.ButtonChangeAndRestart = (Button) target;
+          this.ButtonChangeAndRestart.Click += new RoutedEventHandler(this.ButtonChangeAndRestart_Click);
+          break;
+        case 6:
+          this.ButtonChangeTemporary = (Button) target;
+          this.ButtonChangeTemporary.Click += new RoutedEventHandler(this.ButtonChangeTemporary_Click);
+          break;
+        case 7:
+          this.ButtonShowNLogOutputFile = (Button) target;
+          this.ButtonShowNLogOutputFile.Click += new RoutedEventHandler(this.ButtonShowNLogOutputFile_Click);
+          break;
+        case 8:
+          this.ButtonOpenNLogOutputFile = (Button) target;
+          this.ButtonOpenNLogOutputFile.Click += new RoutedEventHandler(this.ButtonOpenNLogOutputFile_Click);
+          break;
+        case 9:
+          this.ButtonDeleteNLogOutputFile = (Button) target;
+          this.ButtonDeleteNLogOutputFile.Click += new RoutedEventHandler(this.ButtonDeleteNLogOutputFile_Click);
+          break;
+        case 10:
+          this.ButtonSaveNLogOutputFile = (Button) target;
+          this.ButtonSaveNLogOutputFile.Click += new RoutedEventHandler(this.ButtonSaveNLogOutputFile_Click);
+          break;
+        case 11:
+          this.ButtonAddNLogOutputFile = (Button) target;
+          this.ButtonAddNLogOutputFile.Click += new RoutedEventHandler(this.ButtonAddNLogOutputFile_Click);
+          break;
+        case 12:
+          this.StackPanelLoggers = (StackPanel) target;
+          break;
+        case 13:
+          this.LabelStartDate = (Label) target;
+          break;
+        case 14:
+          this.TextBoxMessage = (TextBox) target;
+          break;
+        case 15:
+          this.DataGridNlogFileData = (DataGrid) target;
+          this.DataGridNlogFileData.SelectionChanged += new SelectionChangedEventHandler(this.DataGridNlogFileData_SelectionChanged);
+          break;
+        default:
+          this._contentLoaded = true;
+          break;
+      }
+    }
+  }
+}
+
+
+--- SelectOneValue.xaml.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: CommonWPF.SelectOneValue
+// Assembly: CommonWPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FC3FF060-22A9-4729-A79E-14B5F4740E69
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonWPF.dll
+
+using System;
+using System.CodeDom.Compiler;
+using System.Collections;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Markup;
+
+#nullable disable
+namespace CommonWPF
+{
+  public partial class SelectOneValue : Window, IComponentConnector
+  {
+    private string returnValue = (string) null;
+    internal Button ButtonOk;
+    internal TextBlock TextBlockInfo;
+    internal ComboBox ComboBoxValues;
+    private bool _contentLoaded;
+
+    private SelectOneValue(
+      string title,
+      string info,
+      string[] selectList,
+      string defaultValue,
+      bool AllowInput)
+    {
+      this.InitializeComponent();
+      this.ComboBoxValues.IsEditable = AllowInput;
+      this.Title = title;
+      this.TextBlockInfo.Text = info;
+      this.ComboBoxValues.ItemsSource = (IEnumerable) selectList;
+      if (defaultValue == null)
+        return;
+      for (int index = 0; index < selectList.Length; ++index)
+      {
+        if (this.ComboBoxValues.Items[index].ToString() == defaultValue)
+        {
+          this.ComboBoxValues.SelectedIndex = index;
+          break;
+        }
+      }
+    }
+
+    public static string GetSelectedValue(
+      string title,
+      string info,
+      string[] selectList,
+      string defaultValue = null)
+    {
+      SelectOneValue selectOneValue = new SelectOneValue(title, info, selectList, defaultValue, false);
+      selectOneValue.ShowDialog();
+      return selectOneValue.returnValue;
+    }
+
+    public static string GetSelectedOrEnteredValue(
+      string title,
+      string info,
+      string[] selectList,
+      string defaultValue = null)
+    {
+      SelectOneValue selectOneValue = new SelectOneValue(title, info, selectList, defaultValue, true);
+      selectOneValue.ShowDialog();
+      return selectOneValue.returnValue;
+    }
+
+    private void ButtonOk_Click(object sender, RoutedEventArgs e)
+    {
+      if (this.ComboBoxValues.IsEditable)
+        this.returnValue = this.ComboBoxValues.Text.Trim();
+      else if (this.ComboBoxValues.SelectedIndex >= 0)
+        this.returnValue = this.ComboBoxValues.SelectedItem.ToString();
+      this.Close();
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    public void InitializeComponent()
+    {
+      if (this._contentLoaded)
+        return;
+      this._contentLoaded = true;
+      Application.LoadComponent((object) this, new Uri("/CommonWPF;component/selectonevalue.xaml", UriKind.Relative));
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    internal Delegate _CreateDelegate(Type delegateType, string handler)
+    {
+      return Delegate.CreateDelegate(delegateType, (object) this, handler);
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    void IComponentConnector.Connect(int connectionId, object target)
+    {
+      switch (connectionId)
+      {
+        case 1:
+          this.ButtonOk = (Button) target;
+          this.ButtonOk.Click += new RoutedEventHandler(this.ButtonOk_Click);
+          break;
+        case 2:
+          this.TextBlockInfo = (TextBlock) target;
+          break;
+        case 3:
+          this.ComboBoxValues = (ComboBox) target;
+          break;
+        default:
+          this._contentLoaded = true;
+          break;
+      }
+    }
+  }
+}
+
+
+--- UtcToLocalDateTimeConverter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: CommonWPF.UtcToLocalDateTimeConverter
+// Assembly: CommonWPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FC3FF060-22A9-4729-A79E-14B5F4740E69
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonWPF.dll
+
+using System;
+using System.Globalization;
+using System.Windows.Data;
+
+#nullable disable
+namespace CommonWPF
+{
+  public class UtcToLocalDateTimeConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      DateTime result;
+      return DateTime.TryParse(value.ToString(), out result) ? (object) DateTime.SpecifyKind(result, DateTimeKind.Utc).ToLocalTime() : value;
+    }
+
+    public object ConvertBack(
+      object value,
+      Type targetType,
+      object parameter,
+      CultureInfo culture)
+    {
+      DateTime result;
+      return DateTime.TryParse(value.ToString(), out result) ? (object) result.ToUniversalTime() : value;
+    }
+  }
+}
+
+
+--- WpfFirmwareToStringConverter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: CommonWPF.WpfFirmwareToStringConverter
+// Assembly: CommonWPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FC3FF060-22A9-4729-A79E-14B5F4740E69
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonWPF.dll
+
+using System;
+using System.Globalization;
+using System.Windows.Data;
+using ZENNER.CommonLibrary;
+
+#nullable disable
+namespace CommonWPF
+{
+  public class WpfFirmwareToStringConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      value.GetType().ToString();
+      uint versionValue;
+      if (value.GetType() == typeof (int))
+      {
+        versionValue = (uint) (int) value;
+      }
+      else
+      {
+        if (!(value.GetType() == typeof (uint)))
+          return (object) "Illegel version type";
+        versionValue = (uint) value;
+      }
+      return (object) new FirmwareVersion(versionValue).ToString();
+    }
+
+    public object ConvertBack(
+      object value,
+      Type targetType,
+      object parameter,
+      CultureInfo culture)
+    {
+      return (object) 0U;
+    }
+  }
+}
+

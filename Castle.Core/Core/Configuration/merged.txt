@@ -1,0 +1,213 @@
+
+--- AbstractConfiguration.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Configuration.AbstractConfiguration
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Threading;
+
+#nullable disable
+namespace Castle.Core.Configuration
+{
+  [Serializable]
+  public abstract class AbstractConfiguration : IConfiguration
+  {
+    private readonly ConfigurationAttributeCollection attributes = new ConfigurationAttributeCollection();
+    private readonly ConfigurationCollection children = new ConfigurationCollection();
+    private string internalName;
+    private string internalValue;
+
+    public string Name
+    {
+      get => this.internalName;
+      protected set => this.internalName = value;
+    }
+
+    public string Value
+    {
+      get => this.internalValue;
+      protected set => this.internalValue = value;
+    }
+
+    public virtual ConfigurationCollection Children => this.children;
+
+    public virtual ConfigurationAttributeCollection Attributes => this.attributes;
+
+    public virtual object GetValue(Type type, object defaultValue)
+    {
+      if (type == null)
+        throw new ArgumentNullException(nameof (type));
+      try
+      {
+        return Convert.ChangeType((object) this.Value, type, (IFormatProvider) Thread.CurrentThread.CurrentCulture);
+      }
+      catch (InvalidCastException ex)
+      {
+        return defaultValue;
+      }
+    }
+  }
+}
+
+
+--- ConfigurationAttributeCollection.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Configuration.ConfigurationAttributeCollection
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Collections.Specialized;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Castle.Core.Configuration
+{
+  [Serializable]
+  public class ConfigurationAttributeCollection : NameValueCollection
+  {
+    public ConfigurationAttributeCollection()
+    {
+    }
+
+    protected ConfigurationAttributeCollection(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+    }
+  }
+}
+
+
+--- ConfigurationCollection.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Configuration.ConfigurationCollection
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace Castle.Core.Configuration
+{
+  [Serializable]
+  public class ConfigurationCollection : List<IConfiguration>
+  {
+    public ConfigurationCollection()
+    {
+    }
+
+    public ConfigurationCollection(IEnumerable<IConfiguration> value)
+      : base(value)
+    {
+    }
+
+    public IConfiguration this[string name]
+    {
+      get
+      {
+        foreach (IConfiguration configuration in (List<IConfiguration>) this)
+        {
+          if (name.Equals(configuration.Name))
+            return configuration;
+        }
+        return (IConfiguration) null;
+      }
+    }
+  }
+}
+
+
+--- IConfiguration.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Configuration.IConfiguration
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core.Configuration
+{
+  public interface IConfiguration
+  {
+    string Name { get; }
+
+    string Value { get; }
+
+    ConfigurationCollection Children { get; }
+
+    ConfigurationAttributeCollection Attributes { get; }
+
+    object GetValue(Type type, object defaultValue);
+  }
+}
+
+
+--- MutableConfiguration.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Configuration.MutableConfiguration
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core.Configuration
+{
+  [Serializable]
+  public class MutableConfiguration : AbstractConfiguration
+  {
+    public MutableConfiguration(string name)
+      : this(name, (string) null)
+    {
+    }
+
+    public MutableConfiguration(string name, string value)
+    {
+      this.Name = name;
+      this.Value = value;
+    }
+
+    public new string Value
+    {
+      get => base.Value;
+      set => base.Value = value;
+    }
+
+    public static MutableConfiguration Create(string name) => new MutableConfiguration(name);
+
+    public MutableConfiguration Attribute(string name, string value)
+    {
+      this.Attributes[name] = value;
+      return this;
+    }
+
+    public MutableConfiguration CreateChild(string name)
+    {
+      MutableConfiguration child = new MutableConfiguration(name);
+      this.Children.Add((IConfiguration) child);
+      return child;
+    }
+
+    public MutableConfiguration CreateChild(string name, string value)
+    {
+      MutableConfiguration child = new MutableConfiguration(name, value);
+      this.Children.Add((IConfiguration) child);
+      return child;
+    }
+  }
+}
+

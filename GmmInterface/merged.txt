@@ -1,0 +1,4127 @@
+
+--- ActivationMode.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.ActivationMode
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER
+{
+  [Serializable]
+  public enum ActivationMode : byte
+  {
+    OTAA = 1,
+    ABP = 2,
+  }
+}
+
+
+--- AssemblyInfo.cs ---
+
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyTitle("GMM driver")]
+[assembly: AssemblyDescription("The driver for all products of ZENNER & Minol")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("ZENNER (www.zenner.com)")]
+[assembly: AssemblyProduct("GMM")]
+[assembly: AssemblyCopyright("Copyright ©  2014")]
+[assembly: AssemblyTrademark("GMM")]
+[assembly: ComVisible(false)]
+[assembly: Guid("96b5c2e1-ffd1-4732-bb22-371539487af1")]
+[assembly: AssemblyFileVersion("1.0.1.0")]
+[assembly: AssemblyVersion("1.0.1.0")]
+
+
+--- ConfiguratorManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.ConfiguratorManager
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using CommunicationPort.Functions;
+using GmmDbLib;
+using HandlerLib;
+using NLog;
+using ReadoutConfiguration;
+using StartupLib;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using ZENNER.CommonLibrary;
+using ZENNER.CommonLibrary.Entities;
+using ZENNER.CommonLibrary.Exceptions;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace ZENNER
+{
+  public sealed class ConfiguratorManager : IDisposable
+  {
+    private static Logger logger = LogManager.GetLogger(nameof (ConfiguratorManager));
+    private bool isCanceled;
+
+    public event EventHandler<int> OnProgress;
+
+    public event EventHandler<string> OnProgressMessage;
+
+    public event System.EventHandler BatterieLow;
+
+    private static ConnectionProfile GetConnectionProfile(
+      EquipmentModel equipment,
+      ZENNER.CommonLibrary.Entities.Meter meter,
+      ProfileType profileType)
+    {
+      if (equipment == null)
+        throw new NullReferenceException(nameof (equipment));
+      if (meter == null)
+        throw new NullReferenceException(nameof (meter));
+      if (profileType == null)
+        throw new NullReferenceException(nameof (profileType));
+      if (meter.DeviceModel == null)
+      {
+        string message = Ot.Gtm(Tg.CommunicationLogic, "DeviceModelMissed", "The meter has no device model!");
+        throw new InvalidMeterException(meter, message);
+      }
+      ConnectionProfile connectionProfile = ReadoutConfigFunctions.Manager.GetConnectionProfile(meter.DeviceModel, equipment, profileType);
+      if (connectionProfile == null)
+      {
+        string message = Ot.Gtm(Tg.DB, "ConnectionProfileMissed", "No connection profile exists!") + " Equipment: " + equipment?.ToString() + " ProfileType: " + profileType?.ToString();
+        throw new InvalidMeterException(meter, message);
+      }
+      connectionProfile.EquipmentModel.ChangeableParameters = equipment.ChangeableParameters;
+      connectionProfile.DeviceModel.ChangeableParameters = meter.DeviceModel.ChangeableParameters;
+      connectionProfile.ProfileType.ChangeableParameters = profileType.ChangeableParameters;
+      return connectionProfile;
+    }
+
+    public async Task<ICommand> ConnectAsync(
+      EquipmentModel equipment,
+      ZENNER.CommonLibrary.Entities.Meter meter,
+      ProfileType profileType)
+    {
+      ConnectionProfile profile = ConfiguratorManager.GetConnectionProfile(equipment, meter, profileType);
+      ConfigList theConfig = profile.GetConfigListObject();
+      CommunicationPortFunctions port = new CommunicationPortFunctions();
+      port.SetReadoutConfiguration(theConfig);
+      IrDaCommands cmd = new IrDaCommands(port);
+      cmd.EquipmentModel = equipment;
+      cmd.Meter = meter;
+      cmd.ProfileType = profileType;
+      ICommand command;
+      try
+      {
+        if (profileType.ProfileTypeID == 73)
+        {
+          DeviceIdentification version = await cmd.NFC.ReadVersionAsync((ProgressHandler) null, CancellationToken.None);
+          version = (DeviceIdentification) null;
+        }
+        else
+        {
+          DeviceVersionMBus version = await cmd.ReadVersionAsync((ProgressHandler) null, CancellationToken.None);
+          version = (DeviceVersionMBus) null;
+        }
+        command = (ICommand) cmd;
+      }
+      catch (Exception ex)
+      {
+        port.Dispose();
+        throw ex;
+      }
+      profile = (ConnectionProfile) null;
+      theConfig = (ConfigList) null;
+      port = (CommunicationPortFunctions) null;
+      cmd = (IrDaCommands) null;
+      return command;
+    }
+
+    public int ReadDevice(ConnectionAdjuster connectionAdjuster)
+    {
+      ConfiguratorManager.logger.Trace("Start ReadDevice by ConnectionAdjuster");
+      if (connectionAdjuster == null)
+        throw new NullReferenceException(nameof (connectionAdjuster));
+      this.isCanceled = false;
+      EventHandlerEx<Exception> eventHandlerEx = (EventHandlerEx<Exception>) ((sender, e) =>
+      {
+        throw e;
+      });
+      Devices.DeviceManager devices = GmmInterface.Devices;
+      try
+      {
+        ZR_ClassLibMessages.RegisterThreadErrorMsgList();
+        if (this.OnProgress != null)
+          this.OnProgress((object) this, 1);
+        devices.ParameterType = ConfigurationParameter.ValueType.Complete;
+        ConfigList mergedConfiguration = connectionAdjuster.GetMergedConfiguration(GmmInterface.DeviceManager.GetConnectionProfile(connectionAdjuster.ConnectionProfileID) ?? throw new Exception(Ot.Gtm(Tg.DB, "ConnectionProfileMissed", "No connection profile exists!") + " Connection name: " + connectionAdjuster.Name));
+        devices.PrepareCommunicationStructure(mergedConfiguration);
+        devices.OnMessage += new EventHandler<GMM_EventArgs>(this.OnMessage);
+        devices.OnProgress += new EventHandlerEx<int>(this.DeviceManager_OnProgress);
+        devices.OnProgressMessage += new EventHandlerEx<string>(this.DeviceManager_OnProgressMessage);
+        devices.OnError += eventHandlerEx;
+        devices.BatterieLow += new System.EventHandler(this.AsynCom_BatterieLow);
+        devices.BreakRequest = false;
+        if (!devices.Open())
+          throw new Exception(ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription);
+        if (this.OnProgress != null)
+          this.OnProgress((object) this, 2);
+        if (!devices.SelectedHandler.ReadConfigurationParameters(out GlobalDeviceId _))
+        {
+          string errorDescription = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+          if (!string.IsNullOrEmpty(errorDescription) && !this.isCanceled)
+            throw new Exception(errorDescription);
+        }
+        if (this.isCanceled)
+          return 0;
+        List<GlobalDeviceId> globalDeviceIdList = devices.SelectedHandler.GetGlobalDeviceIdList();
+        if (globalDeviceIdList == null)
+          return 0;
+        int num = 0;
+        foreach (GlobalDeviceId globalDeviceId in globalDeviceIdList)
+        {
+          ++num;
+          if (globalDeviceId.SubDevices != null)
+            num += globalDeviceId.SubDevices.Count;
+        }
+        return num;
+      }
+      finally
+      {
+        if (this.OnProgress != null)
+          this.OnProgress((object) this, 100);
+        devices.OnMessage -= new EventHandler<GMM_EventArgs>(this.OnMessage);
+        devices.OnProgress -= new EventHandlerEx<int>(this.DeviceManager_OnProgress);
+        devices.OnProgressMessage -= new EventHandlerEx<string>(this.DeviceManager_OnProgressMessage);
+        devices.OnError -= eventHandlerEx;
+        devices.BatterieLow -= new System.EventHandler(this.AsynCom_BatterieLow);
+        ZR_ClassLibMessages.DeRegisterThreadErrorMsgList();
+        ConfiguratorManager.logger.Trace("End ReadDevice");
+      }
+    }
+
+    public int ReadDevice(EquipmentModel equipment, ZENNER.CommonLibrary.Entities.Meter meter, ProfileType profileType)
+    {
+      ConfiguratorManager.logger.Trace("Start ReadDevice");
+      if (equipment == null)
+        throw new NullReferenceException(nameof (equipment));
+      if (meter == null)
+        throw new NullReferenceException(nameof (meter));
+      if (profileType == null)
+        throw new NullReferenceException(nameof (profileType));
+      if (meter.DeviceModel == null)
+      {
+        string message = Ot.Gtm(Tg.CommunicationLogic, "DeviceModelMissed", "The meter has no device model!");
+        throw new InvalidMeterException(meter, message);
+      }
+      this.isCanceled = false;
+      ConnectionProfile connectionProfile = ReadoutConfigFunctions.Manager.GetConnectionProfile(meter.DeviceModel, equipment, profileType);
+      if (connectionProfile == null)
+      {
+        string message = Ot.Gtm(Tg.DB, "ConnectionProfileMissed", "No connection profile exists!") + " Equipment: " + equipment?.ToString() + " ProfileType: " + profileType?.ToString();
+        throw new InvalidMeterException(meter, message);
+      }
+      connectionProfile.EquipmentModel.ChangeableParameters = equipment.ChangeableParameters;
+      connectionProfile.DeviceModel.ChangeableParameters = meter.DeviceModel.ChangeableParameters;
+      connectionProfile.ProfileType.ChangeableParameters = profileType.ChangeableParameters;
+      EventHandlerEx<Exception> eventHandlerEx = (EventHandlerEx<Exception>) ((sender, e) =>
+      {
+        throw e;
+      });
+      Devices.DeviceManager devices = GmmInterface.Devices;
+      try
+      {
+        ZR_ClassLibMessages.RegisterThreadErrorMsgList();
+        if (this.OnProgress != null)
+          this.OnProgress((object) this, 1);
+        devices.ParameterType = ConfigurationParameter.ValueType.Complete;
+        ConfigList configListObject = connectionProfile.GetConfigListObject();
+        if (!string.IsNullOrEmpty(meter.SerialNumber))
+        {
+          uint result;
+          if (!uint.TryParse(meter.SerialNumber, out result) || result < 0U || result > 99999999U)
+            throw new Exception("Illegal serial number");
+          configListObject.SecondaryAddress = result;
+        }
+        devices.PrepareCommunicationStructure(configListObject);
+        devices.OnMessage += new EventHandler<GMM_EventArgs>(this.OnMessage);
+        devices.OnProgress += new EventHandlerEx<int>(this.DeviceManager_OnProgress);
+        devices.OnProgressMessage += new EventHandlerEx<string>(this.DeviceManager_OnProgressMessage);
+        devices.OnError += eventHandlerEx;
+        devices.BatterieLow += new System.EventHandler(this.AsynCom_BatterieLow);
+        devices.BreakRequest = false;
+        if (!devices.Open())
+          throw new Exception(ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription);
+        if (this.OnProgress != null)
+          this.OnProgress((object) this, 2);
+        GlobalDeviceId UpdatedDeviceIdentification;
+        if (!devices.SelectedHandler.ReadConfigurationParameters(out UpdatedDeviceIdentification))
+        {
+          string errorDescription = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+          if (!string.IsNullOrEmpty(errorDescription) && !this.isCanceled)
+            throw new Exception(errorDescription);
+        }
+        if (this.isCanceled)
+          return 0;
+        if (string.IsNullOrEmpty(meter.SerialNumber))
+          meter.SerialNumber = UpdatedDeviceIdentification.Serialnumber;
+        List<GlobalDeviceId> globalDeviceIdList = devices.SelectedHandler.GetGlobalDeviceIdList();
+        if (globalDeviceIdList == null)
+          return 0;
+        int num = 0;
+        foreach (GlobalDeviceId globalDeviceId in globalDeviceIdList)
+        {
+          ++num;
+          if (globalDeviceId.SubDevices != null)
+            num += globalDeviceId.SubDevices.Count;
+        }
+        return num;
+      }
+      finally
+      {
+        if (this.OnProgress != null)
+          this.OnProgress((object) this, 100);
+        devices.OnMessage -= new EventHandler<GMM_EventArgs>(this.OnMessage);
+        devices.OnProgress -= new EventHandlerEx<int>(this.DeviceManager_OnProgress);
+        devices.OnProgressMessage -= new EventHandlerEx<string>(this.DeviceManager_OnProgressMessage);
+        devices.OnError -= eventHandlerEx;
+        devices.BatterieLow -= new System.EventHandler(this.AsynCom_BatterieLow);
+        ZR_ClassLibMessages.DeRegisterThreadErrorMsgList();
+        ConfiguratorManager.logger.Trace("End ReadDevice");
+      }
+    }
+
+    public void WriteDevice()
+    {
+      ConfiguratorManager.logger.Trace("Start WriteDevice");
+      Devices.DeviceManager devices = GmmInterface.Devices;
+      if (devices.SelectedHandler == null)
+        return;
+      this.isCanceled = false;
+      EventHandlerEx<Exception> eventHandlerEx = (EventHandlerEx<Exception>) ((sender, e) =>
+      {
+        throw e;
+      });
+      try
+      {
+        devices.OnError += eventHandlerEx;
+        devices.BreakRequest = false;
+        devices.ParameterType = ConfigurationParameter.ValueType.Complete;
+        if (!devices.Open())
+          throw new Exception(ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription);
+        if (!devices.SelectedHandler.WriteChangedConfigurationParametersToDevice())
+          throw new Exception(ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription);
+      }
+      finally
+      {
+        devices.OnError -= eventHandlerEx;
+      }
+      ConfiguratorManager.logger.Trace("End WriteDevice");
+    }
+
+    public void Cancel() => this.isCanceled = true;
+
+    public SortedList<OverrideID, ConfigurationParameter> GetConfigurationParameters(int channel)
+    {
+      Devices.DeviceManager devices = GmmInterface.Devices;
+      return devices.SelectedHandler == null ? (SortedList<OverrideID, ConfigurationParameter>) null : devices.SelectedHandler.GetConfigurationParameters(ConfigurationParameter.ValueType.Complete, channel);
+    }
+
+    public void SetConfigurationParameters(
+      SortedList<OverrideID, ConfigurationParameter> parameter)
+    {
+      this.SetConfigurationParameters(parameter, 0);
+    }
+
+    public void SetConfigurationParameters(
+      SortedList<OverrideID, ConfigurationParameter> parameter,
+      int channel)
+    {
+      Devices.DeviceManager devices = GmmInterface.Devices;
+      if (parameter == null || devices.SelectedHandler == null)
+        return;
+      SortedList<OverrideID, ConfigurationParameter> parameterList = new SortedList<OverrideID, ConfigurationParameter>();
+      SortedList<OverrideID, ConfigurationParameter> configurationParameters = this.GetConfigurationParameters(channel);
+      foreach (KeyValuePair<OverrideID, ConfigurationParameter> keyValuePair in parameter)
+      {
+        if (keyValuePair.Value.HasWritePermission)
+        {
+          if (configurationParameters != null && configurationParameters.ContainsKey(keyValuePair.Key))
+          {
+            if (keyValuePair.Value.ParameterInfo.FormatControlled)
+            {
+              if (keyValuePair.Value.GetStringValueWin() == configurationParameters[keyValuePair.Key].GetStringValueWin())
+                continue;
+            }
+            else
+            {
+              object parameterValue1 = configurationParameters[keyValuePair.Key].ParameterValue;
+              object parameterValue2 = keyValuePair.Value.ParameterValue;
+              if (parameterValue1 != null && parameterValue2 != null && parameterValue1.ToString() == parameterValue2.ToString() || parameterValue1 == null && parameterValue2 == null)
+                continue;
+            }
+          }
+          parameterList.Add(keyValuePair.Key, keyValuePair.Value);
+        }
+      }
+      devices.SelectedHandler.SetConfigurationParameters(parameterList, channel);
+    }
+
+    public void Dispose() => ZR_ClassLibMessages.DeRegisterThreadErrorMsgList();
+
+    public void CloseConnection() => GmmInterface.Devices.Close();
+
+    private void OnMessage(object sender, GMM_EventArgs e) => e.Cancel = this.isCanceled;
+
+    private void DeviceManager_OnProgress(object sender, int e)
+    {
+      if (this.OnProgress == null)
+        return;
+      this.OnProgress(sender, e);
+    }
+
+    private void DeviceManager_OnProgressMessage(object sender, string e)
+    {
+      if (this.OnProgressMessage == null)
+        return;
+      this.OnProgressMessage(sender, e);
+    }
+
+    public bool ShowHandler()
+    {
+      if (!UserManager.CheckPermission("Developer"))
+        return false;
+      GmmInterface.Devices.ShowHandlerWindow();
+      return true;
+    }
+
+    private void AsynCom_BatterieLow(object sender, EventArgs e)
+    {
+      if (this.BatterieLow == null)
+        return;
+      this.BatterieLow(sender, e);
+    }
+  }
+}
+
+
+--- DatabaseConnectionSettings.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.DatabaseConnectionSettings
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using GmmDbLib;
+using System;
+
+#nullable disable
+namespace ZENNER
+{
+  [Serializable]
+  public sealed class DatabaseConnectionSettings
+  {
+    public MeterDbTypes Type { get; set; }
+
+    public string DataSource { get; set; }
+
+    public string Password { get; set; }
+
+    public string User { get; set; }
+
+    public string DatabaseName { get; set; }
+  }
+}
+
+
+--- Device.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.Device
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace ZENNER
+{
+  [Serializable]
+  public sealed class Device
+  {
+    public string ID { get; set; }
+
+    public IdType IdType { get; set; }
+
+    public int Channel { get; set; }
+
+    public SortedList<long, SortedList<DateTime, double>> ValueSets { get; set; }
+  }
+}
+
+
+--- DeviceMode.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.DeviceMode
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER
+{
+  [Serializable]
+  public enum DeviceMode : byte
+  {
+    OperationMode = 0,
+    DeliveryMode = 1,
+    TemperatureCalibrationMode = 3,
+    VolumeCalibrationMode = 4,
+    DeliveryMode8 = 8,
+    DeliveryMode9 = 9,
+  }
+}
+
+
+--- EDC2_Warning.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.EDC2_Warning
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER
+{
+  [Flags]
+  [Serializable]
+  public enum EDC2_Warning : ushort
+  {
+    OK = 0,
+    APP_BUSY = 1,
+    ABNORMAL = 2,
+    BATT_LOW = 4,
+    PERMANENT_ERROR = 8,
+    TEMPORARY_ERROR = 16, // 0x0010
+    LEAK_A = 32, // 0x0020
+    TAMPER_A = 64, // 0x0040
+    REMOVAL_A = 128, // 0x0080
+    OVERSIZE = 256, // 0x0100
+    UNDERSIZE = 512, // 0x0200
+    BLOCK_A = 1024, // 0x0400
+    BACKFLOW = 2048, // 0x0800
+    BACKFLOW_A = 4096, // 0x1000
+    LEAK = 8192, // 0x2000
+    INTERFERE = 16384, // 0x4000
+    BURST = 32768, // 0x8000
+  }
+}
+
+
+--- GmmInterface.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.GmmInterface
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using GmmDbLib;
+using NLog;
+using PlugInLib;
+using ReadoutConfiguration;
+using StartupLib;
+using System;
+using System.Data;
+using System.IO;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace ZENNER
+{
+  public sealed class GmmInterface
+  {
+    private static Logger logger = LogManager.GetLogger(nameof (GmmInterface));
+    private static JobManager jobManager;
+    private static ScannerManager scannerManager;
+    private static ConfiguratorManager configuratorManager;
+    private static HandlerManager handlerManager;
+    public static Devices.DeviceManager Devices = new Devices.DeviceManager();
+
+    private GmmInterface()
+    {
+    }
+
+    public static Version Version => Util.GMM_Version;
+
+    public static string HardwareKey => HardwareKeyGenerator.GetHardwareUniqueKey();
+
+    public static DbBasis Database => StartupManager.Database;
+
+    public static LicenseInfo License => StartupManager.License;
+
+    public static JobManager JobManager
+    {
+      get
+      {
+        if (GmmInterface.jobManager == null)
+        {
+          GmmInterface.logger.Debug("Initialize JobManager");
+          GmmInterface.jobManager = new JobManager();
+        }
+        return GmmInterface.jobManager;
+      }
+    }
+
+    public static MeterReaderManager Reader => GmmInterface.JobManager.Reader;
+
+    public static MeterReceiverManager Receiver => GmmInterface.JobManager.Receiver;
+
+    public static ReadoutConfiguration.DeviceManager DeviceManager
+    {
+      get => ReadoutConfigFunctions.Manager;
+    }
+
+    public static ScannerManager ScannerManager
+    {
+      get
+      {
+        if (GmmInterface.scannerManager == null)
+        {
+          GmmInterface.logger.Debug("Initialize ScannerManager");
+          GmmInterface.scannerManager = new ScannerManager();
+        }
+        return GmmInterface.scannerManager;
+      }
+    }
+
+    public static ConfiguratorManager ConfiguratorManager
+    {
+      get
+      {
+        if (GmmInterface.configuratorManager == null)
+        {
+          GmmInterface.logger.Debug("Initialize ConfiguratorManager");
+          GmmInterface.configuratorManager = new ConfiguratorManager();
+        }
+        return GmmInterface.configuratorManager;
+      }
+    }
+
+    public static HandlerManager HandlerManager
+    {
+      get
+      {
+        if (GmmInterface.handlerManager == null)
+        {
+          GmmInterface.logger.Debug("Initialize HandlerManager");
+          GmmInterface.handlerManager = new HandlerManager();
+        }
+        return GmmInterface.handlerManager;
+      }
+    }
+
+    public static void Initialize(string licenseFileName, DatabaseConnectionSettings settings)
+    {
+      if (string.IsNullOrEmpty(licenseFileName))
+        throw new ArgumentNullException(nameof (licenseFileName), "The name of license file can not be empty!");
+      if (settings == null || string.IsNullOrEmpty(settings.DataSource))
+        throw new ArgumentNullException(nameof (settings), "Invalid settings for the database!");
+      switch (settings.Type)
+      {
+        case MeterDbTypes.Access:
+        case MeterDbTypes.SQLite:
+          GmmInterface.Initialize(licenseFileName, settings.Type, settings.DataSource);
+          break;
+        case MeterDbTypes.MSSQL:
+          GmmInterface.Initialize(licenseFileName, settings.Type, settings.DataSource, settings.Password, settings.User, settings.DatabaseName);
+          break;
+        default:
+          throw new NotImplementedException(settings.Type.ToString());
+      }
+    }
+
+    public static void Initialize(string licenseFileName, MeterDbTypes type, string dataSource)
+    {
+      if (!string.IsNullOrEmpty(licenseFileName))
+        GmmInterface.logger.Debug("Initialize GMM driver. License: {0}", licenseFileName);
+      else
+        GmmInterface.logger.Debug("Initialize GMM driver without license.");
+      if (!string.IsNullOrEmpty(dataSource))
+        GmmInterface.logger.Debug<MeterDbTypes, string>("DB: {0}, Source: {1}", type, dataSource);
+      else
+        GmmInterface.logger.Debug<MeterDbTypes>("DB: {0}", type);
+      DbBasis database = GmmInterface.GetDatabase(type, dataSource);
+      StartupManager.Initialize(licenseFileName, database);
+    }
+
+    public static void Initialize(
+      string licenseFileName,
+      MeterDbTypes type,
+      string dataSource,
+      string password)
+    {
+      GmmInterface.logger.Debug("Initialize GMM driver");
+      if (!string.IsNullOrEmpty(licenseFileName))
+        GmmInterface.logger.Debug("License: {0}", licenseFileName);
+      GmmInterface.logger.Debug<MeterDbTypes>("DB type: {0}", type);
+      if (!string.IsNullOrEmpty(dataSource))
+        GmmInterface.logger.Debug("Data source: {0}", dataSource);
+      if (!string.IsNullOrEmpty(password))
+        GmmInterface.logger.Debug("Password: True");
+      DbBasis database = GmmInterface.GetDatabase(type, dataSource, password);
+      StartupManager.Initialize(licenseFileName, database);
+    }
+
+    public static void Initialize(
+      string licenseFileName,
+      MeterDbTypes type,
+      string dataSource,
+      string password,
+      string user,
+      string databaseName)
+    {
+      GmmInterface.logger.Debug("Initialize GMM driver");
+      if (!string.IsNullOrEmpty(licenseFileName))
+        GmmInterface.logger.Debug("License: {0}", licenseFileName);
+      GmmInterface.logger.Debug<MeterDbTypes>("DB type: {0}", type);
+      if (!string.IsNullOrEmpty(dataSource))
+        GmmInterface.logger.Debug("Data source: {0}", dataSource);
+      if (!string.IsNullOrEmpty(password))
+        GmmInterface.logger.Debug("Password: True");
+      if (!string.IsNullOrEmpty(user))
+        GmmInterface.logger.Debug("User: {0}", user);
+      if (!string.IsNullOrEmpty(databaseName))
+        GmmInterface.logger.Debug("Database name: {0}", databaseName);
+      DbBasis database = GmmInterface.GetDatabase(type, dataSource, password, user, databaseName);
+      StartupManager.Initialize(licenseFileName, database);
+    }
+
+    private static DbBasis GetDatabase(MeterDbTypes type, string dataSource)
+    {
+      return GmmInterface.GetDatabase(type, dataSource, string.Empty, string.Empty, string.Empty);
+    }
+
+    private static DbBasis GetDatabase(MeterDbTypes type, string dataSource, string password)
+    {
+      return GmmInterface.GetDatabase(type, dataSource, password, string.Empty, string.Empty);
+    }
+
+    private static DbBasis GetDatabase(
+      MeterDbTypes type,
+      string dataSource,
+      string password,
+      string user,
+      string databaseName)
+    {
+      if (string.IsNullOrEmpty(dataSource))
+        throw new ArgumentNullException(nameof (dataSource), "Can not create the database object!");
+      if (string.IsNullOrEmpty(password))
+        password = "meterdbpass";
+      DbBasis dbObject;
+      switch (type)
+      {
+        case MeterDbTypes.Access:
+          string connectionString1 = File.Exists(dataSource) ? string.Format("Provider=Microsoft.Jet.OLEDB.4.0;Data Source={0};Mode=ReadWrite|Share Deny None;Extended Properties=;Jet OLEDB:System database=;Jet OLEDB:Registry Path=;Jet OLEDB:Database Password={1};Jet OLEDB:Engine Type=5;Jet OLEDB:Database Locking Mode=1;Jet OLEDB:Global Partial Bulk Ops=2;Jet OLEDB:Global Bulk Transactions=1;Jet OLEDB:New Database Password=;Jet OLEDB:Create System Database=False;Jet OLEDB:Encrypt Database=False;Jet OLEDB:Don't Copy Locale on Compact=False;Jet OLEDB:Compact Without Replica Repair=False;Jet OLEDB:SFP=False;", (object) dataSource, (object) password) : throw new FileNotFoundException("Can not create the database object!", dataSource);
+          dbObject = DbBasis.getDbObject(type, connectionString1);
+          break;
+        case MeterDbTypes.SQLite:
+          string connectionString2 = File.Exists(dataSource) ? string.Format("Data Source={0};UTF8Encoding=True;Password={1};journal mode=wal;synchronous=off;", (object) dataSource, (object) password) : throw new FileNotFoundException("Can not create the database object!", dataSource);
+          dbObject = DbBasis.getDbObject(type, connectionString2);
+          break;
+        case MeterDbTypes.MSSQL:
+          if (string.IsNullOrEmpty(databaseName))
+            throw new ArgumentNullException(nameof (databaseName), "Can not create the database object!");
+          string connectionString3 = string.Format("Data Source={0};Database={3};Persist Security Info=True;User Id={2};Password={1};", (object) dataSource, (object) password, (object) user, (object) databaseName);
+          dbObject = DbBasis.getDbObject(type, connectionString3);
+          break;
+        default:
+          throw new NotSupportedException("This type of database is not supported! Type: " + type.ToString());
+      }
+      dbObject.BaseDbConnection.ConnectDatabase();
+      return dbObject;
+    }
+
+    public static bool IsDatabaseValid(DatabaseConnectionSettings database)
+    {
+      if (database == null)
+        return false;
+      try
+      {
+        IDbConnection dbConnection = GmmInterface.GetDatabase(database.Type, database.DataSource, database.Password, database.User, database.DatabaseName).GetDbConnection();
+        dbConnection.Open();
+        dbConnection.Close();
+        return true;
+      }
+      catch
+      {
+        return false;
+      }
+    }
+
+    public static string GetMetrologicalCore() => MetrologicalCore.Get();
+
+    public static void Dispose()
+    {
+      GmmInterface.logger.Debug("Dispose GMM driver");
+      if (GmmInterface.jobManager != null)
+      {
+        GmmInterface.jobManager.Dispose();
+        GmmInterface.jobManager = (JobManager) null;
+      }
+      if (GmmInterface.configuratorManager != null)
+      {
+        GmmInterface.configuratorManager.Dispose();
+        GmmInterface.configuratorManager = (ConfiguratorManager) null;
+      }
+      if (GmmInterface.handlerManager != null)
+      {
+        GmmInterface.handlerManager.Dispose();
+        GmmInterface.handlerManager = (HandlerManager) null;
+      }
+      GmmInterface.Devices.Dispose();
+      StartupManager.Dispose();
+    }
+
+    public void Close()
+    {
+      if (GmmInterface.Devices == null)
+        return;
+      GmmInterface.Devices.Close();
+    }
+  }
+}
+
+
+--- HandlerManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.HandlerManager
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using AsyncCom;
+using DeviceCollector;
+using Devices;
+using GmmDbLib;
+using NLog;
+using StartupLib;
+using System;
+using System.Collections.Generic;
+using ZENNER.CommonLibrary.Entities;
+using ZENNER.CommonLibrary.Exceptions;
+
+#nullable disable
+namespace ZENNER
+{
+  public sealed class HandlerManager : IDisposable
+  {
+    private static Logger logger = LogManager.GetLogger(nameof (HandlerManager));
+
+    public T CreateInstance<T>(ConnectionProfile profile)
+    {
+      if (profile == null)
+        throw new ArgumentNullException(nameof (profile));
+      Type type = typeof (T);
+      try
+      {
+        DeviceCollectorFunctions collectorFunctions = new DeviceCollectorFunctions((IAsyncFunctions) new AsyncFunctions(true));
+        SortedList<string, string> settingsList = profile.GetSettingsList();
+        collectorFunctions.DisableBusWriteOnDispose = true;
+        collectorFunctions.SetAsyncComSettings(settingsList);
+        if (!collectorFunctions.SetDeviceCollectorSettings(settingsList))
+        {
+          string message = Ot.Gtm(Tg.CommunicationLogic, "FailedSetDeviceCollectorSettings", "Can not set the DeviceCollector settings!");
+          throw new InvalidSettingsException(settingsList, message);
+        }
+        return (T) Activator.CreateInstance(type, (object) collectorFunctions);
+      }
+      catch (Exception ex)
+      {
+        HandlerManager.logger.Error<Type, string>("Can not create the handler from type: {0}. Error: {1}", type, ex.Message);
+        throw ex;
+      }
+    }
+
+    public void Dispose()
+    {
+    }
+
+    public void ShowHandlerWindow(ConnectionProfile profile)
+    {
+      if (!UserManager.CheckPermission("Developer"))
+        throw new PermissionException("Developer");
+      DeviceManager instance = this.CreateInstance<DeviceManager>(profile);
+      instance.ShowHandlerWindow();
+      instance.Dispose();
+    }
+  }
+}
+
+
+--- ICommand.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.ICommand
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using HandlerLib;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using ZENNER.CommonLibrary;
+
+#nullable disable
+namespace ZENNER
+{
+  public interface ICommand
+  {
+    Task<DeviceVersionMBus> ReadVersionAsync(ProgressHandler progress, CancellationToken token);
+
+    Task<DateTime?> GetSystemTimeAsync(ProgressHandler progress, CancellationToken token);
+
+    Task<DateTime?> GetKeyDateAsync(ProgressHandler progress, CancellationToken token);
+
+    Task<string> GetDevEUIAsync(ProgressHandler progress, CancellationToken token);
+
+    Task<DeviceMode> GetModeAsync(ProgressHandler progress, CancellationToken token);
+
+    Task<TransmissionScenario> GetTransmissionScenarioAsync(
+      ProgressHandler progress,
+      CancellationToken token);
+
+    Task<double> GetProductFactorAsync(ProgressHandler progress, CancellationToken token);
+
+    Task<uint> GetChannelValueAsync(
+      byte channel,
+      ProgressHandler progress,
+      CancellationToken token);
+
+    Task<ActivationMode> GetActivationModeAsync(ProgressHandler progress, CancellationToken token);
+
+    Task<long> GetRadio3_IDAsync(ProgressHandler progress, CancellationToken token);
+
+    Task SetKeyDateAsync(DateTime date, ProgressHandler progress, CancellationToken token);
+
+    Task SetModeAsync(DeviceMode mode, ProgressHandler progress, CancellationToken token);
+
+    Task SetTransmissionScenarioAsync(
+      TransmissionScenario scenario,
+      ProgressHandler progress,
+      CancellationToken token);
+
+    Task SetProductFactorAsync(double factor, ProgressHandler progress, CancellationToken token);
+
+    Task SetChannelValueAsync(
+      byte channel,
+      uint value,
+      ProgressHandler progress,
+      CancellationToken token);
+
+    Task<List<Device>> ReadValuesAsync(ProgressHandler progress, CancellationToken token);
+
+    Task<IEnumerable> ReadEventsAsync(ProgressHandler progress, CancellationToken token);
+
+    Task SendJoinRequestAsync(ProgressHandler progress, CancellationToken token);
+
+    Task BackupDeviceAsync(ProgressHandler progress, CancellationToken token);
+
+    Task ResetDeviceAsync(ProgressHandler progress, CancellationToken token);
+
+    void Disconnect();
+  }
+}
+
+
+--- IdType.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.IdType
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER
+{
+  [Serializable]
+  public enum IdType
+  {
+    Serialnumber,
+    DevEUI,
+  }
+}
+
+
+--- IrDaCommands.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.IrDaCommands
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using CommunicationPort.Functions;
+using CommunicationPort.UserInterface;
+using Devices;
+using HandlerLib;
+using MBusLib;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using ZENNER.CommonLibrary;
+using ZENNER.CommonLibrary.Entities;
+using ZENNER.CommonLibrary.Exceptions;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace ZENNER
+{
+  public class IrDaCommands : DeviceCommandsMBus, ICommand
+  {
+    private readonly CommunicationPortFunctions port;
+
+    public EquipmentModel EquipmentModel { get; set; }
+
+    public ZENNER.CommonLibrary.Entities.Meter Meter { get; set; }
+
+    public ProfileType ProfileType { get; set; }
+
+    public CommonLoRaCommands LoRa { get; set; }
+
+    public CommonMBusCommands MBusCmd { get; set; }
+
+    public CommonRadioCommands Radio { get; set; }
+
+    public Common32BitCommands Device { get; set; }
+
+    public SpecialCommands Special { get; set; }
+
+    public NfcDeviceCommands NFC { get; set; }
+
+    public IrDaCommands(CommunicationPortFunctions port)
+      : base((IPort) port)
+    {
+      this.port = port;
+      this.Device = new Common32BitCommands((DeviceCommandsMBus) this);
+      this.MBusCmd = new CommonMBusCommands(this.Device);
+      this.Radio = new CommonRadioCommands(this.Device);
+      this.LoRa = new CommonLoRaCommands(this.Device);
+      this.Special = new SpecialCommands(this.Device);
+      this.NFC = new NfcDeviceCommands(port);
+    }
+
+    public void Disconnect()
+    {
+      if (this.port == null)
+        return;
+      this.port.Close();
+    }
+
+    public async Task<DateTime?> GetKeyDateAsync(ProgressHandler progress, CancellationToken token)
+    {
+      Common32BitCommands.KeyDate keydate = await this.Device.GetKeyDateAsync(progress, token);
+      try
+      {
+        return keydate.FirstYear != byte.MaxValue && keydate.FirstYear != (byte) 0 ? new DateTime?(new DateTime(2000 + (int) keydate.FirstYear, (int) keydate.Month, (int) keydate.DayOfMonth)) : new DateTime?(new DateTime(2000, (int) keydate.Month, (int) keydate.DayOfMonth));
+      }
+      catch
+      {
+        return new DateTime?();
+      }
+    }
+
+    public async Task SetKeyDateAsync(
+      DateTime date,
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      Common32BitCommands.KeyDate kDate = new Common32BitCommands.KeyDate()
+      {
+        FirstYear = (byte) (date.Year - 2000),
+        Month = (byte) date.Month,
+        DayOfMonth = (byte) date.Day
+      };
+      await this.Device.SetKeyDateAsync(kDate, progress, token);
+      kDate = (Common32BitCommands.KeyDate) null;
+    }
+
+    public async Task<string> GetDevEUIAsync(ProgressHandler progress, CancellationToken token)
+    {
+      byte[] reversed = await this.LoRa.GetDevEUIAsync(progress, token);
+      if (reversed == null)
+        return (string) null;
+      Array.Reverse((Array) reversed);
+      return Utility.ByteArrayToHexString(reversed);
+    }
+
+    public async Task<DeviceMode> GetModeAsync(ProgressHandler progress, CancellationToken token)
+    {
+      byte result = await this.Device.GetModeAsync(progress, token);
+      return (DeviceMode) result;
+    }
+
+    public async Task SetModeAsync(
+      DeviceMode mode,
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      await this.Device.SetModeAsync((byte) mode, progress, token);
+    }
+
+    public async Task<TransmissionScenario> GetTransmissionScenarioAsync(
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      byte transmissionScenarioAsync = await this.LoRa.GetTransmissionScenarioAsync(progress, token);
+      return (TransmissionScenario) transmissionScenarioAsync;
+    }
+
+    public async Task SetTransmissionScenarioAsync(
+      TransmissionScenario scenario,
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      await this.LoRa.SetTransmissionScenarioAsync(new byte[1]
+      {
+        (byte) scenario
+      }, progress, token);
+    }
+
+    public async Task<double> GetProductFactorAsync(
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      byte[] value = await this.Special.GetProductFactorAsync(progress, token);
+      double productFactorAsync = (double) BitConverter.ToUInt16(value, 0) / 1000.0;
+      value = (byte[]) null;
+      return productFactorAsync;
+    }
+
+    public async Task SetProductFactorAsync(
+      double factor,
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      byte[] value = BitConverter.GetBytes(Convert.ToUInt16(factor * 1000.0));
+      await this.Special.SetProductFactorAsync(value, progress, token);
+      value = (byte[]) null;
+    }
+
+    public async Task SetChannelValueAsync(
+      byte channel,
+      uint value,
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      await this.MBusCmd.SetChannelValueAsync(channel, value, progress, token);
+    }
+
+    public async Task<uint> GetChannelValueAsync(
+      byte channel,
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      FirmwareType type = (FirmwareType) this.ConnectedDeviceVersion.FirmwareVersionObj.Type;
+      switch (type)
+      {
+        case FirmwareType.SD_LoRa:
+          MBusFrame response = this.Device.DeviceCMD.MBus.Repeater.GetResultFrame(new MBusFrame(new byte[5]
+          {
+            (byte) 15,
+            (byte) 1,
+            (byte) 0,
+            (byte) 29,
+            (byte) 48
+          }), progress, token);
+          return (uint) BitConverter.ToUInt16(response.UserData, 31);
+        case FirmwareType.C5_LoRa:
+          byte address = 254;
+          await this.MBus.ApplicationResetAsync(progress, token, address);
+          await this.MBus.SND_NKE_Async(progress, token, address);
+          RSP_UD reqUd2 = await this.MBus.REQ_UD2Async(progress, token, address, true, false);
+          List<MBusValue> values = reqUd2.GetValues();
+          object obj = values.FirstOrDefault<MBusValue>((Func<MBusValue, bool>) (x => x.StorageNumber == 0L && x.Description == "Energy")).Value;
+          if (obj == null)
+            throw new Exception("C5 does not have 'Energy' value!");
+          uint result = 0;
+          if (uint.TryParse(obj.ToString(), out result))
+            return result;
+          throw new Exception("C5 delivers invalid value of 'Energy'. Value: " + obj.ToString());
+        default:
+          uint channelValueAsync = await this.MBusCmd.GetChannelValueAsync(channel, progress, token);
+          return channelValueAsync;
+      }
+    }
+
+    public async Task SendJoinRequestAsync(ProgressHandler progress, CancellationToken token)
+    {
+      await this.LoRa.SendJoinRequestAsync(progress, token);
+    }
+
+    public async Task<ActivationMode> GetActivationModeAsync(
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      OTAA_ABP result = await this.LoRa.GetOTAA_ABPAsync(progress, token);
+      return (ActivationMode) result;
+    }
+
+    public async Task SetActivationModeOTAAAsync(ProgressHandler progress, CancellationToken token)
+    {
+      await this.LoRa.SetOTAA_ABPAsync(OTAA_ABP.OTAA, progress, token);
+    }
+
+    public async Task<DateTime?> GetSystemTimeAsync(
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      Common32BitCommands.SystemTime systemTime = await this.Device.GetSystemTimeAsync(progress, token);
+      try
+      {
+        return new DateTime?(new DateTime(2000 + (int) systemTime.Year, (int) systemTime.Month, (int) systemTime.Day, (int) systemTime.Hour, (int) systemTime.Min, (int) systemTime.Sec));
+      }
+      catch
+      {
+        return new DateTime?();
+      }
+    }
+
+    public async Task<long> GetRadio3_IDAsync(ProgressHandler progress, CancellationToken token)
+    {
+      MBusChannelIdentification ident = await this.MBusCmd.GetChannelIdentificationAsync((byte) 85, progress, token);
+      long serialNumber = ident.SerialNumber;
+      ident = (MBusChannelIdentification) null;
+      return serialNumber;
+    }
+
+    public async Task BackupDeviceAsync(ProgressHandler progress, CancellationToken token)
+    {
+      await this.Device.BackupDeviceAsync(progress, token);
+    }
+
+    public async Task ResetDeviceAsync(ProgressHandler progress, CancellationToken token)
+    {
+      await this.Device.ResetDeviceAsync(progress, token);
+    }
+
+    public async Task<IEnumerable> ReadEventsAsync(
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      if (this.ProfileType.ProfileTypeID != 73)
+        return (IEnumerable) null;
+      ConfigList configList = this.port.GetReadoutConfiguration();
+      DeviceManager deviceManager = GmmInterface.Devices;
+      deviceManager.MyCommunicationPort = new CommunicationPortWindowFunctions();
+      deviceManager.MyCommunicationPort.portFunctions = this.port;
+      deviceManager.PrepareCommunicationStructure(configList);
+      CommonHandlerWrapper wrapper = (CommonHandlerWrapper) deviceManager.SelectedHandler;
+      if (wrapper == null)
+        return (IEnumerable) null;
+      HandlerFunctionsForProduction iuw = wrapper.HandlerInterface;
+      int channel = await iuw.ReadDeviceAsync(progress, token, ReadPartsSelection.SmartFunctionLoggers);
+      return iuw.GetEvents();
+    }
+
+    public async Task<List<ZENNER.Device>> ReadValuesAsync(
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      if (progress == null)
+        progress = new ProgressHandler((Action<ProgressArg>) (p => { }));
+      if (this.ProfileType.ProfileTypeID == 73)
+      {
+        List<ZENNER.Device> deviceList = await this.ReadValuesIUWAsync(progress, token);
+        return deviceList;
+      }
+      FirmwareType type = (FirmwareType) this.ConnectedDeviceVersion.FirmwareVersionObj.Type;
+      FirmwareType firmwareType = type;
+      switch (firmwareType)
+      {
+        case FirmwareType.EDC_LoRa:
+        case FirmwareType.micro_LoRa:
+        case FirmwareType.micro_wMBus:
+        case FirmwareType.EDC_wMBus_ST:
+        case FirmwareType.EDC_LoRa_470Mhz:
+        case FirmwareType.micro_LoRa_LL:
+        case FirmwareType.EDC_LoRa_915MHz:
+        case FirmwareType.micro_wMBus_LL:
+        case FirmwareType.micro_LL_radio3:
+        case FirmwareType.EDC_LoRa_868_v3:
+        case FirmwareType.EDC_LoRa_915_v2_US:
+        case FirmwareType.EDC_LoRa_915_v2_BR:
+          List<ZENNER.Device> deviceList1 = await this.ReadValuesEDC_LoRaAsync(progress, token);
+          return deviceList1;
+        case FirmwareType.PDC_LoRa:
+        case FirmwareType.PDC_LoRa_915:
+        case FirmwareType.UDC_LoRa_915:
+        case FirmwareType.PDC_LoRa_868MHz_SD:
+        case FirmwareType.PDC_GAS:
+          List<ZENNER.Device> deviceList2 = await this.ReadValuesPDC_LoRaAsync(progress, token);
+          return deviceList2;
+        case FirmwareType.HCA_LoRa:
+        case FirmwareType.M7plus:
+          List<ZENNER.Device> deviceList3 = await this.ReadValuesHCA_LoRaAsync(progress, token);
+          return deviceList3;
+        case FirmwareType.SD_LoRa:
+        case FirmwareType.C5_LoRa:
+          List<ZENNER.Device> deviceList4 = await this.ReadValuesC5_LoRaAsync(progress, token);
+          return deviceList4;
+        case FirmwareType.TH_LoRa:
+          List<ZENNER.Device> deviceList5 = await this.ReadValuesTH_LoRaAsync(progress, token);
+          return deviceList5;
+        default:
+          throw new NotImplementedException(type.ToString());
+      }
+    }
+
+    private async Task<List<ZENNER.Device>> ReadValuesIUWAsync(
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      ConfigList configList = this.port.GetReadoutConfiguration();
+      DeviceManager deviceManager = GmmInterface.Devices;
+      deviceManager.MyCommunicationPort = new CommunicationPortWindowFunctions();
+      deviceManager.MyCommunicationPort.portFunctions = this.port;
+      deviceManager.PrepareCommunicationStructure(configList);
+      CommonHandlerWrapper wrapper = (CommonHandlerWrapper) deviceManager.SelectedHandler;
+      if (wrapper == null)
+        return (List<ZENNER.Device>) null;
+      HandlerFunctionsForProduction iuw = wrapper.HandlerInterface;
+      int channel = await iuw.ReadDeviceAsync(progress, token, ReadPartsSelection.MonthLogger);
+      DeviceIdentification version = await this.NFC.ReadVersionAsync(progress, token);
+      return new List<ZENNER.Device>()
+      {
+        new ZENNER.Device()
+        {
+          ID = version.ID_BCD_AsString,
+          IdType = IdType.Serialnumber,
+          Channel = channel,
+          ValueSets = iuw.GetValues(channel)
+        }
+      };
+    }
+
+    private async Task<List<ZENNER.Device>> ReadValuesTH_LoRaAsync(
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      DateTime? nullable = await this.GetSystemTimeAsync(progress, token);
+      DateTime? systemTime = nullable;
+      nullable = new DateTime?();
+      if (!systemTime.HasValue)
+        throw new Exception("Invalid system time of device!");
+      TransmissionScenario scenario = await this.GetTransmissionScenarioAsync(progress, token);
+      bool isLoRa = scenario == TransmissionScenario.Scenario1_Monthly || scenario == TransmissionScenario.Scenario2_Daily || scenario == TransmissionScenario.Scenario3_Hourly;
+      string ID = string.Empty;
+      if (isLoRa)
+        ID = await this.GetDevEUIAsync(progress, token);
+      else
+        ID = this.ConnectedDeviceVersion.ID_BCD_AsString;
+      List<ZENNER.Device> devices = new List<ZENNER.Device>();
+      ZENNER.Device device = new ZENNER.Device();
+      device.ID = ID;
+      device.IdType = isLoRa ? IdType.DevEUI : IdType.Serialnumber;
+      device.ValueSets = new SortedList<long, SortedList<DateTime, double>>();
+      uint SHT2x_T = await this.GetChannelValueAsync((byte) 1, progress, token);
+      SortedList<DateTime, double> valuesT = new SortedList<DateTime, double>();
+      valuesT.Add(systemTime.Value, (double) SHT2x_T / 10.0);
+      device.ValueSets.Add(272770182L, valuesT);
+      uint SHT2x_RH = await this.GetChannelValueAsync((byte) 2, progress, token);
+      SortedList<DateTime, double> valuesRH = new SortedList<DateTime, double>();
+      valuesRH.Add(systemTime.Value, (double) SHT2x_RH / 10.0);
+      device.ValueSets.Add(272770260L, valuesRH);
+      uint temperatureDistribution = await this.GetChannelValueAsync((byte) 3, progress, token);
+      SortedList<DateTime, double> valuesTD = new SortedList<DateTime, double>();
+      valuesTD.Add(systemTime.Value, (double) temperatureDistribution);
+      device.ValueSets.Add(1107907718L, valuesTD);
+      uint humidityDistribution = await this.GetChannelValueAsync((byte) 4, progress, token);
+      SortedList<DateTime, double> valuesRHD = new SortedList<DateTime, double>();
+      valuesRHD.Add(systemTime.Value, (double) temperatureDistribution);
+      device.ValueSets.Add(1107907796L, valuesRHD);
+      CancellationToken cancellationToken1 = await this.AddTHLoggerValues((byte) 1, progress, token, device, LogSelect.Month, ValueIdent.ValueId_Predefined.T_Month);
+      CancellationToken cancellationToken2 = await this.AddTHLoggerValues((byte) 1, progress, token, device, LogSelect.HalfMonth, ValueIdent.ValueId_Predefined.T_HalfMonth);
+      CancellationToken cancellationToken3 = await this.AddTHLoggerValues((byte) 1, progress, token, device, LogSelect.Daily, ValueIdent.ValueId_Predefined.T_Day);
+      CancellationToken cancellationToken4 = await this.AddTHLoggerValues((byte) 2, progress, token, device, LogSelect.Month, ValueIdent.ValueId_Predefined.RH_Month);
+      CancellationToken cancellationToken5 = await this.AddTHLoggerValues((byte) 2, progress, token, device, LogSelect.HalfMonth, ValueIdent.ValueId_Predefined.RH_HalfMonth);
+      CancellationToken cancellationToken6 = await this.AddTHLoggerValues((byte) 2, progress, token, device, LogSelect.Daily, ValueIdent.ValueId_Predefined.RH_Day);
+      devices.Add(device);
+      List<ZENNER.Device> deviceList = devices;
+      ID = (string) null;
+      devices = (List<ZENNER.Device>) null;
+      device = (ZENNER.Device) null;
+      valuesT = (SortedList<DateTime, double>) null;
+      valuesRH = (SortedList<DateTime, double>) null;
+      valuesTD = (SortedList<DateTime, double>) null;
+      valuesRHD = (SortedList<DateTime, double>) null;
+      return deviceList;
+    }
+
+    private async Task<List<ZENNER.Device>> ReadValuesHCA_LoRaAsync(
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      DateTime? nullable = await this.GetSystemTimeAsync(progress, token);
+      DateTime? systemTime = nullable;
+      nullable = new DateTime?();
+      if (!systemTime.HasValue)
+        throw new Exception("Invalid system time of device!");
+      TransmissionScenario scenario = await this.GetTransmissionScenarioAsync(progress, token);
+      bool isLoRa = scenario == TransmissionScenario.Scenario1_Monthly || scenario == TransmissionScenario.Scenario2_Daily || scenario == TransmissionScenario.Scenario3_Hourly;
+      string ID = string.Empty;
+      FirmwareType type = (FirmwareType) this.ConnectedDeviceVersion.FirmwareVersionObj.Type;
+      if (type == FirmwareType.M7plus)
+      {
+        long id = await this.GetRadio3_IDAsync(progress, token);
+        ID = id.ToString();
+      }
+      else if (isLoRa)
+        ID = await this.GetDevEUIAsync(progress, token);
+      else
+        ID = this.ConnectedDeviceVersion.ID_BCD_AsString;
+      List<ZENNER.Device> devices = new List<ZENNER.Device>();
+      ZENNER.Device device = new ZENNER.Device();
+      device.ID = ID;
+      device.IdType = isLoRa ? IdType.DevEUI : IdType.Serialnumber;
+      device.ValueSets = new SortedList<long, SortedList<DateTime, double>>();
+      uint currentValue = await this.GetChannelValueAsync((byte) 0, progress, token);
+      SortedList<DateTime, double> values = new SortedList<DateTime, double>();
+      values.Add(systemTime.Value, (double) currentValue);
+      device.ValueSets.Add(272700040L, values);
+      double K_factor = await this.GetProductFactorAsync(progress, token);
+      CancellationToken cancellationToken1 = await this.AddM8LoggerValues(progress, token, device, K_factor, LogSelect.DueDate, ValueIdent.ValueId_Predefined.HCA_DueDate);
+      CancellationToken cancellationToken2 = await this.AddM8LoggerValues(progress, token, device, K_factor, LogSelect.Month, ValueIdent.ValueId_Predefined.HCA_Month);
+      CancellationToken cancellationToken3 = await this.AddM8LoggerValues(progress, token, device, K_factor, LogSelect.HalfMonth, ValueIdent.ValueId_Predefined.HCA_HalfMonth);
+      CancellationToken cancellationToken4 = await this.AddM8LoggerValues(progress, token, device, K_factor, LogSelect.Daily, ValueIdent.ValueId_Predefined.HCA_Day);
+      try
+      {
+        byte[] objState = await this.Special.GetFlowCheckStateAsync(progress, token);
+        M8_DeviceStatus deviceStatus = (M8_DeviceStatus) BitConverter.ToUInt16(objState, 0);
+        if (deviceStatus.HasFlag((Enum) M8_DeviceStatus.Hardware) || deviceStatus.HasFlag((Enum) M8_DeviceStatus.HcaError) || deviceStatus.HasFlag((Enum) M8_DeviceStatus.RadioError) || deviceStatus.HasFlag((Enum) M8_DeviceStatus.VersionLut) || deviceStatus.HasFlag((Enum) M8_DeviceStatus.Transceiver))
+        {
+          SortedList<DateTime, double> valuesError = new SortedList<DateTime, double>();
+          valuesError.Add(systemTime.Value, 1.0);
+          long valueIdent = ValueIdent.GetValueIdentOfError(ValueIdent.ValueIdPart_MeterType.HeatCostAllocator, ValueIdent.ValueIdentError.DeviceError);
+          device.ValueSets.Add(valueIdent, valuesError);
+          valuesError = (SortedList<DateTime, double>) null;
+        }
+        if (deviceStatus.HasFlag((Enum) M8_DeviceStatus.Tamper))
+        {
+          SortedList<DateTime, double> valuesError = new SortedList<DateTime, double>();
+          valuesError.Add(systemTime.Value, 1.0);
+          long valueIdent = ValueIdent.GetValueIdentOfError(ValueIdent.ValueIdPart_MeterType.HeatCostAllocator, ValueIdent.ValueIdentError.Manipulation);
+          device.ValueSets.Add(valueIdent, valuesError);
+          valuesError = (SortedList<DateTime, double>) null;
+        }
+        objState = (byte[]) null;
+      }
+      catch (NACK_Exception ex)
+      {
+      }
+      devices.Add(device);
+      List<ZENNER.Device> deviceList = devices;
+      ID = (string) null;
+      devices = (List<ZENNER.Device>) null;
+      device = (ZENNER.Device) null;
+      values = (SortedList<DateTime, double>) null;
+      return deviceList;
+    }
+
+    private async Task<List<ZENNER.Device>> ReadValuesEDC_LoRaAsync(
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      DateTime? nullable = await this.GetSystemTimeAsync(progress, token);
+      DateTime? systemTime = nullable;
+      nullable = new DateTime?();
+      if (!systemTime.HasValue)
+        throw new Exception("Invalid system time of device!");
+      TransmissionScenario scenario = await this.GetTransmissionScenarioAsync(progress, token);
+      bool isLoRa = scenario == TransmissionScenario.Scenario1_Monthly || scenario == TransmissionScenario.Scenario2_Daily || scenario == TransmissionScenario.Scenario3_Hourly;
+      string ID = string.Empty;
+      FirmwareType type = (FirmwareType) this.ConnectedDeviceVersion.FirmwareVersionObj.Type;
+      if (type == FirmwareType.micro_LL_radio3)
+      {
+        long id = await this.GetRadio3_IDAsync(progress, token);
+        ID = id.ToString();
+      }
+      else if (isLoRa)
+        ID = await this.GetDevEUIAsync(progress, token);
+      else
+        ID = this.ConnectedDeviceVersion.ID_BCD_AsString;
+      List<ZENNER.Device> devices = new List<ZENNER.Device>();
+      ZENNER.Device device = new ZENNER.Device();
+      device.ID = ID;
+      device.IdType = isLoRa ? IdType.DevEUI : IdType.Serialnumber;
+      device.ValueSets = new SortedList<long, SortedList<DateTime, double>>();
+      uint currentValue = await this.GetChannelValueAsync((byte) 0, progress, token);
+      SortedList<DateTime, double> values = new SortedList<DateTime, double>();
+      values.Add(systemTime.Value, (double) currentValue);
+      device.ValueSets.Add(272699457L, values);
+      CancellationToken cancellationToken1 = await this.AddLoggerValues((byte) 0, progress, token, device, LogSelect.DueDate, ValueIdent.ValueId_Predefined.Water_DueDate);
+      CancellationToken cancellationToken2 = await this.AddLoggerValues((byte) 0, progress, token, device, LogSelect.Month, ValueIdent.ValueId_Predefined.Water_Month);
+      CancellationToken cancellationToken3 = await this.AddLoggerValues((byte) 0, progress, token, device, LogSelect.HalfMonth, ValueIdent.ValueId_Predefined.Water_HalfMonth);
+      CancellationToken cancellationToken4 = await this.AddLoggerValues((byte) 0, progress, token, device, LogSelect.Daily, ValueIdent.ValueId_Predefined.Water_Day);
+      try
+      {
+        byte[] objState = await this.Special.GetFlowCheckStateAsync(progress, token);
+        EDC2_Warning deviceStatus = (EDC2_Warning) BitConverter.ToUInt16(objState, 0);
+        if (deviceStatus.HasFlag((Enum) EDC2_Warning.ABNORMAL) || deviceStatus.HasFlag((Enum) EDC2_Warning.PERMANENT_ERROR) || deviceStatus.HasFlag((Enum) EDC2_Warning.TEMPORARY_ERROR))
+        {
+          SortedList<DateTime, double> valuesError = new SortedList<DateTime, double>();
+          valuesError.Add(systemTime.Value, 1.0);
+          long valueIdent = ValueIdent.GetValueIdentOfError(ValueIdent.ValueIdPart_MeterType.Water, ValueIdent.ValueIdentError.DeviceError);
+          device.ValueSets.Add(valueIdent, valuesError);
+          valuesError = (SortedList<DateTime, double>) null;
+        }
+        if (deviceStatus.HasFlag((Enum) EDC2_Warning.TAMPER_A))
+        {
+          SortedList<DateTime, double> valuesError = new SortedList<DateTime, double>();
+          valuesError.Add(systemTime.Value, 1.0);
+          long valueIdent = ValueIdent.GetValueIdentOfError(ValueIdent.ValueIdPart_MeterType.Water, ValueIdent.ValueIdentError.Manipulation);
+          device.ValueSets.Add(valueIdent, valuesError);
+          valuesError = (SortedList<DateTime, double>) null;
+        }
+        objState = (byte[]) null;
+      }
+      catch (NACK_Exception ex)
+      {
+      }
+      devices.Add(device);
+      List<ZENNER.Device> deviceList = devices;
+      ID = (string) null;
+      devices = (List<ZENNER.Device>) null;
+      device = (ZENNER.Device) null;
+      values = (SortedList<DateTime, double>) null;
+      return deviceList;
+    }
+
+    private async Task<List<ZENNER.Device>> ReadValuesPDC_LoRaAsync(
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      DateTime? nullable = await this.GetSystemTimeAsync(progress, token);
+      DateTime? systemTime = nullable;
+      nullable = new DateTime?();
+      if (!systemTime.HasValue)
+        throw new Exception("Invalid system time of device!");
+      TransmissionScenario scenario = await this.GetTransmissionScenarioAsync(progress, token);
+      bool isLoRa = scenario == TransmissionScenario.Scenario1_Monthly || scenario == TransmissionScenario.Scenario2_Daily || scenario == TransmissionScenario.Scenario3_Hourly;
+      string ID = string.Empty;
+      if (isLoRa)
+        ID = await this.GetDevEUIAsync(progress, token);
+      else
+        ID = this.ConnectedDeviceVersion.ID_BCD_AsString;
+      List<ZENNER.Device> devices = new List<ZENNER.Device>();
+      ZENNER.Device deviceMain = new ZENNER.Device();
+      deviceMain.ID = ID;
+      deviceMain.IdType = isLoRa ? IdType.DevEUI : IdType.Serialnumber;
+      devices.Add(deviceMain);
+      ZENNER.Device device_1 = await this.ReadValuesPDC_LoRaAsync((byte) 1, systemTime.Value, progress, token);
+      if (device_1 != null)
+        devices.Add(device_1);
+      ZENNER.Device device_2 = await this.ReadValuesPDC_LoRaAsync((byte) 2, systemTime.Value, progress, token);
+      if (device_2 != null)
+        devices.Add(device_2);
+      List<ZENNER.Device> deviceList = devices;
+      ID = (string) null;
+      devices = (List<ZENNER.Device>) null;
+      deviceMain = (ZENNER.Device) null;
+      device_1 = (ZENNER.Device) null;
+      device_2 = (ZENNER.Device) null;
+      return deviceList;
+    }
+
+    private async Task<ZENNER.Device> ReadValuesPDC_LoRaAsync(
+      byte channel,
+      DateTime systemTime,
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      MBusChannelIdentification id = await this.MBusCmd.GetChannelIdentificationAsync(channel, progress, token);
+      ZENNER.Device device = new ZENNER.Device();
+      device.ID = id.SerialNumber.ToString();
+      device.IdType = IdType.Serialnumber;
+      device.Channel = (int) channel;
+      device.ValueSets = new SortedList<long, SortedList<DateTime, double>>();
+      uint currentValue = await this.GetChannelValueAsync(channel, progress, token);
+      SortedList<DateTime, double> values = new SortedList<DateTime, double>();
+      values.Add(systemTime, (double) currentValue);
+      device.ValueSets.Add(272700106L, values);
+      CancellationToken cancellationToken1 = await this.AddLoggerValues(channel, progress, token, device, LogSelect.DueDate, ValueIdent.ValueId_Predefined.Pulse_DueDate);
+      CancellationToken cancellationToken2 = await this.AddLoggerValues(channel, progress, token, device, LogSelect.Month, ValueIdent.ValueId_Predefined.Pulse_Month);
+      CancellationToken cancellationToken3 = await this.AddLoggerValues(channel, progress, token, device, LogSelect.HalfMonth, ValueIdent.ValueId_Predefined.Pulse_HalfMonth);
+      CancellationToken cancellationToken4 = await this.AddLoggerValues(channel, progress, token, device, LogSelect.Daily, ValueIdent.ValueId_Predefined.Pulse_Day);
+      ZENNER.Device device1 = device;
+      id = (MBusChannelIdentification) null;
+      device = (ZENNER.Device) null;
+      values = (SortedList<DateTime, double>) null;
+      return device1;
+    }
+
+    private async Task<CancellationToken> AddM8LoggerValues(
+      ProgressHandler progress,
+      CancellationToken token,
+      ZENNER.Device device,
+      double K_factor,
+      LogSelect logSelect,
+      ValueIdent.ValueId_Predefined valueIdent)
+    {
+      MBusChannelLog obj = await this.MBusCmd.ReadChannelLogValueAsync((byte) 0, (byte) logSelect, (byte) 0, byte.MaxValue, progress, token);
+      if (obj != null)
+      {
+        IReadOnlyDictionary<DateTime, int> objValues = obj.GetValues();
+        if (objValues != null && objValues.Count > 0)
+        {
+          SortedList<DateTime, double> values = new SortedList<DateTime, double>();
+          foreach (KeyValuePair<DateTime, int> keyValuePair in (IEnumerable<KeyValuePair<DateTime, int>>) objValues)
+          {
+            KeyValuePair<DateTime, int> item = keyValuePair;
+            values.Add(item.Key, (double) item.Value * K_factor / 4.0);
+            item = new KeyValuePair<DateTime, int>();
+          }
+          device.ValueSets.Add((long) valueIdent, values);
+          values = (SortedList<DateTime, double>) null;
+        }
+        objValues = (IReadOnlyDictionary<DateTime, int>) null;
+      }
+      CancellationToken cancellationToken = token;
+      obj = (MBusChannelLog) null;
+      return cancellationToken;
+    }
+
+    private async Task<CancellationToken> AddTHLoggerValues(
+      byte channel,
+      ProgressHandler progress,
+      CancellationToken token,
+      ZENNER.Device device,
+      LogSelect logSelect,
+      ValueIdent.ValueId_Predefined valueIdent)
+    {
+      MBusChannelLog obj = await this.MBusCmd.ReadChannelLogValueAsync(channel, (byte) logSelect, (byte) 0, byte.MaxValue, progress, token);
+      if (obj != null)
+      {
+        IReadOnlyDictionary<DateTime, int> objValues = obj.GetValues();
+        if (objValues != null && objValues.Count > 0)
+        {
+          SortedList<DateTime, double> values = new SortedList<DateTime, double>();
+          foreach (KeyValuePair<DateTime, int> keyValuePair in (IEnumerable<KeyValuePair<DateTime, int>>) objValues)
+          {
+            KeyValuePair<DateTime, int> item = keyValuePair;
+            values.Add(item.Key, (double) item.Value / 10.0);
+            item = new KeyValuePair<DateTime, int>();
+          }
+          device.ValueSets.Add((long) valueIdent, values);
+          values = (SortedList<DateTime, double>) null;
+        }
+        objValues = (IReadOnlyDictionary<DateTime, int>) null;
+      }
+      CancellationToken cancellationToken = token;
+      obj = (MBusChannelLog) null;
+      return cancellationToken;
+    }
+
+    private async Task<CancellationToken> AddLoggerValues(
+      byte channel,
+      ProgressHandler progress,
+      CancellationToken token,
+      ZENNER.Device device,
+      LogSelect logSelect,
+      ValueIdent.ValueId_Predefined valueIdent)
+    {
+      MBusChannelLog obj = await this.MBusCmd.ReadChannelLogValueAsync(channel, (byte) logSelect, (byte) 0, byte.MaxValue, progress, token);
+      if (obj != null)
+      {
+        IReadOnlyDictionary<DateTime, int> objValues = obj.GetValues();
+        if (objValues != null && objValues.Count > 0)
+        {
+          SortedList<DateTime, double> values = new SortedList<DateTime, double>();
+          foreach (KeyValuePair<DateTime, int> keyValuePair in (IEnumerable<KeyValuePair<DateTime, int>>) objValues)
+          {
+            KeyValuePair<DateTime, int> item = keyValuePair;
+            values.Add(item.Key, (double) item.Value);
+            item = new KeyValuePair<DateTime, int>();
+          }
+          device.ValueSets.Add((long) valueIdent, values);
+          values = (SortedList<DateTime, double>) null;
+        }
+        objValues = (IReadOnlyDictionary<DateTime, int>) null;
+      }
+      CancellationToken cancellationToken = token;
+      obj = (MBusChannelLog) null;
+      return cancellationToken;
+    }
+
+    private async Task<List<ZENNER.Device>> ReadValuesC5_LoRaAsync(
+      ProgressHandler progress,
+      CancellationToken token)
+    {
+      this.port.Close();
+      MeterReaderManager reader = GmmInterface.Reader;
+      ValueIdentSet set = (ValueIdentSet) null;
+      reader.ValueIdentSetReceived += (EventHandler<ValueIdentSet>) ((sender, e) => set = e);
+      MeterReaderManager meterReaderManager = reader;
+      List<ZENNER.CommonLibrary.Entities.Meter> meters = new List<ZENNER.CommonLibrary.Entities.Meter>();
+      meters.Add(this.Meter);
+      EquipmentModel equipmentModel = this.EquipmentModel;
+      ProfileType profileType = this.ProfileType;
+      await meterReaderManager.ReadMeterAsync((DeviceModel) null, (List<long>) null, meters, equipmentModel, profileType);
+      GmmInterface.Devices.Close();
+      this.port.Open();
+      TransmissionScenario scenario = await this.GetTransmissionScenarioAsync(progress, token);
+      bool isLoRa = scenario == TransmissionScenario.Scenario1_Monthly || scenario == TransmissionScenario.Scenario2_Daily || scenario == TransmissionScenario.Scenario3_Hourly;
+      string ID = string.Empty;
+      if (isLoRa)
+        ID = await this.GetDevEUIAsync(progress, token);
+      else
+        ID = this.ConnectedDeviceVersion.ID_BCD_AsString;
+      List<ZENNER.Device> devices = new List<ZENNER.Device>();
+      ZENNER.Device device = new ZENNER.Device();
+      device.ID = ID;
+      device.IdType = isLoRa ? IdType.DevEUI : IdType.Serialnumber;
+      device.ValueSets = new SortedList<long, SortedList<DateTime, double>>();
+      if (set != null && set.AvailableValues != null)
+      {
+        foreach (KeyValuePair<long, SortedList<DateTime, ReadingValue>> availableValue in set.AvailableValues)
+        {
+          KeyValuePair<long, SortedList<DateTime, ReadingValue>> item = availableValue;
+          SortedList<DateTime, double> list = new SortedList<DateTime, double>();
+          foreach (KeyValuePair<DateTime, ReadingValue> keyValuePair in item.Value)
+          {
+            KeyValuePair<DateTime, ReadingValue> val = keyValuePair;
+            list.Add(val.Key, val.Value.value);
+            val = new KeyValuePair<DateTime, ReadingValue>();
+          }
+          device.ValueSets.Add(item.Key, list);
+          list = (SortedList<DateTime, double>) null;
+          item = new KeyValuePair<long, SortedList<DateTime, ReadingValue>>();
+        }
+      }
+      devices.Add(device);
+      List<ZENNER.Device> deviceList = devices;
+      reader = (MeterReaderManager) null;
+      ID = (string) null;
+      devices = (List<ZENNER.Device>) null;
+      device = (ZENNER.Device) null;
+      return deviceList;
+    }
+  }
+}
+
+
+--- JobManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.JobManager
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using GmmDbLib;
+using NLog;
+using System;
+using System.Collections.Generic;
+using ZENNER.CommonLibrary.Entities;
+using ZENNER.CommonLibrary.Exceptions;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace ZENNER
+{
+  public sealed class JobManager : IDisposable
+  {
+    private static Logger logger = LogManager.GetLogger(nameof (JobManager));
+    private MeterReaderManager reader;
+    private MeterListenerManager listener;
+    private MeterReceiverManager receiver;
+
+    public List<Job> Jobs
+    {
+      get
+      {
+        List<Job> jobs = new List<Job>();
+        if (this.reader != null && this.reader.Jobs != null)
+          jobs.AddRange((IEnumerable<Job>) this.reader.Jobs);
+        if (this.receiver != null && this.receiver.Jobs != null)
+          jobs.AddRange((IEnumerable<Job>) this.receiver.Jobs);
+        if (this.listener != null && this.listener.Server.Jobs != null)
+        {
+          foreach (KeyValuePair<uint, List<Job>> job in this.listener.Server.Jobs)
+            jobs.AddRange((IEnumerable<Job>) job.Value);
+        }
+        return jobs;
+      }
+    }
+
+    public MeterReaderManager Reader
+    {
+      get
+      {
+        if (this.reader == null)
+        {
+          this.reader = new MeterReaderManager();
+          this.reader.OnError += new EventHandler<Exception>(this.OnErrorForwarding);
+          this.reader.OnJobCompleted += new EventHandler<Job>(this.OnJobCompletedForwarding);
+          this.reader.OnJobStarted += new EventHandler<Job>(this.OnJobStartedForwarding);
+          this.reader.ValueIdentSetReceived += new EventHandler<ValueIdentSet>(this.ValueIdentSetReceivedForwarding);
+        }
+        return this.reader;
+      }
+    }
+
+    public MeterListenerManager Listener
+    {
+      get
+      {
+        if (this.listener == null)
+        {
+          this.listener = new MeterListenerManager();
+          this.listener.OnError += new EventHandler<Exception>(this.OnErrorForwarding);
+          this.listener.OnJobCompleted += new EventHandler<Job>(this.OnJobCompletedForwarding);
+          this.listener.OnJobStarted += new EventHandler<Job>(this.OnJobStartedForwarding);
+          this.listener.ValueIdentSetReceived += new EventHandler<ValueIdentSet>(this.ValueIdentSetReceivedForwarding);
+          this.listener.OnMinomatConnected += new EventHandler<MinomatDevice>(this.OnMinomatConnectedForwarding);
+        }
+        return this.listener;
+      }
+    }
+
+    public MeterReceiverManager Receiver
+    {
+      get
+      {
+        if (this.receiver == null)
+        {
+          this.receiver = new MeterReceiverManager();
+          this.receiver.OnError += new EventHandler<Exception>(this.OnErrorForwarding);
+          this.receiver.ValueIdentSetReceived += new EventHandler<ValueIdentSet>(this.ValueIdentSetReceivedForwarding);
+        }
+        return this.receiver;
+      }
+    }
+
+    public event EventHandler<Job> OnJobStarted;
+
+    public event EventHandler<Job> OnJobCompleted;
+
+    public event EventHandler<Exception> OnError;
+
+    public event EventHandler<ValueIdentSet> ValueIdentSetReceived;
+
+    public event EventHandler<MinomatDevice> OnMinomatConnected;
+
+    public void AddJob(Job job)
+    {
+      JobManager.logger.Info("[GMM] Add job: " + job.ToString());
+      JobManager.logger.Info("[GMM] Job next trigger time : " + job.Interval.GetNextTriggerTime().ToString("G"));
+      JobManager.logger.Info("[GMM] Job interval is enabled: " + job.Interval.Enabled.ToString());
+      JobManager.logger.Info("[GMM] Job interval StartDate: " + job.Interval.StartDate.ToString());
+      JobManager.logger.Info("[GMM] Job interval EndDate: " + job.Interval.EndDate.ToString());
+      if (job == null)
+        throw new NullReferenceException(nameof (job));
+      bool flag1 = job.Meters != null && job.Meters.Count > 0;
+      bool flag2 = job.System != null;
+      if (!flag1 && !flag2)
+        throw new InvalidJobException(job, "The job has no meters and no collectors!");
+      if (job.ProfileType == null)
+        throw new InvalidJobException(job, "The job has no profile type!");
+      TransceiverType type;
+      if (!JobManager.TryDetermineTransceiverType(job, out type))
+        throw new InvalidJobException(job, "Can not determine the transceiver type!");
+      JobManager.logger.Info("[GMM] Job type is " + type.ToString());
+      switch (type)
+      {
+        case TransceiverType.Listener:
+          this.Listener.AddJob(job);
+          break;
+        case TransceiverType.Reader:
+          this.Reader.AddJob(job);
+          break;
+        case TransceiverType.Receiver:
+          this.Receiver.AddJob(job);
+          break;
+        default:
+          throw new NotImplementedException("Unknown transceiver type: " + type.ToString());
+      }
+    }
+
+    public void RemoveJob(Guid jobID)
+    {
+      JobManager.logger.Info("[GMM] Remove Job: " + jobID.ToString());
+      if (this.reader != null)
+        this.reader.RemoveJob(jobID);
+      if (this.listener != null)
+        this.listener.RemoveJob(jobID);
+      if (this.receiver == null)
+        return;
+      this.receiver.RemoveJob(jobID);
+    }
+
+    public void RemoveJob(Job job)
+    {
+      JobManager.logger.Info("[GMM] Remove Job: " + job.ToString());
+      TransceiverType type;
+      if (!JobManager.TryDetermineTransceiverType(job, out type))
+        throw new InvalidJobException(job, "Can not determine the transceiver type!");
+      switch (type)
+      {
+        case TransceiverType.Listener:
+          this.Listener.RemoveJob(job);
+          break;
+        case TransceiverType.Reader:
+          this.Reader.RemoveJob(job);
+          break;
+        case TransceiverType.Receiver:
+          this.Receiver.RemoveJob(job);
+          break;
+        default:
+          throw new NotImplementedException("Unknown transceiver type: " + type.ToString());
+      }
+    }
+
+    public void Dispose()
+    {
+      JobManager.logger.Info("[GMM] Dispose JobManager");
+      if (this.reader != null)
+      {
+        this.reader.OnError -= new EventHandler<Exception>(this.OnErrorForwarding);
+        this.reader.OnJobCompleted -= new EventHandler<Job>(this.OnJobCompletedForwarding);
+        this.reader.OnJobStarted -= new EventHandler<Job>(this.OnJobStartedForwarding);
+        this.reader.ValueIdentSetReceived -= new EventHandler<ValueIdentSet>(this.ValueIdentSetReceivedForwarding);
+        this.reader.Dispose();
+      }
+      if (this.receiver != null)
+      {
+        this.receiver.OnError -= new EventHandler<Exception>(this.OnErrorForwarding);
+        this.receiver.ValueIdentSetReceived -= new EventHandler<ValueIdentSet>(this.ValueIdentSetReceivedForwarding);
+        this.receiver.Dispose();
+      }
+      if (this.listener != null)
+      {
+        this.listener.OnError -= new EventHandler<Exception>(this.OnErrorForwarding);
+        this.listener.OnJobCompleted -= new EventHandler<Job>(this.OnJobCompletedForwarding);
+        this.listener.OnJobStarted -= new EventHandler<Job>(this.OnJobStartedForwarding);
+        this.listener.ValueIdentSetReceived -= new EventHandler<ValueIdentSet>(this.ValueIdentSetReceivedForwarding);
+        this.listener.Dispose();
+      }
+      this.reader = (MeterReaderManager) null;
+      this.receiver = (MeterReceiverManager) null;
+      this.listener = (MeterListenerManager) null;
+    }
+
+    private static bool TryDetermineTransceiverType(Job job, out TransceiverType type)
+    {
+      if (job.System != null && job.System.Name.StartsWith("Minomat") && job.ProfileType != null && job.ProfileType.Name == "GSM")
+      {
+        type = TransceiverType.Listener;
+        return true;
+      }
+      bool flag = job.Meters != null && job.Meters.Count > 0;
+      if (job.System != null)
+      {
+        ConnectionProfile connectionProfile1 = GmmInterface.DeviceManager.GetConnectionProfile(job.System, job.Equipment, job.ProfileType);
+        if (connectionProfile1 != null)
+        {
+          type = connectionProfile1.ConnectionSettings.TransceiverType;
+          if (!flag)
+            return true;
+          foreach (ZENNER.CommonLibrary.Entities.Meter meter in job.Meters)
+          {
+            ConnectionProfile connectionProfile2 = GmmInterface.DeviceManager.GetConnectionProfile(meter.DeviceModel, job.Equipment, job.ProfileType);
+            if (connectionProfile2 == null)
+            {
+              string message = Ot.Gtm(Tg.DB, "ConnectionProfileMissed", "No connection profile exists!") + " Meter: " + meter?.ToString() + ", Equipment: " + job.Equipment?.ToString() + ", ProfileType: " + job.ProfileType?.ToString();
+              throw new InvalidJobException(job, (Exception) new InvalidMeterException(meter, message));
+            }
+            if (type != connectionProfile2.ConnectionSettings.TransceiverType)
+            {
+              string message = Ot.Gtm(Tg.CommunicationLogic, "InvalidTranseiverType", "Not all meters in job has the same transceiver type!") + " Expected: " + type.ToString() + ", Actual: " + connectionProfile2.ConnectionSettings.TransceiverType.ToString() + ", Meter: " + meter?.ToString();
+              throw new InvalidJobException(job, (Exception) new InvalidMeterException(meter, message));
+            }
+          }
+          return true;
+        }
+      }
+      if (flag)
+      {
+        TransceiverType? nullable1 = new TransceiverType?();
+        foreach (ZENNER.CommonLibrary.Entities.Meter meter in job.Meters)
+        {
+          ConnectionProfile connectionProfile = GmmInterface.DeviceManager.GetConnectionProfile(meter.DeviceModel, job.Equipment, job.ProfileType);
+          if (connectionProfile == null)
+          {
+            string message = Ot.Gtm(Tg.DB, "ConnectionProfileForMeterMissed", "No connection profile exists for meter!") + " Equipment: " + job.Equipment?.ToString() + ", ProfileType: " + job.ProfileType?.ToString();
+            throw new InvalidJobException(job, (Exception) new InvalidMeterException(meter, message));
+          }
+          if (!nullable1.HasValue)
+          {
+            nullable1 = new TransceiverType?(connectionProfile.ConnectionSettings.TransceiverType);
+          }
+          else
+          {
+            TransceiverType? nullable2 = nullable1;
+            TransceiverType transceiverType = connectionProfile.ConnectionSettings.TransceiverType;
+            if (!(nullable2.GetValueOrDefault() == transceiverType & nullable2.HasValue))
+            {
+              string message = Ot.Gtm(Tg.CommunicationLogic, "InvalidTranseiverType", "Not all meters in job has the same transceiver type!") + " Expected: " + nullable1.ToString() + ", Actual: " + connectionProfile.ConnectionSettings.TransceiverType.ToString();
+              throw new InvalidJobException(job, (Exception) new InvalidMeterException(meter, message));
+            }
+          }
+        }
+        if (!nullable1.HasValue)
+        {
+          type = TransceiverType.None;
+          return false;
+        }
+        type = nullable1.Value;
+        return true;
+      }
+      type = TransceiverType.None;
+      return false;
+    }
+
+    private void OnErrorForwarding(object sender, Exception e)
+    {
+      JobManager.logger.Info("[GMM] Event OnError: " + e?.ToString());
+      if (this.OnError == null)
+        return;
+      this.OnError(sender, e);
+    }
+
+    private void OnJobStartedForwarding(object sender, Job e)
+    {
+      JobManager.logger.Info("[GMM] Event OnJobStarted: " + e?.ToString());
+      if (this.OnJobStarted == null)
+        return;
+      this.OnJobStarted(sender, e);
+    }
+
+    private void OnJobCompletedForwarding(object sender, Job e)
+    {
+      JobManager.logger.Info("[GMM] Event OnJobCompleted: " + e?.ToString());
+      if (this.OnJobCompleted == null)
+        return;
+      this.OnJobCompleted(sender, e);
+    }
+
+    private void ValueIdentSetReceivedForwarding(object sender, ValueIdentSet e)
+    {
+      JobManager.logger.Info("[GMM] Event ValueIdentSetReceived: " + e?.ToString());
+      if (this.ValueIdentSetReceived == null)
+        return;
+      this.ValueIdentSetReceived(sender, e);
+    }
+
+    private void OnMinomatConnectedForwarding(object sender, MinomatDevice e)
+    {
+      JobManager.logger.Info("[GMM] Event OnMinomatConnected: " + e?.ToString());
+      if (this.OnMinomatConnected == null)
+        return;
+      this.OnMinomatConnected(sender, e);
+    }
+
+    public void StartListener()
+    {
+      JobManager.logger.Info("[GMM] StartListener");
+      if (this.Listener.Server == null)
+        return;
+      this.Listener.Server.Start();
+    }
+
+    public void StopListener()
+    {
+      JobManager.logger.Info("[GMM] StartListener");
+      if (this.Listener.Server == null)
+        return;
+      this.Listener.Server.Stop();
+    }
+  }
+}
+
+
+--- LogSelect.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.LogSelect
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+#nullable disable
+namespace ZENNER
+{
+  public enum LogSelect : byte
+  {
+    QuarterHour,
+    Daily,
+    HalfMonth,
+    Month,
+    DueDate,
+  }
+}
+
+
+--- M8_DeviceStatus.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.M8_DeviceStatus
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER
+{
+  [Flags]
+  [Serializable]
+  public enum M8_DeviceStatus : ushort
+  {
+    OK = 0,
+    Tamper = 1,
+    Battery = 2,
+    BatteryEndLife = 4,
+    Hardware = 8,
+    HcaError = 16, // 0x0010
+    VersionLut = 32, // 0x0020
+    RadioError = 64, // 0x0040
+    Transceiver = 128, // 0x0080
+  }
+}
+
+
+--- MeterListenerManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.MeterListenerManager
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using GmmDbLib;
+using GmmDbLib.DataSets;
+using MinomatListener;
+using NLog;
+using StartupLib;
+using System;
+using System.Globalization;
+using ZENNER.CommonLibrary.Entities;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace ZENNER
+{
+  public sealed class MeterListenerManager : IDisposable
+  {
+    private static Logger logger = LogManager.GetLogger(nameof (MeterListenerManager));
+
+    public Server Server { get; private set; }
+
+    public bool StoreLoggerDataToDatabase { get; set; }
+
+    public MeterListenerManager()
+    {
+      this.Server = new Server();
+      this.Server.OnError += new EventHandler<Exception>(this.Server_OnError);
+      this.Server.OnJobCompleted += new EventHandler<Job>(this.Server_OnJobCompleted);
+      this.Server.OnJobStarted += new EventHandler<Job>(this.Server_OnJobStarted);
+      this.Server.OnMinomatConnected += new EventHandler<MinomatDevice>(this.Server_OnMinomatConnected);
+      this.Server.ValueIdentSetReceived += new EventHandler<ValueIdentSet>(this.Server_ValueIdentSetReceived);
+    }
+
+    public event EventHandler<ValueIdentSet> ValueIdentSetReceived;
+
+    public event EventHandler<Exception> OnError;
+
+    public event EventHandler<Job> OnJobStarted;
+
+    public event EventHandler<Job> OnJobCompleted;
+
+    public event EventHandler<MinomatDevice> OnMinomatConnected;
+
+    internal void AddJob(Job job) => this.Server.AddJob(job);
+
+    internal void RemoveJob(Guid jobID) => this.Server.RemoveJob(jobID);
+
+    internal void RemoveJob(Job job) => this.Server.RemoveJob(job);
+
+    public void Dispose()
+    {
+      this.Server.OnError -= new EventHandler<Exception>(this.Server_OnError);
+      this.Server.OnJobCompleted -= new EventHandler<Job>(this.Server_OnJobCompleted);
+      this.Server.OnJobStarted -= new EventHandler<Job>(this.Server_OnJobStarted);
+      this.Server.OnMinomatConnected -= new EventHandler<MinomatDevice>(this.Server_OnMinomatConnected);
+      this.Server.ValueIdentSetReceived -= new EventHandler<ValueIdentSet>(this.Server_ValueIdentSetReceived);
+      this.Server.Dispose();
+      StartupManager.Dispose();
+    }
+
+    private void Server_ValueIdentSetReceived(object sender, ValueIdentSet e)
+    {
+      if (this.ValueIdentSetReceived == null)
+        return;
+      this.ValueIdentSetReceived(sender, e);
+    }
+
+    private void Server_OnJobStarted(object sender, Job e)
+    {
+      if (this.OnJobStarted == null)
+        return;
+      this.OnJobStarted(sender, e);
+    }
+
+    private void Server_OnJobCompleted(object sender, Job e)
+    {
+      if (this.OnJobCompleted == null)
+        return;
+      this.OnJobCompleted(sender, e);
+    }
+
+    private void Server_OnError(object sender, Exception e)
+    {
+      if (this.OnError == null)
+        return;
+      this.OnError(sender, e);
+    }
+
+    private void Server_OnMinomatConnected(object sender, MinomatDevice e)
+    {
+      if (this.OnMinomatConnected == null)
+        return;
+      this.OnMinomatConnected(sender, e);
+    }
+
+    public static void AddMinomat(MinomatDevice minomatDevice)
+    {
+      if (minomatDevice == null)
+        throw new ArgumentNullException(nameof (minomatDevice));
+      if (!minomatDevice.GsmID.HasValue)
+        throw new ArgumentNullException("GsmID can not be null!");
+      if (!minomatDevice.ChallengeKey.HasValue)
+        throw new ArgumentNullException("ChallengeKey can not be null!");
+      if (!minomatDevice.SessionKey.HasValue)
+        throw new ArgumentNullException("SessionKey can not be null!");
+      if (MinomatList.AddMinomatList(DbBasis.PrimaryDB.BaseDbConnection, minomatDevice.GsmID.Value, minomatDevice.ChallengeKey.Value, minomatDevice.SessionKey.Value) == null)
+        throw new Exception("Failed to add the Minomat Master device to the database!");
+    }
+
+    public static MinomatDevice GetMinomat(uint gsmID)
+    {
+      DriverTables.MinomatListRow minomatList = MinomatList.GetMinomatList(DbBasis.PrimaryDB.BaseDbConnection, gsmID);
+      if (minomatList == null)
+        return (MinomatDevice) null;
+      MinomatDevice minomat = new MinomatDevice();
+      minomat.GsmID = new uint?(gsmID);
+      uint result1;
+      if (!minomatList.IsMinolIDNull() && uint.TryParse(minomatList.MinolID, NumberStyles.AllowHexSpecifier, (IFormatProvider) null, out result1))
+        minomat.MinolID = new uint?(result1);
+      uint result2;
+      if (!minomatList.IsChallengeKeyNull() && uint.TryParse(minomatList.ChallengeKey, NumberStyles.AllowHexSpecifier, (IFormatProvider) null, out result2))
+        minomat.ChallengeKey = new uint?(result2);
+      ulong result3;
+      if (!minomatList.IsSessionKeyNull() && ulong.TryParse(minomatList.SessionKey, NumberStyles.AllowHexSpecifier, (IFormatProvider) null, out result3))
+        minomat.SessionKey = new ulong?(result3);
+      uint result4;
+      if (!minomatList.IsChallengeKeyOldNull() && uint.TryParse(minomatList.ChallengeKeyOld, NumberStyles.AllowHexSpecifier, (IFormatProvider) null, out result4))
+        minomat.ChallengeKeyOld = new uint?(result4);
+      ulong result5;
+      if (!minomatList.IsSessionKeyOldNull() && ulong.TryParse(minomatList.SessionKeyOld, NumberStyles.AllowHexSpecifier, (IFormatProvider) null, out result5))
+        minomat.SessionKeyOld = new ulong?(result5);
+      uint result6;
+      if (!minomatList.IsGsmIDEncodedNull() && uint.TryParse(minomatList.GsmIDEncoded, NumberStyles.AllowHexSpecifier, (IFormatProvider) null, out result6))
+        minomat.GsmIDEncoded = new uint?(result6);
+      uint result7;
+      if (!minomatList.IsChallengeKeyEncodedNull() && uint.TryParse(minomatList.ChallengeKeyEncoded, NumberStyles.AllowHexSpecifier, (IFormatProvider) null, out result7))
+        minomat.ChallengeKeyEncoded = new uint?(result7);
+      uint result8;
+      if (!minomatList.IsGsmIDEncodedOldNull() && uint.TryParse(minomatList.GsmIDEncodedOld, NumberStyles.AllowHexSpecifier, (IFormatProvider) null, out result8))
+        minomat.GsmIDEncodedOld = new uint?(result8);
+      uint result9;
+      if (!minomatList.IsChallengeKeyEncodedOldNull() && uint.TryParse(minomatList.ChallengeKeyEncodedOld, NumberStyles.AllowHexSpecifier, (IFormatProvider) null, out result9))
+        minomat.ChallengeKeyEncodedOld = new uint?(result9);
+      return minomat;
+    }
+
+    public static bool DeleteMinomat(uint gsmID)
+    {
+      return MinomatList.DeleteMinomatList(DbBasis.PrimaryDB.BaseDbConnection, gsmID);
+    }
+
+    public static ulong? CreateRandomSessionKey() => new ulong?(Util.GetSecureRandomUInt64());
+
+    public static uint? CreateRandomChallengeKey() => new uint?(Util.GetSecureRandomUInt32());
+  }
+}
+
+
+--- MeterReaderManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.MeterReaderManager
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using AsyncCom;
+using GmmDbLib;
+using GmmDbLib.DataSets;
+using MinomatHandler;
+using NLog;
+using ReadoutConfiguration;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Xml.Serialization;
+using ZENNER.CommonLibrary;
+using ZENNER.CommonLibrary.Entities;
+using ZENNER.CommonLibrary.Exceptions;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace ZENNER
+{
+  public sealed class MeterReaderManager : IDisposable
+  {
+    private static Logger logger = LogManager.GetLogger(nameof (MeterReaderManager));
+    private Scheduler scheduler;
+    private CancellationTokenSource cancellationTokenSource;
+
+    public MeterReaderManager()
+    {
+      this.StoreResultsToDatabase = false;
+      this.Jobs = new List<Job>();
+      this.scheduler = new Scheduler();
+    }
+
+    public event EventHandler<ValueIdentSet> ValueIdentSetReceived;
+
+    public event EventHandler<Exception> OnError;
+
+    public event EventHandler<Job> OnJobStarted;
+
+    public event EventHandler<Job> OnJobCompleted;
+
+    public event EventHandler<int> OnProgress;
+
+    public event EventHandler<string> OnProgressMessage;
+
+    public event EventHandler<ReadSettings> OnReadFinished;
+
+    public event System.EventHandler BatterieLow;
+
+    public List<Job> Jobs { get; private set; }
+
+    public bool StoreResultsToDatabase { get; set; }
+
+    public bool DontCloseConnectionAfterRead { get; set; }
+
+    public void AddJob(Job job)
+    {
+      if (job.Interval == null)
+      {
+        this.ReadJob(job);
+      }
+      else
+      {
+        lock (this.Jobs)
+        {
+          MeterReaderManager.logger.Info("[GMM] AddJob " + job.JobID.ToString());
+          this.Jobs.Add(job);
+          MeterReaderManager.logger.Info("[GMM] Jobs.Count = " + this.Jobs.Count.ToString());
+          job.Interval.OnTrigger += new Scheduler.TriggerItem.OnTriggerEventHandler(this.OnTrigger);
+          MeterReaderManager.logger.Info("[GMM] scheduler.AddTrigger");
+          this.scheduler.AddTrigger(job.Interval);
+          MeterReaderManager.logger.Info("[GMM] scheduler.TriggerItems.Count = " + this.scheduler.TriggerItems.Count.ToString());
+        }
+      }
+    }
+
+    public void RemoveJob(Guid jobID)
+    {
+      MeterReaderManager.logger.Info("[GMM] RemoveJob " + jobID.ToString());
+      Job job = (Job) null;
+      lock (this.Jobs)
+        job = this.Jobs.Find((Predicate<Job>) (x => x.JobID == jobID));
+      if (job != null)
+        this.RemoveJob(job);
+      else
+        MeterReaderManager.logger.Info("[GMM] RemoveJob failed. Cannot find job " + jobID.ToString());
+    }
+
+    public void RemoveJob(Job job)
+    {
+      if (job == null)
+        throw new ArgumentNullException(nameof (job));
+      if (job.Interval == null)
+        return;
+      lock (this.Jobs)
+      {
+        MeterReaderManager.logger.Info("[GMM] RemoveJob: " + job.JobID.ToString());
+        this.Jobs.Remove(job);
+        job.Interval.OnTrigger -= new Scheduler.TriggerItem.OnTriggerEventHandler(this.OnTrigger);
+        this.scheduler.RemoveTrigger(job.Interval);
+        MeterReaderManager.logger.Info("[GMM] scheduler.TriggerItems.Count = " + this.scheduler.TriggerItems.Count.ToString());
+      }
+      MeterReaderManager.logger.Info("GC.Collect");
+      GC.Collect();
+      MeterReaderManager.logger.Info("GC.WaitForPendingFinalizers");
+      GC.WaitForPendingFinalizers();
+    }
+
+    public void Dispose()
+    {
+      MeterReaderManager.logger.Info("[GMM] Dispose (scheduler.TriggerItems.Clear,Jobs.Clear, CancelRead)");
+      this.scheduler.TriggerItems.Clear();
+      if (this.Jobs != null)
+        this.Jobs.Clear();
+      this.CancelRead();
+    }
+
+    private void OnTrigger(object sender, Scheduler.OnTriggerEventArgs e)
+    {
+      lock (this.Jobs)
+      {
+        Job job = this.Jobs.Find((Predicate<Job>) (x => x.Interval == e.Item));
+        if (job == null)
+          return;
+        if (job.IsInProcess)
+        {
+          MeterReaderManager.logger.Info("[GMM] OnTrigger job. job.IsInProcess = true, (Not need to run it, it is already runs.)");
+        }
+        else
+        {
+          string message = "Run job:" + job.JobID.ToString() + e.TriggerDate.ToString() + ": " + e.Item.Tag?.ToString() + ", next trigger: " + e.Item.GetNextTriggerTime().DayOfWeek.ToString() + ", " + e.Item.GetNextTriggerTime().ToString() + "\r\n";
+          MeterReaderManager.logger.Trace(message);
+          this.ReadJob(job);
+        }
+      }
+    }
+
+    private void ReadJob(Job job)
+    {
+      job.IsInProcess = true;
+      if (this.OnJobStarted != null)
+        this.OnJobStarted((object) this, job);
+      if (job.System == null && job.Meters == null)
+        throw new InvalidJobException(job, "No collector and no meters existing!");
+      if (job.Equipment == null)
+        throw new InvalidJobException(job, "No equipment defined!");
+      if (job.ProfileType == null)
+        throw new InvalidJobException(job, "No profile type defined!");
+      if (job.Meters != null && job.Meters.Count > 0)
+        this.ReadJobByMeters(job);
+      else
+        this.ReadJobBySystem(job);
+    }
+
+    private void ReadJobBySystem(Job job)
+    {
+      MeterReaderManager.logger.Info("[GMM] ReadJobByMeters " + job.JobID.ToString());
+      this.cancellationTokenSource = new CancellationTokenSource();
+      Devices.DeviceManager deviceManager = GmmInterface.Devices;
+      Task.Factory.StartNew((Action) (() =>
+      {
+        EventHandlerEx<Exception> eventHandlerEx = (EventHandlerEx<Exception>) ((sender, e) =>
+        {
+          MeterReaderManager.logger.Error("deviceManager_OnError " + e?.ToString() + " Job: " + job.JobID.ToString());
+          if (this.cancellationTokenSource != null && this.cancellationTokenSource.IsCancellationRequested)
+          {
+            MeterReaderManager.logger.Info("[GMM] cancellationTokenSource.IsCancellationRequested == true " + job.JobID.ToString());
+          }
+          else
+          {
+            if (this.OnError == null)
+              return;
+            this.OnError(sender, (Exception) new InvalidJobException(job, e));
+          }
+        });
+        EventHandler<ValueIdentSet> eventHandler = (EventHandler<ValueIdentSet>) ((sender, e) =>
+        {
+          if (deviceManager == null)
+            MeterReaderManager.logger.Error("[GMM] deviceManager == null " + e?.ToString() + " Job: " + job.JobID.ToString());
+          else if (this.cancellationTokenSource != null && this.cancellationTokenSource.IsCancellationRequested)
+          {
+            MeterReaderManager.logger.Info("[GMM] cancellationTokenSource.IsCancellationRequested == true " + job.JobID.ToString());
+            deviceManager.BreakRequest = this.cancellationTokenSource.IsCancellationRequested;
+          }
+          else
+          {
+            ZENNER.CommonLibrary.Entities.Meter meter = job.Meters.Find((Predicate<ZENNER.CommonLibrary.Entities.Meter>) (x => x.SerialNumber == e.SerialNumber));
+            Guid jobId;
+            if (job.StoreResultsToDatabase)
+            {
+              try
+              {
+                List<DriverTables.MeterMSSRow> meterMss = MeterMSS.GetMeterMSS(GmmInterface.Database.BaseDbConnection, e.SerialNumber);
+                DriverTables.MeterMSSRow meterMssRow = meterMss == null || meterMss.Count != 1 ? (DriverTables.MeterMSSRow) null : meterMss[0];
+                if (meterMssRow == null && meter != null)
+                  meterMssRow = MeterMSS.AddMeterMSS(GmmInterface.Database.BaseDbConnection, meter.ID, e.SerialNumber);
+                else if (meterMssRow == null && meter == null)
+                  meterMssRow = MeterMSS.AddMeterMSS(GmmInterface.Database.BaseDbConnection, Guid.NewGuid(), e.SerialNumber);
+                if (meter == null)
+                  job.Meters.Add(new ZENNER.CommonLibrary.Entities.Meter()
+                  {
+                    ID = meterMssRow.MeterID,
+                    SerialNumber = meterMssRow.SerialNumber,
+                    DeviceModel = job.System
+                  });
+                if (meterMssRow != null)
+                {
+                  e.AvailableValues = ValueIdent.FilterMeterValues(e.AvailableValues, job.Filter);
+                  MeterDatabase.SaveMeterValuesMSS(meterMssRow.MeterID, meterMssRow.SerialNumber, e.AvailableValues);
+                }
+              }
+              catch (Exception ex)
+              {
+                Logger logger = MeterReaderManager.logger;
+                string str3 = ex?.ToString();
+                jobId = job.JobID;
+                string str4 = jobId.ToString();
+                string message3 = "[GMM] Exception " + str3 + " Job: " + str4;
+                logger.Error(message3);
+                if (meter != null)
+                {
+                  if (this.OnError != null)
+                  {
+                    string message4 = Ot.Gtm(Tg.DB, "FailedStoreMeterValues", "Failed store meter values to database!") + " " + ex.Message;
+                    this.OnError((object) this, (Exception) new InvalidMeterException(meter, message4));
+                  }
+                }
+                else if (this.OnError != null)
+                  this.OnError((object) this, new Exception(Ot.Gtm(Tg.DB, "FailedStoreMeterValues", "Failed store meter values to database!") + " " + ex.Message));
+              }
+            }
+            e.AvailableValues = ValueIdent.FilterMeterValues(e.AvailableValues, job.Filter);
+            e.Tag = (object) job;
+            if (this.ValueIdentSetReceived == null)
+              return;
+            this.ValueIdentSetReceived(sender, e);
+            if (this.OnError != null && e.AvailableValues != null)
+            {
+              foreach (KeyValuePair<long, SortedList<DateTime, ReadingValue>> availableValue in e.AvailableValues)
+              {
+                if (ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_PhysicalQuantity>(availableValue.Key) == ValueIdent.ValueIdPart_PhysicalQuantity.WarningNumber && ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdentWarning>(availableValue.Key) == ValueIdent.ValueIdentWarning.FailedToRead)
+                {
+                  Logger logger = MeterReaderManager.logger;
+                  string serialNumber = e.SerialNumber;
+                  jobId = job.JobID;
+                  string str = jobId.ToString();
+                  string message = "[GMM] ValueIdentWarning.FailedToRead SN: " + serialNumber + " Job: " + str;
+                  logger.Error(message);
+                  this.OnError((object) this, (Exception) new FailedToReadException(e.SerialNumber));
+                }
+              }
+            }
+          }
+        });
+        try
+        {
+          ZR_ClassLibMessages.RegisterThreadErrorMsgList();
+          ConnectionProfile connectionProfile = GmmInterface.DeviceManager.GetConnectionProfile(job.System, job.Equipment, job.ProfileType);
+          if (connectionProfile == null)
+          {
+            MeterReaderManager.logger.Error("[GMM] profile == null, Job: " + job.JobID.ToString());
+            if (this.OnError == null)
+              return;
+            this.OnError((object) this, (Exception) new InvalidJobException(job, "The connection profile does not exist!"));
+          }
+          else
+          {
+            connectionProfile.EquipmentModel.ChangeableParameters = job.Equipment.ChangeableParameters;
+            connectionProfile.DeviceModel.ChangeableParameters = job.System.ChangeableParameters;
+            connectionProfile.ProfileType.ChangeableParameters = job.ProfileType.ChangeableParameters;
+            ConfigList configListObject = connectionProfile.GetConfigListObject();
+            deviceManager.OnMessage += new EventHandler<GMM_EventArgs>(this.OnMessage);
+            deviceManager.OnProgress += new EventHandlerEx<int>(this.DeviceManager_OnProgress);
+            deviceManager.OnProgressMessage += new EventHandlerEx<string>(this.DeviceManager_OnProgressMessage);
+            deviceManager.OnError += eventHandlerEx;
+            deviceManager.ValueIdentSetReceived += eventHandler;
+            deviceManager.BatterieLow += new System.EventHandler(this.AsynCom_BatterieLow);
+            deviceManager.PrepareCommunicationStructure(configListObject);
+            deviceManager.BreakRequest = false;
+            if (!deviceManager.Open())
+            {
+              MeterReaderManager.logger.Error("[GMM] deviceManager.Open() == false, Job: " + job.JobID.ToString());
+              if (this.OnError == null)
+                return;
+              this.OnError((object) this, (Exception) new InvalidJobException(job, ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription));
+            }
+            else if (this.cancellationTokenSource.IsCancellationRequested)
+            {
+              MeterReaderManager.logger.Info("[GMM] cancellationTokenSource.IsCancellationRequested == true " + job.JobID.ToString());
+            }
+            else
+            {
+              if (job.ServiceTask != null)
+              {
+                if (!this.PerformServiceTask(job, deviceManager))
+                  return;
+              }
+              else if (!deviceManager.DeviceList_ReadAll(job.Filter))
+              {
+                string errorDescription = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+                MeterReaderManager.logger.Error("[GMM] DeviceList_ReadAll == false " + job.JobID.ToString() + " " + errorDescription);
+                if (this.OnError == null)
+                  return;
+                if (string.IsNullOrEmpty(errorDescription))
+                {
+                  this.OnError((object) this, (Exception) new InvalidJobException(job, "Can not read the devices!"));
+                  return;
+                }
+                this.OnError((object) this, (Exception) new InvalidJobException(job, errorDescription));
+                return;
+              }
+              if (this.OnJobCompleted == null)
+                return;
+              this.OnJobCompleted((object) this, job);
+            }
+          }
+        }
+        catch (Exception ex)
+        {
+          MeterReaderManager.logger.Error("[GMM] Exception: " + ex?.ToString());
+          if (this.OnError == null)
+            return;
+          this.OnError((object) this, (Exception) new InvalidJobException(job, "Failed to read the meter list." + ex.Message));
+        }
+        finally
+        {
+          deviceManager.OnMessage -= new EventHandler<GMM_EventArgs>(this.OnMessage);
+          deviceManager.OnProgress -= new EventHandlerEx<int>(this.DeviceManager_OnProgress);
+          deviceManager.OnProgressMessage -= new EventHandlerEx<string>(this.DeviceManager_OnProgressMessage);
+          deviceManager.OnError -= eventHandlerEx;
+          deviceManager.ValueIdentSetReceived -= eventHandler;
+          deviceManager.BatterieLow -= new System.EventHandler(this.AsynCom_BatterieLow);
+          if (!this.DontCloseConnectionAfterRead)
+          {
+            MeterReaderManager.logger.Info("[GMM] DontCloseConnectionAfterRead: deviceManager.Close, Job: " + job.JobID.ToString());
+            deviceManager.Close();
+          }
+          ZR_ClassLibMessages.DeRegisterThreadErrorMsgList();
+          job.IsInProcess = false;
+        }
+      }), this.cancellationTokenSource.Token).ContinueWith((Action<Task>) (_ => this.cancellationTokenSource = (CancellationTokenSource) null));
+    }
+
+    private void ReadJobByMeters(Job job)
+    {
+      MeterReaderManager.logger.Info("[GMM] ReadJobByMeters " + job.JobID.ToString());
+      this.cancellationTokenSource = new CancellationTokenSource();
+      Task.Factory.StartNew((Action) (() =>
+      {
+        Devices.DeviceManager deviceManager = GmmInterface.Devices;
+        EventHandlerEx<Exception> eventHandlerEx = (EventHandlerEx<Exception>) ((sender, e) =>
+        {
+          Logger logger3 = MeterReaderManager.logger;
+          Guid jobId = job.JobID;
+          string message3 = "[GMM] deviceManager_OnError, Job:  " + jobId.ToString() + " Exception: " + e?.ToString();
+          logger3.Error(message3);
+          if (this.cancellationTokenSource != null && this.cancellationTokenSource.IsCancellationRequested)
+          {
+            Logger logger4 = MeterReaderManager.logger;
+            jobId = job.JobID;
+            string message4 = "[GMM] cancellationTokenSource.IsCancellationRequested == true, Job: " + jobId.ToString();
+            logger4.Info(message4);
+          }
+          else
+          {
+            if (this.OnError == null)
+              return;
+            this.OnError(sender, (Exception) new InvalidJobException(job, e));
+          }
+        });
+        EventHandler<ValueIdentSet> eventHandler = (EventHandler<ValueIdentSet>) ((sender, e) =>
+        {
+          if (deviceManager == null)
+            MeterReaderManager.logger.Info("[GMM] deviceManager == null ");
+          else if (this.cancellationTokenSource != null && this.cancellationTokenSource.IsCancellationRequested)
+          {
+            deviceManager.BreakRequest = this.cancellationTokenSource.IsCancellationRequested;
+            MeterReaderManager.logger.Info("[GMM] cancellationTokenSource.IsCancellationRequested");
+          }
+          else
+          {
+            ZENNER.CommonLibrary.Entities.Meter meter3 = job.Meters.Find((Predicate<ZENNER.CommonLibrary.Entities.Meter>) (x => x.SerialNumber == e.SerialNumber));
+            if (meter3 == null)
+            {
+              MeterReaderManager.logger.Info("[GMM] expectedMeter == null, e.SerialNumber = " + e.SerialNumber);
+              foreach (ZENNER.CommonLibrary.Entities.Meter meter4 in job.Meters)
+                MeterReaderManager.logger.Info("[GMM] job.Meters " + meter4.SerialNumber);
+            }
+            else
+            {
+              List<long> filter = (List<long>) null;
+              if (job.Filter != null && meter3.Filter == null)
+                filter = job.Filter;
+              else if (job.Filter == null && meter3.Filter != null)
+                filter = meter3.Filter;
+              else if (job.Filter != null && meter3.Filter != null)
+                filter = meter3.Filter;
+              e.AvailableValues = ValueIdent.FilterMeterValues(e.AvailableValues, filter);
+              e.Tag = (object) job;
+              if (job.StoreResultsToDatabase)
+              {
+                try
+                {
+                  List<DriverTables.MeterMSSRow> meterMss = MeterMSS.GetMeterMSS(GmmInterface.Database.BaseDbConnection, e.SerialNumber);
+                  DriverTables.MeterMSSRow meterMssRow = (meterMss == null || meterMss.Count != 1 ? (DriverTables.MeterMSSRow) null : meterMss[0]) ?? MeterMSS.AddMeterMSS(GmmInterface.Database.BaseDbConnection, meter3.ID, e.SerialNumber);
+                  if (meterMssRow != null)
+                    MeterDatabase.SaveMeterValuesMSS(meterMssRow.MeterID, meterMssRow.SerialNumber, e.AvailableValues);
+                }
+                catch (Exception ex)
+                {
+                  MeterReaderManager.logger.Error("[GMM] Exception " + ex?.ToString());
+                  if (this.OnError != null)
+                  {
+                    string message = Ot.Gtm(Tg.DB, "FailedStoreMeterValues", "Failed store meter values to database!") + " " + ex.Message;
+                    this.OnError((object) this, (Exception) new InvalidMeterException(meter3, message));
+                  }
+                }
+              }
+              if (this.ValueIdentSetReceived == null)
+                return;
+              this.ValueIdentSetReceived(sender, e);
+              if (this.OnError != null && e.AvailableValues != null)
+              {
+                foreach (KeyValuePair<long, SortedList<DateTime, ReadingValue>> availableValue in e.AvailableValues)
+                {
+                  if (ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_PhysicalQuantity>(availableValue.Key) == ValueIdent.ValueIdPart_PhysicalQuantity.WarningNumber && ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdentWarning>(availableValue.Key) == ValueIdent.ValueIdentWarning.FailedToRead)
+                  {
+                    MeterReaderManager.logger.Error("[GMM] ValueIdentWarning.FailedToRead " + e.SerialNumber);
+                    this.OnError((object) this, (Exception) new FailedToReadException(e.SerialNumber));
+                  }
+                }
+              }
+            }
+          }
+        });
+        try
+        {
+          ZR_ClassLibMessages.RegisterThreadErrorMsgList();
+          deviceManager.OnMessage += new EventHandler<GMM_EventArgs>(this.OnMessage);
+          deviceManager.OnProgress += new EventHandlerEx<int>(this.DeviceManager_OnProgress);
+          deviceManager.OnProgressMessage += new EventHandlerEx<string>(this.DeviceManager_OnProgressMessage);
+          deviceManager.OnError += eventHandlerEx;
+          deviceManager.ValueIdentSetReceived += eventHandler;
+          deviceManager.BatterieLow += new System.EventHandler(this.AsynCom_BatterieLow);
+          deviceManager.BreakRequest = false;
+          if (job.ServiceTask != null)
+          {
+            if (!this.PerformServiceTask(job, deviceManager))
+            {
+              MeterReaderManager.logger.Trace("[GMM] PerformServiceTask == false");
+              return;
+            }
+          }
+          else
+          {
+            foreach (ZENNER.CommonLibrary.Entities.Meter meter in job.Meters)
+            {
+              if (this.cancellationTokenSource.IsCancellationRequested)
+                return;
+              if (meter.DeviceModel == null)
+              {
+                if (this.OnError != null)
+                {
+                  MeterReaderManager.logger.Error("[GMM] The meter has no device model!");
+                  string message = Ot.Gtm(Tg.CommunicationLogic, "DeviceModelMissed", "The meter has no device model!");
+                  this.OnError((object) this, (Exception) new InvalidJobException(job, (Exception) new InvalidMeterException(meter, message)));
+                }
+              }
+              else
+              {
+                ConnectionProfile connectionProfile = (ConnectionProfile) null;
+                if (job.System != null)
+                  connectionProfile = GmmInterface.DeviceManager.GetConnectionProfile(job.System, job.Equipment, job.ProfileType);
+                if (connectionProfile == null)
+                  connectionProfile = GmmInterface.DeviceManager.GetConnectionProfile(meter.DeviceModel, job.Equipment, job.ProfileType);
+                if (connectionProfile == null)
+                {
+                  if (this.OnError != null)
+                  {
+                    MeterReaderManager.logger.Error("[GMM] No connection profile exists!");
+                    string message = Ot.Gtm(Tg.DB, "ConnectionProfileMissed", "No connection profile exists!") + " Equipment: " + job.Equipment?.ToString() + " ProfileType: " + job.ProfileType?.ToString();
+                    this.OnError((object) this, (Exception) new InvalidJobException(job, (Exception) new InvalidMeterException(meter, message)));
+                  }
+                }
+                else
+                {
+                  connectionProfile.EquipmentModel.ChangeableParameters = job.Equipment.ChangeableParameters;
+                  connectionProfile.DeviceModel.ChangeableParameters = meter.DeviceModel.ChangeableParameters;
+                  connectionProfile.ProfileType.ChangeableParameters = job.ProfileType.ChangeableParameters;
+                  SortedList<string, string> settingsList = connectionProfile.GetSettingsList();
+                  ConfigList configListObject = connectionProfile.GetConfigListObject();
+                  deviceManager.PrepareCommunicationStructure(configListObject);
+                  if (!deviceManager.Open())
+                  {
+                    MeterReaderManager.logger.Error("[GMM] !deviceManager.Open()");
+                    if (this.OnError != null)
+                    {
+                      string errorDescription = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+                      this.OnError((object) this, (Exception) new InvalidJobException(job, (Exception) new InvalidMeterException(meter, errorDescription)));
+                    }
+                  }
+                  else
+                  {
+                    if (this.cancellationTokenSource.IsCancellationRequested)
+                    {
+                      MeterReaderManager.logger.Info("[GMM] cancellationTokenSource.IsCancellationRequested");
+                      return;
+                    }
+                    if (!string.IsNullOrEmpty(meter.SerialNumber))
+                    {
+                      deviceManager.DeviceList_Clear();
+                      string str = string.Empty;
+                      settingsList.TryGetValue("SelectedDeviceMBusType", out str);
+                      if (string.IsNullOrEmpty(str))
+                      {
+                        string empty = string.Empty;
+                        settingsList.TryGetValue("BusMode", out empty);
+                        if (empty == "MBus")
+                          str = "MBus";
+                      }
+                      if (!deviceManager.DeviceList_AddDevice(new GlobalDeviceId()
+                      {
+                        Serialnumber = meter.SerialNumber,
+                        DeviceTypeName = str
+                      }))
+                      {
+                        string errorDescription = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+                        MeterReaderManager.logger.Error("[GMM] DeviceList_AddDevice " + errorDescription);
+                        if (this.OnError != null)
+                        {
+                          this.OnError((object) this, (Exception) new InvalidJobException(job, (Exception) new InvalidMeterException(meter, errorDescription)));
+                          continue;
+                        }
+                        continue;
+                      }
+                    }
+                    List<long> filter = (List<long>) null;
+                    if (job.Filter != null && meter.Filter == null)
+                      filter = job.Filter;
+                    else if (job.Filter == null && meter.Filter != null)
+                      filter = meter.Filter;
+                    else if (job.Filter != null && meter.Filter != null)
+                      filter = meter.Filter;
+                    if (!deviceManager.DeviceList_ReadAll(filter))
+                    {
+                      string errorDescription = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+                      MeterReaderManager.logger.Error("[GMM] DeviceList_ReadAll " + errorDescription);
+                      if (this.OnError != null)
+                        this.OnError((object) this, (Exception) new InvalidJobException(job, (Exception) new InvalidMeterException(meter, errorDescription)));
+                    }
+                  }
+                }
+              }
+            }
+          }
+          if (this.OnJobCompleted == null)
+            return;
+          this.OnJobCompleted((object) this, job);
+        }
+        catch (Exception ex)
+        {
+          MeterReaderManager.logger.Error("[GMM] Exception: " + ex?.ToString());
+          if (this.OnError == null)
+            return;
+          this.OnError((object) this, (Exception) new InvalidJobException(job, ex));
+        }
+        finally
+        {
+          deviceManager.OnMessage -= new EventHandler<GMM_EventArgs>(this.OnMessage);
+          deviceManager.OnProgress -= new EventHandlerEx<int>(this.DeviceManager_OnProgress);
+          deviceManager.OnProgressMessage -= new EventHandlerEx<string>(this.DeviceManager_OnProgressMessage);
+          deviceManager.OnError -= eventHandlerEx;
+          deviceManager.ValueIdentSetReceived -= eventHandler;
+          deviceManager.BatterieLow -= new System.EventHandler(this.AsynCom_BatterieLow);
+          if (!this.DontCloseConnectionAfterRead)
+          {
+            MeterReaderManager.logger.Info("[GMM] DontCloseConnectionAfterRead -> deviceManager.Close, Job: " + job.JobID.ToString());
+            deviceManager.Close();
+          }
+          ZR_ClassLibMessages.DeRegisterThreadErrorMsgList();
+          job.IsInProcess = false;
+        }
+      }), this.cancellationTokenSource.Token).ContinueWith((Action<Task>) (_ => this.cancellationTokenSource = (CancellationTokenSource) null));
+    }
+
+    private bool PerformServiceTask(Job job, Devices.DeviceManager deviceManager)
+    {
+      MeterReaderManager.logger.Info("[GMM] PerformServiceTask, job " + job.JobID.ToString());
+      if (job.ServiceTask.Method == (MethodInfo) null)
+      {
+        MeterReaderManager.logger.Error("[GMM] job.ServiceTask.Method == null, job " + job.JobID.ToString());
+        this.OnError((object) this, (Exception) new InvalidJobException(job, "Invalid service job!"));
+        return false;
+      }
+      if (typeof (MinomatV4) == job.ServiceTask.Method.DeclaringType)
+      {
+        List<byte> buffer = (List<byte>) null;
+        CommunicationEventHandler communicationEventHandler = (CommunicationEventHandler) ((sender, e) =>
+        {
+          if (e == null)
+            return;
+          buffer = new List<byte>();
+          foreach (SCGiPacket scGiPacket in (List<SCGiPacket>) e)
+            buffer.AddRange((IEnumerable<byte>) scGiPacket.ToByteArray());
+        });
+        MinomatV4 minomatV4 = new MinomatV4(new SCGiConnection((IAsyncFunctions) deviceManager.MyAsyncCom));
+        try
+        {
+          uint? minolId = minomatV4.GetMinolId();
+          if (!minolId.HasValue)
+          {
+            MeterReaderManager.logger.Error("[GMM] Can not read the MinolID from Minomat. Job " + job.JobID.ToString());
+            if (this.OnError != null)
+              this.OnError((object) this, (Exception) new InvalidJobException(job, "Can not read the MinolID from Minomat."));
+            return false;
+          }
+          minomatV4.Connection.OnResponse += communicationEventHandler;
+          object o = job.ServiceTask.Method.Invoke((object) minomatV4, (object[]) null);
+          XmlSerializer xmlSerializer = new XmlSerializer(job.ServiceTask.Method.ReturnType);
+          StringWriter stringWriter = new StringWriter();
+          xmlSerializer.Serialize((TextWriter) stringWriter, o);
+          string resultObject = stringWriter.ToString();
+          if (job.StoreResultsToDatabase)
+          {
+            MeterReaderManager.logger.Info("[GMM] StoreResultsToDatabase. Job " + job.JobID.ToString());
+            ServiceTaskResult.SaveServiceTaskResult(GmmInterface.Database.BaseDbConnection, DateTime.Now, minolId.ToString(), job.JobID, Guid.Empty, job.ServiceTask.Method.ToString(), job.ServiceTask.Method.ReturnType.AssemblyQualifiedName, resultObject, buffer.ToArray());
+          }
+        }
+        catch (Exception ex)
+        {
+          MeterReaderManager.logger.Info("[GMM] Exception: " + ex?.ToString());
+          if (this.OnError != null)
+            this.OnError((object) this, (Exception) new InvalidJobException(job, ex));
+          return false;
+        }
+        finally
+        {
+          minomatV4.Connection.OnResponse -= communicationEventHandler;
+        }
+      }
+      return true;
+    }
+
+    public void ReadMeter(ZENNER.CommonLibrary.Entities.Meter meter, EquipmentModel equipmentModel, ProfileType profileType)
+    {
+      if (meter == null)
+        throw new ArgumentNullException(nameof (meter));
+      this.ReadMeter((DeviceModel) null, (List<long>) null, new List<ZENNER.CommonLibrary.Entities.Meter>()
+      {
+        meter
+      }, equipmentModel, profileType);
+    }
+
+    public void ReadMeter(
+      List<ZENNER.CommonLibrary.Entities.Meter> meters,
+      EquipmentModel equipmentModel,
+      ProfileType profileType)
+    {
+      this.ReadMeter((DeviceModel) null, (List<long>) null, meters, equipmentModel, profileType);
+    }
+
+    public void ReadMeter(
+      DeviceModel system,
+      List<long> filter,
+      List<ZENNER.CommonLibrary.Entities.Meter> meters,
+      EquipmentModel equipmentModel,
+      ProfileType profileType)
+    {
+      this.ReadMeterAsync(system, filter, meters, equipmentModel, profileType);
+    }
+
+    public Task ReadMeterAsync(
+      DeviceModel system,
+      List<long> filter,
+      List<ZENNER.CommonLibrary.Entities.Meter> meters,
+      EquipmentModel equipmentModel,
+      ProfileType profileType)
+    {
+      MeterReaderManager.logger.Trace("Start ReadMeter");
+      if (this.cancellationTokenSource != null)
+        return (Task) null;
+      if (profileType == null)
+        throw new ArgumentNullException(nameof (profileType));
+      if (equipmentModel == null)
+        throw new ArgumentNullException(nameof (equipmentModel));
+      if (system == null && (meters == null || meters.Count == 0))
+        throw new ArgumentNullException(nameof (system));
+      if (meters == null)
+        meters = new List<ZENNER.CommonLibrary.Entities.Meter>();
+      this.cancellationTokenSource = new CancellationTokenSource();
+      Devices.DeviceManager deviceManager = GmmInterface.Devices;
+      bool readAllMeters = meters.Count == 0;
+      bool noSerialnumber = meters.Exists((Predicate<ZENNER.CommonLibrary.Entities.Meter>) (x => string.IsNullOrEmpty(x.SerialNumber)));
+      CultureInfo lang = Thread.CurrentThread.CurrentUICulture;
+      Task task = Task.Factory.StartNew((Action) (() =>
+      {
+        Thread.CurrentThread.CurrentUICulture = lang;
+        EventHandler<ValueIdentSet> eventHandler = (EventHandler<ValueIdentSet>) ((sender, e) =>
+        {
+          if (deviceManager == null)
+            MeterReaderManager.logger.Error("[GMM] deviceManager == null");
+          else if (this.cancellationTokenSource != null && this.cancellationTokenSource.IsCancellationRequested)
+          {
+            deviceManager.BreakRequest = this.cancellationTokenSource.IsCancellationRequested;
+            MeterReaderManager.logger.Info("[GMM] cancellationTokenSource.IsCancellationRequested == true");
+          }
+          else
+          {
+            ZENNER.CommonLibrary.Entities.Meter meter2 = meters.Find((Predicate<ZENNER.CommonLibrary.Entities.Meter>) (x => x.SerialNumber == e.SerialNumber));
+            if (this.StoreResultsToDatabase && !string.IsNullOrEmpty(e.SerialNumber))
+            {
+              try
+              {
+                List<DriverTables.MeterMSSRow> meterMss = MeterMSS.GetMeterMSS(GmmInterface.Database.BaseDbConnection, e.SerialNumber);
+                DriverTables.MeterMSSRow meter = meterMss == null || meterMss.Count != 1 ? (DriverTables.MeterMSSRow) null : meterMss[0];
+                if (meter == null)
+                {
+                  if (meter2 != null)
+                    meter = MeterMSS.AddMeterMSS(GmmInterface.Database.BaseDbConnection, meter2.ID, e.SerialNumber);
+                  else if (readAllMeters | noSerialnumber)
+                    meter = MeterMSS.AddMeterMSS(GmmInterface.Database.BaseDbConnection, Guid.NewGuid(), e.SerialNumber);
+                }
+                if (meter != null)
+                {
+                  if (meter2 != null)
+                  {
+                    MeterDatabase.SaveMeterValuesMSS(meter.MeterID, meter.SerialNumber, e.AvailableValues);
+                  }
+                  else
+                  {
+                    if (readAllMeters | noSerialnumber)
+                    {
+                      DeviceModel deviceModel = ReadoutConfigFunctions.Manager.DetermineDeviceModel(e);
+                      if (deviceModel != null)
+                      {
+                        this.UpdateChangableParameters(deviceModel, system);
+                        if (noSerialnumber)
+                          meters.RemoveAll((Predicate<ZENNER.CommonLibrary.Entities.Meter>) (x => string.IsNullOrEmpty(x.SerialNumber)));
+                        if (!string.IsNullOrEmpty(meter.SerialNumber) && meters.FindIndex((Predicate<ZENNER.CommonLibrary.Entities.Meter>) (x => x.SerialNumber == meter.SerialNumber)) < 0)
+                          meters.Add(new ZENNER.CommonLibrary.Entities.Meter()
+                          {
+                            ID = meter.MeterID,
+                            SerialNumber = meter.SerialNumber,
+                            DeviceModel = deviceModel
+                          });
+                      }
+                    }
+                    MeterDatabase.SaveMeterValuesMSS(meter.MeterID, meter.SerialNumber, e.AvailableValues);
+                  }
+                }
+              }
+              catch (Exception ex)
+              {
+                MeterReaderManager.logger.Error("[GMM] Exception: " + ex?.ToString());
+                if (meter2 != null)
+                {
+                  if (this.OnError != null)
+                  {
+                    string message = Ot.Gtm(Tg.DB, "FailedStoreMeterValues", "Failed store meter values to database!") + " " + ex.Message;
+                    this.OnError((object) this, (Exception) new InvalidMeterException(meter2, message));
+                  }
+                }
+                else if (this.OnError != null)
+                  this.OnError((object) this, new Exception("Failed store meter values to database! " + ex.Message));
+              }
+            }
+            else if (((!readAllMeters ? 0 : (meter2 == null ? 1 : 0)) | (noSerialnumber ? 1 : 0)) != 0)
+            {
+              DeviceModel deviceModel = ReadoutConfigFunctions.Manager.DetermineDeviceModel(e);
+              if (deviceModel != null)
+              {
+                this.UpdateChangableParameters(deviceModel, system);
+                if (noSerialnumber)
+                  meters.RemoveAll((Predicate<ZENNER.CommonLibrary.Entities.Meter>) (x => string.IsNullOrEmpty(x.SerialNumber)));
+                if (!string.IsNullOrEmpty(e.SerialNumber) && meters.FindIndex((Predicate<ZENNER.CommonLibrary.Entities.Meter>) (x => x.SerialNumber == e.SerialNumber)) < 0)
+                  meters.Add(new ZENNER.CommonLibrary.Entities.Meter()
+                  {
+                    ID = Guid.NewGuid(),
+                    SerialNumber = e.SerialNumber,
+                    DeviceModel = deviceModel
+                  });
+              }
+            }
+            if (meter2 != null)
+              e.AvailableValues = ValueIdent.FilterMeterValues(e.AvailableValues, meter2.Filter);
+            if (((readAllMeters ? 1 : (meter2 != null ? 1 : 0)) | (noSerialnumber ? 1 : 0)) == 0 || this.ValueIdentSetReceived == null)
+              return;
+            this.ValueIdentSetReceived(sender, e);
+            if (this.OnError != null && e.AvailableValues != null)
+            {
+              foreach (KeyValuePair<long, SortedList<DateTime, ReadingValue>> availableValue in e.AvailableValues)
+              {
+                if (ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_PhysicalQuantity>(availableValue.Key) == ValueIdent.ValueIdPart_PhysicalQuantity.WarningNumber && ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdentWarning>(availableValue.Key) == ValueIdent.ValueIdentWarning.FailedToRead)
+                {
+                  MeterReaderManager.logger.Error("[GMM] ValueIdentWarning.FailedToRead SN: " + e.SerialNumber);
+                  this.OnError((object) this, (Exception) new FailedToReadException(e.SerialNumber));
+                }
+              }
+            }
+          }
+        });
+        try
+        {
+          ZR_ClassLibMessages.RegisterThreadErrorMsgList();
+          if (this.OnProgress != null)
+            this.OnProgress((object) this, 1);
+          deviceManager.OnMessage += new EventHandler<GMM_EventArgs>(this.OnMessage);
+          deviceManager.OnProgress += new EventHandlerEx<int>(this.DeviceManager_OnProgress);
+          deviceManager.OnProgressMessage += new EventHandlerEx<string>(this.DeviceManager_OnProgressMessage);
+          deviceManager.OnError += new EventHandlerEx<Exception>(this.DeviceManager_OnError);
+          deviceManager.ValueIdentSetReceived += eventHandler;
+          deviceManager.BatterieLow += new System.EventHandler(this.AsynCom_BatterieLow);
+          if (system == null && meters.Count > 0)
+          {
+            foreach (ZENNER.CommonLibrary.Entities.Meter meter in new List<ZENNER.CommonLibrary.Entities.Meter>((IEnumerable<ZENNER.CommonLibrary.Entities.Meter>) meters))
+            {
+              if (this.cancellationTokenSource.IsCancellationRequested)
+              {
+                MeterReaderManager.logger.Info("[GMM] cancellationTokenSource.IsCancellationRequested == true ");
+                break;
+              }
+              if (meter.DeviceModel == null)
+              {
+                if (this.OnError != null)
+                {
+                  MeterReaderManager.logger.Error("[GMM] meter.DeviceModel == null");
+                  string message = Ot.Gtm(Tg.CommunicationLogic, "DeviceModelMissed", "The meter has no device model!");
+                  this.OnError((object) this, (Exception) new InvalidMeterException(meter, message));
+                }
+              }
+              else
+              {
+                string serialNumber = meter.SerialNumber;
+                if (meter.AdditionalInfo != null && meter.AdditionalInfo.ContainsKey(AdditionalInfoKey.MainDeviceSecondaryAddress))
+                  serialNumber = meter.AdditionalInfo[AdditionalInfoKey.MainDeviceSecondaryAddress];
+                ConfigList configList;
+                if (meter.ConnectionAdjuster != null)
+                {
+                  ConnectionProfile connectionProfile = GmmInterface.DeviceManager.GetConnectionProfile(meter.ConnectionAdjuster.ConnectionProfileID);
+                  if (connectionProfile == null)
+                  {
+                    MeterReaderManager.logger.Error("[GMM] profile == null");
+                    if (this.OnError != null)
+                    {
+                      string message = Ot.Gtm(Tg.DB, "ConnectionProfileForMeterMissed", "No connection profile exists for meter!") + " Equipment: " + equipmentModel?.ToString() + ", ProfileType: " + profileType?.ToString();
+                      this.OnError((object) this, (Exception) new InvalidMeterException(meter, message));
+                      continue;
+                    }
+                    continue;
+                  }
+                  configList = meter.ConnectionAdjuster.GetMergedConfiguration(connectionProfile);
+                }
+                else
+                {
+                  ConnectionProfile connectionProfile = GmmInterface.DeviceManager.GetConnectionProfile(meter.DeviceModel, equipmentModel, profileType);
+                  if (connectionProfile == null)
+                  {
+                    MeterReaderManager.logger.Error("[GMM] profile == null");
+                    if (this.OnError != null)
+                    {
+                      string message = Ot.Gtm(Tg.DB, "ConnectionProfileForMeterMissed", "No connection profile exists for meter!") + " Equipment: " + equipmentModel?.ToString() + ", ProfileType: " + profileType?.ToString();
+                      this.OnError((object) this, (Exception) new InvalidMeterException(meter, message));
+                      continue;
+                    }
+                    continue;
+                  }
+                  connectionProfile.EquipmentModel.ChangeableParameters = equipmentModel.ChangeableParameters;
+                  connectionProfile.DeviceModel.ChangeableParameters = meter.DeviceModel.ChangeableParameters;
+                  connectionProfile.ProfileType.ChangeableParameters = profileType.ChangeableParameters;
+                  configList = connectionProfile.GetConfigListObject();
+                }
+                deviceManager.PrepareCommunicationStructure(configList);
+                deviceManager.BreakRequest = false;
+                if (!deviceManager.Open())
+                {
+                  MeterReaderManager.logger.Error("[GMM] deviceManager.Open() == false");
+                  if (this.OnError != null)
+                  {
+                    string errorDescription = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+                    MeterReaderManager.logger.Error("[GMM] Error: " + errorDescription);
+                    this.OnError((object) this, (Exception) new InvalidMeterException(meter, errorDescription));
+                  }
+                }
+                else
+                {
+                  if (this.cancellationTokenSource.IsCancellationRequested)
+                  {
+                    MeterReaderManager.logger.Info("[GMM] cancellationTokenSource.IsCancellationRequested == true");
+                    break;
+                  }
+                  if (!string.IsNullOrEmpty(serialNumber))
+                  {
+                    string str = string.Empty;
+                    if (configList.SelectedDeviceMBusType != null)
+                      str = configList.SelectedDeviceMBusType;
+                    deviceManager.DeviceList_Clear();
+                    if (!deviceManager.DeviceList_AddDevice(new GlobalDeviceId()
+                    {
+                      Serialnumber = serialNumber,
+                      DeviceTypeName = str
+                    }))
+                    {
+                      string errorDescription = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+                      MeterReaderManager.logger.Error("[GMM] DeviceList_AddDevice Error: " + errorDescription);
+                      if (this.OnError != null)
+                        this.OnError((object) this, (Exception) new InvalidMeterException(meter, errorDescription));
+                    }
+                  }
+                  deviceManager.ParameterType = ConfigurationParameter.ValueType.Complete;
+                  if (this.OnProgress != null)
+                    this.OnProgress((object) this, 2);
+                  if (!deviceManager.DeviceList_ReadAll(meter.Filter ?? filter))
+                  {
+                    string errorDescription = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+                    MeterReaderManager.logger.Error("[GMM] DeviceList_ReadAll Error: " + errorDescription);
+                    if (this.OnError != null)
+                      this.OnError((object) this, (Exception) new InvalidMeterException(meter, errorDescription));
+                  }
+                  else if (!string.IsNullOrEmpty(meter.SerialNumber))
+                  {
+                    List<GlobalDeviceId> list = deviceManager.DeviceList_GetList();
+                    if (list != null)
+                    {
+                      StringBuilder stringBuilder = new StringBuilder();
+                      bool flag = true;
+                      foreach (GlobalDeviceId globalDeviceId in list)
+                      {
+                        if (globalDeviceId.Serialnumber == meter.SerialNumber)
+                          flag = false;
+                        else
+                          stringBuilder.Append(" ").AppendLine(globalDeviceId.Serialnumber);
+                        if (globalDeviceId.SubDevices != null)
+                        {
+                          foreach (GlobalDeviceId subDevice in globalDeviceId.SubDevices)
+                          {
+                            if (subDevice.Serialnumber == meter.SerialNumber)
+                              flag = false;
+                            else
+                              stringBuilder.Append(" ").AppendLine(subDevice.Serialnumber);
+                          }
+                        }
+                        if (!flag)
+                          break;
+                      }
+                      if (flag)
+                      {
+                        MeterReaderManager.logger.Error("[GMM] wrongDevice");
+                        if (this.OnError != null)
+                        {
+                          string message = Ot.Gtm(Tg.CommunicationLogic, "WrongSerialNumberDetected", "The read device has a different serial number than expected! ID:" + stringBuilder.ToString());
+                          this.OnError((object) this, (Exception) new InvalidMeterException(meter, message));
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          else if (system != null && meters.Count > 0)
+          {
+            ConnectionProfile connectionProfile = GmmInterface.DeviceManager.GetConnectionProfile(system, equipmentModel, profileType);
+            if (connectionProfile == null)
+            {
+              MeterReaderManager.logger.Error("[GMM] profile == null");
+              if (this.OnError == null)
+                return;
+              this.OnError((object) this, new Exception("Can not find profile for System: " + system?.ToString() + ", Equipment: " + equipmentModel?.ToString() + ", Profile: " + profileType?.ToString()));
+            }
+            else
+            {
+              connectionProfile.EquipmentModel.ChangeableParameters = equipmentModel.ChangeableParameters;
+              connectionProfile.DeviceModel.ChangeableParameters = system.ChangeableParameters;
+              connectionProfile.ProfileType.ChangeableParameters = profileType.ChangeableParameters;
+              SortedList<string, string> settingsList = connectionProfile.GetSettingsList();
+              deviceManager.PrepareCommunicationStructure(connectionProfile.GetConfigListObject());
+              deviceManager.BreakRequest = false;
+              if (!deviceManager.Open())
+              {
+                MeterReaderManager.logger.Error("[GMM] deviceManager.Open == false");
+                if (this.OnError == null)
+                  return;
+                string errorDescription = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+                MeterReaderManager.logger.Error("[GMM] gmmError: " + errorDescription);
+                this.OnError((object) this, new Exception(errorDescription));
+              }
+              else if (this.cancellationTokenSource.IsCancellationRequested)
+              {
+                MeterReaderManager.logger.Info("[GMM] cancellationTokenSource.IsCancellationRequested == true");
+              }
+              else
+              {
+                deviceManager.DeviceList_Clear();
+                deviceManager.ParameterType = ConfigurationParameter.ValueType.Complete;
+                if (this.OnProgress != null)
+                  this.OnProgress((object) this, 2);
+                foreach (ZENNER.CommonLibrary.Entities.Meter meter in meters)
+                {
+                  string empty = string.Empty;
+                  settingsList.TryGetValue("SelectedDeviceMBusType", out empty);
+                  if (!deviceManager.DeviceList_AddDevice(new GlobalDeviceId()
+                  {
+                    Serialnumber = meter.SerialNumber,
+                    DeviceTypeName = empty
+                  }))
+                  {
+                    string errorDescription = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+                    MeterReaderManager.logger.Error("[GMM] DeviceList_AddDevice gmmError: " + errorDescription);
+                    if (this.OnError == null)
+                      return;
+                    this.OnError((object) this, new Exception(errorDescription));
+                    return;
+                  }
+                }
+                if (deviceManager.DeviceList_ReadAll(filter))
+                  return;
+                string errorDescription1 = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+                MeterReaderManager.logger.Error("[GMM] DeviceList_ReadAll gmmError: " + errorDescription1);
+                if (this.OnError == null)
+                  return;
+                this.OnError((object) this, new Exception(errorDescription1));
+              }
+            }
+          }
+          else
+          {
+            ConnectionProfile connectionProfile = GmmInterface.DeviceManager.GetConnectionProfile(system, equipmentModel, profileType);
+            if (connectionProfile == null)
+            {
+              MeterReaderManager.logger.Error("[GMM] profile == null");
+              if (this.OnError == null)
+                return;
+              this.OnError((object) this, new Exception("Can not find profile for System: " + system?.ToString() + ", Equipment: " + equipmentModel?.ToString() + ", Profile: " + profileType?.ToString()));
+            }
+            else
+            {
+              connectionProfile.EquipmentModel.ChangeableParameters = equipmentModel.ChangeableParameters;
+              connectionProfile.DeviceModel.ChangeableParameters = system.ChangeableParameters;
+              connectionProfile.ProfileType.ChangeableParameters = profileType.ChangeableParameters;
+              deviceManager.PrepareCommunicationStructure(connectionProfile.GetConfigListObject());
+              deviceManager.BreakRequest = false;
+              if (!deviceManager.Open())
+              {
+                MeterReaderManager.logger.Error("[GMM] profile == null");
+                if (this.OnError == null)
+                  return;
+                this.OnError((object) this, new Exception(ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription));
+              }
+              else
+              {
+                if (this.cancellationTokenSource.IsCancellationRequested)
+                  return;
+                deviceManager.DeviceList_Clear();
+                deviceManager.ParameterType = ConfigurationParameter.ValueType.Complete;
+                if (this.OnProgress != null)
+                  this.OnProgress((object) this, 2);
+                if (deviceManager.DeviceList_ReadAll(filter))
+                  return;
+                string errorDescription = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+                MeterReaderManager.logger.Error("[GMM] DeviceList_ReadAll == false, gmmError: " + errorDescription);
+                if (this.OnError == null)
+                  return;
+                this.OnError((object) this, new Exception(errorDescription));
+              }
+            }
+          }
+        }
+        catch (Exception ex)
+        {
+          MeterReaderManager.logger.Error("[GMM] Exception: " + ex?.ToString());
+          if (this.OnError == null)
+            return;
+          this.OnError((object) this, ex);
+        }
+        finally
+        {
+          deviceManager.OnMessage -= new EventHandler<GMM_EventArgs>(this.OnMessage);
+          deviceManager.OnProgress -= new EventHandlerEx<int>(this.DeviceManager_OnProgress);
+          deviceManager.OnProgressMessage -= new EventHandlerEx<string>(this.DeviceManager_OnProgressMessage);
+          deviceManager.OnError -= new EventHandlerEx<Exception>(this.DeviceManager_OnError);
+          deviceManager.ValueIdentSetReceived -= eventHandler;
+          deviceManager.BatterieLow -= new System.EventHandler(this.AsynCom_BatterieLow);
+          if (!this.DontCloseConnectionAfterRead)
+          {
+            MeterReaderManager.logger.Info("[GMM] DontCloseConnectionAfterRead == false ");
+            deviceManager.Close();
+          }
+          ZR_ClassLibMessages.DeRegisterThreadErrorMsgList();
+          if (this.OnProgress != null)
+            this.OnProgress((object) this, 100);
+          if (this.OnProgressMessage != null)
+            this.OnProgressMessage((object) this, string.Empty);
+          if (this.OnReadFinished != null)
+            this.OnReadFinished((object) this, new ReadSettings()
+            {
+              System = system,
+              Filter = filter,
+              Meters = meters,
+              EquipmentModel = equipmentModel,
+              ProfileType = profileType
+            });
+        }
+      }), this.cancellationTokenSource.Token);
+      task.ContinueWith((Action<Task>) (_ => this.cancellationTokenSource = (CancellationTokenSource) null));
+      MeterReaderManager.logger.Trace("End ReadMeter");
+      return task;
+    }
+
+    private void UpdateChangableParameters(DeviceModel deviceModel, DeviceModel system)
+    {
+      if (system == null || system.ChangeableParameters == null || deviceModel == null || deviceModel.ChangeableParameters == null)
+        return;
+      foreach (ChangeableParameter changeableParameter1 in deviceModel.ChangeableParameters)
+      {
+        ChangeableParameter p1 = changeableParameter1;
+        ChangeableParameter changeableParameter2 = system.ChangeableParameters.Find((Predicate<ChangeableParameter>) (x => x.Key == p1.Key));
+        if (changeableParameter2 != null)
+          p1.Value = changeableParameter2.Value;
+      }
+    }
+
+    public void CancelRead()
+    {
+      MeterReaderManager.logger.Info(nameof (CancelRead));
+      if (this.cancellationTokenSource == null)
+        return;
+      this.cancellationTokenSource.Cancel();
+    }
+
+    public void CloseConnection()
+    {
+      MeterReaderManager.logger.Info(nameof (CloseConnection));
+      GmmInterface.Devices.Close();
+    }
+
+    private void OnMessage(object sender, GMM_EventArgs e)
+    {
+      if (e == null || this.cancellationTokenSource == null)
+        return;
+      e.Cancel = this.cancellationTokenSource.IsCancellationRequested;
+    }
+
+    private void DeviceManager_OnError(object sender, Exception e)
+    {
+      if (this.cancellationTokenSource != null && this.cancellationTokenSource.IsCancellationRequested || this.OnError == null)
+        return;
+      this.OnError(sender, (Exception) new InvalidMeterException((ZENNER.CommonLibrary.Entities.Meter) null, e));
+    }
+
+    private void DeviceManager_OnProgress(object sender, int e)
+    {
+      if (this.cancellationTokenSource != null && this.cancellationTokenSource.IsCancellationRequested || this.OnProgress == null)
+        return;
+      this.OnProgress(sender, e);
+    }
+
+    private void DeviceManager_OnProgressMessage(object sender, string e)
+    {
+      if (this.cancellationTokenSource != null && this.cancellationTokenSource.IsCancellationRequested || this.OnProgressMessage == null)
+        return;
+      this.OnProgressMessage(sender, e);
+    }
+
+    private void AsynCom_BatterieLow(object sender, EventArgs e)
+    {
+      if (this.BatterieLow == null)
+        return;
+      this.BatterieLow(sender, e);
+    }
+  }
+}
+
+
+--- MeterReceiverManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.MeterReceiverManager
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using GmmDbLib;
+using GmmDbLib.DataSets;
+using NLog;
+using ReadoutConfiguration;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
+using ZENNER.CommonLibrary.Entities;
+using ZENNER.CommonLibrary.Exceptions;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace ZENNER
+{
+  public sealed class MeterReceiverManager : IDisposable
+  {
+    private static Logger logger = LogManager.GetLogger(nameof (MeterReceiverManager));
+    private CancellationTokenSource cancellationTokenSource;
+
+    public MeterReceiverManager() => this.StoreResultsToDatabase = false;
+
+    public List<Job> Jobs { get; private set; }
+
+    public bool StoreResultsToDatabase { get; set; }
+
+    public event EventHandler<int> OnProgress;
+
+    public event EventHandler<ValueIdentSet> ValueIdentSetReceived;
+
+    public event EventHandler<Exception> OnError;
+
+    public event System.EventHandler ConnectionLost;
+
+    public event EventHandler<Job> OnJobCompleted;
+
+    internal void AddJob(Job job)
+    {
+      throw new NotImplementedException("Radio jobs are not supported!");
+    }
+
+    public void RemoveJob(Guid jobID)
+    {
+      Job job = (Job) null;
+      lock (this.Jobs)
+        job = this.Jobs.Find((Predicate<Job>) (x => x.JobID == jobID));
+      if (job == null)
+        return;
+      this.RemoveJob(job);
+    }
+
+    internal void RemoveJob(Job job)
+    {
+      throw new NotImplementedException("Radio jobs are not supported!");
+    }
+
+    public void Dispose() => this.StopRead();
+
+    public void StartRead(ZENNER.CommonLibrary.Entities.Meter meter, EquipmentModel equipmentModel, ProfileType profileType)
+    {
+      DeviceModel system = meter != null ? meter.DeviceModel : throw new ArgumentNullException(nameof (meter));
+      List<ZENNER.CommonLibrary.Entities.Meter> meters = new List<ZENNER.CommonLibrary.Entities.Meter>();
+      meters.Add(meter);
+      EquipmentModel equipmentModel1 = equipmentModel;
+      ProfileType profileType1 = profileType;
+      this.StartRead(system, meters, equipmentModel1, profileType1);
+    }
+
+    public void StartRead(
+      DeviceModel system,
+      List<ZENNER.CommonLibrary.Entities.Meter> meters,
+      EquipmentModel equipmentModel,
+      ProfileType profileType)
+    {
+      if (this.cancellationTokenSource != null)
+        return;
+      if (profileType == null)
+        throw new ArgumentNullException(nameof (profileType));
+      if (equipmentModel == null)
+        throw new ArgumentNullException(nameof (equipmentModel));
+      if (system == null && (meters == null || meters.Count == 0))
+        throw new ArgumentNullException(nameof (system));
+      if (system == null)
+        system = meters[0].DeviceModel;
+      if (meters == null)
+        meters = new List<ZENNER.CommonLibrary.Entities.Meter>();
+      this.cancellationTokenSource = new CancellationTokenSource();
+      bool receiveAllMeters = meters.Count == 0;
+      CultureInfo lang = Thread.CurrentThread.CurrentUICulture;
+      Devices.DeviceManager deviceManager = GmmInterface.Devices;
+      Task.Factory.StartNew((Action) (() =>
+      {
+        Thread.CurrentThread.CurrentUICulture = lang;
+        EventHandler<ValueIdentSet> eventHandler = (EventHandler<ValueIdentSet>) ((sender, e) =>
+        {
+          if (deviceManager == null)
+            return;
+          if (this.cancellationTokenSource != null && this.cancellationTokenSource.IsCancellationRequested)
+          {
+            deviceManager.BreakRequest = this.cancellationTokenSource.IsCancellationRequested;
+          }
+          else
+          {
+            ZENNER.CommonLibrary.Entities.Meter meter = meters.Find((Predicate<ZENNER.CommonLibrary.Entities.Meter>) (x => x.SerialNumber == e.SerialNumber));
+            if (this.StoreResultsToDatabase)
+            {
+              try
+              {
+                List<DriverTables.MeterMSSRow> meterMss = MeterMSS.GetMeterMSS(GmmInterface.Database.BaseDbConnection, e.SerialNumber);
+                DriverTables.MeterMSSRow meterMssRow = meterMss == null || meterMss.Count != 1 ? (DriverTables.MeterMSSRow) null : meterMss[0];
+                if (meterMssRow == null)
+                {
+                  if (meter != null)
+                    meterMssRow = MeterMSS.AddMeterMSS(GmmInterface.Database.BaseDbConnection, meter.ID, e.SerialNumber);
+                  else if (receiveAllMeters)
+                    meterMssRow = MeterMSS.AddMeterMSS(GmmInterface.Database.BaseDbConnection, Guid.NewGuid(), e.SerialNumber);
+                }
+                if (meterMssRow != null)
+                {
+                  if (meter != null)
+                  {
+                    MeterDatabase.SaveMeterValuesMSS(meterMssRow.MeterID, meterMssRow.SerialNumber, e.AvailableValues);
+                  }
+                  else
+                  {
+                    if (receiveAllMeters)
+                    {
+                      DeviceModel deviceModel = ReadoutConfigFunctions.Manager.DetermineDeviceModel(e);
+                      if (deviceModel != null)
+                        meters.Add(new ZENNER.CommonLibrary.Entities.Meter()
+                        {
+                          ID = meterMssRow.MeterID,
+                          SerialNumber = meterMssRow.SerialNumber,
+                          DeviceModel = deviceModel
+                        });
+                      else
+                        meters.Add(new ZENNER.CommonLibrary.Entities.Meter()
+                        {
+                          ID = meterMssRow.MeterID,
+                          SerialNumber = meterMssRow.SerialNumber,
+                          DeviceModel = system
+                        });
+                    }
+                    MeterDatabase.SaveMeterValuesMSS(meterMssRow.MeterID, meterMssRow.SerialNumber, e.AvailableValues);
+                  }
+                }
+              }
+              catch (Exception ex)
+              {
+                if (meter != null)
+                {
+                  if (this.OnError != null)
+                  {
+                    string message = Ot.Gtm(Tg.DB, "FailedStoreMeterValues", "Failed store meter values to database!") + " " + ex.Message;
+                    this.OnError((object) this, (Exception) new InvalidMeterException(meter, message));
+                  }
+                }
+                else if (this.OnError != null)
+                  this.OnError((object) this, new Exception(Ot.Gtm(Tg.DB, "FailedStoreMeterValues", "Failed store meter values to database!") + " " + ex.Message));
+              }
+            }
+            else if (receiveAllMeters && meter == null)
+            {
+              DeviceModel deviceModel = ReadoutConfigFunctions.Manager.DetermineDeviceModel(e);
+              if (deviceModel != null)
+                meters.Add(new ZENNER.CommonLibrary.Entities.Meter()
+                {
+                  ID = Guid.NewGuid(),
+                  SerialNumber = e.SerialNumber,
+                  DeviceModel = deviceModel
+                });
+              else
+                meters.Add(new ZENNER.CommonLibrary.Entities.Meter()
+                {
+                  ID = Guid.NewGuid(),
+                  SerialNumber = e.SerialNumber,
+                  DeviceModel = system
+                });
+            }
+            if (meter != null)
+              e.AvailableValues = ValueIdent.FilterMeterValues(e.AvailableValues, meter.Filter);
+            if (!receiveAllMeters && meter == null || this.ValueIdentSetReceived == null)
+              return;
+            this.ValueIdentSetReceived(sender, e);
+          }
+        });
+        EventHandlerEx<Exception> eventHandlerEx = (EventHandlerEx<Exception>) ((sender, e) =>
+        {
+          if (this.cancellationTokenSource != null && this.cancellationTokenSource.IsCancellationRequested)
+          {
+            deviceManager.BreakRequest = this.cancellationTokenSource.IsCancellationRequested;
+          }
+          else
+          {
+            if (this.OnError == null)
+              return;
+            this.OnError(sender, (Exception) new InvalidMeterException((ZENNER.CommonLibrary.Entities.Meter) null, e));
+          }
+        });
+        try
+        {
+          ZR_ClassLibMessages.RegisterThreadErrorMsgList();
+          if (this.OnProgress != null)
+            this.OnProgress((object) this, 1);
+          ConnectionProfile connectionProfile = GmmInterface.DeviceManager.GetConnectionProfile(system, equipmentModel, profileType);
+          if (connectionProfile == null)
+          {
+            if (this.OnError == null)
+              return;
+            this.OnError((object) this, new Exception("The connection profile does not exist!"));
+          }
+          else
+          {
+            connectionProfile.EquipmentModel.ChangeableParameters = equipmentModel.ChangeableParameters;
+            connectionProfile.DeviceModel.ChangeableParameters = system.ChangeableParameters;
+            connectionProfile.ProfileType.ChangeableParameters = profileType.ChangeableParameters;
+            deviceManager.PrepareCommunicationStructure(connectionProfile.GetConfigListObject());
+            deviceManager.OnMessage += new EventHandler<GMM_EventArgs>(this.OnMessage);
+            deviceManager.OnProgress += new EventHandlerEx<int>(this.DeviceManager_OnProgress);
+            deviceManager.OnError += eventHandlerEx;
+            deviceManager.ValueIdentSetReceived += eventHandler;
+            deviceManager.ConnectionLost += new System.EventHandler(this.DeviceManager_ConnectionLost);
+            deviceManager.BreakRequest = false;
+            if (!deviceManager.Open())
+            {
+              if (this.OnError == null)
+                return;
+              this.OnError((object) this, new Exception(ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription));
+            }
+            else
+            {
+              if (this.cancellationTokenSource.IsCancellationRequested)
+                return;
+              if (meters != null)
+              {
+                SortedList<string, string> settingsList = connectionProfile.GetSettingsList();
+                foreach (ZENNER.CommonLibrary.Entities.Meter meter in meters)
+                {
+                  if (!string.IsNullOrEmpty(meter.SerialNumber))
+                  {
+                    string empty = string.Empty;
+                    settingsList.TryGetValue("SelectedDeviceMBusType", out empty);
+                    if (!deviceManager.DeviceList_AddDevice(new GlobalDeviceId()
+                    {
+                      Serialnumber = meter.SerialNumber,
+                      DeviceTypeName = empty
+                    }))
+                    {
+                      string errorDescription = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+                      if (this.OnError != null)
+                        this.OnError((object) this, (Exception) new InvalidMeterException(meter, errorDescription));
+                    }
+                  }
+                }
+              }
+              if (deviceManager.DeviceList_ReadAll((List<long>) null))
+                return;
+              string errorDescription1 = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+              if (this.OnError == null)
+                return;
+              this.OnError((object) this, new Exception(errorDescription1));
+            }
+          }
+        }
+        catch (Exception ex)
+        {
+          if (this.OnError == null)
+            return;
+          this.OnError((object) this, ex);
+        }
+        finally
+        {
+          deviceManager.OnMessage -= new EventHandler<GMM_EventArgs>(this.OnMessage);
+          deviceManager.OnProgress -= new EventHandlerEx<int>(this.DeviceManager_OnProgress);
+          deviceManager.OnError -= eventHandlerEx;
+          deviceManager.ValueIdentSetReceived -= eventHandler;
+          deviceManager.ConnectionLost -= new System.EventHandler(this.DeviceManager_ConnectionLost);
+          ZR_ClassLibMessages.DeRegisterThreadErrorMsgList();
+          if (this.OnProgress != null)
+            this.OnProgress((object) this, 0);
+        }
+      }), this.cancellationTokenSource.Token).ContinueWith((Action<Task>) (_ => this.cancellationTokenSource = (CancellationTokenSource) null));
+    }
+
+    public void StopRead()
+    {
+      if (this.cancellationTokenSource != null)
+        this.cancellationTokenSource.Cancel();
+      Devices.DeviceManager devices = GmmInterface.Devices;
+      if (devices == null)
+        return;
+      devices.BreakRequest = true;
+    }
+
+    private void OnMessage(object sender, GMM_EventArgs e)
+    {
+      if (e == null || this.cancellationTokenSource == null)
+        return;
+      e.Cancel = this.cancellationTokenSource.IsCancellationRequested;
+    }
+
+    private void DeviceManager_OnProgress(object sender, int e)
+    {
+      if (this.cancellationTokenSource != null && this.cancellationTokenSource.IsCancellationRequested || this.OnProgress == null)
+        return;
+      this.OnProgress(sender, e);
+    }
+
+    private void DeviceManager_ConnectionLost(object sender, EventArgs e)
+    {
+      if (this.ConnectionLost == null)
+        return;
+      this.ConnectionLost(sender, e);
+    }
+  }
+}
+
+
+--- ReadSettings.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.ReadSettings
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using System;
+using System.Collections.Generic;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace ZENNER
+{
+  [Serializable]
+  public sealed class ReadSettings
+  {
+    public DeviceModel System { get; set; }
+
+    public List<long> Filter { get; set; }
+
+    public List<Meter> Meters { get; set; }
+
+    public EquipmentModel EquipmentModel { get; set; }
+
+    public ProfileType ProfileType { get; set; }
+
+    public override string ToString()
+    {
+      if (this.System != null)
+        return this.System.ToString();
+      return this.Meters != null && this.Meters.Count != 0 ? this.Meters[0].ToString() : base.ToString();
+    }
+  }
+}
+
+
+--- ScannerManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.ScannerManager
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using NLog;
+using ReadoutConfiguration;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
+using ZENNER.CommonLibrary;
+using ZENNER.CommonLibrary.Entities;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace ZENNER
+{
+  public sealed class ScannerManager
+  {
+    private static Logger logger = LogManager.GetLogger(nameof (ScannerManager));
+    private CancellationTokenSource cancellationTokenSource;
+
+    public event EventHandler<ZENNER.CommonLibrary.Entities.Meter> OnMeterFound;
+
+    public event EventHandler<Exception> OnError;
+
+    public event EventHandler<int> OnProgress;
+
+    public event EventHandler<string> OnProgressMessage;
+
+    public List<ZENNER.CommonLibrary.Entities.Meter> Meters { get; private set; }
+
+    public event System.EventHandler BatterieLow;
+
+    public void BeginScan(EquipmentModel equipment, DeviceModel system, ProfileType profileType)
+    {
+      if (this.cancellationTokenSource != null && !this.cancellationTokenSource.IsCancellationRequested)
+        return;
+      if (system == null)
+        throw new ArgumentNullException(nameof (system));
+      if (profileType == null)
+        throw new ArgumentNullException(nameof (profileType));
+      if (equipment == null)
+        throw new ArgumentNullException(nameof (equipment));
+      ConnectionProfile profile = GmmInterface.DeviceManager.GetConnectionProfile(system, equipment, profileType);
+      if (profile == null)
+        throw new ArgumentNullException("profile");
+      profile.EquipmentModel.ChangeableParameters = equipment.ChangeableParameters;
+      profile.DeviceModel.ChangeableParameters = system.ChangeableParameters;
+      profile.ProfileType.ChangeableParameters = profileType.ChangeableParameters;
+      this.cancellationTokenSource = new CancellationTokenSource();
+      this.Meters = new List<ZENNER.CommonLibrary.Entities.Meter>();
+      Devices.DeviceManager deviceManager = GmmInterface.Devices;
+      CultureInfo lang = Thread.CurrentThread.CurrentUICulture;
+      Task.Factory.StartNew((Action) (() =>
+      {
+        Thread.CurrentThread.CurrentUICulture = lang;
+        EventHandler<ValueIdentSet> eventHandler = (EventHandler<ValueIdentSet>) ((sender, e) =>
+        {
+          if (deviceManager == null)
+            return;
+          if (this.cancellationTokenSource != null && this.cancellationTokenSource.IsCancellationRequested)
+          {
+            deviceManager.BreakRequest = this.cancellationTokenSource.IsCancellationRequested;
+          }
+          else
+          {
+            ZENNER.CommonLibrary.Entities.Meter e2 = new ZENNER.CommonLibrary.Entities.Meter();
+            e2.DeviceModel = ReadoutConfigFunctions.Manager.DetermineDeviceModel(e);
+            if (e2.DeviceModel == null)
+              e2.DeviceModel = system;
+            e2.SerialNumber = e.SerialNumber;
+            if (!string.IsNullOrEmpty(e.Manufacturer))
+            {
+              if (e2.AdditionalInfo == null)
+                e2.AdditionalInfo = new Dictionary<AdditionalInfoKey, string>();
+              e2.AdditionalInfo.Add(AdditionalInfoKey.Manufacturer, e.Manufacturer);
+            }
+            if (!string.IsNullOrEmpty(e.Version))
+            {
+              if (e2.AdditionalInfo == null)
+                e2.AdditionalInfo = new Dictionary<AdditionalInfoKey, string>();
+              e2.AdditionalInfo.Add(AdditionalInfoKey.Version, e.Version);
+            }
+            if (!string.IsNullOrEmpty(e.DeviceType))
+            {
+              if (e2.AdditionalInfo == null)
+                e2.AdditionalInfo = new Dictionary<AdditionalInfoKey, string>();
+              e2.AdditionalInfo.Add(AdditionalInfoKey.Medium, e.DeviceType);
+            }
+            if (!string.IsNullOrEmpty(e.ZDF))
+            {
+              if (e2.AdditionalInfo == null)
+                e2.AdditionalInfo = new Dictionary<AdditionalInfoKey, string>();
+              e2.AdditionalInfo.Add(AdditionalInfoKey.ZDF, e.ZDF);
+            }
+            if (!string.IsNullOrEmpty(e.MainDeviceSerialNumber))
+            {
+              if (e2.AdditionalInfo == null)
+                e2.AdditionalInfo = new Dictionary<AdditionalInfoKey, string>();
+              e2.AdditionalInfo.Add(AdditionalInfoKey.MainDeviceSecondaryAddress, e.MainDeviceSerialNumber);
+              e2.AdditionalInfo.Add(AdditionalInfoKey.InputNumber, e.Channel.ToString());
+            }
+            if (!string.IsNullOrEmpty(e.PrimaryAddress))
+            {
+              if (e2.AdditionalInfo == null)
+                e2.AdditionalInfo = new Dictionary<AdditionalInfoKey, string>();
+              e2.AdditionalInfo.Add(AdditionalInfoKey.PrimaryAddress, e.PrimaryAddress);
+            }
+            if (!this.Meters.Exists((Predicate<ZENNER.CommonLibrary.Entities.Meter>) (x => x.SerialNumber == e.SerialNumber)))
+              this.Meters.Add(e2);
+            if (this.OnMeterFound == null)
+              return;
+            this.OnMeterFound((object) this, e2);
+          }
+        });
+        try
+        {
+          ZR_ClassLibMessages.RegisterThreadErrorMsgList();
+          if (this.OnProgress != null)
+            this.OnProgress((object) this, 1);
+          ConfigList configListObject = profile.GetConfigListObject();
+          deviceManager.OnMessage += new EventHandler<GMM_EventArgs>(this.OnMessage);
+          deviceManager.OnProgress += new EventHandlerEx<int>(this.DeviceManager_OnProgress);
+          deviceManager.OnProgressMessage += new EventHandlerEx<string>(this.DeviceManager_OnProgressMessage);
+          deviceManager.OnError += new EventHandlerEx<Exception>(this.DeviceManager_OnError);
+          deviceManager.ValueIdentSetReceived += eventHandler;
+          deviceManager.BatterieLow += new System.EventHandler(this.AsynCom_BatterieLow);
+          deviceManager.PrepareCommunicationStructure(configListObject);
+          deviceManager.BreakRequest = false;
+          if (!deviceManager.Open())
+          {
+            if (this.OnError == null)
+              return;
+            this.OnError((object) this, new Exception(ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription));
+          }
+          else
+          {
+            if (this.cancellationTokenSource.IsCancellationRequested)
+              return;
+            if (this.OnProgress != null)
+              this.OnProgress((object) this, 2);
+            if (deviceManager.BeginSearchDevices())
+              return;
+            string errorDescription = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+            if (this.OnError == null)
+              return;
+            this.OnError((object) this, new Exception(errorDescription));
+          }
+        }
+        catch (Exception ex)
+        {
+          if (this.OnError == null)
+            return;
+          this.OnError((object) this, ex);
+        }
+        finally
+        {
+          deviceManager.OnMessage -= new EventHandler<GMM_EventArgs>(this.OnMessage);
+          deviceManager.OnProgress -= new EventHandlerEx<int>(this.DeviceManager_OnProgress);
+          deviceManager.OnProgressMessage -= new EventHandlerEx<string>(this.DeviceManager_OnProgressMessage);
+          deviceManager.OnError -= new EventHandlerEx<Exception>(this.DeviceManager_OnError);
+          deviceManager.ValueIdentSetReceived -= eventHandler;
+          deviceManager.BatterieLow -= new System.EventHandler(this.AsynCom_BatterieLow);
+          this.cancellationTokenSource = (CancellationTokenSource) null;
+          ZR_ClassLibMessages.DeRegisterThreadErrorMsgList();
+          if (this.OnProgress != null)
+            this.OnProgress((object) this, 100);
+          if (this.OnProgressMessage != null)
+            this.OnProgressMessage((object) this, string.Empty);
+        }
+      }), this.cancellationTokenSource.Token);
+    }
+
+    public void CancelScan()
+    {
+      if (this.cancellationTokenSource == null)
+        return;
+      this.cancellationTokenSource.Cancel();
+    }
+
+    private void OnMessage(object sender, GMM_EventArgs e)
+    {
+      if (e == null || this.cancellationTokenSource == null)
+        return;
+      e.Cancel = this.cancellationTokenSource.IsCancellationRequested;
+    }
+
+    private void DeviceManager_OnError(object sender, Exception e)
+    {
+      if (this.cancellationTokenSource != null && this.cancellationTokenSource.IsCancellationRequested || this.OnError == null)
+        return;
+      this.OnError(sender, e);
+    }
+
+    private void DeviceManager_OnProgress(object sender, int e)
+    {
+      if (this.cancellationTokenSource != null && this.cancellationTokenSource.IsCancellationRequested || this.OnProgress == null)
+        return;
+      this.OnProgress(sender, e);
+    }
+
+    private void DeviceManager_OnProgressMessage(object sender, string e)
+    {
+      if (this.cancellationTokenSource != null && this.cancellationTokenSource.IsCancellationRequested || this.OnProgressMessage == null)
+        return;
+      this.OnProgressMessage(sender, e);
+    }
+
+    private void AsynCom_BatterieLow(object sender, EventArgs e)
+    {
+      if (this.BatterieLow == null)
+        return;
+      this.BatterieLow(sender, e);
+    }
+  }
+}
+
+
+--- ServiceTaskManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.ServiceTaskManager
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using GmmDbLib;
+using MinomatHandler;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace ZENNER
+{
+  public sealed class ServiceTaskManager
+  {
+    public static List<ServiceTask> GetServices(DeviceModel model)
+    {
+      if (model == null)
+        throw new NullReferenceException(nameof (model));
+      if (!(model.Name == "Minomat V4 Master") && !(model.Name == "Minomat V4 Slave"))
+        return (List<ServiceTask>) null;
+      List<ServiceTask> services = new List<ServiceTask>();
+      foreach (MethodInfo method in typeof (MinomatV4).GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public))
+      {
+        if (!method.IsSpecialName && !method.IsVirtual && !method.IsConstructor)
+        {
+          ParameterInfo[] parameters = method.GetParameters();
+          if (parameters == null || parameters.Length == 0)
+            services.Add(new ServiceTask()
+            {
+              Method = method,
+              Description = Ot.GetTranslatedLanguageText("STM_", method.ToString())
+            });
+        }
+      }
+      return services;
+    }
+  }
+}
+
+
+--- TransmissionScenario.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.TransmissionScenario
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER
+{
+  [Serializable]
+  public enum TransmissionScenario : byte
+  {
+    Scenario1_Monthly = 1,
+    Scenario2_Daily = 2,
+    Scenario3_Hourly = 3,
+    WMBusFormatA = 10, // 0x0A
+    WMBusFormatB = 11, // 0x0B
+  }
+}
+

@@ -1,0 +1,2025 @@
+
+--- AssemblyInfo.cs ---
+
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security.Permissions;
+
+[assembly: AssemblyFileVersion("2.2.5.0")]
+[assembly: Guid("0b92679b-69da-4c6c-935c-7df7ae8bec84")]
+[assembly: AssemblyTitle("AForge.Video.DirectShow")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("AForge")]
+[assembly: AssemblyProduct("AForge.NET")]
+[assembly: AssemblyCopyright("AForge © 2012")]
+[assembly: AssemblyTrademark("")]
+[assembly: ComVisible(false)]
+[assembly: AssemblyVersion("2.2.5.0")]
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
+
+
+--- CameraControlFlags.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.CameraControlFlags
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+
+#nullable disable
+namespace AForge.Video.DirectShow
+{
+  [Flags]
+  public enum CameraControlFlags
+  {
+    None = 0,
+    Auto = 1,
+    Manual = 2,
+  }
+}
+
+
+--- CameraControlProperty.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.CameraControlProperty
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+#nullable disable
+namespace AForge.Video.DirectShow
+{
+  public enum CameraControlProperty
+  {
+    Pan,
+    Tilt,
+    Roll,
+    Zoom,
+    Exposure,
+    Iris,
+    Focus,
+  }
+}
+
+
+--- FileVideoSource.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.FileVideoSource
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using AForge.Video.DirectShow.Internals;
+using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
+using System.Threading;
+
+#nullable disable
+namespace AForge.Video.DirectShow
+{
+  public class FileVideoSource : IVideoSource
+  {
+    private string fileName;
+    private int framesReceived;
+    private long bytesReceived;
+    private bool preventFreezing;
+    private bool referenceClockEnabled = true;
+    private Thread thread;
+    private ManualResetEvent stopEvent;
+
+    public event NewFrameEventHandler NewFrame;
+
+    public event VideoSourceErrorEventHandler VideoSourceError;
+
+    public event PlayingFinishedEventHandler PlayingFinished;
+
+    public virtual string Source
+    {
+      get => this.fileName;
+      set => this.fileName = value;
+    }
+
+    public int FramesReceived
+    {
+      get
+      {
+        int framesReceived = this.framesReceived;
+        this.framesReceived = 0;
+        return framesReceived;
+      }
+    }
+
+    public long BytesReceived
+    {
+      get
+      {
+        long bytesReceived = this.bytesReceived;
+        this.bytesReceived = 0L;
+        return bytesReceived;
+      }
+    }
+
+    public bool IsRunning
+    {
+      get
+      {
+        if (this.thread != null)
+        {
+          if (!this.thread.Join(0))
+            return true;
+          this.Free();
+        }
+        return false;
+      }
+    }
+
+    public bool PreventFreezing
+    {
+      get => this.preventFreezing;
+      set => this.preventFreezing = value;
+    }
+
+    public bool ReferenceClockEnabled
+    {
+      get => this.referenceClockEnabled;
+      set => this.referenceClockEnabled = value;
+    }
+
+    public FileVideoSource()
+    {
+    }
+
+    public FileVideoSource(string fileName) => this.fileName = fileName;
+
+    public void Start()
+    {
+      if (this.IsRunning)
+        return;
+      if (this.fileName == null || this.fileName == string.Empty)
+        throw new ArgumentException("Video source is not specified");
+      this.framesReceived = 0;
+      this.bytesReceived = 0L;
+      this.stopEvent = new ManualResetEvent(false);
+      this.thread = new Thread(new ThreadStart(this.WorkerThread));
+      this.thread.Name = this.fileName;
+      this.thread.Start();
+    }
+
+    public void SignalToStop()
+    {
+      if (this.thread == null)
+        return;
+      this.stopEvent.Set();
+    }
+
+    public void WaitForStop()
+    {
+      if (this.thread == null)
+        return;
+      this.thread.Join();
+      this.Free();
+    }
+
+    public void Stop()
+    {
+      if (!this.IsRunning)
+        return;
+      this.thread.Abort();
+      this.WaitForStop();
+    }
+
+    private void Free()
+    {
+      this.thread = (Thread) null;
+      this.stopEvent.Close();
+      this.stopEvent = (ManualResetEvent) null;
+    }
+
+    private void WorkerThread()
+    {
+      ReasonToFinishPlaying reason = ReasonToFinishPlaying.StoppedByUser;
+      FileVideoSource.Grabber callback = new FileVideoSource.Grabber(this);
+      object o1 = (object) null;
+      object o2 = (object) null;
+      IGraphBuilder graphBuilder1 = (IGraphBuilder) null;
+      IBaseFilter filter1 = (IBaseFilter) null;
+      IBaseFilter baseFilter = (IBaseFilter) null;
+      ISampleGrabber sampleGrabber1 = (ISampleGrabber) null;
+      IMediaControl mediaControl1 = (IMediaControl) null;
+      IMediaEventEx mediaEventEx1 = (IMediaEventEx) null;
+      try
+      {
+        o1 = Activator.CreateInstance(Type.GetTypeFromCLSID(Clsid.FilterGraph) ?? throw new ApplicationException("Failed creating filter graph"));
+        IGraphBuilder graphBuilder2 = (IGraphBuilder) o1;
+        graphBuilder2.AddSourceFilter(this.fileName, "source", out filter1);
+        if (filter1 == null)
+          throw new ApplicationException("Failed creating source filter");
+        o2 = Activator.CreateInstance(Type.GetTypeFromCLSID(Clsid.SampleGrabber) ?? throw new ApplicationException("Failed creating sample grabber"));
+        ISampleGrabber sampleGrabber2 = (ISampleGrabber) o2;
+        IBaseFilter filter2 = (IBaseFilter) o2;
+        graphBuilder2.AddFilter(filter2, "grabber");
+        AMMediaType mediaType = new AMMediaType();
+        mediaType.MajorType = MediaType.Video;
+        mediaType.SubType = MediaSubType.RGB24;
+        sampleGrabber2.SetMediaType(mediaType);
+        int num = 0;
+        IPin inPin = Tools.GetInPin(filter2, 0);
+        IPin pin = (IPin) null;
+        IPin outPin;
+        while (true)
+        {
+          outPin = Tools.GetOutPin(filter1, num);
+          if (outPin != null)
+          {
+            if (graphBuilder2.Connect(outPin, inPin) < 0)
+            {
+              Marshal.ReleaseComObject((object) outPin);
+              pin = (IPin) null;
+              ++num;
+            }
+            else
+              goto label_12;
+          }
+          else
+            break;
+        }
+        Marshal.ReleaseComObject((object) inPin);
+        throw new ApplicationException("Did not find acceptable output video pin in the given source");
+label_12:
+        Marshal.ReleaseComObject((object) outPin);
+        Marshal.ReleaseComObject((object) inPin);
+        if (sampleGrabber2.GetConnectedMediaType(mediaType) == 0)
+        {
+          VideoInfoHeader structure = (VideoInfoHeader) Marshal.PtrToStructure(mediaType.FormatPtr, typeof (VideoInfoHeader));
+          callback.Width = structure.BmiHeader.Width;
+          callback.Height = structure.BmiHeader.Height;
+          mediaType.Dispose();
+        }
+        if (!this.preventFreezing)
+        {
+          graphBuilder2.Render(Tools.GetOutPin(filter2, 0));
+          ((IVideoWindow) o1).put_AutoShow(false);
+        }
+        sampleGrabber2.SetBufferSamples(false);
+        sampleGrabber2.SetOneShot(false);
+        sampleGrabber2.SetCallback((ISampleGrabberCB) callback, 1);
+        if (!this.referenceClockEnabled)
+          ((IMediaFilter) o1).SetSyncSource((IReferenceClock) null);
+        IMediaControl mediaControl2 = (IMediaControl) o1;
+        IMediaEventEx mediaEventEx2 = (IMediaEventEx) o1;
+        mediaControl2.Run();
+        do
+        {
+          DsEvCode lEventCode;
+          IntPtr lParam1;
+          IntPtr lParam2;
+          if (mediaEventEx2 != null && mediaEventEx2.GetEvent(out lEventCode, out lParam1, out lParam2, 0) >= 0)
+          {
+            mediaEventEx2.FreeEventParams(lEventCode, lParam1, lParam2);
+            if (lEventCode == DsEvCode.Complete)
+            {
+              reason = ReasonToFinishPlaying.EndOfStreamReached;
+              break;
+            }
+          }
+        }
+        while (!this.stopEvent.WaitOne(100, false));
+        mediaControl2.Stop();
+      }
+      catch (Exception ex)
+      {
+        if (this.VideoSourceError != null)
+          this.VideoSourceError((object) this, new VideoSourceErrorEventArgs(ex.Message));
+      }
+      finally
+      {
+        graphBuilder1 = (IGraphBuilder) null;
+        baseFilter = (IBaseFilter) null;
+        sampleGrabber1 = (ISampleGrabber) null;
+        mediaControl1 = (IMediaControl) null;
+        mediaEventEx1 = (IMediaEventEx) null;
+        if (o1 != null)
+          Marshal.ReleaseComObject(o1);
+        if (filter1 != null)
+          Marshal.ReleaseComObject((object) filter1);
+        if (o2 != null)
+          Marshal.ReleaseComObject(o2);
+      }
+      if (this.PlayingFinished == null)
+        return;
+      this.PlayingFinished((object) this, reason);
+    }
+
+    protected void OnNewFrame(Bitmap image)
+    {
+      ++this.framesReceived;
+      this.bytesReceived += (long) (image.Width * image.Height * (Image.GetPixelFormatSize(image.PixelFormat) >> 3));
+      if (this.stopEvent.WaitOne(0, false) || this.NewFrame == null)
+        return;
+      this.NewFrame((object) this, new NewFrameEventArgs(image));
+    }
+
+    private class Grabber : ISampleGrabberCB
+    {
+      private FileVideoSource parent;
+      private int width;
+      private int height;
+
+      public int Width
+      {
+        get => this.width;
+        set => this.width = value;
+      }
+
+      public int Height
+      {
+        get => this.height;
+        set => this.height = value;
+      }
+
+      public Grabber(FileVideoSource parent) => this.parent = parent;
+
+      public int SampleCB(double sampleTime, IntPtr sample) => 0;
+
+      public unsafe int BufferCB(double sampleTime, IntPtr buffer, int bufferLen)
+      {
+        if (this.parent.NewFrame != null)
+        {
+          Bitmap image = new Bitmap(this.width, this.height, PixelFormat.Format24bppRgb);
+          BitmapData bitmapdata = image.LockBits(new Rectangle(0, 0, this.width, this.height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+          int stride1 = bitmapdata.Stride;
+          int stride2 = bitmapdata.Stride;
+          byte* dst = (byte*) ((IntPtr) bitmapdata.Scan0.ToPointer() + (IntPtr) stride2 * (this.height - 1));
+          byte* pointer = (byte*) buffer.ToPointer();
+          for (int index = 0; index < this.height; ++index)
+          {
+            Win32.memcpy(dst, pointer, stride1);
+            dst -= stride2;
+            pointer += stride1;
+          }
+          image.UnlockBits(bitmapdata);
+          this.parent.OnNewFrame(image);
+          image.Dispose();
+        }
+        return 0;
+      }
+    }
+  }
+}
+
+
+--- FilterCategory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.FilterCategory
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using System;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow
+{
+  [ComVisible(false)]
+  public static class FilterCategory
+  {
+    public static readonly Guid AudioInputDevice = new Guid(869902178U, (ushort) 37064, (ushort) 4560, (byte) 189, (byte) 67, (byte) 0, (byte) 160, (byte) 201, (byte) 17, (byte) 206, (byte) 134);
+    public static readonly Guid VideoInputDevice = new Guid(2248913680U, (ushort) 23809, (ushort) 4560, (byte) 189, (byte) 59, (byte) 0, (byte) 160, (byte) 201, (byte) 17, (byte) 206, (byte) 134);
+    public static readonly Guid VideoCompressorCategory = new Guid(869902176U, (ushort) 37064, (ushort) 4560, (byte) 189, (byte) 67, (byte) 0, (byte) 160, (byte) 201, (byte) 17, (byte) 206, (byte) 134);
+    public static readonly Guid AudioCompressorCategory = new Guid(869902177U, (ushort) 37064, (ushort) 4560, (byte) 189, (byte) 67, (byte) 0, (byte) 160, (byte) 201, (byte) 17, (byte) 206, (byte) 134);
+  }
+}
+
+
+--- FilterInfo.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.FilterInfo
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using AForge.Video.DirectShow.Internals;
+using System;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
+
+#nullable disable
+namespace AForge.Video.DirectShow
+{
+  public class FilterInfo : IComparable
+  {
+    public string Name { get; private set; }
+
+    public string MonikerString { get; private set; }
+
+    public FilterInfo(string monikerString)
+    {
+      this.MonikerString = monikerString;
+      this.Name = this.GetName(monikerString);
+    }
+
+    internal FilterInfo(IMoniker moniker)
+    {
+      this.MonikerString = this.GetMonikerString(moniker);
+      this.Name = this.GetName(moniker);
+    }
+
+    public int CompareTo(object value)
+    {
+      FilterInfo filterInfo = (FilterInfo) value;
+      return filterInfo == null ? 1 : this.Name.CompareTo(filterInfo.Name);
+    }
+
+    public static object CreateFilter(string filterMoniker)
+    {
+      object ppvResult = (object) null;
+      IBindCtx ppbc = (IBindCtx) null;
+      IMoniker ppmk = (IMoniker) null;
+      int pchEaten = 0;
+      if (Win32.CreateBindCtx(0, out ppbc) == 0)
+      {
+        if (Win32.MkParseDisplayName(ppbc, filterMoniker, ref pchEaten, out ppmk) == 0)
+        {
+          Guid guid = typeof (IBaseFilter).GUID;
+          ppmk.BindToObject((IBindCtx) null, (IMoniker) null, ref guid, out ppvResult);
+          Marshal.ReleaseComObject((object) ppmk);
+        }
+        Marshal.ReleaseComObject((object) ppbc);
+      }
+      return ppvResult;
+    }
+
+    private string GetMonikerString(IMoniker moniker)
+    {
+      string ppszDisplayName;
+      moniker.GetDisplayName((IBindCtx) null, (IMoniker) null, out ppszDisplayName);
+      return ppszDisplayName;
+    }
+
+    private string GetName(IMoniker moniker)
+    {
+      object ppvObj = (object) null;
+      IPropertyBag propertyBag1 = (IPropertyBag) null;
+      try
+      {
+        Guid guid = typeof (IPropertyBag).GUID;
+        moniker.BindToStorage((IBindCtx) null, (IMoniker) null, ref guid, out ppvObj);
+        IPropertyBag propertyBag2 = (IPropertyBag) ppvObj;
+        object pVar = (object) "";
+        int errorCode = propertyBag2.Read("FriendlyName", ref pVar, IntPtr.Zero);
+        if (errorCode != 0)
+          Marshal.ThrowExceptionForHR(errorCode);
+        string str = (string) pVar;
+        return str != null && str.Length >= 1 ? str : throw new ApplicationException();
+      }
+      catch (Exception ex)
+      {
+        return "";
+      }
+      finally
+      {
+        propertyBag1 = (IPropertyBag) null;
+        if (ppvObj != null)
+          Marshal.ReleaseComObject(ppvObj);
+      }
+    }
+
+    private string GetName(string monikerString)
+    {
+      IBindCtx ppbc = (IBindCtx) null;
+      IMoniker ppmk = (IMoniker) null;
+      string name = "";
+      int pchEaten = 0;
+      if (Win32.CreateBindCtx(0, out ppbc) == 0)
+      {
+        if (Win32.MkParseDisplayName(ppbc, monikerString, ref pchEaten, out ppmk) == 0)
+        {
+          name = this.GetName(ppmk);
+          Marshal.ReleaseComObject((object) ppmk);
+          ppmk = (IMoniker) null;
+        }
+        Marshal.ReleaseComObject((object) ppbc);
+      }
+      return name;
+    }
+  }
+}
+
+
+--- FilterInfoCollection.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.FilterInfoCollection
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using AForge.Video.DirectShow.Internals;
+using System;
+using System.Collections;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
+
+#nullable disable
+namespace AForge.Video.DirectShow
+{
+  public class FilterInfoCollection : CollectionBase
+  {
+    public FilterInfoCollection(Guid category) => this.CollectFilters(category);
+
+    public FilterInfo this[int index] => (FilterInfo) this.InnerList[index];
+
+    private void CollectFilters(Guid category)
+    {
+      object o = (object) null;
+      ICreateDevEnum createDevEnum = (ICreateDevEnum) null;
+      IEnumMoniker enumMoniker = (IEnumMoniker) null;
+      IMoniker[] rgelt = new IMoniker[1];
+      try
+      {
+        o = Activator.CreateInstance(Type.GetTypeFromCLSID(Clsid.SystemDeviceEnum) ?? throw new ApplicationException("Failed creating device enumerator"));
+        if (((ICreateDevEnum) o).CreateClassEnumerator(ref category, out enumMoniker, 0) != 0)
+          throw new ApplicationException("No devices of the category");
+        IntPtr zero = IntPtr.Zero;
+        while (enumMoniker.Next(1, rgelt, zero) == 0 && rgelt[0] != null)
+        {
+          this.InnerList.Add((object) new FilterInfo(rgelt[0]));
+          Marshal.ReleaseComObject((object) rgelt[0]);
+          rgelt[0] = (IMoniker) null;
+        }
+        this.InnerList.Sort();
+      }
+      catch
+      {
+      }
+      finally
+      {
+        createDevEnum = (ICreateDevEnum) null;
+        if (o != null)
+          Marshal.ReleaseComObject(o);
+        if (enumMoniker != null)
+          Marshal.ReleaseComObject((object) enumMoniker);
+        if (rgelt[0] != null)
+        {
+          Marshal.ReleaseComObject((object) rgelt[0]);
+          rgelt[0] = (IMoniker) null;
+        }
+      }
+    }
+  }
+}
+
+
+--- PhysicalConnectorType.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.PhysicalConnectorType
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+#nullable disable
+namespace AForge.Video.DirectShow
+{
+  public enum PhysicalConnectorType
+  {
+    Default = 0,
+    VideoTuner = 1,
+    VideoComposite = 2,
+    VideoSVideo = 3,
+    VideoRGB = 4,
+    VideoYRYBY = 5,
+    VideoSerialDigital = 6,
+    VideoParallelDigital = 7,
+    VideoSCSI = 8,
+    VideoAUX = 9,
+    Video1394 = 10, // 0x0000000A
+    VideoUSB = 11, // 0x0000000B
+    VideoDecoder = 12, // 0x0000000C
+    VideoEncoder = 13, // 0x0000000D
+    VideoSCART = 14, // 0x0000000E
+    VideoBlack = 15, // 0x0000000F
+    AudioTuner = 4096, // 0x00001000
+    AudioLine = 4097, // 0x00001001
+    AudioMic = 4098, // 0x00001002
+    AudioAESDigital = 4099, // 0x00001003
+    AudioSPDIFDigital = 4100, // 0x00001004
+    AudioSCSI = 4101, // 0x00001005
+    AudioAUX = 4102, // 0x00001006
+    Audio1394 = 4103, // 0x00001007
+    AudioUSB = 4104, // 0x00001008
+    AudioDecoder = 4105, // 0x00001009
+  }
+}
+
+
+--- VideoCapabilities.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.VideoCapabilities
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using AForge.Video.DirectShow.Internals;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace AForge.Video.DirectShow
+{
+  public class VideoCapabilities
+  {
+    public readonly Size FrameSize;
+    public readonly int AverageFrameRate;
+    public readonly int MaximumFrameRate;
+    public readonly int BitCount;
+
+    [Obsolete("No longer supported. Use AverageFrameRate instead.")]
+    public int FrameRate => this.AverageFrameRate;
+
+    internal VideoCapabilities()
+    {
+    }
+
+    internal static VideoCapabilities[] FromStreamConfig(IAMStreamConfig videoStreamConfig)
+    {
+      int count;
+      int size;
+      int errorCode = videoStreamConfig != null ? videoStreamConfig.GetNumberOfCapabilities(out count, out size) : throw new ArgumentNullException(nameof (videoStreamConfig));
+      if (errorCode != 0)
+        Marshal.ThrowExceptionForHR(errorCode);
+      if (count <= 0)
+        throw new NotSupportedException("This video device does not report capabilities.");
+      if (size > Marshal.SizeOf(typeof (VideoStreamConfigCaps)))
+        throw new NotSupportedException("Unable to retrieve video device capabilities. This video device requires a larger VideoStreamConfigCaps structure.");
+      Dictionary<uint, VideoCapabilities> dictionary = new Dictionary<uint, VideoCapabilities>();
+      for (int index = 0; index < count; ++index)
+      {
+        try
+        {
+          VideoCapabilities videoCapabilities = new VideoCapabilities(videoStreamConfig, index);
+          uint key = (uint) (videoCapabilities.FrameSize.Height | videoCapabilities.FrameSize.Width << 16);
+          if (!dictionary.ContainsKey(key))
+            dictionary.Add(key, videoCapabilities);
+          else if (videoCapabilities.BitCount > dictionary[key].BitCount)
+            dictionary[key] = videoCapabilities;
+        }
+        catch
+        {
+        }
+      }
+      VideoCapabilities[] array = new VideoCapabilities[dictionary.Count];
+      dictionary.Values.CopyTo(array, 0);
+      return array;
+    }
+
+    internal VideoCapabilities(IAMStreamConfig videoStreamConfig, int index)
+    {
+      AMMediaType mediaType = (AMMediaType) null;
+      VideoStreamConfigCaps streamConfigCaps = new VideoStreamConfigCaps();
+      try
+      {
+        int streamCaps = videoStreamConfig.GetStreamCaps(index, out mediaType, streamConfigCaps);
+        if (streamCaps != 0)
+          Marshal.ThrowExceptionForHR(streamCaps);
+        if (mediaType.FormatType == FormatType.VideoInfo)
+        {
+          VideoInfoHeader structure = (VideoInfoHeader) Marshal.PtrToStructure(mediaType.FormatPtr, typeof (VideoInfoHeader));
+          this.FrameSize = new Size(structure.BmiHeader.Width, structure.BmiHeader.Height);
+          this.BitCount = (int) structure.BmiHeader.BitCount;
+          this.AverageFrameRate = (int) (10000000L / structure.AverageTimePerFrame);
+          this.MaximumFrameRate = (int) (10000000L / streamConfigCaps.MinFrameInterval);
+        }
+        else
+        {
+          if (!(mediaType.FormatType == FormatType.VideoInfo2))
+            throw new ApplicationException("Unsupported format found.");
+          VideoInfoHeader2 structure = (VideoInfoHeader2) Marshal.PtrToStructure(mediaType.FormatPtr, typeof (VideoInfoHeader2));
+          this.FrameSize = new Size(structure.BmiHeader.Width, structure.BmiHeader.Height);
+          this.BitCount = (int) structure.BmiHeader.BitCount;
+          this.AverageFrameRate = (int) (10000000L / structure.AverageTimePerFrame);
+          this.MaximumFrameRate = (int) (10000000L / streamConfigCaps.MinFrameInterval);
+        }
+        if (this.BitCount <= 12)
+          throw new ApplicationException("Unsupported format found.");
+      }
+      finally
+      {
+        mediaType?.Dispose();
+      }
+    }
+
+    public override bool Equals(object obj) => this.Equals(obj as VideoCapabilities);
+
+    public bool Equals(VideoCapabilities vc2)
+    {
+      return (object) vc2 != null && this.FrameSize == vc2.FrameSize && this.BitCount == vc2.BitCount;
+    }
+
+    public override int GetHashCode() => this.FrameSize.GetHashCode() ^ this.BitCount;
+
+    public static bool operator ==(VideoCapabilities a, VideoCapabilities b)
+    {
+      if (object.ReferenceEquals((object) a, (object) b))
+        return true;
+      return (object) a != null && (object) b != null && a.Equals(b);
+    }
+
+    public static bool operator !=(VideoCapabilities a, VideoCapabilities b) => !(a == b);
+  }
+}
+
+
+--- VideoCaptureDevice.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.VideoCaptureDevice
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using AForge.Video.DirectShow.Internals;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
+using System.Threading;
+
+#nullable disable
+namespace AForge.Video.DirectShow
+{
+  public class VideoCaptureDevice : IVideoSource
+  {
+    private string deviceMoniker;
+    private int framesReceived;
+    private long bytesReceived;
+    private AForge.Video.DirectShow.VideoCapabilities videoResolution;
+    private AForge.Video.DirectShow.VideoCapabilities snapshotResolution;
+    private bool provideSnapshots;
+    private Thread thread;
+    private ManualResetEvent stopEvent;
+    private AForge.Video.DirectShow.VideoCapabilities[] videoCapabilities;
+    private AForge.Video.DirectShow.VideoCapabilities[] snapshotCapabilities;
+    private bool needToSetVideoInput;
+    private bool needToSimulateTrigger;
+    private bool needToDisplayPropertyPage;
+    private bool needToDisplayCrossBarPropertyPage;
+    private IntPtr parentWindowForPropertyPage = IntPtr.Zero;
+    private object sourceObject;
+    private DateTime startTime = new DateTime();
+    private object sync = new object();
+    private bool? isCrossbarAvailable = new bool?();
+    private VideoInput[] crossbarVideoInputs;
+    private VideoInput crossbarVideoInput = VideoInput.Default;
+    private static Dictionary<string, AForge.Video.DirectShow.VideoCapabilities[]> cacheVideoCapabilities = new Dictionary<string, AForge.Video.DirectShow.VideoCapabilities[]>();
+    private static Dictionary<string, AForge.Video.DirectShow.VideoCapabilities[]> cacheSnapshotCapabilities = new Dictionary<string, AForge.Video.DirectShow.VideoCapabilities[]>();
+    private static Dictionary<string, VideoInput[]> cacheCrossbarVideoInputs = new Dictionary<string, VideoInput[]>();
+
+    public VideoInput CrossbarVideoInput
+    {
+      get => this.crossbarVideoInput;
+      set
+      {
+        this.needToSetVideoInput = true;
+        this.crossbarVideoInput = value;
+      }
+    }
+
+    public VideoInput[] AvailableCrossbarVideoInputs
+    {
+      get
+      {
+        if (this.crossbarVideoInputs == null)
+        {
+          lock (VideoCaptureDevice.cacheCrossbarVideoInputs)
+          {
+            if (!string.IsNullOrEmpty(this.deviceMoniker))
+            {
+              if (VideoCaptureDevice.cacheCrossbarVideoInputs.ContainsKey(this.deviceMoniker))
+                this.crossbarVideoInputs = VideoCaptureDevice.cacheCrossbarVideoInputs[this.deviceMoniker];
+            }
+          }
+          if (this.crossbarVideoInputs == null)
+          {
+            if (!this.IsRunning)
+            {
+              this.WorkerThread(false);
+            }
+            else
+            {
+              for (int index = 0; index < 500 && this.crossbarVideoInputs == null; ++index)
+                Thread.Sleep(10);
+            }
+          }
+        }
+        return this.crossbarVideoInputs == null ? new VideoInput[0] : this.crossbarVideoInputs;
+      }
+    }
+
+    public bool ProvideSnapshots
+    {
+      get => this.provideSnapshots;
+      set => this.provideSnapshots = value;
+    }
+
+    public event NewFrameEventHandler NewFrame;
+
+    public event NewFrameEventHandler SnapshotFrame;
+
+    public event VideoSourceErrorEventHandler VideoSourceError;
+
+    public event PlayingFinishedEventHandler PlayingFinished;
+
+    public virtual string Source
+    {
+      get => this.deviceMoniker;
+      set
+      {
+        this.deviceMoniker = value;
+        this.videoCapabilities = (AForge.Video.DirectShow.VideoCapabilities[]) null;
+        this.snapshotCapabilities = (AForge.Video.DirectShow.VideoCapabilities[]) null;
+        this.crossbarVideoInputs = (VideoInput[]) null;
+        this.isCrossbarAvailable = new bool?();
+      }
+    }
+
+    public int FramesReceived
+    {
+      get
+      {
+        int framesReceived = this.framesReceived;
+        this.framesReceived = 0;
+        return framesReceived;
+      }
+    }
+
+    public long BytesReceived
+    {
+      get
+      {
+        long bytesReceived = this.bytesReceived;
+        this.bytesReceived = 0L;
+        return bytesReceived;
+      }
+    }
+
+    public bool IsRunning
+    {
+      get
+      {
+        if (this.thread != null)
+        {
+          if (!this.thread.Join(0))
+            return true;
+          this.Free();
+        }
+        return false;
+      }
+    }
+
+    [Obsolete]
+    public Size DesiredFrameSize
+    {
+      get => Size.Empty;
+      set
+      {
+      }
+    }
+
+    [Obsolete]
+    public Size DesiredSnapshotSize
+    {
+      get => Size.Empty;
+      set
+      {
+      }
+    }
+
+    [Obsolete]
+    public int DesiredFrameRate
+    {
+      get => 0;
+      set
+      {
+      }
+    }
+
+    public AForge.Video.DirectShow.VideoCapabilities VideoResolution
+    {
+      get => this.videoResolution;
+      set => this.videoResolution = value;
+    }
+
+    public AForge.Video.DirectShow.VideoCapabilities SnapshotResolution
+    {
+      get => this.snapshotResolution;
+      set => this.snapshotResolution = value;
+    }
+
+    public AForge.Video.DirectShow.VideoCapabilities[] VideoCapabilities
+    {
+      get
+      {
+        if (this.videoCapabilities == null)
+        {
+          lock (VideoCaptureDevice.cacheVideoCapabilities)
+          {
+            if (!string.IsNullOrEmpty(this.deviceMoniker))
+            {
+              if (VideoCaptureDevice.cacheVideoCapabilities.ContainsKey(this.deviceMoniker))
+                this.videoCapabilities = VideoCaptureDevice.cacheVideoCapabilities[this.deviceMoniker];
+            }
+          }
+          if (this.videoCapabilities == null)
+          {
+            if (!this.IsRunning)
+            {
+              this.WorkerThread(false);
+            }
+            else
+            {
+              for (int index = 0; index < 500 && this.videoCapabilities == null; ++index)
+                Thread.Sleep(10);
+            }
+          }
+        }
+        return this.videoCapabilities == null ? new AForge.Video.DirectShow.VideoCapabilities[0] : this.videoCapabilities;
+      }
+    }
+
+    public AForge.Video.DirectShow.VideoCapabilities[] SnapshotCapabilities
+    {
+      get
+      {
+        if (this.snapshotCapabilities == null)
+        {
+          lock (VideoCaptureDevice.cacheSnapshotCapabilities)
+          {
+            if (!string.IsNullOrEmpty(this.deviceMoniker))
+            {
+              if (VideoCaptureDevice.cacheSnapshotCapabilities.ContainsKey(this.deviceMoniker))
+                this.snapshotCapabilities = VideoCaptureDevice.cacheSnapshotCapabilities[this.deviceMoniker];
+            }
+          }
+          if (this.snapshotCapabilities == null)
+          {
+            if (!this.IsRunning)
+            {
+              this.WorkerThread(false);
+            }
+            else
+            {
+              for (int index = 0; index < 500 && this.snapshotCapabilities == null; ++index)
+                Thread.Sleep(10);
+            }
+          }
+        }
+        return this.snapshotCapabilities == null ? new AForge.Video.DirectShow.VideoCapabilities[0] : this.snapshotCapabilities;
+      }
+    }
+
+    public object SourceObject => this.sourceObject;
+
+    public VideoCaptureDevice()
+    {
+    }
+
+    public VideoCaptureDevice(string deviceMoniker) => this.deviceMoniker = deviceMoniker;
+
+    public void Start()
+    {
+      if (this.IsRunning)
+        return;
+      if (string.IsNullOrEmpty(this.deviceMoniker))
+        throw new ArgumentException("Video source is not specified.");
+      this.framesReceived = 0;
+      this.bytesReceived = 0L;
+      this.isCrossbarAvailable = new bool?();
+      this.needToSetVideoInput = true;
+      this.stopEvent = new ManualResetEvent(false);
+      lock (this.sync)
+      {
+        this.thread = new Thread(new ThreadStart(this.WorkerThread));
+        this.thread.Name = this.deviceMoniker;
+        this.thread.Start();
+      }
+    }
+
+    public void SignalToStop()
+    {
+      if (this.thread == null)
+        return;
+      this.stopEvent.Set();
+    }
+
+    public void WaitForStop()
+    {
+      if (this.thread == null)
+        return;
+      this.thread.Join();
+      this.Free();
+    }
+
+    public void Stop()
+    {
+      if (!this.IsRunning)
+        return;
+      this.thread.Abort();
+      this.WaitForStop();
+    }
+
+    private void Free()
+    {
+      this.thread = (Thread) null;
+      this.stopEvent.Close();
+      this.stopEvent = (ManualResetEvent) null;
+    }
+
+    public void DisplayPropertyPage(IntPtr parentWindow)
+    {
+      if (this.deviceMoniker == null || this.deviceMoniker == string.Empty)
+        throw new ArgumentException("Video source is not specified.");
+      lock (this.sync)
+      {
+        if (this.IsRunning)
+        {
+          this.parentWindowForPropertyPage = parentWindow;
+          this.needToDisplayPropertyPage = true;
+        }
+        else
+        {
+          object filter;
+          try
+          {
+            filter = FilterInfo.CreateFilter(this.deviceMoniker);
+          }
+          catch
+          {
+            throw new ApplicationException("Failed creating device object for moniker.");
+          }
+          if (!(filter is ISpecifyPropertyPages))
+            throw new NotSupportedException("The video source does not support configuration property page.");
+          this.DisplayPropertyPage(parentWindow, filter);
+          Marshal.ReleaseComObject(filter);
+        }
+      }
+    }
+
+    public void DisplayCrossbarPropertyPage(IntPtr parentWindow)
+    {
+      lock (this.sync)
+      {
+        for (int index = 0; index < 500 && !this.isCrossbarAvailable.HasValue && this.IsRunning; ++index)
+          Thread.Sleep(10);
+        if (!this.IsRunning || !this.isCrossbarAvailable.HasValue)
+          throw new ApplicationException("The video source must be running in order to display crossbar property page.");
+        if (!this.isCrossbarAvailable.Value)
+          throw new NotSupportedException("Crossbar configuration is not supported by currently running video source.");
+        this.parentWindowForPropertyPage = parentWindow;
+        this.needToDisplayCrossBarPropertyPage = true;
+      }
+    }
+
+    public bool CheckIfCrossbarAvailable()
+    {
+      lock (this.sync)
+      {
+        if (!this.isCrossbarAvailable.HasValue)
+        {
+          if (!this.IsRunning)
+          {
+            this.WorkerThread(false);
+          }
+          else
+          {
+            for (int index = 0; index < 500 && !this.isCrossbarAvailable.HasValue; ++index)
+              Thread.Sleep(10);
+          }
+        }
+        return this.isCrossbarAvailable.HasValue && this.isCrossbarAvailable.Value;
+      }
+    }
+
+    public void SimulateTrigger() => this.needToSimulateTrigger = true;
+
+    public bool SetCameraProperty(
+      CameraControlProperty property,
+      int value,
+      CameraControlFlags controlFlags)
+    {
+      bool flag = true;
+      if (this.deviceMoniker == null || string.IsNullOrEmpty(this.deviceMoniker))
+        throw new ArgumentException("Video source is not specified.");
+      lock (this.sync)
+      {
+        object filter;
+        try
+        {
+          filter = FilterInfo.CreateFilter(this.deviceMoniker);
+        }
+        catch
+        {
+          throw new ApplicationException("Failed creating device object for moniker.");
+        }
+        if (!(filter is IAMCameraControl))
+          throw new NotSupportedException("The video source does not support camera control.");
+        flag = ((IAMCameraControl) filter).Set(property, value, controlFlags) >= 0;
+        Marshal.ReleaseComObject(filter);
+      }
+      return flag;
+    }
+
+    public bool GetCameraProperty(
+      CameraControlProperty property,
+      out int value,
+      out CameraControlFlags controlFlags)
+    {
+      bool cameraProperty = true;
+      if (this.deviceMoniker == null || string.IsNullOrEmpty(this.deviceMoniker))
+        throw new ArgumentException("Video source is not specified.");
+      lock (this.sync)
+      {
+        object filter;
+        try
+        {
+          filter = FilterInfo.CreateFilter(this.deviceMoniker);
+        }
+        catch
+        {
+          throw new ApplicationException("Failed creating device object for moniker.");
+        }
+        if (!(filter is IAMCameraControl))
+          throw new NotSupportedException("The video source does not support camera control.");
+        cameraProperty = ((IAMCameraControl) filter).Get(property, out value, out controlFlags) >= 0;
+        Marshal.ReleaseComObject(filter);
+      }
+      return cameraProperty;
+    }
+
+    public bool GetCameraPropertyRange(
+      CameraControlProperty property,
+      out int minValue,
+      out int maxValue,
+      out int stepSize,
+      out int defaultValue,
+      out CameraControlFlags controlFlags)
+    {
+      bool cameraPropertyRange = true;
+      if (this.deviceMoniker == null || string.IsNullOrEmpty(this.deviceMoniker))
+        throw new ArgumentException("Video source is not specified.");
+      lock (this.sync)
+      {
+        object filter;
+        try
+        {
+          filter = FilterInfo.CreateFilter(this.deviceMoniker);
+        }
+        catch
+        {
+          throw new ApplicationException("Failed creating device object for moniker.");
+        }
+        if (!(filter is IAMCameraControl))
+          throw new NotSupportedException("The video source does not support camera control.");
+        cameraPropertyRange = ((IAMCameraControl) filter).GetRange(property, out minValue, out maxValue, out stepSize, out defaultValue, out controlFlags) >= 0;
+        Marshal.ReleaseComObject(filter);
+      }
+      return cameraPropertyRange;
+    }
+
+    private void WorkerThread() => this.WorkerThread(true);
+
+    private void WorkerThread(bool runGraph)
+    {
+      ReasonToFinishPlaying reason = ReasonToFinishPlaying.StoppedByUser;
+      bool flag = false;
+      VideoCaptureDevice.Grabber callback1 = new VideoCaptureDevice.Grabber(this, false);
+      VideoCaptureDevice.Grabber callback2 = new VideoCaptureDevice.Grabber(this, true);
+      object o1 = (object) null;
+      object o2 = (object) null;
+      object o3 = (object) null;
+      object o4 = (object) null;
+      object retInterface = (object) null;
+      ICaptureGraphBuilder2 captureGraphBuilder2 = (ICaptureGraphBuilder2) null;
+      IFilterGraph2 filterGraph2_1 = (IFilterGraph2) null;
+      IBaseFilter baseFilter1 = (IBaseFilter) null;
+      IBaseFilter baseFilter2 = (IBaseFilter) null;
+      IBaseFilter baseFilter3 = (IBaseFilter) null;
+      ISampleGrabber sampleGrabber1 = (ISampleGrabber) null;
+      ISampleGrabber sampleGrabber2 = (ISampleGrabber) null;
+      IMediaControl mediaControl1 = (IMediaControl) null;
+      IAMVideoControl amVideoControl = (IAMVideoControl) null;
+      IMediaEventEx mediaEventEx1 = (IMediaEventEx) null;
+      IPin pin = (IPin) null;
+      IAMCrossbar amCrossbar = (IAMCrossbar) null;
+      try
+      {
+        o1 = Activator.CreateInstance(Type.GetTypeFromCLSID(Clsid.CaptureGraphBuilder2) ?? throw new ApplicationException("Failed creating capture graph builder"));
+        ICaptureGraphBuilder2 graphBuilder = (ICaptureGraphBuilder2) o1;
+        o2 = Activator.CreateInstance(Type.GetTypeFromCLSID(Clsid.FilterGraph) ?? throw new ApplicationException("Failed creating filter graph"));
+        IFilterGraph2 filterGraph2_2 = (IFilterGraph2) o2;
+        graphBuilder.SetFiltergraph((IGraphBuilder) filterGraph2_2);
+        this.sourceObject = FilterInfo.CreateFilter(this.deviceMoniker);
+        IBaseFilter baseFilter4 = this.sourceObject != null ? (IBaseFilter) this.sourceObject : throw new ApplicationException("Failed creating device object for moniker");
+        try
+        {
+          amVideoControl = (IAMVideoControl) this.sourceObject;
+        }
+        catch
+        {
+        }
+        Type typeFromClsid = Type.GetTypeFromCLSID(Clsid.SampleGrabber);
+        o3 = typeFromClsid != null ? Activator.CreateInstance(typeFromClsid) : throw new ApplicationException("Failed creating sample grabber");
+        ISampleGrabber sampleGrabber3 = (ISampleGrabber) o3;
+        IBaseFilter baseFilter5 = (IBaseFilter) o3;
+        o4 = Activator.CreateInstance(typeFromClsid);
+        ISampleGrabber sampleGrabber4 = (ISampleGrabber) o4;
+        IBaseFilter baseFilter6 = (IBaseFilter) o4;
+        filterGraph2_2.AddFilter(baseFilter4, "source");
+        filterGraph2_2.AddFilter(baseFilter5, "grabber_video");
+        filterGraph2_2.AddFilter(baseFilter6, "grabber_snapshot");
+        AMMediaType mediaType = new AMMediaType();
+        mediaType.MajorType = MediaType.Video;
+        mediaType.SubType = MediaSubType.RGB24;
+        sampleGrabber3.SetMediaType(mediaType);
+        sampleGrabber4.SetMediaType(mediaType);
+        graphBuilder.FindInterface(FindDirection.UpstreamOnly, Guid.Empty, baseFilter4, typeof (IAMCrossbar).GUID, out retInterface);
+        if (retInterface != null)
+          amCrossbar = (IAMCrossbar) retInterface;
+        this.isCrossbarAvailable = new bool?(amCrossbar != null);
+        this.crossbarVideoInputs = this.ColletCrossbarVideoInputs(amCrossbar);
+        if (amVideoControl != null)
+        {
+          graphBuilder.FindPin(this.sourceObject, PinDirection.Output, PinCategory.StillImage, MediaType.Video, false, 0, out pin);
+          if (pin != null)
+          {
+            VideoControlFlags flags;
+            amVideoControl.GetCaps(pin, out flags);
+            flag = (flags & VideoControlFlags.ExternalTriggerEnable) != (VideoControlFlags) 0;
+          }
+        }
+        sampleGrabber3.SetBufferSamples(false);
+        sampleGrabber3.SetOneShot(false);
+        sampleGrabber3.SetCallback((ISampleGrabberCB) callback1, 1);
+        sampleGrabber4.SetBufferSamples(true);
+        sampleGrabber4.SetOneShot(false);
+        sampleGrabber4.SetCallback((ISampleGrabberCB) callback2, 1);
+        this.GetPinCapabilitiesAndConfigureSizeAndRate(graphBuilder, baseFilter4, PinCategory.Capture, this.videoResolution, ref this.videoCapabilities);
+        if (flag)
+          this.GetPinCapabilitiesAndConfigureSizeAndRate(graphBuilder, baseFilter4, PinCategory.StillImage, this.snapshotResolution, ref this.snapshotCapabilities);
+        else
+          this.snapshotCapabilities = new AForge.Video.DirectShow.VideoCapabilities[0];
+        lock (VideoCaptureDevice.cacheVideoCapabilities)
+        {
+          if (this.videoCapabilities != null)
+          {
+            if (!VideoCaptureDevice.cacheVideoCapabilities.ContainsKey(this.deviceMoniker))
+              VideoCaptureDevice.cacheVideoCapabilities.Add(this.deviceMoniker, this.videoCapabilities);
+          }
+        }
+        lock (VideoCaptureDevice.cacheSnapshotCapabilities)
+        {
+          if (this.snapshotCapabilities != null)
+          {
+            if (!VideoCaptureDevice.cacheSnapshotCapabilities.ContainsKey(this.deviceMoniker))
+              VideoCaptureDevice.cacheSnapshotCapabilities.Add(this.deviceMoniker, this.snapshotCapabilities);
+          }
+        }
+        if (runGraph)
+        {
+          graphBuilder.RenderStream(PinCategory.Capture, MediaType.Video, (object) baseFilter4, (IBaseFilter) null, baseFilter5);
+          if (sampleGrabber3.GetConnectedMediaType(mediaType) == 0)
+          {
+            VideoInfoHeader structure = (VideoInfoHeader) Marshal.PtrToStructure(mediaType.FormatPtr, typeof (VideoInfoHeader));
+            callback1.Width = structure.BmiHeader.Width;
+            callback1.Height = structure.BmiHeader.Height;
+            mediaType.Dispose();
+          }
+          if (flag && this.provideSnapshots)
+          {
+            graphBuilder.RenderStream(PinCategory.StillImage, MediaType.Video, (object) baseFilter4, (IBaseFilter) null, baseFilter6);
+            if (sampleGrabber4.GetConnectedMediaType(mediaType) == 0)
+            {
+              VideoInfoHeader structure = (VideoInfoHeader) Marshal.PtrToStructure(mediaType.FormatPtr, typeof (VideoInfoHeader));
+              callback2.Width = structure.BmiHeader.Width;
+              callback2.Height = structure.BmiHeader.Height;
+              mediaType.Dispose();
+            }
+          }
+          IMediaControl mediaControl2 = (IMediaControl) o2;
+          IMediaEventEx mediaEventEx2 = (IMediaEventEx) o2;
+          mediaControl2.Run();
+          if (flag && this.provideSnapshots)
+          {
+            this.startTime = DateTime.Now;
+            amVideoControl.SetMode(pin, VideoControlFlags.ExternalTriggerEnable);
+          }
+          do
+          {
+            DsEvCode lEventCode;
+            IntPtr lParam1;
+            IntPtr lParam2;
+            if (mediaEventEx2 != null && mediaEventEx2.GetEvent(out lEventCode, out lParam1, out lParam2, 0) >= 0)
+            {
+              mediaEventEx2.FreeEventParams(lEventCode, lParam1, lParam2);
+              if (lEventCode == DsEvCode.DeviceLost)
+              {
+                reason = ReasonToFinishPlaying.DeviceLost;
+                break;
+              }
+            }
+            if (this.needToSetVideoInput)
+            {
+              this.needToSetVideoInput = false;
+              if (this.isCrossbarAvailable.Value)
+              {
+                this.SetCurrentCrossbarInput(amCrossbar, this.crossbarVideoInput);
+                this.crossbarVideoInput = this.GetCurrentCrossbarInput(amCrossbar);
+              }
+            }
+            if (this.needToSimulateTrigger)
+            {
+              this.needToSimulateTrigger = false;
+              if (flag && this.provideSnapshots)
+                amVideoControl.SetMode(pin, VideoControlFlags.Trigger);
+            }
+            if (this.needToDisplayPropertyPage)
+            {
+              this.needToDisplayPropertyPage = false;
+              this.DisplayPropertyPage(this.parentWindowForPropertyPage, this.sourceObject);
+              if (amCrossbar != null)
+                this.crossbarVideoInput = this.GetCurrentCrossbarInput(amCrossbar);
+            }
+            if (this.needToDisplayCrossBarPropertyPage)
+            {
+              this.needToDisplayCrossBarPropertyPage = false;
+              if (amCrossbar != null)
+              {
+                this.DisplayPropertyPage(this.parentWindowForPropertyPage, (object) amCrossbar);
+                this.crossbarVideoInput = this.GetCurrentCrossbarInput(amCrossbar);
+              }
+            }
+          }
+          while (!this.stopEvent.WaitOne(100, false));
+          mediaControl2.Stop();
+        }
+      }
+      catch (Exception ex)
+      {
+        if (this.VideoSourceError != null)
+          this.VideoSourceError((object) this, new VideoSourceErrorEventArgs(ex.Message));
+      }
+      finally
+      {
+        captureGraphBuilder2 = (ICaptureGraphBuilder2) null;
+        filterGraph2_1 = (IFilterGraph2) null;
+        baseFilter1 = (IBaseFilter) null;
+        mediaControl1 = (IMediaControl) null;
+        mediaEventEx1 = (IMediaEventEx) null;
+        baseFilter2 = (IBaseFilter) null;
+        baseFilter3 = (IBaseFilter) null;
+        sampleGrabber1 = (ISampleGrabber) null;
+        sampleGrabber2 = (ISampleGrabber) null;
+        if (o2 != null)
+          Marshal.ReleaseComObject(o2);
+        if (this.sourceObject != null)
+        {
+          Marshal.ReleaseComObject(this.sourceObject);
+          this.sourceObject = (object) null;
+        }
+        if (o3 != null)
+          Marshal.ReleaseComObject(o3);
+        if (o4 != null)
+          Marshal.ReleaseComObject(o4);
+        if (o1 != null)
+          Marshal.ReleaseComObject(o1);
+        if (retInterface != null)
+          Marshal.ReleaseComObject(retInterface);
+      }
+      if (this.PlayingFinished == null)
+        return;
+      this.PlayingFinished((object) this, reason);
+    }
+
+    private void SetResolution(IAMStreamConfig streamConfig, AForge.Video.DirectShow.VideoCapabilities resolution)
+    {
+      if (resolution == (AForge.Video.DirectShow.VideoCapabilities) null)
+        return;
+      int count = 0;
+      int size = 0;
+      AMMediaType mediaType = (AMMediaType) null;
+      VideoStreamConfigCaps streamConfigCaps = new VideoStreamConfigCaps();
+      streamConfig.GetNumberOfCapabilities(out count, out size);
+      for (int index = 0; index < count; ++index)
+      {
+        try
+        {
+          AForge.Video.DirectShow.VideoCapabilities videoCapabilities = new AForge.Video.DirectShow.VideoCapabilities(streamConfig, index);
+          if (resolution == videoCapabilities)
+          {
+            if (streamConfig.GetStreamCaps(index, out mediaType, streamConfigCaps) == 0)
+              break;
+          }
+        }
+        catch
+        {
+        }
+      }
+      if (mediaType == null)
+        return;
+      streamConfig.SetFormat(mediaType);
+      mediaType.Dispose();
+    }
+
+    private void GetPinCapabilitiesAndConfigureSizeAndRate(
+      ICaptureGraphBuilder2 graphBuilder,
+      IBaseFilter baseFilter,
+      Guid pinCategory,
+      AForge.Video.DirectShow.VideoCapabilities resolutionToSet,
+      ref AForge.Video.DirectShow.VideoCapabilities[] capabilities)
+    {
+      object retInterface;
+      graphBuilder.FindInterface(pinCategory, MediaType.Video, baseFilter, typeof (IAMStreamConfig).GUID, out retInterface);
+      if (retInterface != null)
+      {
+        IAMStreamConfig amStreamConfig = (IAMStreamConfig) null;
+        try
+        {
+          amStreamConfig = (IAMStreamConfig) retInterface;
+        }
+        catch (InvalidCastException ex)
+        {
+        }
+        if (amStreamConfig != null)
+        {
+          if (capabilities == null)
+          {
+            try
+            {
+              capabilities = AForge.Video.DirectShow.VideoCapabilities.FromStreamConfig(amStreamConfig);
+            }
+            catch
+            {
+            }
+          }
+          if (resolutionToSet != (AForge.Video.DirectShow.VideoCapabilities) null)
+            this.SetResolution(amStreamConfig, resolutionToSet);
+        }
+      }
+      if (capabilities != null)
+        return;
+      capabilities = new AForge.Video.DirectShow.VideoCapabilities[0];
+    }
+
+    private void DisplayPropertyPage(IntPtr parentWindow, object sourceObject)
+    {
+      try
+      {
+        CAUUID pPages;
+        ((ISpecifyPropertyPages) sourceObject).GetPages(out pPages);
+        FilterInfo filterInfo = new FilterInfo(this.deviceMoniker);
+        Win32.OleCreatePropertyFrame(parentWindow, 0, 0, filterInfo.Name, 1, ref sourceObject, pPages.cElems, pPages.pElems, 0, 0, IntPtr.Zero);
+        Marshal.FreeCoTaskMem(pPages.pElems);
+      }
+      catch
+      {
+      }
+    }
+
+    private VideoInput[] ColletCrossbarVideoInputs(IAMCrossbar crossbar)
+    {
+      lock (VideoCaptureDevice.cacheCrossbarVideoInputs)
+      {
+        if (VideoCaptureDevice.cacheCrossbarVideoInputs.ContainsKey(this.deviceMoniker))
+          return VideoCaptureDevice.cacheCrossbarVideoInputs[this.deviceMoniker];
+        List<VideoInput> videoInputList = new List<VideoInput>();
+        int inputPinCount;
+        if (crossbar != null && crossbar.get_PinCounts(out int _, out inputPinCount) == 0)
+        {
+          for (int index = 0; index < inputPinCount; ++index)
+          {
+            PhysicalConnectorType physicalType;
+            if (crossbar.get_CrossbarPinInfo(true, index, out int _, out physicalType) == 0 && physicalType < PhysicalConnectorType.AudioTuner)
+              videoInputList.Add(new VideoInput(index, physicalType));
+          }
+        }
+        VideoInput[] array = new VideoInput[videoInputList.Count];
+        videoInputList.CopyTo(array);
+        VideoCaptureDevice.cacheCrossbarVideoInputs.Add(this.deviceMoniker, array);
+        return array;
+      }
+    }
+
+    private VideoInput GetCurrentCrossbarInput(IAMCrossbar crossbar)
+    {
+      VideoInput currentCrossbarInput = VideoInput.Default;
+      int outputPinCount;
+      if (crossbar.get_PinCounts(out outputPinCount, out int _) == 0)
+      {
+        int outputPinIndex = -1;
+        int pinIndexRelated;
+        for (int pinIndex = 0; pinIndex < outputPinCount; ++pinIndex)
+        {
+          PhysicalConnectorType physicalType;
+          if (crossbar.get_CrossbarPinInfo(false, pinIndex, out pinIndexRelated, out physicalType) == 0 && physicalType == PhysicalConnectorType.VideoDecoder)
+          {
+            outputPinIndex = pinIndex;
+            break;
+          }
+        }
+        int inputPinIndex;
+        if (outputPinIndex != -1 && crossbar.get_IsRoutedTo(outputPinIndex, out inputPinIndex) == 0)
+        {
+          PhysicalConnectorType physicalType;
+          crossbar.get_CrossbarPinInfo(true, inputPinIndex, out pinIndexRelated, out physicalType);
+          currentCrossbarInput = new VideoInput(inputPinIndex, physicalType);
+        }
+      }
+      return currentCrossbarInput;
+    }
+
+    private void SetCurrentCrossbarInput(IAMCrossbar crossbar, VideoInput videoInput)
+    {
+      int outputPinCount;
+      int inputPinCount;
+      if (videoInput.Type == PhysicalConnectorType.Default || crossbar.get_PinCounts(out outputPinCount, out inputPinCount) != 0)
+        return;
+      int outputPinIndex = -1;
+      int inputPinIndex = -1;
+      int pinIndexRelated;
+      PhysicalConnectorType physicalType;
+      for (int pinIndex = 0; pinIndex < outputPinCount; ++pinIndex)
+      {
+        if (crossbar.get_CrossbarPinInfo(false, pinIndex, out pinIndexRelated, out physicalType) == 0 && physicalType == PhysicalConnectorType.VideoDecoder)
+        {
+          outputPinIndex = pinIndex;
+          break;
+        }
+      }
+      for (int pinIndex = 0; pinIndex < inputPinCount; ++pinIndex)
+      {
+        if (crossbar.get_CrossbarPinInfo(true, pinIndex, out pinIndexRelated, out physicalType) == 0 && physicalType == videoInput.Type && pinIndex == videoInput.Index)
+        {
+          inputPinIndex = pinIndex;
+          break;
+        }
+      }
+      if (inputPinIndex == -1 || outputPinIndex == -1 || crossbar.CanRoute(outputPinIndex, inputPinIndex) != 0)
+        return;
+      crossbar.Route(outputPinIndex, inputPinIndex);
+    }
+
+    private void OnNewFrame(Bitmap image)
+    {
+      ++this.framesReceived;
+      this.bytesReceived += (long) (image.Width * image.Height * (Image.GetPixelFormatSize(image.PixelFormat) >> 3));
+      if (this.stopEvent.WaitOne(0, false) || this.NewFrame == null)
+        return;
+      this.NewFrame((object) this, new NewFrameEventArgs(image));
+    }
+
+    private void OnSnapshotFrame(Bitmap image)
+    {
+      if ((DateTime.Now - this.startTime).TotalSeconds < 4.0 || this.stopEvent.WaitOne(0, false) || this.SnapshotFrame == null)
+        return;
+      this.SnapshotFrame((object) this, new NewFrameEventArgs(image));
+    }
+
+    private class Grabber : ISampleGrabberCB
+    {
+      private VideoCaptureDevice parent;
+      private bool snapshotMode;
+      private int width;
+      private int height;
+
+      public int Width
+      {
+        get => this.width;
+        set => this.width = value;
+      }
+
+      public int Height
+      {
+        get => this.height;
+        set => this.height = value;
+      }
+
+      public Grabber(VideoCaptureDevice parent, bool snapshotMode)
+      {
+        this.parent = parent;
+        this.snapshotMode = snapshotMode;
+      }
+
+      public int SampleCB(double sampleTime, IntPtr sample) => 0;
+
+      public unsafe int BufferCB(double sampleTime, IntPtr buffer, int bufferLen)
+      {
+        if (this.parent.NewFrame != null)
+        {
+          Bitmap image = new Bitmap(this.width, this.height, PixelFormat.Format24bppRgb);
+          BitmapData bitmapdata = image.LockBits(new Rectangle(0, 0, this.width, this.height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+          int stride1 = bitmapdata.Stride;
+          int stride2 = bitmapdata.Stride;
+          byte* dst = (byte*) ((IntPtr) bitmapdata.Scan0.ToPointer() + (IntPtr) stride2 * (this.height - 1));
+          byte* pointer = (byte*) buffer.ToPointer();
+          for (int index = 0; index < this.height; ++index)
+          {
+            Win32.memcpy(dst, pointer, stride1);
+            dst -= stride2;
+            pointer += stride1;
+          }
+          image.UnlockBits(bitmapdata);
+          if (this.snapshotMode)
+            this.parent.OnSnapshotFrame(image);
+          else
+            this.parent.OnNewFrame(image);
+          image.Dispose();
+        }
+        return 0;
+      }
+    }
+  }
+}
+
+
+--- VideoCaptureDeviceForm.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.VideoCaptureDeviceForm
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+using AForge.Video.DirectShow.Properties;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms;
+
+#nullable disable
+namespace AForge.Video.DirectShow
+{
+  public class VideoCaptureDeviceForm : Form
+  {
+    private IContainer components;
+    private Button cancelButton;
+    private Button okButton;
+    private ComboBox devicesCombo;
+    private GroupBox groupBox1;
+    private PictureBox pictureBox;
+    private Label label1;
+    private Label snapshotsLabel;
+    private ComboBox snapshotResolutionsCombo;
+    private ComboBox videoResolutionsCombo;
+    private Label label2;
+    private ComboBox videoInputsCombo;
+    private Label label3;
+    private FilterInfoCollection videoDevices;
+    private VideoCaptureDevice videoDevice;
+    private Dictionary<string, VideoCapabilities> videoCapabilitiesDictionary = new Dictionary<string, VideoCapabilities>();
+    private Dictionary<string, VideoCapabilities> snapshotCapabilitiesDictionary = new Dictionary<string, VideoCapabilities>();
+    private VideoInput[] availableVideoInputs;
+    private bool configureSnapshots;
+    private string videoDeviceMoniker = string.Empty;
+    private Size captureSize = new Size(0, 0);
+    private Size snapshotSize = new Size(0, 0);
+    private VideoInput videoInput = VideoInput.Default;
+
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing && this.components != null)
+        this.components.Dispose();
+      base.Dispose(disposing);
+    }
+
+    private void InitializeComponent()
+    {
+      this.cancelButton = new Button();
+      this.okButton = new Button();
+      this.devicesCombo = new ComboBox();
+      this.groupBox1 = new GroupBox();
+      this.videoInputsCombo = new ComboBox();
+      this.label3 = new Label();
+      this.snapshotsLabel = new Label();
+      this.snapshotResolutionsCombo = new ComboBox();
+      this.videoResolutionsCombo = new ComboBox();
+      this.label2 = new Label();
+      this.label1 = new Label();
+      this.pictureBox = new PictureBox();
+      this.groupBox1.SuspendLayout();
+      ((ISupportInitialize) this.pictureBox).BeginInit();
+      this.SuspendLayout();
+      this.cancelButton.DialogResult = DialogResult.Cancel;
+      this.cancelButton.FlatStyle = FlatStyle.System;
+      this.cancelButton.Location = new Point(239, 190);
+      this.cancelButton.Name = "cancelButton";
+      this.cancelButton.Size = new Size(75, 23);
+      this.cancelButton.TabIndex = 11;
+      this.cancelButton.Text = "Cancel";
+      this.okButton.DialogResult = DialogResult.OK;
+      this.okButton.FlatStyle = FlatStyle.System;
+      this.okButton.Location = new Point(149, 190);
+      this.okButton.Name = "okButton";
+      this.okButton.Size = new Size(75, 23);
+      this.okButton.TabIndex = 10;
+      this.okButton.Text = "OK";
+      this.okButton.Click += new EventHandler(this.okButton_Click);
+      this.devicesCombo.DropDownStyle = ComboBoxStyle.DropDownList;
+      this.devicesCombo.FormattingEnabled = true;
+      this.devicesCombo.Location = new Point(100, 40);
+      this.devicesCombo.Name = "devicesCombo";
+      this.devicesCombo.Size = new Size(325, 21);
+      this.devicesCombo.TabIndex = 9;
+      this.devicesCombo.SelectedIndexChanged += new EventHandler(this.devicesCombo_SelectedIndexChanged);
+      this.groupBox1.Controls.Add((Control) this.videoInputsCombo);
+      this.groupBox1.Controls.Add((Control) this.label3);
+      this.groupBox1.Controls.Add((Control) this.snapshotsLabel);
+      this.groupBox1.Controls.Add((Control) this.snapshotResolutionsCombo);
+      this.groupBox1.Controls.Add((Control) this.videoResolutionsCombo);
+      this.groupBox1.Controls.Add((Control) this.label2);
+      this.groupBox1.Controls.Add((Control) this.label1);
+      this.groupBox1.Controls.Add((Control) this.pictureBox);
+      this.groupBox1.Controls.Add((Control) this.devicesCombo);
+      this.groupBox1.Location = new Point(10, 10);
+      this.groupBox1.Name = "groupBox1";
+      this.groupBox1.Size = new Size(440, 165);
+      this.groupBox1.TabIndex = 12;
+      this.groupBox1.TabStop = false;
+      this.groupBox1.Text = "Video capture device settings";
+      this.videoInputsCombo.DropDownStyle = ComboBoxStyle.DropDownList;
+      this.videoInputsCombo.FormattingEnabled = true;
+      this.videoInputsCombo.Location = new Point(100, 130);
+      this.videoInputsCombo.Name = "videoInputsCombo";
+      this.videoInputsCombo.Size = new Size(150, 21);
+      this.videoInputsCombo.TabIndex = 17;
+      this.label3.AutoSize = true;
+      this.label3.Location = new Point(100, 115);
+      this.label3.Name = "label3";
+      this.label3.Size = new Size(63, 13);
+      this.label3.TabIndex = 16;
+      this.label3.Text = "Video input:";
+      this.snapshotsLabel.AutoSize = true;
+      this.snapshotsLabel.Location = new Point(275, 70);
+      this.snapshotsLabel.Name = "snapshotsLabel";
+      this.snapshotsLabel.Size = new Size(101, 13);
+      this.snapshotsLabel.TabIndex = 15;
+      this.snapshotsLabel.Text = "Snapshot resoluton:";
+      this.snapshotResolutionsCombo.DropDownStyle = ComboBoxStyle.DropDownList;
+      this.snapshotResolutionsCombo.FormattingEnabled = true;
+      this.snapshotResolutionsCombo.Location = new Point(275, 85);
+      this.snapshotResolutionsCombo.Name = "snapshotResolutionsCombo";
+      this.snapshotResolutionsCombo.Size = new Size(150, 21);
+      this.snapshotResolutionsCombo.TabIndex = 14;
+      this.videoResolutionsCombo.DropDownStyle = ComboBoxStyle.DropDownList;
+      this.videoResolutionsCombo.FormattingEnabled = true;
+      this.videoResolutionsCombo.Location = new Point(100, 85);
+      this.videoResolutionsCombo.Name = "videoResolutionsCombo";
+      this.videoResolutionsCombo.Size = new Size(150, 21);
+      this.videoResolutionsCombo.TabIndex = 13;
+      this.label2.AutoSize = true;
+      this.label2.Location = new Point(100, 70);
+      this.label2.Name = "label2";
+      this.label2.Size = new Size(83, 13);
+      this.label2.TabIndex = 12;
+      this.label2.Text = "Video resoluton:";
+      this.label1.AutoSize = true;
+      this.label1.Location = new Point(100, 25);
+      this.label1.Name = "label1";
+      this.label1.Size = new Size(72, 13);
+      this.label1.TabIndex = 11;
+      this.label1.Text = "Video device:";
+      this.pictureBox.Image = (Image) Resources.camera;
+      this.pictureBox.Location = new Point(20, 28);
+      this.pictureBox.Name = "pictureBox";
+      this.pictureBox.Size = new Size(64, 64);
+      this.pictureBox.TabIndex = 10;
+      this.pictureBox.TabStop = false;
+      this.AcceptButton = (IButtonControl) this.okButton;
+      this.AutoScaleDimensions = new SizeF(6f, 13f);
+      this.AutoScaleMode = AutoScaleMode.Font;
+      this.CancelButton = (IButtonControl) this.cancelButton;
+      this.ClientSize = new Size(462, 221);
+      this.Controls.Add((Control) this.groupBox1);
+      this.Controls.Add((Control) this.cancelButton);
+      this.Controls.Add((Control) this.okButton);
+      this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+      this.Name = nameof (VideoCaptureDeviceForm);
+      this.StartPosition = FormStartPosition.CenterParent;
+      this.Text = "Open local  video capture device";
+      this.Load += new EventHandler(this.VideoCaptureDeviceForm_Load);
+      this.groupBox1.ResumeLayout(false);
+      this.groupBox1.PerformLayout();
+      ((ISupportInitialize) this.pictureBox).EndInit();
+      this.ResumeLayout(false);
+    }
+
+    public bool ConfigureSnapshots
+    {
+      get => this.configureSnapshots;
+      set
+      {
+        this.configureSnapshots = value;
+        this.snapshotsLabel.Visible = value;
+        this.snapshotResolutionsCombo.Visible = value;
+      }
+    }
+
+    public VideoCaptureDevice VideoDevice => this.videoDevice;
+
+    public string VideoDeviceMoniker
+    {
+      get => this.videoDeviceMoniker;
+      set => this.videoDeviceMoniker = value;
+    }
+
+    public Size CaptureSize
+    {
+      get => this.captureSize;
+      set => this.captureSize = value;
+    }
+
+    public Size SnapshotSize
+    {
+      get => this.snapshotSize;
+      set => this.snapshotSize = value;
+    }
+
+    public VideoInput VideoInput
+    {
+      get => this.videoInput;
+      set => this.videoInput = value;
+    }
+
+    public VideoCaptureDeviceForm()
+    {
+      this.InitializeComponent();
+      this.ConfigureSnapshots = false;
+      try
+      {
+        this.videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
+        if (this.videoDevices.Count == 0)
+          throw new ApplicationException();
+        foreach (FilterInfo videoDevice in (CollectionBase) this.videoDevices)
+          this.devicesCombo.Items.Add((object) videoDevice.Name);
+      }
+      catch (ApplicationException ex)
+      {
+        this.devicesCombo.Items.Add((object) "No local capture devices");
+        this.devicesCombo.Enabled = false;
+        this.okButton.Enabled = false;
+      }
+    }
+
+    private void VideoCaptureDeviceForm_Load(object sender, EventArgs e)
+    {
+      int num = 0;
+      for (int index = 0; index < this.videoDevices.Count; ++index)
+      {
+        if (this.videoDeviceMoniker == this.videoDevices[index].MonikerString)
+        {
+          num = index;
+          break;
+        }
+      }
+      this.devicesCombo.SelectedIndex = num;
+    }
+
+    private void okButton_Click(object sender, EventArgs e)
+    {
+      this.videoDeviceMoniker = this.videoDevice.Source;
+      if (this.videoCapabilitiesDictionary.Count != 0)
+      {
+        VideoCapabilities videoCapabilities = this.videoCapabilitiesDictionary[(string) this.videoResolutionsCombo.SelectedItem];
+        this.videoDevice.VideoResolution = videoCapabilities;
+        this.captureSize = videoCapabilities.FrameSize;
+      }
+      if (this.configureSnapshots && this.snapshotCapabilitiesDictionary.Count != 0)
+      {
+        VideoCapabilities snapshotCapabilities = this.snapshotCapabilitiesDictionary[(string) this.snapshotResolutionsCombo.SelectedItem];
+        this.videoDevice.ProvideSnapshots = true;
+        this.videoDevice.SnapshotResolution = snapshotCapabilities;
+        this.snapshotSize = snapshotCapabilities.FrameSize;
+      }
+      if (this.availableVideoInputs.Length == 0)
+        return;
+      this.videoInput = this.availableVideoInputs[this.videoInputsCombo.SelectedIndex];
+      this.videoDevice.CrossbarVideoInput = this.videoInput;
+    }
+
+    private void devicesCombo_SelectedIndexChanged(object sender, EventArgs e)
+    {
+      if (this.videoDevices.Count == 0)
+        return;
+      this.videoDevice = new VideoCaptureDevice(this.videoDevices[this.devicesCombo.SelectedIndex].MonikerString);
+      this.EnumeratedSupportedFrameSizes(this.videoDevice);
+    }
+
+    private void EnumeratedSupportedFrameSizes(VideoCaptureDevice videoDevice)
+    {
+      this.Cursor = Cursors.WaitCursor;
+      this.videoResolutionsCombo.Items.Clear();
+      this.snapshotResolutionsCombo.Items.Clear();
+      this.videoInputsCombo.Items.Clear();
+      this.videoCapabilitiesDictionary.Clear();
+      this.snapshotCapabilitiesDictionary.Clear();
+      try
+      {
+        VideoCapabilities[] videoCapabilities1 = videoDevice.VideoCapabilities;
+        int num1 = 0;
+        foreach (VideoCapabilities videoCapabilities2 in videoCapabilities1)
+        {
+          string key = string.Format("{0} x {1}", (object) videoCapabilities2.FrameSize.Width, (object) videoCapabilities2.FrameSize.Height);
+          if (!this.videoResolutionsCombo.Items.Contains((object) key))
+          {
+            if (this.captureSize == videoCapabilities2.FrameSize)
+              num1 = this.videoResolutionsCombo.Items.Count;
+            this.videoResolutionsCombo.Items.Add((object) key);
+          }
+          if (!this.videoCapabilitiesDictionary.ContainsKey(key))
+            this.videoCapabilitiesDictionary.Add(key, videoCapabilities2);
+        }
+        if (videoCapabilities1.Length == 0)
+          this.videoResolutionsCombo.Items.Add((object) "Not supported");
+        this.videoResolutionsCombo.SelectedIndex = num1;
+        if (this.configureSnapshots)
+        {
+          VideoCapabilities[] snapshotCapabilities = videoDevice.SnapshotCapabilities;
+          int num2 = 0;
+          foreach (VideoCapabilities videoCapabilities3 in snapshotCapabilities)
+          {
+            string key = string.Format("{0} x {1}", (object) videoCapabilities3.FrameSize.Width, (object) videoCapabilities3.FrameSize.Height);
+            if (!this.snapshotResolutionsCombo.Items.Contains((object) key))
+            {
+              if (this.snapshotSize == videoCapabilities3.FrameSize)
+                num2 = this.snapshotResolutionsCombo.Items.Count;
+              this.snapshotResolutionsCombo.Items.Add((object) key);
+              this.snapshotCapabilitiesDictionary.Add(key, videoCapabilities3);
+            }
+          }
+          if (snapshotCapabilities.Length == 0)
+            this.snapshotResolutionsCombo.Items.Add((object) "Not supported");
+          this.snapshotResolutionsCombo.SelectedIndex = num2;
+        }
+        this.availableVideoInputs = videoDevice.AvailableCrossbarVideoInputs;
+        int num3 = 0;
+        foreach (VideoInput availableVideoInput in this.availableVideoInputs)
+        {
+          string str = string.Format("{0}: {1}", (object) availableVideoInput.Index, (object) availableVideoInput.Type);
+          if (availableVideoInput.Index == this.videoInput.Index && availableVideoInput.Type == this.videoInput.Type)
+            num3 = this.videoInputsCombo.Items.Count;
+          this.videoInputsCombo.Items.Add((object) str);
+        }
+        if (this.availableVideoInputs.Length == 0)
+          this.videoInputsCombo.Items.Add((object) "Not supported");
+        this.videoInputsCombo.SelectedIndex = num3;
+      }
+      finally
+      {
+        this.Cursor = Cursors.Default;
+      }
+    }
+  }
+}
+
+
+--- VideoInput.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.DirectShow.VideoInput
+// Assembly: AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7
+// MVID: 40B45F39-FACC-42DB-95D1-CED109AC01F1
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.DirectShow.dll
+
+#nullable disable
+namespace AForge.Video.DirectShow
+{
+  public class VideoInput
+  {
+    public readonly int Index;
+    public readonly PhysicalConnectorType Type;
+
+    internal VideoInput(int index, PhysicalConnectorType type)
+    {
+      this.Index = index;
+      this.Type = type;
+    }
+
+    public static VideoInput Default => new VideoInput(-1, PhysicalConnectorType.Default);
+  }
+}
+

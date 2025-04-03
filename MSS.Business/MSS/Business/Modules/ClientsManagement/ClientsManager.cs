@@ -1,0 +1,48 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.ClientsManagement.ClientsManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Interfaces;
+using NHibernate;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+
+#nullable disable
+namespace MSS.Business.Modules.ClientsManagement
+{
+  public class ClientsManager
+  {
+    private readonly IRepository<MSS.Core.Model.MSSClient.MSSClient> _clientRepository;
+    private readonly ISession _nhSession;
+    private readonly IRepositoryFactory _repositoryFactory;
+
+    public ClientsManager(IRepositoryFactory repositoryFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._clientRepository = this._repositoryFactory.GetRepository<MSS.Core.Model.MSSClient.MSSClient>();
+      this._nhSession = repositoryFactory.GetSession();
+    }
+
+    public IEnumerable<MSS.Core.Model.MSSClient.MSSClient> GetClients()
+    {
+      return (IEnumerable<MSS.Core.Model.MSSClient.MSSClient>) this._clientRepository.GetAll();
+    }
+
+    public bool ClientExists(string id)
+    {
+      return this._clientRepository.Exists((Expression<Func<MSS.Core.Model.MSSClient.MSSClient, bool>>) (mssClient => mssClient.UniqueClientRequest.Equals(id)));
+    }
+
+    public void UpdateClientsDb(IEnumerable<MSS.Core.Model.MSSClient.MSSClient> updatedClients)
+    {
+      this._nhSession.FlushMode = FlushMode.Commit;
+      ITransaction transaction = this._nhSession.BeginTransaction();
+      foreach (MSS.Core.Model.MSSClient.MSSClient updatedClient in updatedClients)
+        this._clientRepository.TransactionalUpdate(updatedClient);
+      transaction.Commit();
+    }
+  }
+}

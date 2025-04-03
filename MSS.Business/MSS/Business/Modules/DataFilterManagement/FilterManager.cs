@@ -1,0 +1,54 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.DataFilterManagement.FilterManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.DataFilters;
+using MSS.Interfaces;
+using NHibernate;
+using System;
+
+#nullable disable
+namespace MSS.Business.Modules.DataFilterManagement
+{
+  public class FilterManager
+  {
+    private readonly ISession _nhSession;
+    private readonly IRepository<MSS.Core.Model.DataFilters.Filter> _filterRepository;
+    private readonly IRepository<Rules> _ruleRepository;
+    private readonly IRepositoryFactory _repositoryFactory;
+
+    public FilterManager(IRepositoryFactory repositoryFactory)
+    {
+      this._nhSession = repositoryFactory.GetSession();
+      this._repositoryFactory = repositoryFactory;
+      this._filterRepository = repositoryFactory.GetRepository<MSS.Core.Model.DataFilters.Filter>();
+      this._ruleRepository = repositoryFactory.GetRepository<Rules>();
+    }
+
+    public void CreateFilter(MSS.Core.Model.DataFilters.Filter filter)
+    {
+      this._filterRepository.Insert(filter);
+    }
+
+    public void UpdateFilter(MSS.Core.Model.DataFilters.Filter filter)
+    {
+      this._filterRepository.Update(filter);
+    }
+
+    public void CreateRule(Rules newRule) => this._ruleRepository.Insert(newRule);
+
+    public void UpdateRule(Rules newRule) => this._ruleRepository.Update(newRule);
+
+    public void RemoveFilter(Guid filterId)
+    {
+      this._filterRepository.Delete(this._filterRepository.GetById((object) filterId));
+    }
+
+    public void RemoveRule(Guid ruleGuid)
+    {
+      this._ruleRepository.Delete(this._ruleRepository.GetById((object) ruleGuid));
+    }
+  }
+}

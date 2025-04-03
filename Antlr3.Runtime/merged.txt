@@ -1,0 +1,4842 @@
+
+--- ANTLRFileStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.ANTLRFileStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.IO;
+using System.Security.Permissions;
+using System.Text;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  [FileIOPermission(SecurityAction.Demand, Unrestricted = true)]
+  public class ANTLRFileStream : ANTLRStringStream
+  {
+    protected string fileName;
+
+    public ANTLRFileStream(string fileName)
+      : this(fileName, (Encoding) null)
+    {
+    }
+
+    public ANTLRFileStream(string fileName, Encoding encoding)
+    {
+      this.fileName = fileName;
+      this.Load(fileName, encoding);
+    }
+
+    public virtual void Load(string fileName, Encoding encoding)
+    {
+      if (fileName == null)
+        return;
+      this.data = (encoding != null ? File.ReadAllText(fileName, encoding) : File.ReadAllText(fileName)).ToCharArray();
+      this.n = this.data.Length;
+    }
+
+    public override string SourceName => this.fileName;
+  }
+}
+
+
+--- ANTLRInputStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.ANTLRInputStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.IO;
+using System.Text;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class ANTLRInputStream : ANTLRReaderStream
+  {
+    public ANTLRInputStream(Stream input)
+      : this(input, (Encoding) null)
+    {
+    }
+
+    public ANTLRInputStream(Stream input, int size)
+      : this(input, size, (Encoding) null)
+    {
+    }
+
+    public ANTLRInputStream(Stream input, Encoding encoding)
+      : this(input, 1024, encoding)
+    {
+    }
+
+    public ANTLRInputStream(Stream input, int size, Encoding encoding)
+      : this(input, size, 1024, encoding)
+    {
+    }
+
+    public ANTLRInputStream(Stream input, int size, int readBufferSize, Encoding encoding)
+      : base((TextReader) ANTLRInputStream.GetStreamReader(input, encoding), size, readBufferSize)
+    {
+    }
+
+    private static StreamReader GetStreamReader(Stream input, Encoding encoding)
+    {
+      return encoding != null ? new StreamReader(input, encoding) : new StreamReader(input);
+    }
+  }
+}
+
+
+--- ANTLRReaderStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.ANTLRReaderStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.IO;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class ANTLRReaderStream : ANTLRStringStream
+  {
+    public const int ReadBufferSize = 1024;
+    public const int InitialBufferSize = 1024;
+
+    public ANTLRReaderStream(TextReader r)
+      : this(r, 1024, 1024)
+    {
+    }
+
+    public ANTLRReaderStream(TextReader r, int size)
+      : this(r, size, 1024)
+    {
+    }
+
+    public ANTLRReaderStream(TextReader r, int size, int readChunkSize)
+    {
+      this.Load(r, size, readChunkSize);
+    }
+
+    public virtual void Load(TextReader r, int size, int readChunkSize)
+    {
+      if (r == null)
+        return;
+      if (size <= 0)
+        size = 1024;
+      if (readChunkSize <= 0)
+        readChunkSize = 1024;
+      try
+      {
+        this.data = r.ReadToEnd().ToCharArray();
+        this.n = this.data.Length;
+      }
+      finally
+      {
+        r.Close();
+      }
+    }
+  }
+}
+
+
+--- ANTLRStringStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.ANTLRStringStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class ANTLRStringStream : ICharStream, IIntStream
+  {
+    protected char[] data;
+    protected int n;
+    protected int p;
+    private int line = 1;
+    private int charPositionInLine;
+    protected int markDepth;
+    protected IList<CharStreamState> markers;
+    protected int lastMarker;
+    public string name;
+
+    public ANTLRStringStream(string input)
+      : this(input, (string) null)
+    {
+    }
+
+    public ANTLRStringStream(string input, string sourceName)
+      : this(input.ToCharArray(), input.Length, sourceName)
+    {
+    }
+
+    public ANTLRStringStream(char[] data, int numberOfActualCharsInArray)
+      : this(data, numberOfActualCharsInArray, (string) null)
+    {
+    }
+
+    public ANTLRStringStream(char[] data, int numberOfActualCharsInArray, string sourceName)
+    {
+      if (data == null)
+        throw new ArgumentNullException(nameof (data));
+      if (numberOfActualCharsInArray < 0)
+        throw new ArgumentOutOfRangeException();
+      if (numberOfActualCharsInArray > data.Length)
+        throw new ArgumentException();
+      this.data = data;
+      this.n = numberOfActualCharsInArray;
+      this.name = sourceName;
+    }
+
+    protected ANTLRStringStream() => this.data = new char[0];
+
+    public virtual int Index => this.p;
+
+    public virtual int Line
+    {
+      get => this.line;
+      set => this.line = value;
+    }
+
+    public virtual int CharPositionInLine
+    {
+      get => this.charPositionInLine;
+      set => this.charPositionInLine = value;
+    }
+
+    public virtual void Reset()
+    {
+      this.p = 0;
+      this.line = 1;
+      this.charPositionInLine = 0;
+      this.markDepth = 0;
+    }
+
+    public virtual void Consume()
+    {
+      if (this.p >= this.n)
+        return;
+      ++this.charPositionInLine;
+      if (this.data[this.p] == '\n')
+      {
+        ++this.line;
+        this.charPositionInLine = 0;
+      }
+      ++this.p;
+    }
+
+    public virtual int LA(int i)
+    {
+      if (i == 0)
+        return 0;
+      if (i < 0)
+      {
+        ++i;
+        if (this.p + i - 1 < 0)
+          return -1;
+      }
+      return this.p + i - 1 >= this.n ? -1 : (int) this.data[this.p + i - 1];
+    }
+
+    public virtual int LT(int i) => this.LA(i);
+
+    public virtual int Count => this.n;
+
+    public virtual int Mark()
+    {
+      if (this.markers == null)
+      {
+        this.markers = (IList<CharStreamState>) new List<CharStreamState>();
+        this.markers.Add((CharStreamState) null);
+      }
+      ++this.markDepth;
+      CharStreamState charStreamState;
+      if (this.markDepth >= this.markers.Count)
+      {
+        charStreamState = new CharStreamState();
+        this.markers.Add(charStreamState);
+      }
+      else
+        charStreamState = this.markers[this.markDepth];
+      charStreamState.p = this.p;
+      charStreamState.line = this.line;
+      charStreamState.charPositionInLine = this.charPositionInLine;
+      this.lastMarker = this.markDepth;
+      return this.markDepth;
+    }
+
+    public virtual void Rewind(int m)
+    {
+      CharStreamState charStreamState = m >= 0 ? this.markers[m] : throw new ArgumentOutOfRangeException();
+      this.Seek(charStreamState.p);
+      this.line = charStreamState.line;
+      this.charPositionInLine = charStreamState.charPositionInLine;
+      this.Release(m);
+    }
+
+    public virtual void Rewind() => this.Rewind(this.lastMarker);
+
+    public virtual void Release(int marker)
+    {
+      this.markDepth = marker;
+      --this.markDepth;
+    }
+
+    public virtual void Seek(int index)
+    {
+      if (index <= this.p)
+      {
+        this.p = index;
+      }
+      else
+      {
+        while (this.p < index)
+          this.Consume();
+      }
+    }
+
+    public virtual string Substring(int start, int length)
+    {
+      if (start < 0)
+        throw new ArgumentOutOfRangeException();
+      if (length < 0)
+        throw new ArgumentOutOfRangeException();
+      if (start + length > this.data.Length)
+        throw new ArgumentException();
+      return length == 0 ? string.Empty : new string(this.data, start, length);
+    }
+
+    public virtual string SourceName => this.name;
+
+    public override string ToString() => new string(this.data);
+  }
+}
+
+
+--- AssemblyInfo.cs ---
+
+﻿using System;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security;
+
+[assembly: AssemblyCompany("Tunnel Vision Laboratories, LLC")]
+[assembly: AssemblyTitle("Antlr3.Runtime")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyProduct("Antlr3.Runtime")]
+[assembly: AssemblyCopyright("Copyright © Sam Harwell 2011")]
+[assembly: AssemblyTrademark("")]
+[assembly: CLSCompliant(true)]
+[assembly: AllowPartiallyTrustedCallers]
+[assembly: ComVisible(false)]
+[assembly: Guid("7a0b4db7-f127-4cf5-ac2c-e294957efcd6")]
+[assembly: AssemblyFileVersion("3.4.1.9004")]
+[assembly: AssemblyVersion("3.4.1.9004")]
+
+
+--- AstParserRuleReturnScope`2.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.AstParserRuleReturnScope`2
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public class AstParserRuleReturnScope<TTree, TToken> : 
+    ParserRuleReturnScope<TToken>,
+    IAstRuleReturnScope<TTree>,
+    IAstRuleReturnScope,
+    IRuleReturnScope
+  {
+    private TTree _tree;
+
+    public TTree Tree
+    {
+      get => this._tree;
+      set => this._tree = value;
+    }
+
+    object IAstRuleReturnScope.Tree => (object) this.Tree;
+  }
+}
+
+
+--- BaseRecognizer.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.BaseRecognizer
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using Antlr.Runtime.Debug;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Text.RegularExpressions;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public abstract class BaseRecognizer
+  {
+    public const int MemoRuleFailed = -2;
+    public const int MemoRuleUnknown = -1;
+    public const int InitialFollowStackSize = 100;
+    public const int DefaultTokenChannel = 0;
+    public const int Hidden = 99;
+    public const string NextTokenRuleName = "nextToken";
+    protected internal RecognizerSharedState state;
+
+    public BaseRecognizer()
+      : this(new RecognizerSharedState())
+    {
+    }
+
+    public BaseRecognizer(RecognizerSharedState state)
+    {
+      if (state == null)
+        state = new RecognizerSharedState();
+      this.state = state;
+      this.InitDFAs();
+    }
+
+    public TextWriter TraceDestination { get; set; }
+
+    public virtual void SetState(RecognizerSharedState value) => this.state = value;
+
+    protected virtual void InitDFAs()
+    {
+    }
+
+    public virtual void Reset()
+    {
+      if (this.state == null)
+        return;
+      this.state._fsp = -1;
+      this.state.errorRecovery = false;
+      this.state.lastErrorIndex = -1;
+      this.state.failed = false;
+      this.state.syntaxErrors = 0;
+      this.state.backtracking = 0;
+      for (int index = 0; this.state.ruleMemo != null && index < this.state.ruleMemo.Length; ++index)
+        this.state.ruleMemo[index] = (IDictionary<int, int>) null;
+    }
+
+    public virtual object Match(IIntStream input, int ttype, BitSet follow)
+    {
+      object currentInputSymbol = this.GetCurrentInputSymbol(input);
+      if (input.LA(1) == ttype)
+      {
+        input.Consume();
+        this.state.errorRecovery = false;
+        this.state.failed = false;
+        return currentInputSymbol;
+      }
+      if (this.state.backtracking <= 0)
+        return this.RecoverFromMismatchedToken(input, ttype, follow);
+      this.state.failed = true;
+      return currentInputSymbol;
+    }
+
+    public virtual void MatchAny(IIntStream input)
+    {
+      this.state.errorRecovery = false;
+      this.state.failed = false;
+      input.Consume();
+    }
+
+    public virtual bool MismatchIsUnwantedToken(IIntStream input, int ttype)
+    {
+      return input.LA(2) == ttype;
+    }
+
+    public virtual bool MismatchIsMissingToken(IIntStream input, BitSet follow)
+    {
+      if (follow == null)
+        return false;
+      if (follow.Member(1))
+      {
+        BitSet sensitiveRuleFollow = this.ComputeContextSensitiveRuleFOLLOW();
+        follow = follow.Or(sensitiveRuleFollow);
+        if (this.state._fsp >= 0)
+          follow.Remove(1);
+      }
+      return follow.Member(input.LA(1)) || follow.Member(1);
+    }
+
+    public virtual void ReportError(RecognitionException e)
+    {
+      if (this.state.errorRecovery)
+        return;
+      ++this.state.syntaxErrors;
+      this.state.errorRecovery = true;
+      this.DisplayRecognitionError(this.TokenNames, e);
+    }
+
+    public virtual void DisplayRecognitionError(string[] tokenNames, RecognitionException e)
+    {
+      this.EmitErrorMessage(this.GetErrorHeader(e) + " " + this.GetErrorMessage(e, tokenNames));
+    }
+
+    public virtual string GetErrorMessage(RecognitionException e, string[] tokenNames)
+    {
+      string errorMessage = e.Message;
+      switch (e)
+      {
+        case UnwantedTokenException _:
+          UnwantedTokenException unwantedTokenException = (UnwantedTokenException) e;
+          string str1 = unwantedTokenException.Expecting != -1 ? tokenNames[unwantedTokenException.Expecting] : "EndOfFile";
+          errorMessage = "extraneous input " + this.GetTokenErrorDisplay(unwantedTokenException.UnexpectedToken) + " expecting " + str1;
+          break;
+        case MissingTokenException _:
+          MissingTokenException missingTokenException = (MissingTokenException) e;
+          errorMessage = "missing " + (missingTokenException.Expecting != -1 ? tokenNames[missingTokenException.Expecting] : "EndOfFile") + " at " + this.GetTokenErrorDisplay(e.Token);
+          break;
+        case MismatchedTokenException _:
+          MismatchedTokenException mismatchedTokenException = (MismatchedTokenException) e;
+          string str2 = mismatchedTokenException.Expecting != -1 ? tokenNames[mismatchedTokenException.Expecting] : "EndOfFile";
+          errorMessage = "mismatched input " + this.GetTokenErrorDisplay(e.Token) + " expecting " + str2;
+          break;
+        case MismatchedTreeNodeException _:
+          MismatchedTreeNodeException treeNodeException = (MismatchedTreeNodeException) e;
+          string str3 = treeNodeException.Expecting != -1 ? tokenNames[treeNodeException.Expecting] : "EndOfFile";
+          errorMessage = "mismatched tree node: " + (treeNodeException.Node != null ? treeNodeException.Node.ToString() ?? string.Empty : string.Empty) + " expecting " + str3;
+          break;
+        case NoViableAltException _:
+          errorMessage = "no viable alternative at input " + this.GetTokenErrorDisplay(e.Token);
+          break;
+        case EarlyExitException _:
+          errorMessage = "required (...)+ loop did not match anything at input " + this.GetTokenErrorDisplay(e.Token);
+          break;
+        case MismatchedSetException _:
+          MismatchedSetException mismatchedSetException = (MismatchedSetException) e;
+          errorMessage = "mismatched input " + this.GetTokenErrorDisplay(e.Token) + " expecting set " + (object) mismatchedSetException.Expecting;
+          break;
+        case MismatchedNotSetException _:
+          MismatchedNotSetException mismatchedNotSetException = (MismatchedNotSetException) e;
+          errorMessage = "mismatched input " + this.GetTokenErrorDisplay(e.Token) + " expecting set " + (object) mismatchedNotSetException.Expecting;
+          break;
+        case FailedPredicateException _:
+          FailedPredicateException predicateException = (FailedPredicateException) e;
+          errorMessage = "rule " + predicateException.RuleName + " failed predicate: {" + predicateException.PredicateText + "}?";
+          break;
+      }
+      return errorMessage;
+    }
+
+    public virtual int NumberOfSyntaxErrors => this.state.syntaxErrors;
+
+    public virtual string GetErrorHeader(RecognitionException e)
+    {
+      string str = this.SourceName ?? string.Empty;
+      if (str.Length > 0)
+        str += (string) (object) ' ';
+      return string.Format("{0}line {1}:{2}", (object) str, (object) e.Line, (object) (e.CharPositionInLine + 1));
+    }
+
+    public virtual string GetTokenErrorDisplay(IToken t)
+    {
+      return "'" + Regex.Replace(Regex.Replace(Regex.Replace(t.Text ?? (t.Type != -1 ? "<" + (object) t.Type + ">" : "<EOF>"), "\n", "\\\\n"), "\r", "\\\\r"), "\t", "\\\\t") + "'";
+    }
+
+    public virtual void EmitErrorMessage(string msg)
+    {
+      if (this.TraceDestination == null)
+        return;
+      this.TraceDestination.WriteLine(msg);
+    }
+
+    public virtual void Recover(IIntStream input, RecognitionException re)
+    {
+      if (this.state.lastErrorIndex == input.Index)
+        input.Consume();
+      this.state.lastErrorIndex = input.Index;
+      BitSet errorRecoverySet = this.ComputeErrorRecoverySet();
+      this.BeginResync();
+      this.ConsumeUntil(input, errorRecoverySet);
+      this.EndResync();
+    }
+
+    public virtual void BeginResync()
+    {
+    }
+
+    public virtual void EndResync()
+    {
+    }
+
+    protected virtual BitSet ComputeErrorRecoverySet() => this.CombineFollows(false);
+
+    protected virtual BitSet ComputeContextSensitiveRuleFOLLOW() => this.CombineFollows(true);
+
+    protected virtual BitSet CombineFollows(bool exact)
+    {
+      int fsp = this.state._fsp;
+      BitSet bitSet = new BitSet();
+      for (int index = fsp; index >= 0; --index)
+      {
+        BitSet a = this.state.following[index];
+        bitSet.OrInPlace(a);
+        if (exact)
+        {
+          if (a.Member(1))
+          {
+            if (index > 0)
+              bitSet.Remove(1);
+          }
+          else
+            break;
+        }
+      }
+      return bitSet;
+    }
+
+    protected virtual object RecoverFromMismatchedToken(IIntStream input, int ttype, BitSet follow)
+    {
+      RecognitionException e1 = (RecognitionException) null;
+      if (this.MismatchIsUnwantedToken(input, ttype))
+      {
+        RecognitionException e2 = (RecognitionException) new UnwantedTokenException(ttype, input, (IList<string>) this.TokenNames);
+        this.BeginResync();
+        input.Consume();
+        this.EndResync();
+        this.ReportError(e2);
+        object currentInputSymbol = this.GetCurrentInputSymbol(input);
+        input.Consume();
+        return currentInputSymbol;
+      }
+      if (!this.MismatchIsMissingToken(input, follow))
+        throw (RecognitionException) new MismatchedTokenException(ttype, input, (IList<string>) this.TokenNames);
+      object missingSymbol = this.GetMissingSymbol(input, e1, ttype, follow);
+      this.ReportError((RecognitionException) new MissingTokenException(ttype, input, missingSymbol));
+      return missingSymbol;
+    }
+
+    public virtual object RecoverFromMismatchedSet(
+      IIntStream input,
+      RecognitionException e,
+      BitSet follow)
+    {
+      if (!this.MismatchIsMissingToken(input, follow))
+        throw e;
+      this.ReportError(e);
+      return this.GetMissingSymbol(input, e, 0, follow);
+    }
+
+    protected virtual object GetCurrentInputSymbol(IIntStream input) => (object) null;
+
+    protected virtual object GetMissingSymbol(
+      IIntStream input,
+      RecognitionException e,
+      int expectedTokenType,
+      BitSet follow)
+    {
+      return (object) null;
+    }
+
+    public virtual void ConsumeUntil(IIntStream input, int tokenType)
+    {
+      for (int index = input.LA(1); index != -1 && index != tokenType; index = input.LA(1))
+        input.Consume();
+    }
+
+    public virtual void ConsumeUntil(IIntStream input, BitSet set)
+    {
+      for (int el = input.LA(1); el != -1 && !set.Member(el); el = input.LA(1))
+        input.Consume();
+    }
+
+    protected void PushFollow(BitSet fset)
+    {
+      if (this.state._fsp + 1 >= this.state.following.Length)
+        Array.Resize<BitSet>(ref this.state.following, this.state.following.Length * 2);
+      this.state.following[++this.state._fsp] = fset;
+    }
+
+    protected void PopFollow() => --this.state._fsp;
+
+    public virtual IList<string> GetRuleInvocationStack()
+    {
+      return BaseRecognizer.GetRuleInvocationStack(new StackTrace(true));
+    }
+
+    public static IList<string> GetRuleInvocationStack(StackTrace trace)
+    {
+      if (trace == null)
+        throw new ArgumentNullException(nameof (trace));
+      List<string> ruleInvocationStack = new List<string>();
+      StackFrame[] stackFrameArray = trace.GetFrames() ?? new StackFrame[0];
+      for (int index = stackFrameArray.Length - 1; index >= 0; --index)
+      {
+        GrammarRuleAttribute[] customAttributes = (GrammarRuleAttribute[]) stackFrameArray[index].GetMethod().GetCustomAttributes(typeof (GrammarRuleAttribute), true);
+        if (customAttributes != null && customAttributes.Length > 0)
+          ruleInvocationStack.Add(customAttributes[0].Name);
+      }
+      return (IList<string>) ruleInvocationStack;
+    }
+
+    public virtual int BacktrackingLevel
+    {
+      get => this.state.backtracking;
+      set => this.state.backtracking = value;
+    }
+
+    public virtual bool Failed => this.state.failed;
+
+    public virtual string[] TokenNames => (string[]) null;
+
+    public virtual string GrammarFileName => (string) null;
+
+    public abstract string SourceName { get; }
+
+    public virtual List<string> ToStrings(ICollection<IToken> tokens)
+    {
+      if (tokens == null)
+        return (List<string>) null;
+      List<string> strings = new List<string>(tokens.Count);
+      foreach (IToken token in (IEnumerable<IToken>) tokens)
+        strings.Add(token.Text);
+      return strings;
+    }
+
+    public virtual int GetRuleMemoization(int ruleIndex, int ruleStartIndex)
+    {
+      if (this.state.ruleMemo[ruleIndex] == null)
+        this.state.ruleMemo[ruleIndex] = (IDictionary<int, int>) new Dictionary<int, int>();
+      int num;
+      return !this.state.ruleMemo[ruleIndex].TryGetValue(ruleStartIndex, out num) ? -1 : num;
+    }
+
+    public virtual bool AlreadyParsedRule(IIntStream input, int ruleIndex)
+    {
+      int ruleMemoization = this.GetRuleMemoization(ruleIndex, input.Index);
+      switch (ruleMemoization)
+      {
+        case -2:
+          this.state.failed = true;
+          break;
+        case -1:
+          return false;
+        default:
+          input.Seek(ruleMemoization + 1);
+          break;
+      }
+      return true;
+    }
+
+    public virtual void Memoize(IIntStream input, int ruleIndex, int ruleStartIndex)
+    {
+      int num = this.state.failed ? -2 : input.Index - 1;
+      if (this.state.ruleMemo == null && this.TraceDestination != null)
+        this.TraceDestination.WriteLine("!!!!!!!!! memo array is null for " + this.GrammarFileName);
+      if (ruleIndex >= this.state.ruleMemo.Length && this.TraceDestination != null)
+        this.TraceDestination.WriteLine("!!!!!!!!! memo size is " + (object) this.state.ruleMemo.Length + ", but rule index is " + (object) ruleIndex);
+      if (this.state.ruleMemo[ruleIndex] == null)
+        return;
+      this.state.ruleMemo[ruleIndex][ruleStartIndex] = num;
+    }
+
+    public virtual int GetRuleMemoizationCacheSize()
+    {
+      int memoizationCacheSize = 0;
+      for (int index = 0; this.state.ruleMemo != null && index < this.state.ruleMemo.Length; ++index)
+      {
+        IDictionary<int, int> dictionary = this.state.ruleMemo[index];
+        if (dictionary != null)
+          memoizationCacheSize += dictionary.Count;
+      }
+      return memoizationCacheSize;
+    }
+
+    public virtual void TraceIn(string ruleName, int ruleIndex, object inputSymbol)
+    {
+      if (this.TraceDestination == null)
+        return;
+      this.TraceDestination.Write("enter " + ruleName + " " + inputSymbol);
+      if (this.state.backtracking > 0)
+        this.TraceDestination.Write(" backtracking=" + (object) this.state.backtracking);
+      this.TraceDestination.WriteLine();
+    }
+
+    public virtual void TraceOut(string ruleName, int ruleIndex, object inputSymbol)
+    {
+      if (this.TraceDestination == null)
+        return;
+      this.TraceDestination.Write("exit " + ruleName + " " + inputSymbol);
+      if (this.state.backtracking > 0)
+      {
+        this.TraceDestination.Write(" backtracking=" + (object) this.state.backtracking);
+        if (this.state.failed)
+          this.TraceDestination.Write(" failed");
+        else
+          this.TraceDestination.Write(" succeeded");
+      }
+      this.TraceDestination.WriteLine();
+    }
+
+    public virtual IDebugEventListener DebugListener => (IDebugEventListener) null;
+
+    [Conditional("ANTLR_DEBUG")]
+    protected virtual void DebugEnterRule(string grammarFileName, string ruleName)
+    {
+      this.DebugListener?.EnterRule(grammarFileName, ruleName);
+    }
+
+    [Conditional("ANTLR_DEBUG")]
+    protected virtual void DebugExitRule(string grammarFileName, string ruleName)
+    {
+      this.DebugListener?.ExitRule(grammarFileName, ruleName);
+    }
+
+    [Conditional("ANTLR_DEBUG")]
+    protected virtual void DebugEnterSubRule(int decisionNumber)
+    {
+      this.DebugListener?.EnterSubRule(decisionNumber);
+    }
+
+    [Conditional("ANTLR_DEBUG")]
+    protected virtual void DebugExitSubRule(int decisionNumber)
+    {
+      this.DebugListener?.ExitSubRule(decisionNumber);
+    }
+
+    [Conditional("ANTLR_DEBUG")]
+    protected virtual void DebugEnterAlt(int alt) => this.DebugListener?.EnterAlt(alt);
+
+    [Conditional("ANTLR_DEBUG")]
+    protected virtual void DebugEnterDecision(int decisionNumber, bool couldBacktrack)
+    {
+      this.DebugListener?.EnterDecision(decisionNumber, couldBacktrack);
+    }
+
+    [Conditional("ANTLR_DEBUG")]
+    protected virtual void DebugExitDecision(int decisionNumber)
+    {
+      this.DebugListener?.ExitDecision(decisionNumber);
+    }
+
+    [Conditional("ANTLR_DEBUG")]
+    protected virtual void DebugLocation(int line, int charPositionInLine)
+    {
+      this.DebugListener?.Location(line, charPositionInLine);
+    }
+
+    [Conditional("ANTLR_DEBUG")]
+    protected virtual void DebugSemanticPredicate(bool result, string predicate)
+    {
+      this.DebugListener?.SemanticPredicate(result, predicate);
+    }
+
+    [Conditional("ANTLR_DEBUG")]
+    protected virtual void DebugBeginBacktrack(int level)
+    {
+      this.DebugListener?.BeginBacktrack(level);
+    }
+
+    [Conditional("ANTLR_DEBUG")]
+    protected virtual void DebugEndBacktrack(int level, bool successful)
+    {
+      this.DebugListener?.EndBacktrack(level, successful);
+    }
+
+    [Conditional("ANTLR_DEBUG")]
+    protected virtual void DebugRecognitionException(RecognitionException ex)
+    {
+      this.DebugListener?.RecognitionException(ex);
+    }
+  }
+}
+
+
+--- BitSet.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.BitSet
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public sealed class BitSet : ICloneable
+  {
+    private const int BITS = 64;
+    private const int LOG_BITS = 6;
+    private const int MOD_MASK = 63;
+    private ulong[] _bits;
+
+    public BitSet()
+      : this(64)
+    {
+    }
+
+    [CLSCompliant(false)]
+    public BitSet(ulong[] bits) => this._bits = bits;
+
+    public BitSet(IEnumerable<int> items)
+      : this()
+    {
+      foreach (int el in items)
+        this.Add(el);
+    }
+
+    public BitSet(int nbits) => this._bits = new ulong[(nbits - 1 >> 6) + 1];
+
+    public static BitSet Of(int el)
+    {
+      BitSet bitSet = new BitSet(el + 1);
+      bitSet.Add(el);
+      return bitSet;
+    }
+
+    public static BitSet Of(int a, int b)
+    {
+      BitSet bitSet = new BitSet(Math.Max(a, b) + 1);
+      bitSet.Add(a);
+      bitSet.Add(b);
+      return bitSet;
+    }
+
+    public static BitSet Of(int a, int b, int c)
+    {
+      BitSet bitSet = new BitSet();
+      bitSet.Add(a);
+      bitSet.Add(b);
+      bitSet.Add(c);
+      return bitSet;
+    }
+
+    public static BitSet Of(int a, int b, int c, int d)
+    {
+      BitSet bitSet = new BitSet();
+      bitSet.Add(a);
+      bitSet.Add(b);
+      bitSet.Add(c);
+      bitSet.Add(d);
+      return bitSet;
+    }
+
+    public BitSet Or(BitSet a)
+    {
+      if (a == null)
+        return this;
+      BitSet bitSet = (BitSet) this.Clone();
+      bitSet.OrInPlace(a);
+      return bitSet;
+    }
+
+    public void Add(int el)
+    {
+      int index = BitSet.WordNumber(el);
+      if (index >= this._bits.Length)
+        this.GrowToInclude(el);
+      this._bits[index] |= BitSet.BitMask(el);
+    }
+
+    public void GrowToInclude(int bit)
+    {
+      this.SetSize(Math.Max(this._bits.Length << 1, BitSet.NumWordsToHold(bit)));
+    }
+
+    public void OrInPlace(BitSet a)
+    {
+      if (a == null)
+        return;
+      if (a._bits.Length > this._bits.Length)
+        this.SetSize(a._bits.Length);
+      for (int index = Math.Min(this._bits.Length, a._bits.Length) - 1; index >= 0; --index)
+        this._bits[index] |= a._bits[index];
+    }
+
+    private void SetSize(int nwords) => Array.Resize<ulong>(ref this._bits, nwords);
+
+    private static ulong BitMask(int bitNumber) => 1UL << bitNumber;
+
+    public object Clone() => (object) new BitSet((ulong[]) this._bits.Clone());
+
+    public int Size()
+    {
+      int num = 0;
+      for (int index1 = this._bits.Length - 1; index1 >= 0; --index1)
+      {
+        ulong bit = this._bits[index1];
+        if (bit != 0UL)
+        {
+          for (int index2 = 63; index2 >= 0; --index2)
+          {
+            if (((long) bit & 1L << index2) != 0L)
+              ++num;
+          }
+        }
+      }
+      return num;
+    }
+
+    public override int GetHashCode() => throw new NotImplementedException();
+
+    public override bool Equals(object other)
+    {
+      if (other == null || !(other is BitSet))
+        return false;
+      BitSet bitSet = (BitSet) other;
+      int num = Math.Min(this._bits.Length, bitSet._bits.Length);
+      for (int index = 0; index < num; ++index)
+      {
+        if ((long) this._bits[index] != (long) bitSet._bits[index])
+          return false;
+      }
+      if (this._bits.Length > num)
+      {
+        for (int index = num + 1; index < this._bits.Length; ++index)
+        {
+          if (this._bits[index] != 0UL)
+            return false;
+        }
+      }
+      else if (bitSet._bits.Length > num)
+      {
+        for (int index = num + 1; index < bitSet._bits.Length; ++index)
+        {
+          if (bitSet._bits[index] != 0UL)
+            return false;
+        }
+      }
+      return true;
+    }
+
+    public bool Member(int el)
+    {
+      if (el < 0)
+        return false;
+      int index = BitSet.WordNumber(el);
+      return index < this._bits.Length && ((long) this._bits[index] & (long) BitSet.BitMask(el)) != 0L;
+    }
+
+    public void Remove(int el)
+    {
+      int index = BitSet.WordNumber(el);
+      if (index >= this._bits.Length)
+        return;
+      this._bits[index] &= ~BitSet.BitMask(el);
+    }
+
+    public bool IsNil()
+    {
+      for (int index = this._bits.Length - 1; index >= 0; --index)
+      {
+        if (this._bits[index] != 0UL)
+          return false;
+      }
+      return true;
+    }
+
+    private static int NumWordsToHold(int el) => (el >> 6) + 1;
+
+    public int NumBits() => this._bits.Length << 6;
+
+    public int LengthInLongWords() => this._bits.Length;
+
+    public int[] ToArray()
+    {
+      int[] array = new int[this.Size()];
+      int num = 0;
+      for (int el = 0; el < this._bits.Length << 6; ++el)
+      {
+        if (this.Member(el))
+          array[num++] = el;
+      }
+      return array;
+    }
+
+    private static int WordNumber(int bit) => bit >> 6;
+
+    public override string ToString() => this.ToString((string[]) null);
+
+    public string ToString(string[] tokenNames)
+    {
+      StringBuilder stringBuilder = new StringBuilder();
+      string str = ",";
+      bool flag = false;
+      stringBuilder.Append('{');
+      for (int el = 0; el < this._bits.Length << 6; ++el)
+      {
+        if (this.Member(el))
+        {
+          if (el > 0 && flag)
+            stringBuilder.Append(str);
+          if (tokenNames != null)
+            stringBuilder.Append(tokenNames[el]);
+          else
+            stringBuilder.Append(el);
+          flag = true;
+        }
+      }
+      stringBuilder.Append('}');
+      return stringBuilder.ToString();
+    }
+  }
+}
+
+
+--- BufferedTokenStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.BufferedTokenStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class BufferedTokenStream : ITokenStream, IIntStream, ITokenStreamInformation
+  {
+    private ITokenSource _tokenSource;
+    [CLSCompliant(false)]
+    protected List<IToken> _tokens = new List<IToken>(100);
+    private int _lastMarker;
+    [CLSCompliant(false)]
+    protected int _p = -1;
+
+    public BufferedTokenStream()
+    {
+    }
+
+    public BufferedTokenStream(ITokenSource tokenSource) => this._tokenSource = tokenSource;
+
+    public virtual ITokenSource TokenSource
+    {
+      get => this._tokenSource;
+      set
+      {
+        this._tokenSource = value;
+        this._tokens.Clear();
+        this._p = -1;
+      }
+    }
+
+    public virtual int Index => this._p;
+
+    public virtual int Range { get; protected set; }
+
+    public virtual int Count => this._tokens.Count;
+
+    public virtual string SourceName => this._tokenSource.SourceName;
+
+    public virtual IToken LastToken => this.LB(1);
+
+    public virtual IToken LastRealToken
+    {
+      get
+      {
+        int k = 0;
+        IToken lastRealToken;
+        do
+        {
+          ++k;
+          lastRealToken = this.LB(k);
+        }
+        while (lastRealToken != null && lastRealToken.Line <= 0);
+        return lastRealToken;
+      }
+    }
+
+    public virtual int MaxLookBehind => int.MaxValue;
+
+    public virtual int Mark()
+    {
+      if (this._p == -1)
+        this.Setup();
+      this._lastMarker = this.Index;
+      return this._lastMarker;
+    }
+
+    public virtual void Release(int marker)
+    {
+    }
+
+    public virtual void Rewind(int marker) => this.Seek(marker);
+
+    public virtual void Rewind() => this.Seek(this._lastMarker);
+
+    public virtual void Reset()
+    {
+      this._p = 0;
+      this._lastMarker = 0;
+    }
+
+    public virtual void Seek(int index) => this._p = index;
+
+    public virtual void Consume()
+    {
+      if (this._p == -1)
+        this.Setup();
+      ++this._p;
+      this.Sync(this._p);
+    }
+
+    protected virtual void Sync(int i)
+    {
+      int n = i - this._tokens.Count + 1;
+      if (n <= 0)
+        return;
+      this.Fetch(n);
+    }
+
+    protected virtual void Fetch(int n)
+    {
+      for (int index = 0; index < n; ++index)
+      {
+        IToken token = this.TokenSource.NextToken();
+        token.TokenIndex = this._tokens.Count;
+        this._tokens.Add(token);
+        if (token.Type == -1)
+          break;
+      }
+    }
+
+    public virtual IToken Get(int i)
+    {
+      if (i < 0 || i >= this._tokens.Count)
+        throw new IndexOutOfRangeException("token index " + (object) i + " out of range 0.." + (object) (this._tokens.Count - 1));
+      return this._tokens[i];
+    }
+
+    public virtual int LA(int i) => this.LT(i).Type;
+
+    protected virtual IToken LB(int k)
+    {
+      return this._p - k < 0 ? (IToken) null : this._tokens[this._p - k];
+    }
+
+    public virtual IToken LT(int k)
+    {
+      if (this._p == -1)
+        this.Setup();
+      if (k == 0)
+        return (IToken) null;
+      if (k < 0)
+        return this.LB(-k);
+      int i = this._p + k - 1;
+      this.Sync(i);
+      if (i >= this._tokens.Count)
+        return this._tokens[this._tokens.Count - 1];
+      if (i > this.Range)
+        this.Range = i;
+      return this._tokens[this._p + k - 1];
+    }
+
+    protected virtual void Setup()
+    {
+      this.Sync(0);
+      this._p = 0;
+    }
+
+    public virtual List<IToken> GetTokens() => this._tokens;
+
+    public virtual List<IToken> GetTokens(int start, int stop)
+    {
+      return this.GetTokens(start, stop, (BitSet) null);
+    }
+
+    public virtual List<IToken> GetTokens(int start, int stop, BitSet types)
+    {
+      if (this._p == -1)
+        this.Setup();
+      if (stop >= this._tokens.Count)
+        stop = this._tokens.Count - 1;
+      if (start < 0)
+        start = 0;
+      if (start > stop)
+        return (List<IToken>) null;
+      List<IToken> tokens = new List<IToken>();
+      for (int index = start; index <= stop; ++index)
+      {
+        IToken token = this._tokens[index];
+        if (types == null || types.Member(token.Type))
+          tokens.Add(token);
+      }
+      if (tokens.Count == 0)
+        tokens = (List<IToken>) null;
+      return tokens;
+    }
+
+    public virtual List<IToken> GetTokens(int start, int stop, IEnumerable<int> types)
+    {
+      return this.GetTokens(start, stop, new BitSet(types));
+    }
+
+    public virtual List<IToken> GetTokens(int start, int stop, int ttype)
+    {
+      return this.GetTokens(start, stop, BitSet.Of(ttype));
+    }
+
+    public override string ToString()
+    {
+      if (this._p == -1)
+        this.Setup();
+      this.Fill();
+      return this.ToString(0, this._tokens.Count - 1);
+    }
+
+    public virtual string ToString(int start, int stop)
+    {
+      if (start < 0 || stop < 0)
+        return (string) null;
+      if (this._p == -1)
+        this.Setup();
+      if (stop >= this._tokens.Count)
+        stop = this._tokens.Count - 1;
+      StringBuilder stringBuilder = new StringBuilder();
+      for (int index = start; index <= stop; ++index)
+      {
+        IToken token = this._tokens[index];
+        if (token.Type != -1)
+          stringBuilder.Append(token.Text);
+        else
+          break;
+      }
+      return stringBuilder.ToString();
+    }
+
+    public virtual string ToString(IToken start, IToken stop)
+    {
+      return start != null && stop != null ? this.ToString(start.TokenIndex, stop.TokenIndex) : (string) null;
+    }
+
+    public virtual void Fill()
+    {
+      if (this._p == -1)
+        this.Setup();
+      if (this._tokens[this._p].Type == -1)
+        return;
+      int num = this._p + 1;
+      this.Sync(num);
+      while (this._tokens[num].Type != -1)
+      {
+        ++num;
+        this.Sync(num);
+      }
+    }
+  }
+}
+
+
+--- CharStreamConstants.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.CharStreamConstants
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public static class CharStreamConstants
+  {
+    public const int EndOfFile = -1;
+  }
+}
+
+
+--- CharStreamState.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.CharStreamState
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class CharStreamState
+  {
+    public int p;
+    public int line;
+    public int charPositionInLine;
+  }
+}
+
+
+--- ClassicToken.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.ClassicToken
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class ClassicToken : IToken
+  {
+    private string text;
+    private int type;
+    private int line;
+    private int charPositionInLine;
+    private int channel;
+    private int index;
+
+    public ClassicToken(int type) => this.type = type;
+
+    public ClassicToken(IToken oldToken)
+    {
+      this.text = oldToken.Text;
+      this.type = oldToken.Type;
+      this.line = oldToken.Line;
+      this.charPositionInLine = oldToken.CharPositionInLine;
+      this.channel = oldToken.Channel;
+    }
+
+    public ClassicToken(int type, string text)
+    {
+      this.type = type;
+      this.text = text;
+    }
+
+    public ClassicToken(int type, string text, int channel)
+    {
+      this.type = type;
+      this.text = text;
+      this.channel = channel;
+    }
+
+    public string Text
+    {
+      get => this.text;
+      set => this.text = value;
+    }
+
+    public int Type
+    {
+      get => this.type;
+      set => this.type = value;
+    }
+
+    public int Line
+    {
+      get => this.line;
+      set => this.line = value;
+    }
+
+    public int CharPositionInLine
+    {
+      get => this.charPositionInLine;
+      set => this.charPositionInLine = value;
+    }
+
+    public int Channel
+    {
+      get => this.channel;
+      set => this.channel = value;
+    }
+
+    public int StartIndex
+    {
+      get => -1;
+      set
+      {
+      }
+    }
+
+    public int StopIndex
+    {
+      get => -1;
+      set
+      {
+      }
+    }
+
+    public int TokenIndex
+    {
+      get => this.index;
+      set => this.index = value;
+    }
+
+    public ICharStream InputStream
+    {
+      get => (ICharStream) null;
+      set
+      {
+      }
+    }
+
+    public override string ToString()
+    {
+      string str = "";
+      if (this.channel > 0)
+        str = ",channel=" + (object) this.channel;
+      string text = this.Text;
+      return "[@" + (object) this.TokenIndex + ",'" + (text == null ? "<no text>" : text.Replace("\n", "\\\\n").Replace("\r", "\\\\r").Replace("\t", "\\\\t")) + "',<" + (object) this.type + ">" + str + "," + (object) this.line + ":" + (object) this.CharPositionInLine + "]";
+    }
+  }
+}
+
+
+--- CommonToken.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.CommonToken
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class CommonToken : IToken
+  {
+    private int type;
+    private int line;
+    private int charPositionInLine = -1;
+    private int channel;
+    [NonSerialized]
+    private ICharStream input;
+    private string text;
+    private int index = -1;
+    private int start;
+    private int stop;
+
+    public CommonToken()
+    {
+    }
+
+    public CommonToken(int type) => this.type = type;
+
+    public CommonToken(ICharStream input, int type, int channel, int start, int stop)
+    {
+      this.input = input;
+      this.type = type;
+      this.channel = channel;
+      this.start = start;
+      this.stop = stop;
+    }
+
+    public CommonToken(int type, string text)
+    {
+      this.type = type;
+      this.channel = 0;
+      this.text = text;
+    }
+
+    public CommonToken(IToken oldToken)
+    {
+      this.text = oldToken.Text;
+      this.type = oldToken.Type;
+      this.line = oldToken.Line;
+      this.index = oldToken.TokenIndex;
+      this.charPositionInLine = oldToken.CharPositionInLine;
+      this.channel = oldToken.Channel;
+      this.input = oldToken.InputStream;
+      if (!(oldToken is CommonToken))
+        return;
+      this.start = ((CommonToken) oldToken).start;
+      this.stop = ((CommonToken) oldToken).stop;
+    }
+
+    public string Text
+    {
+      get
+      {
+        if (this.text != null)
+          return this.text;
+        if (this.input == null)
+          return (string) null;
+        return this.start <= this.stop && this.stop < this.input.Count ? this.input.Substring(this.start, this.stop - this.start + 1) : "<EOF>";
+      }
+      set => this.text = value;
+    }
+
+    public int Type
+    {
+      get => this.type;
+      set => this.type = value;
+    }
+
+    public int Line
+    {
+      get => this.line;
+      set => this.line = value;
+    }
+
+    public int CharPositionInLine
+    {
+      get => this.charPositionInLine;
+      set => this.charPositionInLine = value;
+    }
+
+    public int Channel
+    {
+      get => this.channel;
+      set => this.channel = value;
+    }
+
+    public int StartIndex
+    {
+      get => this.start;
+      set => this.start = value;
+    }
+
+    public int StopIndex
+    {
+      get => this.stop;
+      set => this.stop = value;
+    }
+
+    public int TokenIndex
+    {
+      get => this.index;
+      set => this.index = value;
+    }
+
+    public ICharStream InputStream
+    {
+      get => this.input;
+      set => this.input = value;
+    }
+
+    public override string ToString()
+    {
+      string str = "";
+      if (this.channel > 0)
+        str = ",channel=" + (object) this.channel;
+      string text = this.Text;
+      return "[@" + (object) this.TokenIndex + "," + (object) this.start + ":" + (object) this.stop + "='" + (text == null ? "<no text>" : Regex.Replace(Regex.Replace(Regex.Replace(text, "\n", "\\\\n"), "\r", "\\\\r"), "\t", "\\\\t")) + "',<" + (object) this.type + ">" + str + "," + (object) this.line + ":" + (object) this.CharPositionInLine + "]";
+    }
+
+    [System.Runtime.Serialization.OnSerializing]
+    internal void OnSerializing(StreamingContext context)
+    {
+      if (this.text != null)
+        return;
+      this.text = this.Text;
+    }
+  }
+}
+
+
+--- CommonTokenStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.CommonTokenStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class CommonTokenStream : BufferedTokenStream
+  {
+    private int _channel;
+
+    public CommonTokenStream()
+    {
+    }
+
+    public CommonTokenStream(ITokenSource tokenSource)
+      : this(tokenSource, 0)
+    {
+    }
+
+    public CommonTokenStream(ITokenSource tokenSource, int channel)
+      : base(tokenSource)
+    {
+      this._channel = channel;
+    }
+
+    public int Channel => this._channel;
+
+    public override ITokenSource TokenSource
+    {
+      get => base.TokenSource;
+      set
+      {
+        base.TokenSource = value;
+        this._channel = 0;
+      }
+    }
+
+    public override void Consume()
+    {
+      if (this._p == -1)
+        this.Setup();
+      ++this._p;
+      this._p = this.SkipOffTokenChannels(this._p);
+    }
+
+    protected override IToken LB(int k)
+    {
+      if (k == 0 || this._p - k < 0)
+        return (IToken) null;
+      int index1 = this._p;
+      for (int index2 = 1; index2 <= k; ++index2)
+        index1 = this.SkipOffTokenChannelsReverse(index1 - 1);
+      return index1 < 0 ? (IToken) null : this._tokens[index1];
+    }
+
+    public override IToken LT(int k)
+    {
+      if (this._p == -1)
+        this.Setup();
+      if (k == 0)
+        return (IToken) null;
+      if (k < 0)
+        return this.LB(-k);
+      int index1 = this._p;
+      for (int index2 = 1; index2 < k; ++index2)
+        index1 = this.SkipOffTokenChannels(index1 + 1);
+      if (index1 > this.Range)
+        this.Range = index1;
+      return this._tokens[index1];
+    }
+
+    protected virtual int SkipOffTokenChannels(int i)
+    {
+      this.Sync(i);
+      while (this._tokens[i].Channel != this._channel)
+      {
+        ++i;
+        this.Sync(i);
+      }
+      return i;
+    }
+
+    protected virtual int SkipOffTokenChannelsReverse(int i)
+    {
+      while (i >= 0 && this._tokens[i].Channel != this._channel)
+        --i;
+      return i;
+    }
+
+    public override void Reset()
+    {
+      base.Reset();
+      this._p = this.SkipOffTokenChannels(0);
+    }
+
+    protected override void Setup()
+    {
+      this._p = 0;
+      this._p = this.SkipOffTokenChannels(this._p);
+    }
+  }
+}
+
+
+--- DFA.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.DFA
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Diagnostics;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public class DFA
+  {
+    protected short[] eot;
+    protected short[] eof;
+    protected char[] min;
+    protected char[] max;
+    protected short[] accept;
+    protected short[] special;
+    protected short[][] transition;
+    protected int decisionNumber;
+    protected BaseRecognizer recognizer;
+    public readonly bool debug;
+
+    public DFA()
+      : this(new SpecialStateTransitionHandler(DFA.SpecialStateTransitionDefault))
+    {
+    }
+
+    public DFA(
+      SpecialStateTransitionHandler specialStateTransition)
+    {
+      this.SpecialStateTransition = specialStateTransition ?? new SpecialStateTransitionHandler(DFA.SpecialStateTransitionDefault);
+    }
+
+    public virtual string Description => "n/a";
+
+    public virtual int Predict(IIntStream input)
+    {
+      if (this.debug)
+        Console.Error.WriteLine("Enter DFA.predict for decision " + (object) this.decisionNumber);
+      int marker = input.Mark();
+      int s1 = 0;
+      try
+      {
+        char ch;
+        while (true)
+        {
+          if (this.debug)
+            Console.Error.WriteLine("DFA " + (object) this.decisionNumber + " state " + (object) s1 + " LA(1)=" + (object) (char) input.LA(1) + "(" + (object) input.LA(1) + "), index=" + (object) input.Index);
+          int s2 = (int) this.special[s1];
+          if (s2 >= 0)
+          {
+            if (this.debug)
+              Console.Error.WriteLine("DFA " + (object) this.decisionNumber + " state " + (object) s1 + " is special state " + (object) s2);
+            s1 = this.SpecialStateTransition(this, s2, input);
+            if (this.debug)
+              Console.Error.WriteLine("DFA " + (object) this.decisionNumber + " returns from special state " + (object) s2 + " to " + (object) s1);
+            if (s1 != -1)
+              input.Consume();
+            else
+              break;
+          }
+          else if (this.accept[s1] < (short) 1)
+          {
+            ch = (char) input.LA(1);
+            if ((int) ch >= (int) this.min[s1] && (int) ch <= (int) this.max[s1])
+            {
+              int num = (int) this.transition[s1][(int) ch - (int) this.min[s1]];
+              if (num < 0)
+              {
+                if (this.eot[s1] >= (short) 0)
+                {
+                  if (this.debug)
+                    Console.Error.WriteLine("EOT transition");
+                  s1 = (int) this.eot[s1];
+                  input.Consume();
+                }
+                else
+                  goto label_23;
+              }
+              else
+              {
+                s1 = num;
+                input.Consume();
+              }
+            }
+            else if (this.eot[s1] >= (short) 0)
+            {
+              if (this.debug)
+                Console.Error.WriteLine("EOT transition");
+              s1 = (int) this.eot[s1];
+              input.Consume();
+            }
+            else
+              goto label_29;
+          }
+          else
+            goto label_14;
+        }
+        this.NoViableAlt(s1, input);
+        return 0;
+label_14:
+        if (this.debug)
+          Console.Error.WriteLine("accept; predict " + (object) this.accept[s1] + " from state " + (object) s1);
+        return (int) this.accept[s1];
+label_23:
+        this.NoViableAlt(s1, input);
+        return 0;
+label_29:
+        if (ch == char.MaxValue && this.eof[s1] >= (short) 0)
+        {
+          if (this.debug)
+            Console.Error.WriteLine("accept via EOF; predict " + (object) this.accept[(int) this.eof[s1]] + " from " + (object) this.eof[s1]);
+          return (int) this.accept[(int) this.eof[s1]];
+        }
+        if (this.debug)
+        {
+          Console.Error.WriteLine("min[" + (object) s1 + "]=" + (object) this.min[s1]);
+          Console.Error.WriteLine("max[" + (object) s1 + "]=" + (object) this.max[s1]);
+          Console.Error.WriteLine("eot[" + (object) s1 + "]=" + (object) this.eot[s1]);
+          Console.Error.WriteLine("eof[" + (object) s1 + "]=" + (object) this.eof[s1]);
+          for (int index = 0; index < this.transition[s1].Length; ++index)
+            Console.Error.Write(this.transition[s1][index].ToString() + " ");
+          Console.Error.WriteLine();
+        }
+        this.NoViableAlt(s1, input);
+        return 0;
+      }
+      finally
+      {
+        input.Rewind(marker);
+      }
+    }
+
+    protected virtual void NoViableAlt(int s, IIntStream input)
+    {
+      if (this.recognizer.state.backtracking > 0)
+      {
+        this.recognizer.state.failed = true;
+      }
+      else
+      {
+        NoViableAltException nvae = new NoViableAltException(this.Description, this.decisionNumber, s, input);
+        this.Error(nvae);
+        throw nvae;
+      }
+    }
+
+    public virtual void Error(NoViableAltException nvae)
+    {
+    }
+
+    public SpecialStateTransitionHandler SpecialStateTransition { get; private set; }
+
+    private static int SpecialStateTransitionDefault(DFA dfa, int s, IIntStream input) => -1;
+
+    public static short[] UnpackEncodedString(string encodedString)
+    {
+      int length = 0;
+      for (int index = 0; index < encodedString.Length; index += 2)
+        length += (int) encodedString[index];
+      short[] numArray = new short[length];
+      int num = 0;
+      for (int index1 = 0; index1 < encodedString.Length; index1 += 2)
+      {
+        char ch1 = encodedString[index1];
+        char ch2 = encodedString[index1 + 1];
+        for (int index2 = 1; index2 <= (int) ch1; ++index2)
+          numArray[num++] = (short) ch2;
+      }
+      return numArray;
+    }
+
+    public static char[] UnpackEncodedStringToUnsignedChars(string encodedString)
+    {
+      int length = 0;
+      for (int index = 0; index < encodedString.Length; index += 2)
+        length += (int) encodedString[index];
+      char[] unsignedChars = new char[length];
+      int num = 0;
+      for (int index1 = 0; index1 < encodedString.Length; index1 += 2)
+      {
+        char ch1 = encodedString[index1];
+        char ch2 = encodedString[index1 + 1];
+        for (int index2 = 1; index2 <= (int) ch1; ++index2)
+          unsignedChars[num++] = ch2;
+      }
+      return unsignedChars;
+    }
+
+    [Conditional("ANTLR_DEBUG")]
+    protected virtual void DebugRecognitionException(RecognitionException ex)
+    {
+      this.recognizer.DebugListener?.RecognitionException(ex);
+    }
+  }
+}
+
+
+--- EarlyExitException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.EarlyExitException
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class EarlyExitException : RecognitionException
+  {
+    private readonly int _decisionNumber;
+
+    public EarlyExitException()
+    {
+    }
+
+    public EarlyExitException(string message)
+      : base(message)
+    {
+    }
+
+    public EarlyExitException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+
+    public EarlyExitException(int decisionNumber, IIntStream input)
+      : base(input)
+    {
+      this._decisionNumber = decisionNumber;
+    }
+
+    public EarlyExitException(string message, int decisionNumber, IIntStream input)
+      : base(message, input)
+    {
+      this._decisionNumber = decisionNumber;
+    }
+
+    public EarlyExitException(
+      string message,
+      int decisionNumber,
+      IIntStream input,
+      Exception innerException)
+      : base(message, input, innerException)
+    {
+      this._decisionNumber = decisionNumber;
+    }
+
+    protected EarlyExitException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      this._decisionNumber = info != null ? info.GetInt32(nameof (DecisionNumber)) : throw new ArgumentNullException(nameof (info));
+    }
+
+    public int DecisionNumber => this._decisionNumber;
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      if (info == null)
+        throw new ArgumentNullException(nameof (info));
+      base.GetObjectData(info, context);
+      info.AddValue("DecisionNumber", this.DecisionNumber);
+    }
+  }
+}
+
+
+--- FailedPredicateException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.FailedPredicateException
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class FailedPredicateException : RecognitionException
+  {
+    private readonly string _ruleName;
+    private readonly string _predicateText;
+
+    public FailedPredicateException()
+    {
+    }
+
+    public FailedPredicateException(string message)
+      : base(message)
+    {
+    }
+
+    public FailedPredicateException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+
+    public FailedPredicateException(IIntStream input, string ruleName, string predicateText)
+      : base(input)
+    {
+      this._ruleName = ruleName;
+      this._predicateText = predicateText;
+    }
+
+    public FailedPredicateException(
+      string message,
+      IIntStream input,
+      string ruleName,
+      string predicateText)
+      : base(message, input)
+    {
+      this._ruleName = ruleName;
+      this._predicateText = predicateText;
+    }
+
+    public FailedPredicateException(
+      string message,
+      IIntStream input,
+      string ruleName,
+      string predicateText,
+      Exception innerException)
+      : base(message, input, innerException)
+    {
+      this._ruleName = ruleName;
+      this._predicateText = predicateText;
+    }
+
+    protected FailedPredicateException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      this._ruleName = info != null ? info.GetString(nameof (RuleName)) : throw new ArgumentNullException(nameof (info));
+      this._predicateText = info.GetString(nameof (PredicateText));
+    }
+
+    public string RuleName => this._ruleName;
+
+    public string PredicateText => this._predicateText;
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      if (info == null)
+        throw new ArgumentNullException(nameof (info));
+      base.GetObjectData(info, context);
+      info.AddValue("RuleName", (object) this._ruleName);
+      info.AddValue("PredicateText", (object) this._predicateText);
+    }
+
+    public override string ToString()
+    {
+      return "FailedPredicateException(" + this.RuleName + ",{" + this.PredicateText + "}?)";
+    }
+  }
+}
+
+
+--- GrammarRuleAttribute.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.GrammarRuleAttribute
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+  public sealed class GrammarRuleAttribute : Attribute
+  {
+    private readonly string _name;
+
+    public GrammarRuleAttribute(string name) => this._name = name;
+
+    public string Name => this._name;
+  }
+}
+
+
+--- IAstRuleReturnScope.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.IAstRuleReturnScope
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public interface IAstRuleReturnScope : IRuleReturnScope
+  {
+    object Tree { get; }
+  }
+}
+
+
+--- IAstRuleReturnScope`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.IAstRuleReturnScope`1
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public interface IAstRuleReturnScope<TAstLabel> : IAstRuleReturnScope, IRuleReturnScope
+  {
+    TAstLabel Tree { get; }
+  }
+}
+
+
+--- ICharStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.ICharStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public interface ICharStream : IIntStream
+  {
+    string Substring(int start, int length);
+
+    int LT(int i);
+
+    int Line { get; set; }
+
+    int CharPositionInLine { get; set; }
+  }
+}
+
+
+--- IIntStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.IIntStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public interface IIntStream
+  {
+    void Consume();
+
+    int LA(int i);
+
+    int Mark();
+
+    int Index { get; }
+
+    void Rewind(int marker);
+
+    void Rewind();
+
+    void Release(int marker);
+
+    void Seek(int index);
+
+    int Count { get; }
+
+    string SourceName { get; }
+  }
+}
+
+
+--- IRuleReturnScope.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.IRuleReturnScope
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public interface IRuleReturnScope
+  {
+    object Start { get; }
+
+    object Stop { get; }
+  }
+}
+
+
+--- IRuleReturnScope`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.IRuleReturnScope`1
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public interface IRuleReturnScope<TLabel> : IRuleReturnScope
+  {
+    TLabel Start { get; }
+
+    TLabel Stop { get; }
+  }
+}
+
+
+--- ITemplateRuleReturnScope.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.ITemplateRuleReturnScope
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public interface ITemplateRuleReturnScope
+  {
+    object Template { get; }
+  }
+}
+
+
+--- ITemplateRuleReturnScope`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.ITemplateRuleReturnScope`1
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public interface ITemplateRuleReturnScope<TTemplate> : ITemplateRuleReturnScope
+  {
+    TTemplate Template { get; }
+  }
+}
+
+
+--- IToken.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.IToken
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public interface IToken
+  {
+    string Text { get; set; }
+
+    int Type { get; set; }
+
+    int Line { get; set; }
+
+    int CharPositionInLine { get; set; }
+
+    int Channel { get; set; }
+
+    int StartIndex { get; set; }
+
+    int StopIndex { get; set; }
+
+    int TokenIndex { get; set; }
+
+    ICharStream InputStream { get; set; }
+  }
+}
+
+
+--- ITokenSource.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.ITokenSource
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public interface ITokenSource
+  {
+    IToken NextToken();
+
+    string SourceName { get; }
+
+    string[] TokenNames { get; }
+  }
+}
+
+
+--- ITokenStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.ITokenStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public interface ITokenStream : IIntStream
+  {
+    IToken LT(int k);
+
+    int Range { get; }
+
+    IToken Get(int i);
+
+    ITokenSource TokenSource { get; }
+
+    string ToString(int start, int stop);
+
+    string ToString(IToken start, IToken stop);
+  }
+}
+
+
+--- ITokenStreamInformation.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.ITokenStreamInformation
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public interface ITokenStreamInformation
+  {
+    IToken LastToken { get; }
+
+    IToken LastRealToken { get; }
+
+    int MaxLookBehind { get; }
+  }
+}
+
+
+--- LegacyCommonTokenStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.LegacyCommonTokenStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class LegacyCommonTokenStream : ITokenStream, IIntStream
+  {
+    [NonSerialized]
+    private ITokenSource _tokenSource;
+    protected List<IToken> tokens;
+    protected IDictionary<int, int> channelOverrideMap;
+    protected List<int> discardSet;
+    protected int channel;
+    protected bool discardOffChannelTokens;
+    protected int lastMarker;
+    protected int p = -1;
+
+    public LegacyCommonTokenStream() => this.tokens = new List<IToken>(500);
+
+    public LegacyCommonTokenStream(ITokenSource tokenSource)
+      : this()
+    {
+      this._tokenSource = tokenSource;
+    }
+
+    public LegacyCommonTokenStream(ITokenSource tokenSource, int channel)
+      : this(tokenSource)
+    {
+      this.channel = channel;
+    }
+
+    public virtual int Index => this.p;
+
+    public virtual int Range { get; protected set; }
+
+    public virtual void SetTokenSource(ITokenSource tokenSource)
+    {
+      this._tokenSource = tokenSource;
+      this.tokens.Clear();
+      this.p = -1;
+      this.channel = 0;
+    }
+
+    public virtual void FillBuffer()
+    {
+      if (this.p != -1)
+        return;
+      int num1 = 0;
+      for (IToken token = this._tokenSource.NextToken(); token != null && token.Type != -1; token = this._tokenSource.NextToken())
+      {
+        bool flag = false;
+        int num2;
+        if (this.channelOverrideMap != null && this.channelOverrideMap.TryGetValue(token.Type, out num2))
+          token.Channel = num2;
+        if (this.discardSet != null && this.discardSet.Contains(token.Type))
+          flag = true;
+        else if (this.discardOffChannelTokens && token.Channel != this.channel)
+          flag = true;
+        if (!flag)
+        {
+          token.TokenIndex = num1;
+          this.tokens.Add(token);
+          ++num1;
+        }
+      }
+      this.p = 0;
+      this.p = this.SkipOffTokenChannels(this.p);
+    }
+
+    public virtual void Consume()
+    {
+      if (this.p >= this.tokens.Count)
+        return;
+      ++this.p;
+      this.p = this.SkipOffTokenChannels(this.p);
+    }
+
+    protected virtual int SkipOffTokenChannels(int i)
+    {
+      int count = this.tokens.Count;
+      while (i < count && this.tokens[i].Channel != this.channel)
+        ++i;
+      return i;
+    }
+
+    protected virtual int SkipOffTokenChannelsReverse(int i)
+    {
+      while (i >= 0 && this.tokens[i].Channel != this.channel)
+        --i;
+      return i;
+    }
+
+    public virtual void SetTokenTypeChannel(int ttype, int channel)
+    {
+      if (this.channelOverrideMap == null)
+        this.channelOverrideMap = (IDictionary<int, int>) new Dictionary<int, int>();
+      this.channelOverrideMap[ttype] = channel;
+    }
+
+    public virtual void DiscardTokenType(int ttype)
+    {
+      if (this.discardSet == null)
+        this.discardSet = new List<int>();
+      this.discardSet.Add(ttype);
+    }
+
+    public virtual void SetDiscardOffChannelTokens(bool discardOffChannelTokens)
+    {
+      this.discardOffChannelTokens = discardOffChannelTokens;
+    }
+
+    public virtual IList<IToken> GetTokens()
+    {
+      if (this.p == -1)
+        this.FillBuffer();
+      return (IList<IToken>) this.tokens;
+    }
+
+    public virtual IList<IToken> GetTokens(int start, int stop)
+    {
+      return this.GetTokens(start, stop, (BitSet) null);
+    }
+
+    public virtual IList<IToken> GetTokens(int start, int stop, BitSet types)
+    {
+      if (this.p == -1)
+        this.FillBuffer();
+      if (stop >= this.tokens.Count)
+        stop = this.tokens.Count - 1;
+      if (start < 0)
+        start = 0;
+      if (start > stop)
+        return (IList<IToken>) null;
+      IList<IToken> tokens = (IList<IToken>) new List<IToken>();
+      for (int index = start; index <= stop; ++index)
+      {
+        IToken token = this.tokens[index];
+        if (types == null || types.Member(token.Type))
+          tokens.Add(token);
+      }
+      if (tokens.Count == 0)
+        tokens = (IList<IToken>) null;
+      return tokens;
+    }
+
+    public virtual IList<IToken> GetTokens(int start, int stop, IList<int> types)
+    {
+      return this.GetTokens(start, stop, new BitSet((IEnumerable<int>) types));
+    }
+
+    public virtual IList<IToken> GetTokens(int start, int stop, int ttype)
+    {
+      return this.GetTokens(start, stop, BitSet.Of(ttype));
+    }
+
+    public virtual IToken LT(int k)
+    {
+      if (this.p == -1)
+        this.FillBuffer();
+      if (k == 0)
+        return (IToken) null;
+      if (k < 0)
+        return this.LB(-k);
+      if (this.p + k - 1 >= this.tokens.Count)
+        return this.tokens[this.tokens.Count - 1];
+      int index1 = this.p;
+      for (int index2 = 1; index2 < k; ++index2)
+        index1 = this.SkipOffTokenChannels(index1 + 1);
+      if (index1 >= this.tokens.Count)
+        return this.tokens[this.tokens.Count - 1];
+      if (index1 > this.Range)
+        this.Range = index1;
+      return this.tokens[index1];
+    }
+
+    protected virtual IToken LB(int k)
+    {
+      if (this.p == -1)
+        this.FillBuffer();
+      if (k == 0)
+        return (IToken) null;
+      if (this.p - k < 0)
+        return (IToken) null;
+      int index1 = this.p;
+      for (int index2 = 1; index2 <= k; ++index2)
+        index1 = this.SkipOffTokenChannelsReverse(index1 - 1);
+      return index1 < 0 ? (IToken) null : this.tokens[index1];
+    }
+
+    public virtual IToken Get(int i) => this.tokens[i];
+
+    public virtual int LA(int i) => this.LT(i).Type;
+
+    public virtual int Mark()
+    {
+      if (this.p == -1)
+        this.FillBuffer();
+      this.lastMarker = this.Index;
+      return this.lastMarker;
+    }
+
+    public virtual void Release(int marker)
+    {
+    }
+
+    public virtual int Count => this.tokens.Count;
+
+    public virtual void Rewind(int marker) => this.Seek(marker);
+
+    public virtual void Rewind() => this.Seek(this.lastMarker);
+
+    public virtual void Reset()
+    {
+      this.p = 0;
+      this.lastMarker = 0;
+    }
+
+    public virtual void Seek(int index) => this.p = index;
+
+    public virtual ITokenSource TokenSource => this._tokenSource;
+
+    public virtual string SourceName => this.TokenSource.SourceName;
+
+    public override string ToString()
+    {
+      if (this.p == -1)
+        throw new InvalidOperationException("Buffer is not yet filled.");
+      return this.ToString(0, this.tokens.Count - 1);
+    }
+
+    public virtual string ToString(int start, int stop)
+    {
+      if (start < 0 || stop < 0)
+        return (string) null;
+      if (this.p == -1)
+        throw new InvalidOperationException("Buffer is not yet filled.");
+      if (stop >= this.tokens.Count)
+        stop = this.tokens.Count - 1;
+      StringBuilder stringBuilder = new StringBuilder();
+      for (int index = start; index <= stop; ++index)
+      {
+        IToken token = this.tokens[index];
+        stringBuilder.Append(token.Text);
+      }
+      return stringBuilder.ToString();
+    }
+
+    public virtual string ToString(IToken start, IToken stop)
+    {
+      return start != null && stop != null ? this.ToString(start.TokenIndex, stop.TokenIndex) : (string) null;
+    }
+  }
+}
+
+
+--- Lexer.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Lexer
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System.Collections.Generic;
+using System.Diagnostics;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public abstract class Lexer : BaseRecognizer, ITokenSource
+  {
+    protected ICharStream input;
+
+    public Lexer()
+    {
+    }
+
+    public Lexer(ICharStream input) => this.input = input;
+
+    public Lexer(ICharStream input, RecognizerSharedState state)
+      : base(state)
+    {
+      this.input = input;
+    }
+
+    public string Text
+    {
+      get
+      {
+        return this.state.text != null ? this.state.text : this.input.Substring(this.state.tokenStartCharIndex, this.CharIndex - this.state.tokenStartCharIndex);
+      }
+      set => this.state.text = value;
+    }
+
+    public int Line
+    {
+      get => this.input.Line;
+      set => this.input.Line = value;
+    }
+
+    public int CharPositionInLine
+    {
+      get => this.input.CharPositionInLine;
+      set => this.input.CharPositionInLine = value;
+    }
+
+    public override void Reset()
+    {
+      base.Reset();
+      if (this.input != null)
+        this.input.Seek(0);
+      if (this.state == null)
+        return;
+      this.state.token = (IToken) null;
+      this.state.type = 0;
+      this.state.channel = 0;
+      this.state.tokenStartCharIndex = -1;
+      this.state.tokenStartCharPositionInLine = -1;
+      this.state.tokenStartLine = -1;
+      this.state.text = (string) null;
+    }
+
+    public virtual IToken NextToken()
+    {
+      while (true)
+      {
+        this.state.token = (IToken) null;
+        this.state.channel = 0;
+        this.state.tokenStartCharIndex = this.input.Index;
+        this.state.tokenStartCharPositionInLine = this.input.CharPositionInLine;
+        this.state.tokenStartLine = this.input.Line;
+        this.state.text = (string) null;
+        if (this.input.LA(1) != -1)
+        {
+          try
+          {
+            this.ParseNextToken();
+            if (this.state.token == null)
+              this.Emit();
+            else if (this.state.token == Tokens.Skip)
+              continue;
+            return this.state.token;
+          }
+          catch (MismatchedRangeException ex)
+          {
+            this.ReportError((RecognitionException) ex);
+          }
+          catch (MismatchedTokenException ex)
+          {
+            this.ReportError((RecognitionException) ex);
+          }
+          catch (RecognitionException ex)
+          {
+            this.ReportError(ex);
+            this.Recover(ex);
+          }
+        }
+        else
+          break;
+      }
+      IToken token = (IToken) new CommonToken(this.input, -1, 0, this.input.Index, this.input.Index);
+      token.Line = this.Line;
+      token.CharPositionInLine = this.CharPositionInLine;
+      return token;
+    }
+
+    public virtual void Skip() => this.state.token = Tokens.Skip;
+
+    public abstract void mTokens();
+
+    public virtual ICharStream CharStream
+    {
+      get => this.input;
+      set
+      {
+        this.input = (ICharStream) null;
+        this.Reset();
+        this.input = value;
+      }
+    }
+
+    public override string SourceName => this.input.SourceName;
+
+    public virtual void Emit(IToken token) => this.state.token = token;
+
+    public virtual IToken Emit()
+    {
+      IToken token = (IToken) new CommonToken(this.input, this.state.type, this.state.channel, this.state.tokenStartCharIndex, this.CharIndex - 1);
+      token.Line = this.state.tokenStartLine;
+      token.Text = this.state.text;
+      token.CharPositionInLine = this.state.tokenStartCharPositionInLine;
+      this.Emit(token);
+      return token;
+    }
+
+    public virtual void Match(string s)
+    {
+      int index = 0;
+      while (index < s.Length)
+      {
+        if (this.input.LA(1) != (int) s[index])
+        {
+          if (this.state.backtracking > 0)
+          {
+            this.state.failed = true;
+            break;
+          }
+          MismatchedTokenException re = new MismatchedTokenException((int) s[index], (IIntStream) this.input, (IList<string>) this.TokenNames);
+          this.Recover((RecognitionException) re);
+          throw re;
+        }
+        ++index;
+        this.input.Consume();
+        this.state.failed = false;
+      }
+    }
+
+    public virtual void MatchAny() => this.input.Consume();
+
+    public virtual void Match(int c)
+    {
+      if (this.input.LA(1) != c)
+      {
+        if (this.state.backtracking > 0)
+        {
+          this.state.failed = true;
+        }
+        else
+        {
+          MismatchedTokenException re = new MismatchedTokenException(c, (IIntStream) this.input, (IList<string>) this.TokenNames);
+          this.Recover((RecognitionException) re);
+          throw re;
+        }
+      }
+      else
+      {
+        this.input.Consume();
+        this.state.failed = false;
+      }
+    }
+
+    public virtual void MatchRange(int a, int b)
+    {
+      if (this.input.LA(1) < a || this.input.LA(1) > b)
+      {
+        if (this.state.backtracking > 0)
+        {
+          this.state.failed = true;
+        }
+        else
+        {
+          MismatchedRangeException re = new MismatchedRangeException(a, b, (IIntStream) this.input);
+          this.Recover((RecognitionException) re);
+          throw re;
+        }
+      }
+      else
+      {
+        this.input.Consume();
+        this.state.failed = false;
+      }
+    }
+
+    public virtual int CharIndex => this.input.Index;
+
+    public override void ReportError(RecognitionException e)
+    {
+      this.DisplayRecognitionError(this.TokenNames, e);
+    }
+
+    public override string GetErrorMessage(RecognitionException e, string[] tokenNames)
+    {
+      string errorMessage;
+      switch (e)
+      {
+        case MismatchedTokenException _:
+          MismatchedTokenException mismatchedTokenException = (MismatchedTokenException) e;
+          errorMessage = "mismatched character " + this.GetCharErrorDisplay(e.Character) + " expecting " + this.GetCharErrorDisplay(mismatchedTokenException.Expecting);
+          break;
+        case NoViableAltException _:
+          errorMessage = "no viable alternative at character " + this.GetCharErrorDisplay(e.Character);
+          break;
+        case EarlyExitException _:
+          errorMessage = "required (...)+ loop did not match anything at character " + this.GetCharErrorDisplay(e.Character);
+          break;
+        case MismatchedNotSetException _:
+          MismatchedNotSetException mismatchedNotSetException = (MismatchedNotSetException) e;
+          errorMessage = "mismatched character " + this.GetCharErrorDisplay(e.Character) + " expecting set " + (object) mismatchedNotSetException.Expecting;
+          break;
+        case MismatchedSetException _:
+          MismatchedSetException mismatchedSetException = (MismatchedSetException) e;
+          errorMessage = "mismatched character " + this.GetCharErrorDisplay(e.Character) + " expecting set " + (object) mismatchedSetException.Expecting;
+          break;
+        case MismatchedRangeException _:
+          MismatchedRangeException mismatchedRangeException = (MismatchedRangeException) e;
+          errorMessage = "mismatched character " + this.GetCharErrorDisplay(e.Character) + " expecting set " + this.GetCharErrorDisplay(mismatchedRangeException.A) + ".." + this.GetCharErrorDisplay(mismatchedRangeException.B);
+          break;
+        default:
+          errorMessage = base.GetErrorMessage(e, tokenNames);
+          break;
+      }
+      return errorMessage;
+    }
+
+    public virtual string GetCharErrorDisplay(int c)
+    {
+      string str = ((char) c).ToString();
+      switch (c)
+      {
+        case -1:
+          str = "<EOF>";
+          break;
+        case 9:
+          str = "\\t";
+          break;
+        case 10:
+          str = "\\n";
+          break;
+        case 13:
+          str = "\\r";
+          break;
+      }
+      return "'" + str + "'";
+    }
+
+    public virtual void Recover(RecognitionException re) => this.input.Consume();
+
+    [Conditional("ANTLR_TRACE")]
+    public virtual void TraceIn(string ruleName, int ruleIndex)
+    {
+      string inputSymbol = ((char) this.input.LT(1)).ToString() + " line=" + (object) this.Line + ":" + (object) this.CharPositionInLine;
+      this.TraceIn(ruleName, ruleIndex, (object) inputSymbol);
+    }
+
+    [Conditional("ANTLR_TRACE")]
+    public virtual void TraceOut(string ruleName, int ruleIndex)
+    {
+      string inputSymbol = ((char) this.input.LT(1)).ToString() + " line=" + (object) this.Line + ":" + (object) this.CharPositionInLine;
+      this.TraceOut(ruleName, ruleIndex, (object) inputSymbol);
+    }
+
+    protected virtual void ParseNextToken() => this.mTokens();
+  }
+}
+
+
+--- MismatchedNotSetException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.MismatchedNotSetException
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class MismatchedNotSetException : MismatchedSetException
+  {
+    public MismatchedNotSetException()
+    {
+    }
+
+    public MismatchedNotSetException(string message)
+      : base(message)
+    {
+    }
+
+    public MismatchedNotSetException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+
+    public MismatchedNotSetException(BitSet expecting, IIntStream input)
+      : base(expecting, input)
+    {
+    }
+
+    public MismatchedNotSetException(string message, BitSet expecting, IIntStream input)
+      : base(message, expecting, input)
+    {
+    }
+
+    public MismatchedNotSetException(
+      string message,
+      BitSet expecting,
+      IIntStream input,
+      Exception innerException)
+      : base(message, expecting, input, innerException)
+    {
+    }
+
+    protected MismatchedNotSetException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+    }
+
+    public override string ToString()
+    {
+      return "MismatchedNotSetException(" + (object) this.UnexpectedType + "!=" + (object) this.Expecting + ")";
+    }
+  }
+}
+
+
+--- MismatchedRangeException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.MismatchedRangeException
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class MismatchedRangeException : RecognitionException
+  {
+    private readonly int _a;
+    private readonly int _b;
+
+    public MismatchedRangeException()
+    {
+    }
+
+    public MismatchedRangeException(string message)
+      : base(message)
+    {
+    }
+
+    public MismatchedRangeException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+
+    public MismatchedRangeException(int a, int b, IIntStream input)
+      : base(input)
+    {
+      this._a = a;
+      this._b = b;
+    }
+
+    public MismatchedRangeException(string message, int a, int b, IIntStream input)
+      : base(message, input)
+    {
+      this._a = a;
+      this._b = b;
+    }
+
+    public MismatchedRangeException(
+      string message,
+      int a,
+      int b,
+      IIntStream input,
+      Exception innerException)
+      : base(message, input, innerException)
+    {
+      this._a = a;
+      this._b = b;
+    }
+
+    protected MismatchedRangeException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      this._a = info != null ? info.GetInt32(nameof (A)) : throw new ArgumentNullException(nameof (info));
+      this._b = info.GetInt32(nameof (B));
+    }
+
+    public int A => this._a;
+
+    public int B => this._b;
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      if (info == null)
+        throw new ArgumentNullException(nameof (info));
+      base.GetObjectData(info, context);
+      info.AddValue("A", this._a);
+      info.AddValue("B", this._b);
+    }
+
+    public override string ToString()
+    {
+      return "MismatchedRangeException(" + (object) this.UnexpectedType + " not in [" + (object) this.A + "," + (object) this.B + "])";
+    }
+  }
+}
+
+
+--- MismatchedSetException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.MismatchedSetException
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class MismatchedSetException : RecognitionException
+  {
+    private readonly BitSet _expecting;
+
+    public MismatchedSetException()
+    {
+    }
+
+    public MismatchedSetException(string message)
+      : base(message)
+    {
+    }
+
+    public MismatchedSetException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+
+    public MismatchedSetException(BitSet expecting, IIntStream input)
+      : base(input)
+    {
+      this._expecting = expecting;
+    }
+
+    public MismatchedSetException(string message, BitSet expecting, IIntStream input)
+      : base(message, input)
+    {
+      this._expecting = expecting;
+    }
+
+    public MismatchedSetException(
+      string message,
+      BitSet expecting,
+      IIntStream input,
+      Exception innerException)
+      : base(message, input, innerException)
+    {
+      this._expecting = expecting;
+    }
+
+    protected MismatchedSetException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      this._expecting = info != null ? (BitSet) info.GetValue(nameof (Expecting), typeof (BitSet)) : throw new ArgumentNullException(nameof (info));
+    }
+
+    public BitSet Expecting => this._expecting;
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      if (info == null)
+        throw new ArgumentNullException(nameof (info));
+      base.GetObjectData(info, context);
+      info.AddValue("Expecting", (object) this._expecting);
+    }
+
+    public override string ToString()
+    {
+      return "MismatchedSetException(" + (object) this.UnexpectedType + "!=" + (object) this.Expecting + ")";
+    }
+  }
+}
+
+
+--- MismatchedTokenException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.MismatchedTokenException
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class MismatchedTokenException : RecognitionException
+  {
+    private readonly int _expecting;
+    private readonly ReadOnlyCollection<string> _tokenNames;
+
+    public MismatchedTokenException()
+    {
+    }
+
+    public MismatchedTokenException(string message)
+      : base(message)
+    {
+    }
+
+    public MismatchedTokenException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+
+    public MismatchedTokenException(int expecting, IIntStream input)
+      : this(expecting, input, (IList<string>) null)
+    {
+    }
+
+    public MismatchedTokenException(int expecting, IIntStream input, IList<string> tokenNames)
+      : base(input)
+    {
+      this._expecting = expecting;
+      if (tokenNames == null)
+        return;
+      this._tokenNames = new List<string>((IEnumerable<string>) tokenNames).AsReadOnly();
+    }
+
+    public MismatchedTokenException(
+      string message,
+      int expecting,
+      IIntStream input,
+      IList<string> tokenNames)
+      : base(message, input)
+    {
+      this._expecting = expecting;
+      if (tokenNames == null)
+        return;
+      this._tokenNames = new List<string>((IEnumerable<string>) tokenNames).AsReadOnly();
+    }
+
+    public MismatchedTokenException(
+      string message,
+      int expecting,
+      IIntStream input,
+      IList<string> tokenNames,
+      Exception innerException)
+      : base(message, input, innerException)
+    {
+      this._expecting = expecting;
+      if (tokenNames == null)
+        return;
+      this._tokenNames = new List<string>((IEnumerable<string>) tokenNames).AsReadOnly();
+    }
+
+    protected MismatchedTokenException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      this._expecting = info != null ? info.GetInt32(nameof (Expecting)) : throw new ArgumentNullException(nameof (info));
+      this._tokenNames = new ReadOnlyCollection<string>((IList<string>) (string[]) info.GetValue(nameof (TokenNames), typeof (string[])));
+    }
+
+    public int Expecting => this._expecting;
+
+    public ReadOnlyCollection<string> TokenNames => this._tokenNames;
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      if (info == null)
+        throw new ArgumentNullException(nameof (info));
+      base.GetObjectData(info, context);
+      info.AddValue("Expecting", this._expecting);
+      info.AddValue("TokenNames", this._tokenNames != null ? (object) new List<string>((IEnumerable<string>) this._tokenNames).ToArray() : (object) (string[]) null);
+    }
+
+    public override string ToString()
+    {
+      int unexpectedType = this.UnexpectedType;
+      return "MismatchedTokenException(" + (this.TokenNames == null || unexpectedType < 0 || unexpectedType >= this.TokenNames.Count ? unexpectedType.ToString() : this.TokenNames[unexpectedType]) + "!=" + (this.TokenNames == null || this.Expecting < 0 || this.Expecting >= this.TokenNames.Count ? this.Expecting.ToString() : this.TokenNames[this.Expecting]) + ")";
+    }
+  }
+}
+
+
+--- MismatchedTreeNodeException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.MismatchedTreeNodeException
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using Antlr.Runtime.Tree;
+using System;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class MismatchedTreeNodeException : RecognitionException
+  {
+    private readonly int _expecting;
+
+    public MismatchedTreeNodeException()
+    {
+    }
+
+    public MismatchedTreeNodeException(string message)
+      : base(message)
+    {
+    }
+
+    public MismatchedTreeNodeException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+
+    public MismatchedTreeNodeException(int expecting, ITreeNodeStream input)
+      : base((IIntStream) input)
+    {
+      this._expecting = expecting;
+    }
+
+    public MismatchedTreeNodeException(string message, int expecting, ITreeNodeStream input)
+      : base(message, (IIntStream) input)
+    {
+      this._expecting = expecting;
+    }
+
+    public MismatchedTreeNodeException(
+      string message,
+      int expecting,
+      ITreeNodeStream input,
+      Exception innerException)
+      : base(message, (IIntStream) input, innerException)
+    {
+      this._expecting = expecting;
+    }
+
+    protected MismatchedTreeNodeException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      this._expecting = info != null ? info.GetInt32(nameof (Expecting)) : throw new ArgumentNullException(nameof (info));
+    }
+
+    public int Expecting => this._expecting;
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      if (info == null)
+        throw new ArgumentNullException(nameof (info));
+      base.GetObjectData(info, context);
+      info.AddValue("Expecting", this._expecting);
+    }
+
+    public override string ToString()
+    {
+      return "MismatchedTreeNodeException(" + (object) this.UnexpectedType + "!=" + (object) this.Expecting + ")";
+    }
+  }
+}
+
+
+--- MissingTokenException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.MissingTokenException
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class MissingTokenException : MismatchedTokenException
+  {
+    private readonly object _inserted;
+
+    public MissingTokenException()
+    {
+    }
+
+    public MissingTokenException(string message)
+      : base(message)
+    {
+    }
+
+    public MissingTokenException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+
+    public MissingTokenException(int expecting, IIntStream input, object inserted)
+      : this(expecting, input, inserted, (IList<string>) null)
+    {
+    }
+
+    public MissingTokenException(
+      int expecting,
+      IIntStream input,
+      object inserted,
+      IList<string> tokenNames)
+      : base(expecting, input, tokenNames)
+    {
+      this._inserted = inserted;
+    }
+
+    public MissingTokenException(
+      string message,
+      int expecting,
+      IIntStream input,
+      object inserted,
+      IList<string> tokenNames)
+      : base(message, expecting, input, tokenNames)
+    {
+      this._inserted = inserted;
+    }
+
+    public MissingTokenException(
+      string message,
+      int expecting,
+      IIntStream input,
+      object inserted,
+      IList<string> tokenNames,
+      Exception innerException)
+      : base(message, expecting, input, tokenNames, innerException)
+    {
+      this._inserted = inserted;
+    }
+
+    protected MissingTokenException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+    }
+
+    public virtual int MissingType => this.Expecting;
+
+    public override string ToString()
+    {
+      return this._inserted != null && this.Token != null ? "MissingTokenException(inserted " + this._inserted + " at " + this.Token.Text + ")" : (this.Token != null ? "MissingTokenException(at " + this.Token.Text + ")" : nameof (MissingTokenException));
+    }
+  }
+}
+
+
+--- NoViableAltException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.NoViableAltException
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class NoViableAltException : RecognitionException
+  {
+    private readonly string _grammarDecisionDescription;
+    private readonly int _decisionNumber;
+    private readonly int _stateNumber;
+
+    public NoViableAltException()
+    {
+    }
+
+    public NoViableAltException(string grammarDecisionDescription)
+    {
+      this._grammarDecisionDescription = grammarDecisionDescription;
+    }
+
+    public NoViableAltException(string message, string grammarDecisionDescription)
+      : base(message)
+    {
+      this._grammarDecisionDescription = grammarDecisionDescription;
+    }
+
+    public NoViableAltException(
+      string message,
+      string grammarDecisionDescription,
+      Exception innerException)
+      : base(message, innerException)
+    {
+      this._grammarDecisionDescription = grammarDecisionDescription;
+    }
+
+    public NoViableAltException(
+      string grammarDecisionDescription,
+      int decisionNumber,
+      int stateNumber,
+      IIntStream input)
+      : this(grammarDecisionDescription, decisionNumber, stateNumber, input, 1)
+    {
+    }
+
+    public NoViableAltException(
+      string grammarDecisionDescription,
+      int decisionNumber,
+      int stateNumber,
+      IIntStream input,
+      int k)
+      : base(input, k)
+    {
+      this._grammarDecisionDescription = grammarDecisionDescription;
+      this._decisionNumber = decisionNumber;
+      this._stateNumber = stateNumber;
+    }
+
+    public NoViableAltException(
+      string message,
+      string grammarDecisionDescription,
+      int decisionNumber,
+      int stateNumber,
+      IIntStream input)
+      : this(message, grammarDecisionDescription, decisionNumber, stateNumber, input, 1)
+    {
+    }
+
+    public NoViableAltException(
+      string message,
+      string grammarDecisionDescription,
+      int decisionNumber,
+      int stateNumber,
+      IIntStream input,
+      int k)
+      : base(message, input, k)
+    {
+      this._grammarDecisionDescription = grammarDecisionDescription;
+      this._decisionNumber = decisionNumber;
+      this._stateNumber = stateNumber;
+    }
+
+    public NoViableAltException(
+      string message,
+      string grammarDecisionDescription,
+      int decisionNumber,
+      int stateNumber,
+      IIntStream input,
+      Exception innerException)
+      : this(message, grammarDecisionDescription, decisionNumber, stateNumber, input, 1, innerException)
+    {
+    }
+
+    public NoViableAltException(
+      string message,
+      string grammarDecisionDescription,
+      int decisionNumber,
+      int stateNumber,
+      IIntStream input,
+      int k,
+      Exception innerException)
+      : base(message, input, k, innerException)
+    {
+      this._grammarDecisionDescription = grammarDecisionDescription;
+      this._decisionNumber = decisionNumber;
+      this._stateNumber = stateNumber;
+    }
+
+    protected NoViableAltException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      this._grammarDecisionDescription = info != null ? info.GetString(nameof (GrammarDecisionDescription)) : throw new ArgumentNullException(nameof (info));
+      this._decisionNumber = info.GetInt32(nameof (DecisionNumber));
+      this._stateNumber = info.GetInt32(nameof (StateNumber));
+    }
+
+    public int DecisionNumber => this._decisionNumber;
+
+    public string GrammarDecisionDescription => this._grammarDecisionDescription;
+
+    public int StateNumber => this._stateNumber;
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      if (info == null)
+        throw new ArgumentNullException(nameof (info));
+      base.GetObjectData(info, context);
+      info.AddValue("GrammarDecisionDescription", (object) this._grammarDecisionDescription);
+      info.AddValue("DecisionNumber", this._decisionNumber);
+      info.AddValue("StateNumber", this._stateNumber);
+    }
+
+    public override string ToString()
+    {
+      return this.Input is ICharStream ? "NoViableAltException('" + (object) (char) this.UnexpectedType + "'@[" + this.GrammarDecisionDescription + "])" : "NoViableAltException(" + (object) this.UnexpectedType + "@[" + this.GrammarDecisionDescription + "])";
+    }
+  }
+}
+
+
+--- Parser.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Parser
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System.Diagnostics;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public class Parser : BaseRecognizer
+  {
+    public ITokenStream input;
+
+    public Parser(ITokenStream input) => this.TokenStream = input;
+
+    public Parser(ITokenStream input, RecognizerSharedState state)
+      : base(state)
+    {
+      this.input = input;
+    }
+
+    public override void Reset()
+    {
+      base.Reset();
+      if (this.input == null)
+        return;
+      this.input.Seek(0);
+    }
+
+    protected override object GetCurrentInputSymbol(IIntStream input)
+    {
+      return (object) ((ITokenStream) input).LT(1);
+    }
+
+    protected override object GetMissingSymbol(
+      IIntStream input,
+      RecognitionException e,
+      int expectedTokenType,
+      BitSet follow)
+    {
+      string text = expectedTokenType != -1 ? "<missing " + this.TokenNames[expectedTokenType] + ">" : "<missing EOF>";
+      CommonToken missingSymbol = new CommonToken(expectedTokenType, text);
+      IToken token = ((ITokenStream) input).LT(1);
+      if (token.Type == -1)
+        token = ((ITokenStream) input).LT(-1);
+      missingSymbol.Line = token.Line;
+      missingSymbol.CharPositionInLine = token.CharPositionInLine;
+      missingSymbol.Channel = 0;
+      missingSymbol.InputStream = token.InputStream;
+      return (object) missingSymbol;
+    }
+
+    public virtual ITokenStream TokenStream
+    {
+      get => this.input;
+      set
+      {
+        this.input = (ITokenStream) null;
+        this.Reset();
+        this.input = value;
+      }
+    }
+
+    public override string SourceName => this.input.SourceName;
+
+    [Conditional("ANTLR_TRACE")]
+    public virtual void TraceIn(string ruleName, int ruleIndex)
+    {
+      this.TraceIn(ruleName, ruleIndex, (object) this.input.LT(1));
+    }
+
+    [Conditional("ANTLR_TRACE")]
+    public virtual void TraceOut(string ruleName, int ruleIndex)
+    {
+      this.TraceOut(ruleName, ruleIndex, (object) this.input.LT(1));
+    }
+  }
+}
+
+
+--- ParserRuleReturnScope`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.ParserRuleReturnScope`1
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public class ParserRuleReturnScope<TToken> : IRuleReturnScope<TToken>, IRuleReturnScope
+  {
+    private TToken _start;
+    private TToken _stop;
+
+    public TToken Start
+    {
+      get => this._start;
+      set => this._start = value;
+    }
+
+    public TToken Stop
+    {
+      get => this._stop;
+      set => this._stop = value;
+    }
+
+    object IRuleReturnScope.Start => (object) this.Start;
+
+    object IRuleReturnScope.Stop => (object) this.Stop;
+  }
+}
+
+
+--- RecognitionException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.RecognitionException
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using Antlr.Runtime.Tree;
+using System;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class RecognitionException : Exception
+  {
+    private IIntStream _input;
+    private int _k;
+    private int _index;
+    private IToken _token;
+    private object _node;
+    private int _c;
+    private int _line;
+    private int _charPositionInLine;
+    private bool _approximateLineInfo;
+
+    public RecognitionException()
+      : this("A recognition error occurred.", (IIntStream) null, (Exception) null)
+    {
+    }
+
+    public RecognitionException(IIntStream input)
+      : this("A recognition error occurred.", input, 1, (Exception) null)
+    {
+    }
+
+    public RecognitionException(IIntStream input, int k)
+      : this("A recognition error occurred.", input, k, (Exception) null)
+    {
+    }
+
+    public RecognitionException(string message)
+      : this(message, (IIntStream) null, (Exception) null)
+    {
+    }
+
+    public RecognitionException(string message, IIntStream input)
+      : this(message, input, 1, (Exception) null)
+    {
+    }
+
+    public RecognitionException(string message, IIntStream input, int k)
+      : this(message, input, k, (Exception) null)
+    {
+    }
+
+    public RecognitionException(string message, Exception innerException)
+      : this(message, (IIntStream) null, innerException)
+    {
+    }
+
+    public RecognitionException(string message, IIntStream input, Exception innerException)
+      : this(message, input, 1, innerException)
+    {
+    }
+
+    public RecognitionException(string message, IIntStream input, int k, Exception innerException)
+      : base(message, innerException)
+    {
+      this._input = input;
+      this._k = k;
+      if (input == null)
+        return;
+      this._index = input.Index + k - 1;
+      if (input is ITokenStream)
+      {
+        this._token = ((ITokenStream) input).LT(k);
+        this._line = this._token.Line;
+        this._charPositionInLine = this._token.CharPositionInLine;
+      }
+      if (input is ITreeNodeStream input1)
+        this.ExtractInformationFromTreeNodeStream(input1, k);
+      else if (input is ICharStream)
+      {
+        int marker = input.Mark();
+        try
+        {
+          for (int index = 0; index < k - 1; ++index)
+            input.Consume();
+          this._c = input.LA(1);
+          this._line = ((ICharStream) input).Line;
+          this._charPositionInLine = ((ICharStream) input).CharPositionInLine;
+        }
+        finally
+        {
+          input.Rewind(marker);
+        }
+      }
+      else
+        this._c = input.LA(k);
+    }
+
+    protected RecognitionException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      this._index = info != null ? info.GetInt32(nameof (Index)) : throw new ArgumentNullException(nameof (info));
+      this._c = info.GetInt32("C");
+      this._line = info.GetInt32(nameof (Line));
+      this._charPositionInLine = info.GetInt32(nameof (CharPositionInLine));
+      this._approximateLineInfo = info.GetBoolean(nameof (ApproximateLineInfo));
+    }
+
+    public virtual int UnexpectedType
+    {
+      get
+      {
+        if (this._input is ITokenStream)
+          return this._token.Type;
+        return this._input is ITreeNodeStream input ? input.TreeAdaptor.GetType(this._node) : this._c;
+      }
+    }
+
+    public bool ApproximateLineInfo
+    {
+      get => this._approximateLineInfo;
+      protected set => this._approximateLineInfo = value;
+    }
+
+    public IIntStream Input
+    {
+      get => this._input;
+      protected set => this._input = value;
+    }
+
+    public int Lookahead => this._k;
+
+    public IToken Token
+    {
+      get => this._token;
+      set => this._token = value;
+    }
+
+    public object Node
+    {
+      get => this._node;
+      protected set => this._node = value;
+    }
+
+    public int Character
+    {
+      get => this._c;
+      protected set => this._c = value;
+    }
+
+    public int Index
+    {
+      get => this._index;
+      protected set => this._index = value;
+    }
+
+    public int Line
+    {
+      get => this._line;
+      set => this._line = value;
+    }
+
+    public int CharPositionInLine
+    {
+      get => this._charPositionInLine;
+      set => this._charPositionInLine = value;
+    }
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      if (info == null)
+        throw new ArgumentNullException(nameof (info));
+      base.GetObjectData(info, context);
+      info.AddValue("Index", this._index);
+      info.AddValue("C", this._c);
+      info.AddValue("Line", this._line);
+      info.AddValue("CharPositionInLine", this._charPositionInLine);
+      info.AddValue("ApproximateLineInfo", this._approximateLineInfo);
+    }
+
+    protected virtual void ExtractInformationFromTreeNodeStream(ITreeNodeStream input)
+    {
+      this._node = input.LT(1);
+      if (input is ITokenStreamInformation streamInformation)
+      {
+        IToken lastToken = streamInformation.LastToken;
+        IToken lastRealToken = streamInformation.LastRealToken;
+        if (lastRealToken == null)
+          return;
+        this._token = lastRealToken;
+        this._line = lastRealToken.Line;
+        this._charPositionInLine = lastRealToken.CharPositionInLine;
+        this._approximateLineInfo = lastRealToken.Equals((object) lastToken);
+      }
+      else
+      {
+        ITreeAdaptor treeAdaptor = input.TreeAdaptor;
+        IToken token1 = treeAdaptor.GetToken(this._node);
+        if (token1 != null)
+        {
+          this._token = token1;
+          if (token1.Line <= 0)
+          {
+            int k = -1;
+            object t = input.LT(k);
+            while (t != null)
+            {
+              IToken token2 = treeAdaptor.GetToken(t);
+              if (token2 != null && token2.Line > 0)
+              {
+                this._line = token2.Line;
+                this._charPositionInLine = token2.CharPositionInLine;
+                this._approximateLineInfo = true;
+                break;
+              }
+              --k;
+              try
+              {
+                t = input.LT(k);
+              }
+              catch (ArgumentException ex)
+              {
+                t = (object) null;
+              }
+            }
+          }
+          else
+          {
+            this._line = token1.Line;
+            this._charPositionInLine = token1.CharPositionInLine;
+          }
+        }
+        else if (this._node is ITree)
+        {
+          this._line = ((ITree) this._node).Line;
+          this._charPositionInLine = ((ITree) this._node).CharPositionInLine;
+          if (!(this._node is CommonTree))
+            return;
+          this._token = ((CommonTree) this._node).Token;
+        }
+        else
+          this._token = (IToken) new CommonToken(treeAdaptor.GetType(this._node), treeAdaptor.GetText(this._node));
+      }
+    }
+
+    protected virtual void ExtractInformationFromTreeNodeStream(ITreeNodeStream input, int k)
+    {
+      int marker = input.Mark();
+      try
+      {
+        for (int index = 0; index < k - 1; ++index)
+          input.Consume();
+        this.ExtractInformationFromTreeNodeStream(input);
+      }
+      finally
+      {
+        input.Rewind(marker);
+      }
+    }
+  }
+}
+
+
+--- RecognizerSharedState.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.RecognizerSharedState
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public class RecognizerSharedState
+  {
+    public BitSet[] following;
+    [CLSCompliant(false)]
+    public int _fsp;
+    public bool errorRecovery;
+    public int lastErrorIndex;
+    public bool failed;
+    public int syntaxErrors;
+    public int backtracking;
+    public IDictionary<int, int>[] ruleMemo;
+    public IToken token;
+    public int tokenStartCharIndex;
+    public int tokenStartLine;
+    public int tokenStartCharPositionInLine;
+    public int channel;
+    public int type;
+    public string text;
+
+    public RecognizerSharedState()
+    {
+      this.following = new BitSet[100];
+      this._fsp = -1;
+      this.lastErrorIndex = -1;
+      this.tokenStartCharIndex = -1;
+    }
+
+    public RecognizerSharedState(RecognizerSharedState state)
+    {
+      this.following = state != null ? (BitSet[]) state.following.Clone() : throw new ArgumentNullException(nameof (state));
+      this._fsp = state._fsp;
+      this.errorRecovery = state.errorRecovery;
+      this.lastErrorIndex = state.lastErrorIndex;
+      this.failed = state.failed;
+      this.syntaxErrors = state.syntaxErrors;
+      this.backtracking = state.backtracking;
+      if (state.ruleMemo != null)
+        this.ruleMemo = (IDictionary<int, int>[]) state.ruleMemo.Clone();
+      this.token = state.token;
+      this.tokenStartCharIndex = state.tokenStartCharIndex;
+      this.tokenStartCharPositionInLine = state.tokenStartCharPositionInLine;
+      this.channel = state.channel;
+      this.type = state.type;
+      this.text = state.text;
+    }
+  }
+}
+
+
+--- SpecialStateTransitionHandler.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.SpecialStateTransitionHandler
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public delegate int SpecialStateTransitionHandler(DFA dfa, int s, IIntStream input);
+}
+
+
+--- TemplateParserRuleReturnScope`2.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.TemplateParserRuleReturnScope`2
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public class TemplateParserRuleReturnScope<TTemplate, TToken> : 
+    ParserRuleReturnScope<TToken>,
+    ITemplateRuleReturnScope<TTemplate>,
+    ITemplateRuleReturnScope
+  {
+    private TTemplate _template;
+
+    public TTemplate Template
+    {
+      get => this._template;
+      set => this._template = value;
+    }
+
+    object ITemplateRuleReturnScope.Template => (object) this.Template;
+  }
+}
+
+
+--- TokenChannels.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.TokenChannels
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public static class TokenChannels
+  {
+    public const int Default = 0;
+    public const int Hidden = 99;
+  }
+}
+
+
+--- TokenRewriteStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.TokenRewriteStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [DebuggerDisplay("TODO: TokenRewriteStream debugger display")]
+  [Serializable]
+  public class TokenRewriteStream : CommonTokenStream
+  {
+    public const string DEFAULT_PROGRAM_NAME = "default";
+    public const int PROGRAM_INIT_SIZE = 100;
+    public const int MIN_TOKEN_INDEX = 0;
+    protected IDictionary<string, IList<TokenRewriteStream.RewriteOperation>> programs;
+    protected IDictionary<string, int> lastRewriteTokenIndexes;
+
+    public TokenRewriteStream() => this.Init();
+
+    protected void Init()
+    {
+      this.programs = (IDictionary<string, IList<TokenRewriteStream.RewriteOperation>>) new Dictionary<string, IList<TokenRewriteStream.RewriteOperation>>();
+      this.programs["default"] = (IList<TokenRewriteStream.RewriteOperation>) new List<TokenRewriteStream.RewriteOperation>(100);
+      this.lastRewriteTokenIndexes = (IDictionary<string, int>) new Dictionary<string, int>();
+    }
+
+    public TokenRewriteStream(ITokenSource tokenSource)
+      : base(tokenSource)
+    {
+      this.Init();
+    }
+
+    public TokenRewriteStream(ITokenSource tokenSource, int channel)
+      : base(tokenSource, channel)
+    {
+      this.Init();
+    }
+
+    public virtual void Rollback(int instructionIndex)
+    {
+      this.Rollback("default", instructionIndex);
+    }
+
+    public virtual void Rollback(string programName, int instructionIndex)
+    {
+      IList<TokenRewriteStream.RewriteOperation> rewriteOperationList1;
+      if (!this.programs.TryGetValue(programName, out rewriteOperationList1) || rewriteOperationList1 == null)
+        return;
+      List<TokenRewriteStream.RewriteOperation> rewriteOperationList2 = new List<TokenRewriteStream.RewriteOperation>();
+      for (int index = 0; index <= instructionIndex; ++index)
+        rewriteOperationList2.Add(rewriteOperationList1[index]);
+      this.programs[programName] = (IList<TokenRewriteStream.RewriteOperation>) rewriteOperationList2;
+    }
+
+    public virtual void DeleteProgram() => this.DeleteProgram("default");
+
+    public virtual void DeleteProgram(string programName) => this.Rollback(programName, 0);
+
+    public virtual void InsertAfter(IToken t, object text) => this.InsertAfter("default", t, text);
+
+    public virtual void InsertAfter(int index, object text)
+    {
+      this.InsertAfter("default", index, text);
+    }
+
+    public virtual void InsertAfter(string programName, IToken t, object text)
+    {
+      this.InsertAfter(programName, t.TokenIndex, text);
+    }
+
+    public virtual void InsertAfter(string programName, int index, object text)
+    {
+      this.InsertBefore(programName, index + 1, text);
+    }
+
+    public virtual void InsertBefore(IToken t, object text)
+    {
+      this.InsertBefore("default", t, text);
+    }
+
+    public virtual void InsertBefore(int index, object text)
+    {
+      this.InsertBefore("default", index, text);
+    }
+
+    public virtual void InsertBefore(string programName, IToken t, object text)
+    {
+      this.InsertBefore(programName, t.TokenIndex, text);
+    }
+
+    public virtual void InsertBefore(string programName, int index, object text)
+    {
+      TokenRewriteStream.RewriteOperation rewriteOperation = (TokenRewriteStream.RewriteOperation) new TokenRewriteStream.InsertBeforeOp(this, index, text);
+      IList<TokenRewriteStream.RewriteOperation> program = this.GetProgram(programName);
+      rewriteOperation.instructionIndex = program.Count;
+      program.Add(rewriteOperation);
+    }
+
+    public virtual void Replace(int index, object text)
+    {
+      this.Replace("default", index, index, text);
+    }
+
+    public virtual void Replace(int from, int to, object text)
+    {
+      this.Replace("default", from, to, text);
+    }
+
+    public virtual void Replace(IToken indexT, object text)
+    {
+      this.Replace("default", indexT, indexT, text);
+    }
+
+    public virtual void Replace(IToken from, IToken to, object text)
+    {
+      this.Replace("default", from, to, text);
+    }
+
+    public virtual void Replace(string programName, int from, int to, object text)
+    {
+      if (from > to || from < 0 || to < 0 || to >= this._tokens.Count)
+        throw new ArgumentException("replace: range invalid: " + (object) from + ".." + (object) to + "(size=" + (object) this._tokens.Count + ")");
+      TokenRewriteStream.RewriteOperation rewriteOperation = (TokenRewriteStream.RewriteOperation) new TokenRewriteStream.ReplaceOp(this, from, to, text);
+      IList<TokenRewriteStream.RewriteOperation> program = this.GetProgram(programName);
+      rewriteOperation.instructionIndex = program.Count;
+      program.Add(rewriteOperation);
+    }
+
+    public virtual void Replace(string programName, IToken from, IToken to, object text)
+    {
+      this.Replace(programName, from.TokenIndex, to.TokenIndex, text);
+    }
+
+    public virtual void Delete(int index) => this.Delete("default", index, index);
+
+    public virtual void Delete(int from, int to) => this.Delete("default", from, to);
+
+    public virtual void Delete(IToken indexT) => this.Delete("default", indexT, indexT);
+
+    public virtual void Delete(IToken from, IToken to) => this.Delete("default", from, to);
+
+    public virtual void Delete(string programName, int from, int to)
+    {
+      this.Replace(programName, from, to, (object) null);
+    }
+
+    public virtual void Delete(string programName, IToken from, IToken to)
+    {
+      this.Replace(programName, from, to, (object) null);
+    }
+
+    public virtual int GetLastRewriteTokenIndex() => this.GetLastRewriteTokenIndex("default");
+
+    protected virtual int GetLastRewriteTokenIndex(string programName)
+    {
+      int num;
+      return this.lastRewriteTokenIndexes.TryGetValue(programName, out num) ? num : -1;
+    }
+
+    protected virtual void SetLastRewriteTokenIndex(string programName, int i)
+    {
+      this.lastRewriteTokenIndexes[programName] = i;
+    }
+
+    protected virtual IList<TokenRewriteStream.RewriteOperation> GetProgram(string name)
+    {
+      IList<TokenRewriteStream.RewriteOperation> program;
+      if (!this.programs.TryGetValue(name, out program) || program == null)
+        program = this.InitializeProgram(name);
+      return program;
+    }
+
+    private IList<TokenRewriteStream.RewriteOperation> InitializeProgram(string name)
+    {
+      IList<TokenRewriteStream.RewriteOperation> rewriteOperationList = (IList<TokenRewriteStream.RewriteOperation>) new List<TokenRewriteStream.RewriteOperation>(100);
+      this.programs[name] = rewriteOperationList;
+      return rewriteOperationList;
+    }
+
+    public virtual string ToOriginalString()
+    {
+      this.Fill();
+      return this.ToOriginalString(0, this.Count - 1);
+    }
+
+    public virtual string ToOriginalString(int start, int end)
+    {
+      StringBuilder stringBuilder = new StringBuilder();
+      for (int i = start; i >= 0 && i <= end && i < this._tokens.Count; ++i)
+      {
+        if (this.Get(i).Type != -1)
+          stringBuilder.Append(this.Get(i).Text);
+      }
+      return stringBuilder.ToString();
+    }
+
+    public override string ToString()
+    {
+      this.Fill();
+      return this.ToString(0, this.Count - 1);
+    }
+
+    public virtual string ToString(string programName)
+    {
+      this.Fill();
+      return this.ToString(programName, 0, this.Count - 1);
+    }
+
+    public override string ToString(int start, int end) => this.ToString("default", start, end);
+
+    public virtual string ToString(string programName, int start, int end)
+    {
+      IList<TokenRewriteStream.RewriteOperation> rewrites;
+      if (!this.programs.TryGetValue(programName, out rewrites))
+        rewrites = (IList<TokenRewriteStream.RewriteOperation>) null;
+      if (end > this._tokens.Count - 1)
+        end = this._tokens.Count - 1;
+      if (start < 0)
+        start = 0;
+      if (rewrites == null || rewrites.Count == 0)
+        return this.ToOriginalString(start, end);
+      StringBuilder buf = new StringBuilder();
+      IDictionary<int, TokenRewriteStream.RewriteOperation> operationPerIndex = this.ReduceToSingleOperationPerIndex(rewrites);
+      int num = start;
+      while (num <= end && num < this._tokens.Count)
+      {
+        TokenRewriteStream.RewriteOperation rewriteOperation;
+        bool flag = operationPerIndex.TryGetValue(num, out rewriteOperation);
+        if (flag)
+          operationPerIndex.Remove(num);
+        if (!flag || rewriteOperation == null)
+        {
+          IToken token = this._tokens[num];
+          if (token.Type != -1)
+            buf.Append(token.Text);
+          ++num;
+        }
+        else
+          num = rewriteOperation.Execute(buf);
+      }
+      if (end == this._tokens.Count - 1)
+      {
+        foreach (TokenRewriteStream.RewriteOperation rewriteOperation in (IEnumerable<TokenRewriteStream.RewriteOperation>) operationPerIndex.Values)
+        {
+          if (rewriteOperation.index >= this._tokens.Count - 1)
+            buf.Append(rewriteOperation.text);
+        }
+      }
+      return buf.ToString();
+    }
+
+    protected virtual IDictionary<int, TokenRewriteStream.RewriteOperation> ReduceToSingleOperationPerIndex(
+      IList<TokenRewriteStream.RewriteOperation> rewrites)
+    {
+      for (int index1 = 0; index1 < rewrites.Count; ++index1)
+      {
+        TokenRewriteStream.RewriteOperation rewrite1 = rewrites[index1];
+        if (rewrite1 != null && rewrite1 is TokenRewriteStream.ReplaceOp)
+        {
+          TokenRewriteStream.ReplaceOp rewrite2 = (TokenRewriteStream.ReplaceOp) rewrites[index1];
+          IList<TokenRewriteStream.RewriteOperation> kindOfOps1 = this.GetKindOfOps(rewrites, typeof (TokenRewriteStream.InsertBeforeOp), index1);
+          for (int index2 = 0; index2 < kindOfOps1.Count; ++index2)
+          {
+            TokenRewriteStream.InsertBeforeOp insertBeforeOp = (TokenRewriteStream.InsertBeforeOp) kindOfOps1[index2];
+            if (insertBeforeOp.index == rewrite2.index)
+            {
+              rewrites[insertBeforeOp.instructionIndex] = (TokenRewriteStream.RewriteOperation) null;
+              rewrite2.text = (object) (insertBeforeOp.text.ToString() + (rewrite2.text != null ? rewrite2.text.ToString() : string.Empty));
+            }
+            else if (insertBeforeOp.index > rewrite2.index && insertBeforeOp.index <= rewrite2.lastIndex)
+              rewrites[insertBeforeOp.instructionIndex] = (TokenRewriteStream.RewriteOperation) null;
+          }
+          IList<TokenRewriteStream.RewriteOperation> kindOfOps2 = this.GetKindOfOps(rewrites, typeof (TokenRewriteStream.ReplaceOp), index1);
+          for (int index3 = 0; index3 < kindOfOps2.Count; ++index3)
+          {
+            TokenRewriteStream.ReplaceOp replaceOp = (TokenRewriteStream.ReplaceOp) kindOfOps2[index3];
+            if (replaceOp.index >= rewrite2.index && replaceOp.lastIndex <= rewrite2.lastIndex)
+            {
+              rewrites[replaceOp.instructionIndex] = (TokenRewriteStream.RewriteOperation) null;
+            }
+            else
+            {
+              bool flag1 = replaceOp.lastIndex < rewrite2.index || replaceOp.index > rewrite2.lastIndex;
+              bool flag2 = replaceOp.index == rewrite2.index && replaceOp.lastIndex == rewrite2.lastIndex;
+              if (replaceOp.text == null && rewrite2.text == null && !flag1)
+              {
+                rewrites[replaceOp.instructionIndex] = (TokenRewriteStream.RewriteOperation) null;
+                rewrite2.index = Math.Min(replaceOp.index, rewrite2.index);
+                rewrite2.lastIndex = Math.Max(replaceOp.lastIndex, rewrite2.lastIndex);
+                Console.WriteLine("new rop " + (object) rewrite2);
+              }
+              else if (!flag1 && !flag2)
+                throw new ArgumentException("replace op boundaries of " + (object) rewrite2 + " overlap with previous " + (object) replaceOp);
+            }
+          }
+        }
+      }
+      for (int index4 = 0; index4 < rewrites.Count; ++index4)
+      {
+        TokenRewriteStream.RewriteOperation rewrite3 = rewrites[index4];
+        if (rewrite3 != null && rewrite3 is TokenRewriteStream.InsertBeforeOp)
+        {
+          TokenRewriteStream.InsertBeforeOp rewrite4 = (TokenRewriteStream.InsertBeforeOp) rewrites[index4];
+          IList<TokenRewriteStream.RewriteOperation> kindOfOps3 = this.GetKindOfOps(rewrites, typeof (TokenRewriteStream.InsertBeforeOp), index4);
+          for (int index5 = 0; index5 < kindOfOps3.Count; ++index5)
+          {
+            TokenRewriteStream.InsertBeforeOp insertBeforeOp = (TokenRewriteStream.InsertBeforeOp) kindOfOps3[index5];
+            if (insertBeforeOp.index == rewrite4.index)
+            {
+              rewrite4.text = (object) this.CatOpText(rewrite4.text, insertBeforeOp.text);
+              rewrites[insertBeforeOp.instructionIndex] = (TokenRewriteStream.RewriteOperation) null;
+            }
+          }
+          IList<TokenRewriteStream.RewriteOperation> kindOfOps4 = this.GetKindOfOps(rewrites, typeof (TokenRewriteStream.ReplaceOp), index4);
+          for (int index6 = 0; index6 < kindOfOps4.Count; ++index6)
+          {
+            TokenRewriteStream.ReplaceOp replaceOp = (TokenRewriteStream.ReplaceOp) kindOfOps4[index6];
+            if (rewrite4.index == replaceOp.index)
+            {
+              replaceOp.text = (object) this.CatOpText(rewrite4.text, replaceOp.text);
+              rewrites[index4] = (TokenRewriteStream.RewriteOperation) null;
+            }
+            else if (rewrite4.index >= replaceOp.index && rewrite4.index <= replaceOp.lastIndex)
+              throw new ArgumentException("insert op " + (object) rewrite4 + " within boundaries of previous " + (object) replaceOp);
+          }
+        }
+      }
+      IDictionary<int, TokenRewriteStream.RewriteOperation> operationPerIndex = (IDictionary<int, TokenRewriteStream.RewriteOperation>) new Dictionary<int, TokenRewriteStream.RewriteOperation>();
+      for (int index = 0; index < rewrites.Count; ++index)
+      {
+        TokenRewriteStream.RewriteOperation rewrite = rewrites[index];
+        if (rewrite != null)
+        {
+          TokenRewriteStream.RewriteOperation rewriteOperation;
+          if (operationPerIndex.TryGetValue(rewrite.index, out rewriteOperation) && rewriteOperation != null)
+            throw new Exception("should only be one op per index");
+          operationPerIndex[rewrite.index] = rewrite;
+        }
+      }
+      return operationPerIndex;
+    }
+
+    protected virtual string CatOpText(object a, object b) => a.ToString() + b;
+
+    protected virtual IList<TokenRewriteStream.RewriteOperation> GetKindOfOps(
+      IList<TokenRewriteStream.RewriteOperation> rewrites,
+      Type kind)
+    {
+      return this.GetKindOfOps(rewrites, kind, rewrites.Count);
+    }
+
+    protected virtual IList<TokenRewriteStream.RewriteOperation> GetKindOfOps(
+      IList<TokenRewriteStream.RewriteOperation> rewrites,
+      Type kind,
+      int before)
+    {
+      IList<TokenRewriteStream.RewriteOperation> kindOfOps = (IList<TokenRewriteStream.RewriteOperation>) new List<TokenRewriteStream.RewriteOperation>();
+      for (int index = 0; index < before && index < rewrites.Count; ++index)
+      {
+        TokenRewriteStream.RewriteOperation rewrite = rewrites[index];
+        if (rewrite != null && rewrite.GetType() == kind)
+          kindOfOps.Add(rewrite);
+      }
+      return kindOfOps;
+    }
+
+    public virtual string ToDebugString() => this.ToDebugString(0, this.Count - 1);
+
+    public virtual string ToDebugString(int start, int end)
+    {
+      StringBuilder stringBuilder = new StringBuilder();
+      for (int i = start; i >= 0 && i <= end && i < this._tokens.Count; ++i)
+        stringBuilder.Append((object) this.Get(i));
+      return stringBuilder.ToString();
+    }
+
+    protected class RewriteOperation
+    {
+      public int instructionIndex;
+      public int index;
+      public object text;
+      protected TokenRewriteStream stream;
+
+      protected RewriteOperation(TokenRewriteStream stream, int index)
+      {
+        this.stream = stream;
+        this.index = index;
+      }
+
+      protected RewriteOperation(TokenRewriteStream stream, int index, object text)
+      {
+        this.index = index;
+        this.text = text;
+        this.stream = stream;
+      }
+
+      public virtual int Execute(StringBuilder buf) => this.index;
+
+      public override string ToString()
+      {
+        string name = this.GetType().Name;
+        int num = name.IndexOf('$');
+        return string.Format("<{0}@{1}:\"{2}\">", (object) name.Substring(num + 1), (object) this.stream._tokens[this.index], this.text);
+      }
+    }
+
+    private class InsertBeforeOp(TokenRewriteStream stream, int index, object text) : 
+      TokenRewriteStream.RewriteOperation(stream, index, text)
+    {
+      public override int Execute(StringBuilder buf)
+      {
+        buf.Append(this.text);
+        if (this.stream._tokens[this.index].Type != -1)
+          buf.Append(this.stream._tokens[this.index].Text);
+        return this.index + 1;
+      }
+    }
+
+    private class ReplaceOp : TokenRewriteStream.RewriteOperation
+    {
+      public int lastIndex;
+
+      public ReplaceOp(TokenRewriteStream stream, int from, int to, object text)
+        : base(stream, from, text)
+      {
+        this.lastIndex = to;
+      }
+
+      public override int Execute(StringBuilder buf)
+      {
+        if (this.text != null)
+          buf.Append(this.text);
+        return this.lastIndex + 1;
+      }
+
+      public override string ToString()
+      {
+        return this.text == null ? string.Format("<DeleteOp@{0}..{1}>", (object) this.stream._tokens[this.index], (object) this.stream._tokens[this.lastIndex]) : string.Format("<ReplaceOp@{0}..{1}:\"{2}\">", (object) this.stream._tokens[this.index], (object) this.stream._tokens[this.lastIndex], this.text);
+      }
+    }
+  }
+}
+
+
+--- Tokens.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tokens
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public static class Tokens
+  {
+    public static readonly IToken Skip = (IToken) new CommonToken(0);
+  }
+}
+
+
+--- TokenTypes.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.TokenTypes
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public static class TokenTypes
+  {
+    public const int EndOfFile = -1;
+    public const int Invalid = 0;
+    public const int EndOfRule = 1;
+    public const int Down = 2;
+    public const int Up = 3;
+    public const int Min = 4;
+  }
+}
+
+
+--- UnbufferedTokenStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.UnbufferedTokenStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using Antlr.Runtime.Misc;
+using System;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  public class UnbufferedTokenStream : 
+    LookaheadStream<IToken>,
+    ITokenStream,
+    IIntStream,
+    ITokenStreamInformation
+  {
+    [CLSCompliant(false)]
+    protected ITokenSource tokenSource;
+    protected int tokenIndex;
+    protected int channel;
+    private readonly ListStack<IToken> _realTokens;
+
+    public UnbufferedTokenStream(ITokenSource tokenSource)
+    {
+      ListStack<IToken> listStack = new ListStack<IToken>();
+      listStack.Add((IToken) null);
+      this._realTokens = listStack;
+      // ISSUE: explicit constructor call
+      base.\u002Ector();
+      this.tokenSource = tokenSource;
+    }
+
+    public ITokenSource TokenSource => this.tokenSource;
+
+    public string SourceName => this.TokenSource.SourceName;
+
+    public IToken LastToken => this.LB(1);
+
+    public IToken LastRealToken => this._realTokens.Peek();
+
+    public int MaxLookBehind => 1;
+
+    public override int Mark()
+    {
+      this._realTokens.Push(this._realTokens.Peek());
+      return base.Mark();
+    }
+
+    public override void Release(int marker)
+    {
+      base.Release(marker);
+      this._realTokens.Pop();
+    }
+
+    public override void Clear()
+    {
+      this._realTokens.Clear();
+      this._realTokens.Push((IToken) null);
+    }
+
+    public override void Consume()
+    {
+      base.Consume();
+      if (this.PreviousElement == null || this.PreviousElement.Line <= 0)
+        return;
+      this._realTokens[this._realTokens.Count - 1] = this.PreviousElement;
+    }
+
+    public override IToken NextElement()
+    {
+      IToken token = this.tokenSource.NextToken();
+      token.TokenIndex = this.tokenIndex++;
+      return token;
+    }
+
+    public override bool IsEndOfFile(IToken o) => o.Type == -1;
+
+    public IToken Get(int i)
+    {
+      throw new NotSupportedException("Absolute token indexes are meaningless in an unbuffered stream");
+    }
+
+    public int LA(int i) => this.LT(i).Type;
+
+    public string ToString(int start, int stop) => "n/a";
+
+    public string ToString(IToken start, IToken stop) => "n/a";
+  }
+}
+
+
+--- UnwantedTokenException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.UnwantedTokenException
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Antlr.Runtime
+{
+  [Serializable]
+  public class UnwantedTokenException : MismatchedTokenException
+  {
+    public UnwantedTokenException()
+    {
+    }
+
+    public UnwantedTokenException(string message)
+      : base(message)
+    {
+    }
+
+    public UnwantedTokenException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+
+    public UnwantedTokenException(int expecting, IIntStream input)
+      : base(expecting, input)
+    {
+    }
+
+    public UnwantedTokenException(int expecting, IIntStream input, IList<string> tokenNames)
+      : base(expecting, input, tokenNames)
+    {
+    }
+
+    public UnwantedTokenException(
+      string message,
+      int expecting,
+      IIntStream input,
+      IList<string> tokenNames)
+      : base(message, expecting, input, tokenNames)
+    {
+    }
+
+    public UnwantedTokenException(
+      string message,
+      int expecting,
+      IIntStream input,
+      IList<string> tokenNames,
+      Exception innerException)
+      : base(message, expecting, input, tokenNames, innerException)
+    {
+    }
+
+    protected UnwantedTokenException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+    }
+
+    public virtual IToken UnexpectedToken => this.Token;
+
+    public override string ToString()
+    {
+      string str = ", expected " + (this.TokenNames == null || this.Expecting < 0 || this.Expecting >= this.TokenNames.Count ? this.Expecting.ToString() : this.TokenNames[this.Expecting]);
+      if (this.Expecting == 0)
+        str = "";
+      return this.Token == null ? "UnwantedTokenException(found=" + str + ")" : "UnwantedTokenException(found=" + this.Token.Text + str + ")";
+    }
+  }
+}
+

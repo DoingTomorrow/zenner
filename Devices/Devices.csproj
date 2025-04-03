@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Devices.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1002D1BC-6599-4F37-9567-3E368D943FCD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>Devices</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>Devices</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AsyncCom">
+      <HintPath>lib\AsyncCom.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="CommunicationPort">
+      <HintPath>lib\CommunicationPort.dll</HintPath>
+    </Reference>
+    <Reference Include="DeviceCollector">
+      <HintPath>lib\DeviceCollector.dll</HintPath>
+    </Reference>
+    <Reference Include="EDC_Handler">
+      <HintPath>lib\EDC_Handler.dll</HintPath>
+    </Reference>
+    <Reference Include="GMM_Handler">
+      <HintPath>lib\GMM_Handler.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="HandlerLib">
+      <HintPath>lib\HandlerLib.dll</HintPath>
+    </Reference>
+    <Reference Include="MinolHandler">
+      <HintPath>lib\MinolHandler.dll</HintPath>
+    </Reference>
+    <Reference Include="MinomatHandler">
+      <HintPath>lib\MinomatHandler.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PDC_Handler">
+      <HintPath>lib\PDC_Handler.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="ReadoutConfiguration">
+      <HintPath>lib\ReadoutConfiguration.dll</HintPath>
+    </Reference>
+    <Reference Include="S3_Handler">
+      <HintPath>lib\S3_Handler.dll</HintPath>
+    </Reference>
+    <Reference Include="SmokeDetectorHandler">
+      <HintPath>lib\SmokeDetectorHandler.dll</HintPath>
+    </Reference>
+    <Reference Include="StartupLib">
+      <HintPath>lib\StartupLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="TH_Handler">
+      <HintPath>lib\TH_Handler.dll</HintPath>
+    </Reference>
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BaseDevice.cs" />
+    <Compile Include="CommonHandlerWrapper.cs" />
+    <Compile Include="DatabaseAccess.cs" />
+    <Compile Include="DeviceManagerModes.cs" />
+    <Compile Include="DeviceManager.cs" />
+    <Compile Include="GmmComponentInfo.cs" />
+    <Compile Include="CommunicationModels.cs" />
+    <Compile Include="GmmStructureInfo.cs" />
+    <Compile Include="ThHandler.cs" />
+    <Compile Include="PdcHandler.cs" />
+    <Compile Include="EdcHandler.cs" />
+    <Compile Include="SmokeDetectorHandler.cs" />
+    <Compile Include="Series2Device.cs" />
+    <Compile Include="Series2DeviceByHandler.cs" />
+    <Compile Include="Series3Device.cs" />
+    <Compile Include="Series3DeviceByHandler.cs" />
+    <Compile Include="WalkByHandler.cs" />
+    <Compile Include="MBusDeviceHandler.cs" />
+    <Compile Include="MinomatHandler.cs" />
+    <Compile Include="MinolDeviceHandler.cs" />
+    <Compile Include="RelayDeviceHandler.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

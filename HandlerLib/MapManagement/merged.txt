@@ -1,0 +1,3121 @@
+
+--- ListFileParameter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: HandlerLib.MapManagement.ListFileParameter
+// Assembly: HandlerLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 32680C26-DD6F-4028-82D3-7440714FE33F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll
+
+#nullable disable
+namespace HandlerLib.MapManagement
+{
+  public class ListFileParameter
+  {
+    public string FieldName { get; set; }
+
+    public uint Align { get; set; }
+
+    public string Path { get; set; }
+
+    public string Section { get; set; }
+
+    public string Type { get; set; }
+
+    public string Type_add { get; set; }
+
+    public string Type_add_extra { get; set; }
+
+    public bool IsArray { get; set; }
+
+    public int ArraySize { get; set; }
+
+    public string[] InitValues { get; set; }
+
+    public bool IsOK { get; set; }
+
+    public bool ShowInMAP { get; set; }
+
+    public ListFileParameter Clone()
+    {
+      return new ListFileParameter()
+      {
+        FieldName = this.FieldName,
+        Align = this.Align,
+        Section = this.Section,
+        Path = this.Path,
+        Type = this.Type,
+        Type_add = this.Type_add,
+        Type_add_extra = this.Type_add_extra,
+        ArraySize = this.ArraySize,
+        InitValues = this.InitValues,
+        IsOK = this.IsOK,
+        ShowInMAP = this.ShowInMAP
+      };
+    }
+
+    public void UpdateParameter(ListFileParameter LFP)
+    {
+      if (!this.FieldName.Equals(LFP.FieldName))
+        return;
+      this.Align = LFP.Align;
+      this.Section = LFP.Section;
+      this.Path = LFP.Path;
+      this.Type = LFP.Type;
+      this.Type_add = LFP.Type_add;
+      this.Type_add_extra = LFP.Type_add_extra;
+      this.ArraySize = LFP.ArraySize;
+      this.InitValues = LFP.InitValues;
+      this.IsOK = this.checkOK();
+    }
+
+    public bool checkOK()
+    {
+      this.IsOK = this.InitValues != null && !string.IsNullOrEmpty(this.FieldName) && !string.IsNullOrEmpty(this.Type) && !string.IsNullOrEmpty(this.InitValues[0]);
+      return this.IsOK;
+    }
+  }
+}
+
+
+--- LoadDataFromMapClass.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: HandlerLib.MapManagement.LoadDataFromMapClass
+// Assembly: HandlerLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 32680C26-DD6F-4028-82D3-7440714FE33F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll
+
+using System;
+using System.Text;
+
+#nullable disable
+namespace HandlerLib.MapManagement
+{
+  public static class LoadDataFromMapClass
+  {
+    public static string GetString(byte[] byteArray, ref int readIndex)
+    {
+      if (readIndex >= byteArray.Length)
+        throw new IndexOutOfRangeException("LoadBaseDataFromByteArray.GetString from index: " + readIndex.ToString());
+      return byteArray[readIndex++] == (byte) 0 ? (string) null : LoadDataFromMapClass.GetStringForced(byteArray, ref readIndex);
+    }
+
+    public static string GetStringForced(byte[] byteArray, ref int readIndex)
+    {
+      int length = LoadDataFromMapClass.GetLength(byteArray, ref readIndex);
+      if (length == 0)
+        return "";
+      if (readIndex + length > byteArray.Length)
+        throw new IndexOutOfRangeException("LoadBaseDataFromByteArray.GetStringForced from index: " + readIndex.ToString());
+      string stringForced = Encoding.UTF8.GetString(byteArray, readIndex, length);
+      readIndex += length;
+      return stringForced;
+    }
+
+    public static byte GetByteForced(byte[] byteArray, ref int readIndex)
+    {
+      if (readIndex < byteArray.Length)
+        return byteArray[readIndex++];
+      throw new IndexOutOfRangeException("LoadBaseDataFromByteArray.GetByte from index: " + readIndex.ToString());
+    }
+
+    public static byte? GetByte(byte[] byteArray, ref int readIndex)
+    {
+      if (readIndex < byteArray.Length)
+      {
+        if (byteArray[readIndex++] == (byte) 0)
+          return new byte?();
+        if (readIndex < byteArray.Length)
+          return new byte?(byteArray[readIndex++]);
+      }
+      throw new IndexOutOfRangeException("LoadBaseDataFromByteArray.GetByte from index: " + readIndex.ToString());
+    }
+
+    public static byte[] GetBytes(byte[] byteArray, ref int readIndex)
+    {
+      if (readIndex >= byteArray.Length)
+        throw new IndexOutOfRangeException("LoadBaseDataFromByteArray.GetBytes from index: " + readIndex.ToString());
+      return byteArray[readIndex++] == (byte) 0 ? (byte[]) null : LoadDataFromMapClass.GetBytesForced(byteArray, ref readIndex);
+    }
+
+    public static byte[] GetBytesForced(byte[] byteArray, ref int readIndex)
+    {
+      int length = LoadDataFromMapClass.GetLength(byteArray, ref readIndex);
+      if (readIndex + length > byteArray.Length)
+        throw new IndexOutOfRangeException("LoadBaseDataFromByteArray.GetBytesForced from index: " + readIndex.ToString());
+      byte[] bytesForced = new byte[length];
+      for (int index = 0; index < length; ++index)
+        bytesForced[index] = byteArray[readIndex + index];
+      readIndex += length;
+      return bytesForced;
+    }
+
+    public static int? GetInt(byte[] byteArray, ref int readIndex)
+    {
+      if (readIndex >= byteArray.Length)
+        throw new IndexOutOfRangeException("LoadBaseDataFromByteArray.GetInt from index: " + readIndex.ToString());
+      return byteArray[readIndex++] == (byte) 0 ? new int?() : new int?(LoadDataFromMapClass.GetIntForced(byteArray, ref readIndex));
+    }
+
+    public static int GetIntForced(byte[] byteArray, ref int readIndex)
+    {
+      if (readIndex + 4 > byteArray.Length)
+        throw new IndexOutOfRangeException("LoadBaseDataFromByteArray.GetIntForced from index: " + readIndex.ToString());
+      int int32 = BitConverter.ToInt32(byteArray, readIndex);
+      readIndex += 4;
+      return int32;
+    }
+
+    public static uint GetUIntForced(byte[] byteArray, ref int readIndex)
+    {
+      if (readIndex + 4 > byteArray.Length)
+        throw new IndexOutOfRangeException("LoadBaseDataFromByteArray.GetIntForced from index: " + readIndex.ToString());
+      uint uint32 = BitConverter.ToUInt32(byteArray, readIndex);
+      readIndex += 4;
+      return uint32;
+    }
+
+    public static ushort? GetUShort(byte[] byteArray, ref int readIndex)
+    {
+      if (readIndex >= byteArray.Length)
+        throw new IndexOutOfRangeException("LoadBaseDataFromByteArray.GetUShort from index: " + readIndex.ToString());
+      return byteArray[readIndex++] == (byte) 0 ? new ushort?() : new ushort?(LoadDataFromMapClass.GetUShortForced(byteArray, ref readIndex));
+    }
+
+    public static ushort GetUShortForced(byte[] byteArray, ref int readIndex)
+    {
+      if (readIndex + 2 > byteArray.Length)
+        throw new IndexOutOfRangeException("LoadBaseDataFromByteArray.GetUShortForced from index: " + readIndex.ToString());
+      ushort uint16 = BitConverter.ToUInt16(byteArray, readIndex);
+      readIndex += 2;
+      return uint16;
+    }
+
+    public static bool? GetBool(byte[] byteArray, ref int readIndex)
+    {
+      if (readIndex < byteArray.Length)
+      {
+        if (byteArray[readIndex++] == (byte) 0)
+          return new bool?();
+        if (readIndex < byteArray.Length)
+          return byteArray[readIndex++] > (byte) 0 ? new bool?(true) : new bool?(false);
+      }
+      throw new IndexOutOfRangeException("LoadBaseDataFromByteArray.GetBool from index: " + readIndex.ToString());
+    }
+
+    public static double? GetDouble(byte[] byteArray, ref int readIndex)
+    {
+      if (readIndex < byteArray.Length)
+      {
+        if (byteArray[readIndex++] == (byte) 0)
+          return new double?();
+        if (readIndex + 8 <= byteArray.Length)
+        {
+          double num = BitConverter.ToDouble(byteArray, readIndex);
+          readIndex += 8;
+          return new double?(num);
+        }
+      }
+      throw new IndexOutOfRangeException("LoadBaseDataFromByteArray.GetDouble from index: " + readIndex.ToString());
+    }
+
+    public static int GetLength(byte[] byteArray, ref int readIndex)
+    {
+      int length = (int) byteArray[readIndex++];
+      if (length == (int) byte.MaxValue)
+      {
+        if (readIndex + 2 <= byteArray.Length)
+        {
+          length = (int) byteArray[readIndex++] + ((int) byteArray[readIndex++] << 8);
+          if (length == (int) ushort.MaxValue)
+          {
+            if (readIndex + 4 <= byteArray.Length)
+              length = BitConverter.ToInt32(byteArray, readIndex);
+            else
+              goto label_7;
+          }
+          goto label_6;
+        }
+label_7:
+        throw new IndexOutOfRangeException("LoadBaseDataFromByteArray.GetDouble from index: " + readIndex.ToString());
+      }
+label_6:
+      return length;
+    }
+
+    public static uint GetSectionStartAddressForSection(
+      string[] SectionList,
+      uint[] SectionAddress,
+      string Section)
+    {
+      uint addressForSection = 0;
+      int index = Array.IndexOf<string>(SectionList, Section);
+      if (index >= 0)
+        addressForSection = SectionAddress[index];
+      return addressForSection;
+    }
+
+    public static uint GetSectionSizeFor(string[] SectionList, uint[] SectionSize, string Section)
+    {
+      uint sectionSizeFor = 0;
+      int index = Array.IndexOf<string>(SectionList, Section);
+      if (index >= 0)
+        sectionSizeFor = SectionSize[index];
+      return sectionSizeFor;
+    }
+  }
+}
+
+
+--- MAP_EXCEPTION_HANDLE.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: HandlerLib.MapManagement.MAP_EXCEPTION_HANDLE
+// Assembly: HandlerLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 32680C26-DD6F-4028-82D3-7440714FE33F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll
+
+#nullable disable
+namespace HandlerLib.MapManagement
+{
+  public enum MAP_EXCEPTION_HANDLE
+  {
+    MAPFILE_NOT_FOUND = 0,
+    MAPFILE_NOT_READABLE = 1,
+    MAPFILE_WRONG_VERSION = 3,
+    MAPFILE_FIRMWARE_NOT_SUPPORTED = 4,
+    MAP_ILLEGAL_PARAMETER = 11, // 0x0000000B
+    MAP_PARAMETER_NOT_FOUND = 12, // 0x0000000C
+    MAP_PARAMETER_IS_NULL = 13, // 0x0000000D
+    MAP_PARAMETER_LIST_IS_NULL = 14, // 0x0000000E
+    MAP_PARAMETER_ADDRESS_ERROR = 15, // 0x0000000F
+    MAP_CLASS_ILLEGAL_FORMAT = 21, // 0x00000015
+    MAP_CLASS_UNKNOWN_SECTIONNAME = 31, // 0x0000001F
+    MAP_PATH_EMPTY = 91, // 0x0000005B
+  }
+}
+
+
+--- MapClassGenerator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: HandlerLib.MapManagement.MapClassGenerator
+// Assembly: HandlerLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 32680C26-DD6F-4028-82D3-7440714FE33F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll
+
+using System;
+using System.IO;
+using System.Text;
+
+#nullable disable
+namespace HandlerLib.MapManagement
+{
+  internal class MapClassGenerator
+  {
+    private string ClassName;
+    private string NamespaceName;
+    private StringBuilder classText = new StringBuilder();
+    private StringBuilder lineText = new StringBuilder();
+
+    internal void StartClassGeneration(
+      byte formatVersion,
+      string namespaceName,
+      string className,
+      string[] usedFieldes,
+      string[] usedSections = null,
+      string[] usedTyps = null,
+      uint[] usedSectionsAddress = null,
+      uint[] usedSectionSize = null)
+    {
+      this.classText.Clear();
+      this.lineText.Clear();
+      this.NamespaceName = namespaceName;
+      this.ClassName = className;
+      this.classText.AppendLine("using System;");
+      this.classText.AppendLine("using HandlerLib.MapManagement;");
+      this.classText.AppendLine("");
+      this.classText.AppendLine("// Created from MapClassGenerator");
+      StringBuilder classText = this.classText;
+      DateTime now = DateTime.Now;
+      string longDateString = now.ToLongDateString();
+      now = DateTime.Now;
+      string longTimeString = now.ToLongTimeString();
+      string str = "// Creation time: " + longDateString + " " + longTimeString;
+      classText.AppendLine(str);
+      this.classText.AppendLine("");
+      this.classText.AppendLine("namespace " + this.NamespaceName);
+      this.classText.AppendLine("{");
+      this.classText.AppendLine("    public class " + this.ClassName + " : MapDefClassBase");
+      this.classText.AppendLine("    {");
+      this.classText.AppendLine("        public override byte[] FullByteList { get { return fullByteList; } }");
+      if (usedSections != null && usedTyps != null)
+      {
+        this.classText.AppendLine("        public override string[] ParameterList { get { return parameterList; } }");
+        this.classText.AppendLine("        public override string[] TypList { get { return typList; } }");
+        this.classText.AppendLine("        public override string[] SectionList { get { return sectionList; } }");
+        this.classText.AppendLine("        public override uint[] SectionAddress { get { return sectionAddress; } }");
+        this.classText.AppendLine("        public override uint[] SectionSize { get { return sectionSize; } }");
+        this.classText.AppendLine();
+        this.classText.Append("        string[] parameterList = { ");
+        foreach (string usedFielde in usedFieldes)
+          this.classText.Append("\"" + usedFielde + "\",");
+        this.classText.AppendLine("};");
+        if (usedTyps != null)
+        {
+          this.classText.Append("        string[] typList = { ");
+          foreach (string usedTyp in usedTyps)
+            this.classText.Append("\"" + usedTyp + "\",");
+          this.classText.AppendLine("};");
+        }
+        if (usedSections != null)
+        {
+          this.classText.Append("        string[] sectionList = { ");
+          foreach (string usedSection in usedSections)
+            this.classText.Append("\"" + usedSection + "\",");
+          this.classText.AppendLine("};");
+        }
+        if (usedSectionsAddress != null)
+        {
+          this.classText.Append("        uint[] sectionAddress = { ");
+          foreach (uint num in usedSectionsAddress)
+            this.classText.Append("0x" + num.ToString("x8") + ", ");
+          this.classText.AppendLine("};");
+        }
+        if (usedSectionSize != null)
+        {
+          this.classText.Append("        uint[] sectionSize = { ");
+          foreach (uint num in usedSectionSize)
+            this.classText.Append("0x" + num.ToString("x4") + ", ");
+          this.classText.AppendLine("};");
+        }
+      }
+      this.classText.AppendLine();
+      this.classText.Append("        /*UsedFields: ");
+      foreach (string usedFielde in usedFieldes)
+        this.classText.Append(usedFielde + ",");
+      this.classText.AppendLine("*/");
+      this.classText.Append("        byte[] fullByteList = { /*FormatVersion*/ ");
+      this.AddAsByteListForced(formatVersion);
+      this.NewLine();
+    }
+
+    internal void FinaliseClassGeneraton()
+    {
+      this.NewLine();
+      this.classText.AppendLine("                                     };");
+      this.classText.AppendLine("    }");
+      this.classText.AppendLine("}");
+    }
+
+    internal void SaveClass(string fileName)
+    {
+      using (StreamWriter streamWriter = new StreamWriter(fileName, false, Encoding.Unicode))
+      {
+        streamWriter.Write(this.classText.ToString());
+        streamWriter.Close();
+      }
+    }
+
+    internal void NewLine()
+    {
+      this.classText.AppendLine(this.lineText.ToString());
+      this.lineText.Clear();
+      this.lineText.Append("       ");
+    }
+
+    internal void InsertComment(string comment) => this.lineText.Append(" /*" + comment + "*/ ");
+
+    internal void StartCommentBlock(string comment)
+    {
+      this.classText.AppendLine();
+      this.classText.AppendLine("/******** " + comment + " ********");
+    }
+
+    internal void FinishCommentBlock() => this.classText.AppendLine("*/");
+
+    internal void AddAddressParameterLineToCommentBlock(uint address, string parameterName)
+    {
+      this.classText.AppendLine(address.ToString("x08") + ": " + parameterName);
+    }
+
+    internal void AddParameterNotDefined() => this.AddByteCode((byte) 0);
+
+    internal void AddAsByteList(string theString)
+    {
+      if (theString == null)
+      {
+        this.AddByteCode((byte) 0);
+      }
+      else
+      {
+        this.AddByteCode((byte) 1);
+        this.AddAsByteListForced(theString);
+      }
+    }
+
+    internal void AddAsByteListForced(string theString)
+    {
+      byte[] numArray = theString != null ? Encoding.UTF8.GetBytes(theString) : throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAP_PARAMETER_IS_NULL, "MapClassGenerator ERROR!!!", (Exception) new ArgumentNullException("String has to be defined"));
+      this.AddLengthBytes(numArray.Length);
+      for (int index = 0; index < numArray.Length; ++index)
+        this.AddByteCode(numArray[index]);
+    }
+
+    internal void AddAsByteList(byte? theByte)
+    {
+      if (!theByte.HasValue)
+      {
+        this.AddByteCode((byte) 0);
+      }
+      else
+      {
+        this.AddByteCode((byte) 1);
+        this.AddAsByteListForced(theByte.Value);
+      }
+    }
+
+    internal void AddAsByteListForced(byte theByte) => this.AddByteCode(theByte);
+
+    internal void AddAsByteList(byte[] theBytes)
+    {
+      if (theBytes == null)
+      {
+        this.AddByteCode((byte) 0);
+      }
+      else
+      {
+        this.AddByteCode((byte) 1);
+        this.AddAsByteListForced(theBytes);
+      }
+    }
+
+    internal void AddAsByteListForced(byte[] theBytes)
+    {
+      this.AddLengthBytes(theBytes.Length);
+      for (int index = 0; index < theBytes.Length; ++index)
+        this.AddByteCode(theBytes[index]);
+    }
+
+    internal void AddAsByteList(int? theInt)
+    {
+      if (!theInt.HasValue)
+      {
+        this.AddByteCode((byte) 0);
+      }
+      else
+      {
+        this.AddByteCode((byte) 1);
+        this.AddAsByteListForced(theInt.Value);
+      }
+    }
+
+    internal void AddAsByteListForced(int theInt)
+    {
+      foreach (byte theByte in BitConverter.GetBytes(theInt))
+        this.AddByteCode(theByte);
+    }
+
+    internal void AddAsByteList(uint? theUInt)
+    {
+      if (!theUInt.HasValue)
+      {
+        this.AddByteCode((byte) 0);
+      }
+      else
+      {
+        this.AddByteCode((byte) 1);
+        this.AddAsByteListForced(theUInt.Value);
+      }
+    }
+
+    internal void AddAsByteListForced(uint theUInt)
+    {
+      foreach (byte theByte in BitConverter.GetBytes(theUInt))
+        this.AddByteCode(theByte);
+    }
+
+    internal void AddAsByteList(ushort? theUShort)
+    {
+      if (!theUShort.HasValue)
+      {
+        this.AddByteCode((byte) 0);
+      }
+      else
+      {
+        this.AddByteCode((byte) 1);
+        this.AddAsByteListForced(theUShort.Value);
+      }
+    }
+
+    internal void AddAsByteListForced(ushort theUShort)
+    {
+      foreach (byte theByte in BitConverter.GetBytes(theUShort))
+        this.AddByteCode(theByte);
+    }
+
+    internal void AddAsByteList(double? theDouble)
+    {
+      if (!theDouble.HasValue)
+      {
+        this.AddByteCode((byte) 0);
+      }
+      else
+      {
+        this.AddByteCode((byte) 1);
+        this.AddAsByteListForced(theDouble.Value);
+      }
+    }
+
+    internal void AddAsByteListForced(double theDouble)
+    {
+      foreach (byte theByte in BitConverter.GetBytes(theDouble))
+        this.AddByteCode(theByte);
+    }
+
+    internal void AddAsByteList(bool? theBool)
+    {
+      if (!theBool.HasValue)
+      {
+        this.AddByteCode((byte) 0);
+      }
+      else
+      {
+        this.AddByteCode((byte) 1);
+        this.AddAsByteListForced(theBool.Value);
+      }
+    }
+
+    internal void AddAsByteListForced(bool theBool)
+    {
+      if (theBool)
+        this.AddByteCode((byte) 1);
+      else
+        this.AddByteCode((byte) 0);
+    }
+
+    private void AddLengthBytes(int length)
+    {
+      if (length < (int) byte.MaxValue)
+      {
+        this.AddByteCode((byte) length);
+      }
+      else
+      {
+        this.AddByteCode(byte.MaxValue);
+        byte[] bytes = BitConverter.GetBytes(length);
+        if (length < (int) ushort.MaxValue)
+        {
+          for (int index = 0; index < 2; ++index)
+            this.AddByteCode(bytes[index]);
+        }
+        else
+        {
+          this.AddByteCode(byte.MaxValue);
+          this.AddByteCode(byte.MaxValue);
+          for (int index = 0; index < bytes.Length; ++index)
+            this.AddByteCode(bytes[index]);
+        }
+      }
+    }
+
+    private void AddByteCode(byte theByte)
+    {
+      this.lineText.Append("0x" + theByte.ToString("x02") + ",");
+    }
+  }
+}
+
+
+--- MapClassManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: HandlerLib.MapManagement.MapClassManager
+// Assembly: HandlerLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 32680C26-DD6F-4028-82D3-7440714FE33F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll
+
+using Microsoft.Win32;
+using StartupLib;
+using System;
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Markup;
+using System.Windows.Threading;
+using ZENNER.CommonLibrary;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace HandlerLib.MapManagement
+{
+  public class MapClassManager : Window, IComponentConnector
+  {
+    internal string NextPlugin = "";
+    private string MapFolder = string.Empty;
+    private string TheFolder = string.Empty;
+    private string InitMapFolder = string.Empty;
+    private string ClassName = string.Empty;
+    private string ClassNamespace = string.Empty;
+    private string MappingDataFolder = SystemValues.MappingPath;
+    private string DynamicMappingFolder = string.Empty;
+    private bool UseListFiles = false;
+    private MapReader mapReader;
+    private List<AddressRange> AddressRanges;
+    internal List<string> RequiredSections;
+    private bool InitFinished = false;
+    private bool IsMapSelected = false;
+    private bool IsMapRead = false;
+    private bool IsListAvail = false;
+    private bool IsVersionEnabled = false;
+    private static Action EmptyDelegate = (Action) (() => { });
+    internal Menu menuMain;
+    internal MenuItem MenuItemComponents;
+    internal GmmCorporateControl gmmCorporateControl1;
+    internal TextBox TextBoxMapPath;
+    internal TextBox TextBoxVersion;
+    internal TextBox TextBoxVersionHex;
+    internal TextBox TextBoxClassPath;
+    internal TextBox TextBoxLinkerType;
+    internal TextBox ComboBoxAvailableReader;
+    internal TextBox TextBoxReaderDescription;
+    internal Button ButtonReadMapFile;
+    internal Button ButtonCreateClass;
+    internal Button ButtonSelectMapFile;
+    internal CheckBox CheckBoxReadListFiles;
+    internal TextBox TextBoxStatus;
+    internal Button ButtonGenerateParameterFile;
+    private bool _contentLoaded;
+
+    public MapClassManager(
+      string classNamespace,
+      MapReader mapReader = null,
+      bool useListFiles = false,
+      List<AddressRange> addressRanges = null,
+      string pathToMapClasses = null,
+      List<string> requiredSections = null)
+    {
+      this.InitializeComponent();
+      UserInterfaceServices.AddDefaultMenu((MenuItem) this.menuMain.Items[0], new RoutedEventHandler(this.componentsClick));
+      this.mapReader = mapReader;
+      if (this.mapReader != null)
+        this.ClassName = this.mapReader.ReaderName;
+      this.ClassNamespace = classNamespace;
+      this.UseListFiles = useListFiles;
+      this.AddressRanges = addressRanges;
+      this.InitMapFolder = pathToMapClasses;
+      this.RequiredSections = requiredSections;
+      this.DataContext = (object) SynchronizationContext.Current;
+      this.InitFormular();
+    }
+
+    private string searchDirectory(string theFolder)
+    {
+      int num = 0;
+      while (num++ <= 5)
+      {
+        foreach (string directory in Directory.GetDirectories(theFolder))
+        {
+          if (Path.GetFileName(directory) == this.ClassNamespace)
+          {
+            theFolder = directory;
+            this.MapFolder = theFolder;
+            break;
+          }
+          if (Path.GetFileName(directory) == "MapClasses")
+          {
+            this.MapFolder = directory;
+            num = 99;
+            break;
+          }
+          this.MapFolder = (string) null;
+        }
+        if (string.IsNullOrEmpty(this.MapFolder))
+          theFolder = theFolder.Substring(0, theFolder.LastIndexOf('\\'));
+      }
+      return this.MapFolder;
+    }
+
+    private void InitFormular()
+    {
+      try
+      {
+        this.TextBoxMapPath.TextChanged += new TextChangedEventHandler(this.TextBoxMapPath_TextChanged);
+        this.ComboBoxAvailableReader.Text = this.ClassName;
+        this.TheFolder = Path.GetDirectoryName(new StackTrace(true).GetFrame(1).GetFileName());
+        if (!string.IsNullOrEmpty(this.InitMapFolder))
+          this.TheFolder = this.InitMapFolder;
+        this.MapFolder = this.searchDirectory(this.TheFolder);
+      }
+      catch (Exception ex)
+      {
+        throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAP_PATH_EMPTY, "MapClassManager Exception!!!", new Exception("Error occurred in class: MapClassManager\n, Switch to DEBUG mode in Visual Studio and try compile the code again :)", ex));
+      }
+      if (this.MapFolder == null)
+      {
+        int num = (int) MessageBox.Show("Map class folder not found", "Find folder error");
+        this.MapFolder = "";
+      }
+      else
+      {
+        this.SetValuesToDefault();
+        this.InitFinished = true;
+        this.SetMapClassPath();
+        this.CheckStatus();
+      }
+    }
+
+    private void componentsClick(object sender, RoutedEventArgs e)
+    {
+      this.NextPlugin = ((HeaderedItemsControl) sender).Header.ToString();
+      this.Close();
+    }
+
+    private void CheckStatus()
+    {
+      if (!this.IsMapSelected)
+        this.IsMapRead = false;
+      this.CheckBoxReadListFiles.IsEnabled = false;
+      this.CheckBoxReadListFiles.IsChecked = new bool?(this.UseListFiles);
+      this.ButtonCreateClass.IsEnabled = this.IsMapRead;
+      this.ButtonReadMapFile.IsEnabled = this.IsMapSelected;
+      this.TextBoxVersionHex.IsEnabled = this.IsVersionEnabled;
+      this.UpdateLayout();
+    }
+
+    private void SetValuesToDefault()
+    {
+      this.TextBoxMapPath.Text = string.Empty;
+      this.TextBoxVersionHex.Text = "00000000";
+      this.SetStatusString("");
+    }
+
+    private void SetMapClassPath()
+    {
+      if (!this.InitFinished)
+        return;
+      this.ClassName = "MapDefClass" + this.TextBoxVersionHex.Text.PadLeft(8, '0');
+      this.TextBoxClassPath.Text = Path.Combine(this.MapFolder, this.ClassName + ".cs");
+      this.DynamicMappingFolder = Path.Combine(this.MappingDataFolder, this.ClassName + ".cs");
+    }
+
+    private void ButtonSelectMapFile_Click(object sender, RoutedEventArgs e)
+    {
+      try
+      {
+        this.SetValuesToDefault();
+        OpenFileDialog openFileDialog = new OpenFileDialog();
+        openFileDialog.Filter = "map files (*.map)|*.map|All files (*.*)|*.*";
+        openFileDialog.FilterIndex = 1;
+        openFileDialog.CheckFileExists = true;
+        string str = PlugInLoader.GmmConfiguration.GetValue(nameof (MapClassManager), "OpenMapPath");
+        if (!string.IsNullOrEmpty(str))
+          openFileDialog.InitialDirectory = str;
+        else
+          openFileDialog.RestoreDirectory = true;
+        if (!openFileDialog.ShowDialog().Value)
+          return;
+        string directoryName = Path.GetDirectoryName(Path.GetFullPath(openFileDialog.FileName));
+        PlugInLoader.GmmConfiguration.SetOrUpdateValue(nameof (MapClassManager), "OpenMapPath", directoryName);
+        this.TextBoxMapPath.Text = openFileDialog.FileName;
+        this.TextBoxLinkerType.Text = string.Empty;
+        string Linker = string.Empty;
+        if (this.mapReader != null && this.mapReader.ReaderName.Contains("S3"))
+          return;
+        this.mapReader = MapReader.GetReaderForMapFile(this.TextBoxMapPath.Text, out Linker);
+        this.ClassName = this.mapReader.ReaderName;
+        this.TextBoxLinkerType.Text = Linker;
+        this.ComboBoxAvailableReader.Text = this.ClassName;
+        this.SetMapClassPath();
+      }
+      catch (Exception ex)
+      {
+        int num = (int) MessageBox.Show(ex.Message, "Reader Error");
+      }
+    }
+
+    private async void ButtonReadMapFile_Click(object sender, RoutedEventArgs e)
+    {
+      int num1;
+      if (num1 == 0 || !string.IsNullOrEmpty(this.TextBoxMapPath.Text))
+      {
+        try
+        {
+          this.TextBoxStatus.Text = " ... start reading map file ... ";
+          string Path = this.TextBoxMapPath.Text.Trim();
+          this.TextBoxLinkerType.Text = string.Empty;
+          this.InvalidateVisual();
+          this.mapReader.AddressRanges = this.AddressRanges;
+          await Task.Run((Action) (() => this.mapReader.ReadMap(Path, this)));
+          bool? isChecked = this.CheckBoxReadListFiles.IsChecked;
+          bool flag = true;
+          if (!(isChecked.GetValueOrDefault() == flag & isChecked.HasValue))
+            ;
+          if (!string.IsNullOrEmpty(this.mapReader.FirmwareVersion))
+            this.TextBoxVersionHex.Text = Convert.ToUInt32(this.mapReader.FirmwareVersion).ToString("X4");
+          else
+            this.IsVersionEnabled = true;
+          if (!string.IsNullOrEmpty(this.mapReader.LinkerTypeAndVersion))
+            this.TextBoxLinkerType.Text = this.mapReader.LinkerTypeAndVersion;
+          this.IsMapRead = true;
+          this.CheckStatus();
+          this.SetStatusString(" ... DONE ... ");
+        }
+        catch (Exception ex)
+        {
+          this.SetStatusString(" ... WRONG FORMAT OF MAP FILE ...");
+          int num2 = (int) MessageBox.Show("An Error occoured:\n" + ex.ToString(), "Reader Error ...");
+        }
+      }
+      else
+      {
+        int num3 = (int) MessageBox.Show("Please, select a map file first.", "Error");
+      }
+    }
+
+    private void DoWorkReadingList() => this.mapReader.ReadLists(this.TextBoxMapPath.Text, this);
+
+    public void SetStatusString(string status)
+    {
+      this.TextBoxStatus.Dispatcher.BeginInvoke((Delegate) (() => this.TextBoxStatus.Text = status));
+      this.TextBoxStatus.Dispatcher.Invoke(DispatcherPriority.Render, (Delegate) MapClassManager.EmptyDelegate);
+      this.InvalidateVisual();
+    }
+
+    private void ButtonCreateClass_Click(object sender, RoutedEventArgs e)
+    {
+      if (File.Exists(this.TextBoxClassPath.Text) && MessageBox.Show("The file exists! Overwrite?", "File overwrite", MessageBoxButton.OKCancel) != MessageBoxResult.OK)
+        return;
+      try
+      {
+        this.mapReader.GenerateByteArray(this.ClassNamespace, this.ClassName, this.TextBoxClassPath.Text);
+        this.mapReader.GenerateByteArray(this.ClassNamespace, this.ClassName, this.DynamicMappingFolder);
+        int num = (int) MessageBox.Show("Class file saved");
+      }
+      catch (Exception ex)
+      {
+        int num = (int) MessageBox.Show(ex.Message);
+      }
+    }
+
+    private void TextBoxMapPath_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      this.IsMapSelected = File.Exists(this.TextBoxMapPath.Text);
+      this.CheckStatus();
+    }
+
+    private void TextBoxVersionHex_TextChanged(object sender, TextChangedEventArgs e)
+    {
+      uint result;
+      if (!uint.TryParse(this.TextBoxVersionHex.Text, NumberStyles.HexNumber, (IFormatProvider) null, out result))
+        return;
+      this.TextBoxVersion.Text = new FirmwareVersion(result).ToString();
+      this.SetMapClassPath();
+    }
+
+    private void ComboBoxAvailableReader_SelectionChanged(object sender, TextChangedEventArgs e)
+    {
+      this.TextBoxReaderDescription.Text = this.mapReader.ReaderDescription;
+      this.IsListAvail = this.UseListFiles;
+      this.IsVersionEnabled = this.mapReader.ReaderName.Equals("MapReaderS3");
+      this.IsVersionEnabled = this.TextBoxVersion.Text.Equals("00000000");
+      this.CheckStatus();
+    }
+
+    private void ButtonGenerateParameterFile_Click(object sender, RoutedEventArgs e)
+    {
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    public void InitializeComponent()
+    {
+      if (this._contentLoaded)
+        return;
+      this._contentLoaded = true;
+      Application.LoadComponent((object) this, new Uri("/HandlerLib;component/hardwaremanagement/mapclassmanager.xaml", UriKind.Relative));
+    }
+
+    [DebuggerNonUserCode]
+    [GeneratedCode("PresentationBuildTasks", "4.0.0.0")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    void IComponentConnector.Connect(int connectionId, object target)
+    {
+      switch (connectionId)
+      {
+        case 1:
+          this.menuMain = (Menu) target;
+          break;
+        case 2:
+          this.MenuItemComponents = (MenuItem) target;
+          break;
+        case 3:
+          this.gmmCorporateControl1 = (GmmCorporateControl) target;
+          break;
+        case 4:
+          this.TextBoxMapPath = (TextBox) target;
+          break;
+        case 5:
+          this.TextBoxVersion = (TextBox) target;
+          break;
+        case 6:
+          this.TextBoxVersionHex = (TextBox) target;
+          this.TextBoxVersionHex.TextChanged += new TextChangedEventHandler(this.TextBoxVersionHex_TextChanged);
+          break;
+        case 7:
+          this.TextBoxClassPath = (TextBox) target;
+          break;
+        case 8:
+          this.TextBoxLinkerType = (TextBox) target;
+          break;
+        case 9:
+          this.ComboBoxAvailableReader = (TextBox) target;
+          this.ComboBoxAvailableReader.TextChanged += new TextChangedEventHandler(this.ComboBoxAvailableReader_SelectionChanged);
+          break;
+        case 10:
+          this.TextBoxReaderDescription = (TextBox) target;
+          break;
+        case 11:
+          this.ButtonReadMapFile = (Button) target;
+          this.ButtonReadMapFile.Click += new RoutedEventHandler(this.ButtonReadMapFile_Click);
+          break;
+        case 12:
+          this.ButtonCreateClass = (Button) target;
+          this.ButtonCreateClass.Click += new RoutedEventHandler(this.ButtonCreateClass_Click);
+          break;
+        case 13:
+          this.ButtonSelectMapFile = (Button) target;
+          this.ButtonSelectMapFile.Click += new RoutedEventHandler(this.ButtonSelectMapFile_Click);
+          break;
+        case 14:
+          this.CheckBoxReadListFiles = (CheckBox) target;
+          break;
+        case 15:
+          this.TextBoxStatus = (TextBox) target;
+          break;
+        case 16:
+          this.ButtonGenerateParameterFile = (Button) target;
+          this.ButtonGenerateParameterFile.Click += new RoutedEventHandler(this.ButtonGenerateParameterFile_Click);
+          break;
+        default:
+          this._contentLoaded = true;
+          break;
+      }
+    }
+  }
+}
+
+
+--- MapDefClassBase.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: HandlerLib.MapManagement.MapDefClassBase
+// Assembly: HandlerLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 32680C26-DD6F-4028-82D3-7440714FE33F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll
+
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using ZENNER.CommonLibrary;
+
+#nullable disable
+namespace HandlerLib.MapManagement
+{
+  public abstract class MapDefClassBase
+  {
+    public SortedList<string, Parameter32bit> MapVars = (SortedList<string, Parameter32bit>) null;
+
+    public abstract byte[] FullByteList { get; }
+
+    public abstract string[] ParameterList { get; }
+
+    public abstract string[] TypList { get; }
+
+    public abstract string[] SectionList { get; }
+
+    public abstract uint[] SectionAddress { get; }
+
+    public abstract uint[] SectionSize { get; }
+
+    public AddressRange GetSectionRanges(string sectionName)
+    {
+      for (int index = 0; index < this.SectionList.Length; ++index)
+      {
+        if (sectionName == this.SectionList[index].Trim())
+          return new AddressRange(this.SectionAddress[index], this.SectionSize[index]);
+      }
+      return (AddressRange) null;
+    }
+
+    public SortedList<string, AddressRange> GetAllSectionRanges()
+    {
+      SortedList<string, AddressRange> allSectionRanges = new SortedList<string, AddressRange>();
+      for (int index = 0; index < this.SectionList.Length; ++index)
+      {
+        string section = this.SectionList[index];
+        uint startAddress = this.SectionAddress[index];
+        uint size = this.SectionSize[index];
+        allSectionRanges.Add(section, new AddressRange(startAddress, size));
+      }
+      return allSectionRanges;
+    }
+
+    public AddressRange GetUsedAddressesForBaseAddressRange(AddressRange adrRange)
+    {
+      uint[] numArray = new uint[2];
+      for (int index = 0; index < this.SectionList.Length; ++index)
+      {
+        string section = this.SectionList[index];
+        uint num1 = this.SectionAddress[index];
+        uint num2 = this.SectionSize[index];
+        if (num1 >= adrRange.StartAddress && num1 <= adrRange.EndAddress)
+        {
+          numArray[0] = num1 >= numArray[0] || numArray[0] <= 0U ? (numArray[0] == 0U ? num1 : numArray[0]) : num1;
+          numArray[1] += numArray[1] + num2 > adrRange.ByteSize ? adrRange.ByteSize : num2;
+        }
+      }
+      return new AddressRange(numArray[0], numArray[1]);
+    }
+
+    public AddressRange GetAddressRangeOfParameters(SortedList<string, Parameter32bit> parameterList)
+    {
+      Parameter32bit parameter32bit1 = (Parameter32bit) null;
+      Parameter32bit parameter32bit2 = (Parameter32bit) null;
+      foreach (Parameter32bit parameter32bit3 in (IEnumerable<Parameter32bit>) parameterList.Values)
+      {
+        if (parameter32bit1 == null)
+        {
+          parameter32bit1 = parameter32bit3;
+          parameter32bit2 = parameter32bit3;
+        }
+        else if (parameter32bit3.Address > parameter32bit2.Address)
+          parameter32bit2 = parameter32bit3;
+        else if (parameter32bit3.Address < parameter32bit1.Address)
+          parameter32bit1 = parameter32bit3;
+      }
+      return new AddressRange(parameter32bit1.Address, parameter32bit2.Address - parameter32bit1.Address + parameter32bit2.Size);
+    }
+
+    public AddressRange GetAddressRangeBetweenParameters(
+      string parameter1,
+      string parameter2,
+      SortedList<string, Parameter32bit> parameterList)
+    {
+      if (parameter1 == null || parameter2 == null || parameter1 == parameter2)
+        throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAP_ILLEGAL_PARAMETER, "illegal parameters");
+      Parameter32bit parameter32bit1 = (Parameter32bit) null;
+      Parameter32bit parameter32bit2 = (Parameter32bit) null;
+      foreach (Parameter32bit parameter32bit3 in (IEnumerable<Parameter32bit>) parameterList.Values)
+      {
+        if (parameter32bit3.Name == parameter1)
+          parameter32bit1 = parameter32bit3;
+        else if (parameter32bit3.Name == parameter2)
+          parameter32bit2 = parameter32bit3;
+        if (parameter32bit1 != null && parameter32bit2 != null)
+        {
+          AddressRange betweenParameters;
+          if (parameter32bit1.Address < parameter32bit2.Address)
+          {
+            betweenParameters = new AddressRange(parameter32bit1.Address, parameter32bit2.Address - parameter32bit1.Address + parameter32bit2.Size);
+          }
+          else
+          {
+            if (parameter32bit1.Address <= parameter32bit2.Address)
+              throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAP_PARAMETER_ADDRESS_ERROR, "Parameters have same address: " + parameter1 + " and " + parameter2);
+            betweenParameters = new AddressRange(parameter32bit2.Address, parameter32bit1.Address - parameter32bit2.Address + parameter32bit1.Size);
+          }
+          return betweenParameters;
+        }
+      }
+      throw new MapExceptionClass("Parameters not found: " + parameter1 + " and " + parameter2);
+    }
+
+    public AddressRange GetAddressRangeOfDefinedParameters(string[] parameterNames)
+    {
+      if (parameterNames == null)
+        throw new Exception("illegal parameters");
+      uint startAddress = uint.MaxValue;
+      uint num = 0;
+      SortedList<string, Parameter32bit> allParametersList = this.GetAllParametersList();
+      foreach (string parameterName in parameterNames)
+      {
+        int index = allParametersList.IndexOfKey(parameterName);
+        if (index >= 0)
+        {
+          Parameter32bit parameter32bit = allParametersList.Values[index];
+          if (parameter32bit.Size > 0U)
+          {
+            if (parameter32bit.Address < startAddress)
+              startAddress = parameter32bit.Address;
+            if (parameter32bit.EndAddress > num)
+              num = parameter32bit.EndAddress;
+          }
+        }
+      }
+      return startAddress >= num ? new AddressRange(startAddress, 0U) : new AddressRange(startAddress, (uint) ((int) num - (int) startAddress + 1));
+    }
+
+    public List<AddressRange> GetAddressRangeesOfDefinedParameters(
+      string[] parameterNames,
+      uint splitSize)
+    {
+      if (parameterNames == null)
+        throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAP_ILLEGAL_PARAMETER, "illegal parameters");
+      SortedList<string, Parameter32bit> allParametersList = this.GetAllParametersList();
+      SortedList<uint, Parameter32bit> sortedList = new SortedList<uint, Parameter32bit>();
+      foreach (string parameterName in parameterNames)
+      {
+        int index = allParametersList.IndexOfKey(parameterName);
+        if (index >= 0)
+        {
+          Parameter32bit parameter32bit = allParametersList.Values[index];
+          sortedList.Add(parameter32bit.Address, parameter32bit);
+        }
+      }
+      List<AddressRange> definedParameters = new List<AddressRange>();
+      AddressRange addressRange = (AddressRange) null;
+      foreach (Parameter32bit parameter32bit in (IEnumerable<Parameter32bit>) sortedList.Values)
+      {
+        if (addressRange == null)
+          addressRange = new AddressRange(parameter32bit.Address, parameter32bit.Size);
+        else if (parameter32bit.Address > addressRange.EndAddress + splitSize)
+        {
+          definedParameters.Add(addressRange);
+          addressRange = new AddressRange(parameter32bit.Address, parameter32bit.Size);
+        }
+        else
+          addressRange.EndAddress = parameter32bit.EndAddress;
+      }
+      if (addressRange != null)
+        definedParameters.Add(addressRange);
+      return definedParameters;
+    }
+
+    public SortedList<string, Parameter32bit> GetUsedParametersForAddressRoom(
+      AddressRange adrRange,
+      SortedList<string, Parameter32bit> allparams)
+    {
+      SortedList<string, Parameter32bit> parametersForAddressRoom = new SortedList<string, Parameter32bit>();
+      foreach (Parameter32bit parameter32bit in (IEnumerable<Parameter32bit>) allparams.Values)
+      {
+        if (parameter32bit.Address >= adrRange.StartAddress && parameter32bit.Address <= adrRange.EndAddress)
+          parametersForAddressRoom.Add(parameter32bit.Name, parameter32bit);
+      }
+      return parametersForAddressRoom;
+    }
+
+    public SortedList<string, Parameter32bit> GetAllParametersList()
+    {
+      if (this.MapVars == null)
+      {
+        this.MapVars = new SortedList<string, Parameter32bit>();
+        int readIndex = 0;
+        if (LoadDataFromMapClass.GetByteForced(this.FullByteList, ref readIndex) > (byte) 0)
+          throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAP_CLASS_ILLEGAL_FORMAT, (Exception) new FormatException("Illegal MapDef class format"));
+        string str = "";
+        while (readIndex < this.FullByteList.Length)
+        {
+          try
+          {
+            string stringForced = LoadDataFromMapClass.GetStringForced(this.FullByteList, ref readIndex);
+            str = stringForced;
+            uint uintForced1 = LoadDataFromMapClass.GetUIntForced(this.FullByteList, ref readIndex);
+            uint uintForced2 = LoadDataFromMapClass.GetUIntForced(this.FullByteList, ref readIndex);
+            string section = this.SectionList[(int) LoadDataFromMapClass.GetUShortForced(this.FullByteList, ref readIndex)];
+            string typ = this.TypList[(int) LoadDataFromMapClass.GetUShortForced(this.FullByteList, ref readIndex)];
+            Parameter32bit parameter32bit = new Parameter32bit(section, stringForced, uintForced1, uintForced2, typ);
+            this.MapVars.Add(parameter32bit.Name, parameter32bit);
+          }
+          catch (Exception ex)
+          {
+            throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAP_CLASS_ILLEGAL_FORMAT, (Exception) new FormatException("Illegal parameter config class. Error near parameter:" + str + Environment.NewLine + ex.Message));
+          }
+        }
+      }
+      return this.MapVars;
+    }
+
+    public List<AddressRange> GetUsedSubAddressRanges(
+      AddressRange blockAddressRange,
+      int splitSize,
+      string[] notUsedParameters = null)
+    {
+      SortedList<string, Parameter32bit> allParametersList = this.GetAllParametersList();
+      List<Parameter32bit> parameter32bitList = new List<Parameter32bit>();
+      foreach (KeyValuePair<string, Parameter32bit> keyValuePair in allParametersList)
+      {
+        if (notUsedParameters == null || !((IEnumerable<string>) notUsedParameters).Contains<string>(keyValuePair.Key))
+          parameter32bitList.Add(keyValuePair.Value);
+      }
+      SortedList<uint, AddressRange> sortedList = new SortedList<uint, AddressRange>();
+      foreach (Parameter32bit parameter32bit in parameter32bitList)
+      {
+        if (parameter32bit.Address <= blockAddressRange.EndAddress && parameter32bit.Address >= blockAddressRange.StartAddress)
+        {
+          if (sortedList.Count == 0)
+          {
+            AddressRange addressRange = new AddressRange(parameter32bit.Address, parameter32bit.Size);
+            sortedList.Add(addressRange.StartAddress, addressRange);
+          }
+          else
+          {
+            bool flag = false;
+            for (int index = 0; index < sortedList.Count; ++index)
+            {
+              if ((long) sortedList.Values[index].StartAddress - (long) splitSize < (long) parameter32bit.EndAddress && (long) sortedList.Values[index].EndAddress + (long) splitSize > (long) parameter32bit.Address)
+              {
+                if (parameter32bit.Address < sortedList.Values[index].StartAddress)
+                  sortedList.Values[index].SetStartAddressHoldEndAddress(parameter32bit.Address);
+                if (parameter32bit.EndAddress > sortedList.Values[index].EndAddress)
+                  sortedList.Values[index].EndAddress = parameter32bit.EndAddress;
+                flag = true;
+                break;
+              }
+            }
+            if (!flag)
+            {
+              AddressRange addressRange = new AddressRange(parameter32bit.Address, parameter32bit.Size);
+              sortedList.Add(addressRange.StartAddress, addressRange);
+            }
+          }
+        }
+      }
+      int index1 = 0;
+      while (index1 < sortedList.Count - 1)
+      {
+        if (sortedList.Values[index1 + 1].StartAddress < sortedList.Values[index1].EndAddress || (long) (sortedList.Values[index1 + 1].StartAddress - sortedList.Values[index1].EndAddress) < (long) splitSize)
+        {
+          if (sortedList.Values[index1 + 1].EndAddress > sortedList.Values[index1].EndAddress)
+            sortedList.Values[index1].EndAddress = sortedList.Values[index1 + 1].EndAddress;
+          sortedList.RemoveAt(index1 + 1);
+        }
+        else
+          ++index1;
+      }
+      return sortedList.Values.ToList<AddressRange>();
+    }
+
+    public List<AddressRangeInfo> GetUsedSubRangesInfos(List<AddressRangeInfo> ranges)
+    {
+      SortedList<string, Parameter32bit> allParametersList = this.GetAllParametersList();
+      List<AddressRangeInfo> usedSubRangesInfos = new List<AddressRangeInfo>();
+      foreach (AddressRangeInfo range in ranges)
+      {
+        usedSubRangesInfos.Add(range);
+        List<AddressRangeInfo> collection = new List<AddressRangeInfo>();
+        foreach (Parameter32bit parameter32bit in (IEnumerable<Parameter32bit>) allParametersList.Values)
+        {
+          if (range.IsInAdressRange(parameter32bit.Address))
+            collection.Add(new AddressRangeInfo("   " + parameter32bit.Name, parameter32bit.AddressRange));
+        }
+        collection.Sort();
+        usedSubRangesInfos.AddRange((IEnumerable<AddressRangeInfo>) collection);
+      }
+      return usedSubRangesInfos;
+    }
+
+    public List<Parameter32bit> GetAllParameterForSection(string sectionName)
+    {
+      return this.GetAllParameterForSection(this.GetAllParametersList(), sectionName);
+    }
+
+    public List<Parameter32bit> GetAllParameterForSection(
+      SortedList<string, Parameter32bit> allParameters,
+      string sectionName)
+    {
+      if (string.IsNullOrEmpty(sectionName))
+        throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAP_CLASS_UNKNOWN_SECTIONNAME, (Exception) new ArgumentException("Argument for GetAllParameterForSection is NULL or EMPTY"));
+      List<Parameter32bit> parameter32bitList = new List<Parameter32bit>();
+      return allParameters.Values.Where<Parameter32bit>((Func<Parameter32bit, bool>) (x => x.Section.ToUpper().Equals(sectionName.ToUpper()))).ToList<Parameter32bit>();
+    }
+
+    public SortedList<string, Parameter32bit> GetUsedParametersList(string[] usedParameterNames)
+    {
+      return this.GetUsedParametersList(this.GetAllParametersList(), usedParameterNames);
+    }
+
+    public SortedList<string, Parameter32bit> GetUsedParametersList(
+      SortedList<string, Parameter32bit> allParameters,
+      string[] usedParameterNames)
+    {
+      SortedList<string, Parameter32bit> usedParametersList = new SortedList<string, Parameter32bit>();
+      StringBuilder stringBuilder = new StringBuilder();
+      foreach (string usedParameterName in usedParameterNames)
+      {
+        int index = allParameters.IndexOfKey(usedParameterName);
+        if (index >= 0)
+          usedParametersList.Add(usedParameterName, allParameters.Values[index]);
+        else
+          stringBuilder.AppendLine(usedParameterName);
+      }
+      return usedParametersList;
+    }
+
+    public static MapDefClassBase GetMapObjectFromVersion(Assembly handlerAssembly, uint Version)
+    {
+      MapDefClassBase objectFromVersion = (MapDefClassBase) null;
+      string str = "MapDefClass";
+      if (Version > 0U)
+      {
+        foreach (Type type in handlerAssembly.GetTypes())
+        {
+          if (type.Name.StartsWith(str))
+          {
+            string s = type.Name.Substring(str.Length);
+            if (!string.IsNullOrEmpty(s))
+            {
+              uint result;
+              uint.TryParse(s, NumberStyles.HexNumber, (IFormatProvider) null, out result);
+              if ((int) result == (int) Version)
+              {
+                objectFromVersion = (MapDefClassBase) Activator.CreateInstance(type);
+                break;
+              }
+            }
+          }
+        }
+      }
+      if (objectFromVersion == null)
+      {
+        objectFromVersion = MapDefClassBase.GetMapObjectDynamicFromVersion(handlerAssembly, Version);
+        if (objectFromVersion == null)
+          throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAPFILE_NOT_FOUND, "Can not find MapFile for " + new FirmwareVersion(Version).ToString() + " (0x" + Version.ToString("X8") + ") in the actual project!");
+      }
+      try
+      {
+        objectFromVersion.GetAllParametersList();
+        FirmwareParameterManager parameterManager = new FirmwareParameterManager(handlerAssembly);
+        List<FirmwareParameterInfo> firmwareParameterInfoList = FirmwareParameterManager.LoadParameterInfos();
+        if (firmwareParameterInfoList == null)
+          return objectFromVersion;
+        foreach (FirmwareParameterInfo firmwareParameterInfo in firmwareParameterInfoList)
+        {
+          string parameterName = firmwareParameterInfo.ParameterName;
+          string parameterTypeSaved = firmwareParameterInfo.ParameterType.ParameterTypeSaved;
+          int index = objectFromVersion.MapVars.IndexOfKey(parameterName);
+          if (index >= 0)
+          {
+            Type realType = MapReader.ConvertToRealType(parameterTypeSaved);
+            if (realType != (Type) null)
+              Parameter32bit.SetType(realType, objectFromVersion.MapVars.Values[index]);
+          }
+        }
+      }
+      catch
+      {
+      }
+      return objectFromVersion;
+    }
+
+    public static MapDefClassBase GetMapObjectDynamicFromVersion(
+      Assembly handlerAssembly,
+      uint Version)
+    {
+      MapDefClassBase mapDefClassBase = (MapDefClassBase) null;
+      string str = "MapDefClass";
+      if (Version > 0U)
+      {
+        string mapName = str + Version.ToString("x8") + ".cs";
+        MapDefClassDynamic mapDefClassDynamic = new MapDefClassDynamic();
+        mapDefClassDynamic.readMapDefinitionFromDynamicFile(mapName, handlerAssembly.ManifestModule.Name);
+        if (mapDefClassDynamic.FullByteList.Length != 0)
+          mapDefClassBase = (MapDefClassBase) mapDefClassDynamic;
+      }
+      return mapDefClassBase != null ? mapDefClassBase : throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAPFILE_NOT_FOUND, "Can not find Mapfile for this firmware(0x" + Version.ToString("X8") + "). (DynamicMapFile)");
+    }
+
+    public static MapDefClassBase GetCompatibleMapObjectFromVersion(
+      Assembly handlerAssembly,
+      uint Version)
+    {
+      MapDefClassBase mapDefClassBase = (MapDefClassBase) null;
+      Type type1 = (Type) null;
+      uint num = 0;
+      string str = "MapDefClass";
+      foreach (Type type2 in handlerAssembly.GetTypes())
+      {
+        if (type2.Name.StartsWith(str))
+        {
+          string s = type2.Name.Substring(str.Length);
+          uint result;
+          if (!string.IsNullOrEmpty(s) && uint.TryParse(s, NumberStyles.HexNumber, (IFormatProvider) null, out result))
+          {
+            if ((int) result == (int) Version)
+            {
+              mapDefClassBase = (MapDefClassBase) Activator.CreateInstance(type2);
+              break;
+            }
+            if (((int) result & -61441) == ((int) Version & -61441) && (type1 == (Type) null || num < result))
+            {
+              num = result;
+              type1 = type2;
+            }
+          }
+        }
+      }
+      if (mapDefClassBase == null && type1 != (Type) null)
+        mapDefClassBase = (MapDefClassBase) Activator.CreateInstance(type1);
+      return mapDefClassBase != null ? mapDefClassBase : throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAPFILE_FIRMWARE_NOT_SUPPORTED, "The firmware " + new FirmwareVersion(Version).ToString() + " (0x" + Version.ToString("x8") + ") is not supported! No MAP file.");
+    }
+
+    public Parameter32bit GetParameter(string parameterName)
+    {
+      if (string.IsNullOrEmpty(parameterName))
+        throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAP_PARAMETER_IS_NULL, "GetParameter has NULL argument.", (Exception) new ArgumentNullException(nameof (parameterName)));
+      SortedList<string, Parameter32bit> allParametersList = this.GetAllParametersList();
+      if (allParametersList == null)
+        throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAP_PARAMETER_LIST_IS_NULL, "The list of parameters is null!", (Exception) new ArgumentNullException(nameof (parameterName)));
+      return allParametersList.ContainsKey(parameterName) ? allParametersList[parameterName] : throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAP_PARAMETER_NOT_FOUND, "Key(" + parameterName + ") does not exists in list of parameters!", (Exception) new KeyNotFoundException("Key(" + parameterName + ") does not exists in list of parameters!"));
+    }
+  }
+}
+
+
+--- MapDefClassDynamic.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: HandlerLib.MapManagement.MapDefClassDynamic
+// Assembly: HandlerLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 32680C26-DD6F-4028-82D3-7440714FE33F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll
+
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace HandlerLib.MapManagement
+{
+  public class MapDefClassDynamic : MapDefClassBase
+  {
+    public string MapName = string.Empty;
+    private bool fullByteListSection = false;
+    private string[] parameterList;
+    private string[] typList;
+    private string[] sectionList;
+    private uint[] sectionAddress;
+    private uint[] sectionSize;
+    private byte[] fullByteList;
+
+    public override byte[] FullByteList => this.fullByteList;
+
+    public override string[] ParameterList => this.parameterList;
+
+    public override string[] TypList => this.typList;
+
+    public override string[] SectionList => this.sectionList;
+
+    public override uint[] SectionAddress => this.sectionAddress;
+
+    public override uint[] SectionSize => this.sectionSize;
+
+    public void readMapDefinitionFromDynamicFile(string mapName, string callingModuleName)
+    {
+      this.MapName = mapName;
+      this.fullByteListSection = false;
+      callingModuleName = callingModuleName.Substring(0, callingModuleName.Length - 4);
+      string appPath = SystemValues.AppPath;
+      string path1 = Path.Combine(appPath, "MapClasses", mapName);
+      string path2 = Path.Combine(appPath, "Basics", callingModuleName, "MapClasses", mapName);
+      string path3 = Path.Combine(appPath, "Handlers", callingModuleName, "MapClasses", mapName);
+      string str = Path.Combine(SystemValues.MappingPath, mapName);
+      if (File.Exists(path3))
+        this.parseMapFile(new List<string>((IEnumerable<string>) File.ReadAllLines(path3)));
+      else if (File.Exists(path2))
+        this.parseMapFile(new List<string>((IEnumerable<string>) File.ReadAllLines(path2)));
+      else if (File.Exists(path1))
+      {
+        this.parseMapFile(new List<string>((IEnumerable<string>) File.ReadAllLines(path1)));
+      }
+      else
+      {
+        if (!File.Exists(str))
+          throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAPFILE_NOT_FOUND, (Exception) new FileNotFoundException("Dynamic MapFile could not be found in path!", str, (Exception) null));
+        this.parseMapFile(new List<string>((IEnumerable<string>) File.ReadAllLines(str)));
+      }
+    }
+
+    public void parseMapFile(List<string> mapFile)
+    {
+      List<byte> byteList = new List<byte>();
+      foreach (string str1 in mapFile)
+      {
+        if (!this.fullByteListSection)
+        {
+          if (str1.Contains("parameterList") && !str1.Contains("public override"))
+          {
+            int startIndex = str1.IndexOf("{") + 1;
+            int length = str1.Length - startIndex - 3;
+            string str2 = str1.Substring(startIndex, length).Replace('"', ' ');
+            List<string> stringList = new List<string>();
+            stringList.AddRange((IEnumerable<string>) str2.Split(','));
+            stringList.RemoveAll((Predicate<string>) (str => string.IsNullOrEmpty(str)));
+            this.parameterList = new string[stringList.Count];
+            this.parameterList = stringList.ToArray();
+          }
+          if (str1.Contains("typList") && !str1.Contains("public override"))
+          {
+            int startIndex = str1.IndexOf("{") + 1;
+            int length = str1.Length - startIndex - 3;
+            string str3 = str1.Substring(startIndex, length).Replace('"', ' ');
+            List<string> stringList = new List<string>();
+            stringList.AddRange((IEnumerable<string>) str3.Split(','));
+            stringList.RemoveAll((Predicate<string>) (str => string.IsNullOrEmpty(str)));
+            this.typList = new string[stringList.Count];
+            this.typList = stringList.ToArray();
+          }
+          if (str1.Contains("sectionList") && !str1.Contains("public override"))
+          {
+            int startIndex = str1.IndexOf("{") + 1;
+            int length = str1.Length - startIndex - 3;
+            string str4 = str1.Substring(startIndex, length).Replace('"', ' ');
+            List<string> stringList = new List<string>();
+            stringList.AddRange((IEnumerable<string>) str4.Split(','));
+            stringList.RemoveAll((Predicate<string>) (str => string.IsNullOrEmpty(str)));
+            this.sectionList = new string[stringList.Count];
+            this.sectionList = stringList.ToArray();
+          }
+          if (str1.Contains("sectionAddress") && !str1.Contains("public override"))
+          {
+            int startIndex = str1.IndexOf("{") + 1;
+            int length = str1.Length - startIndex - 3;
+            string str5 = str1.Substring(startIndex, length).Replace("\"", "");
+            List<string> stringList = new List<string>();
+            stringList.AddRange((IEnumerable<string>) str5.Split(','));
+            stringList.RemoveAll((Predicate<string>) (str => string.IsNullOrEmpty(str)));
+            uint result = 0;
+            this.sectionAddress = new uint[stringList.Count];
+            for (int index = 0; index < stringList.Count; ++index)
+            {
+              if (!uint.TryParse(stringList[index].Trim().Substring(2), NumberStyles.HexNumber, (IFormatProvider) CultureInfo.CurrentCulture, out result))
+                throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAPFILE_NOT_READABLE, "Address parsing error while MAP reading...", new Exception("Address parsing error while MAP reading..."));
+              this.sectionAddress[index] = result;
+            }
+          }
+          if (str1.Contains("sectionSize") && !str1.Contains("public override"))
+          {
+            int startIndex = str1.IndexOf("{") + 1;
+            int length = str1.Length - startIndex - 3;
+            string str6 = str1.Substring(startIndex, length).Replace("\"", "");
+            List<string> stringList = new List<string>();
+            stringList.AddRange((IEnumerable<string>) str6.Split(','));
+            stringList.RemoveAll((Predicate<string>) (str => string.IsNullOrEmpty(str)));
+            uint result = 0;
+            this.sectionSize = new uint[stringList.Count];
+            for (int index = 0; index < stringList.Count; ++index)
+            {
+              if (!uint.TryParse(stringList[index].Trim().Substring(2), NumberStyles.HexNumber, (IFormatProvider) CultureInfo.CurrentCulture, out result))
+                throw new MapExceptionClass(MAP_EXCEPTION_HANDLE.MAPFILE_NOT_READABLE, new Exception("Sizes parsing error while MAP reading..."));
+              this.sectionSize[index] = result;
+            }
+          }
+        }
+        if (str1.Contains("fullByteList") && !str1.Contains("public override") || this.fullByteListSection)
+        {
+          string str7 = new string(str1.ToCharArray());
+          this.fullByteListSection = true;
+          if (str1.IndexOf("};") >= 0)
+          {
+            this.fullByteListSection = false;
+            this.fullByteList = new byte[byteList.Count];
+            this.fullByteList = byteList.ToArray();
+          }
+          else
+          {
+            string str8 = str7.Replace("byte[] fullByteList = {", "").Trim();
+            bool flag = false;
+            while (!flag)
+            {
+              int startIndex = str8.IndexOf("/*");
+              int count = str8.IndexOf("*/") + 2 - startIndex;
+              flag = startIndex < 0;
+              if (!flag)
+                str8 = str8.Remove(startIndex, count);
+            }
+            List<string> stringList = new List<string>();
+            stringList.AddRange((IEnumerable<string>) str8.Split(','));
+            stringList.RemoveAll((Predicate<string>) (str => string.IsNullOrEmpty(str)));
+            foreach (string str9 in stringList)
+            {
+              string s = str9.Replace("0x", "").Trim();
+              try
+              {
+                byte num = byte.Parse(s, NumberStyles.HexNumber);
+                byteList.Add(num);
+              }
+              catch (Exception ex)
+              {
+                throw ex;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+--- MapExceptionClass.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: HandlerLib.MapManagement.MapExceptionClass
+// Assembly: HandlerLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 32680C26-DD6F-4028-82D3-7440714FE33F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll
+
+using System;
+
+#nullable disable
+namespace HandlerLib.MapManagement
+{
+  [Serializable]
+  public class MapExceptionClass : Exception
+  {
+    private MAP_EXCEPTION_HANDLE localHandle;
+
+    public MapExceptionClass()
+    {
+    }
+
+    public MapExceptionClass(string message)
+      : base(message)
+    {
+    }
+
+    public MapExceptionClass(MAP_EXCEPTION_HANDLE handle, string message)
+      : base(message)
+    {
+      this.localHandle = handle;
+    }
+
+    public MapExceptionClass(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+
+    public MapExceptionClass(MAP_EXCEPTION_HANDLE handle, Exception innerException)
+      : base(handle.ToString(), innerException)
+    {
+      this.localHandle = handle;
+    }
+
+    public MapExceptionClass(MAP_EXCEPTION_HANDLE handle, string message, Exception innerException)
+      : base(message, innerException)
+    {
+      this.localHandle = handle;
+    }
+
+    public override string ToString() => base.ToString();
+  }
+}
+
+
+--- MapParameterInfo.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: HandlerLib.MapManagement.MapParameterInfo
+// Assembly: HandlerLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 32680C26-DD6F-4028-82D3-7440714FE33F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll
+
+#nullable disable
+namespace HandlerLib.MapManagement
+{
+  public class MapParameterInfo
+  {
+    public string FirmwareName { get; set; }
+
+    public uint MapAddress { get; set; }
+
+    public uint ByteSize { get; set; }
+
+    public string Section { get; set; }
+
+    public string Typ { get; set; }
+
+    public bool ShowInMAP { get; set; }
+
+    public MapParameterInfo Clone()
+    {
+      return new MapParameterInfo()
+      {
+        FirmwareName = this.FirmwareName,
+        MapAddress = this.MapAddress,
+        Section = this.Section,
+        ByteSize = this.ByteSize,
+        Typ = this.Typ,
+        ShowInMAP = this.ShowInMAP
+      };
+    }
+  }
+}
+
+
+--- MapReader.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: HandlerLib.MapManagement.MapReader
+// Assembly: HandlerLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 32680C26-DD6F-4028-82D3-7440714FE33F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
+using ZENNER.CommonLibrary;
+
+#nullable disable
+namespace HandlerLib.MapManagement
+{
+  public class MapReader
+  {
+    public string ReaderName;
+    public string ReaderDescription;
+    public const string DefaultSectionName = "UNKNOWN";
+    public const string DefaultTypName = "UNKNOWN";
+    public List<AddressRange> AddressRanges;
+    protected HashSet<string> ParametersToIgnore;
+    public SortedList<string, MapParameterInfo> FirmwareParameterList;
+    public SortedList<string, uint> FirmwareParameterListFull;
+    public SortedList<uint, string> AddressList;
+    public SortedList<string, MapSectionInfo> SectionList;
+    public SortedList<uint, MapSectionParameters> SectionParameterList;
+    public SortedList<string, ListFileParameter> ListFileParameterList;
+    public List<KeyValuePair<int, string>> InfoFileLinesList;
+    public string LinkerTypeAndVersion;
+    public string FirmwareVersion;
+    public string MapID;
+    public bool ReadListFiles;
+    protected int LineNumber;
+
+    public MapReader()
+    {
+      this.ReaderName = nameof (MapReader);
+      this.ReaderDescription = "This is the base class and should not be seen in the MapSeletor";
+      this.ParametersToIgnore = new HashSet<string>();
+      this.FirmwareParameterList = new SortedList<string, MapParameterInfo>();
+      this.FirmwareParameterListFull = new SortedList<string, uint>();
+      this.AddressList = new SortedList<uint, string>();
+      this.InfoFileLinesList = new List<KeyValuePair<int, string>>();
+      this.ListFileParameterList = new SortedList<string, ListFileParameter>();
+      this.SectionList = new SortedList<string, MapSectionInfo>();
+      this.SectionParameterList = new SortedList<uint, MapSectionParameters>();
+      this.AddressRanges = new List<AddressRange>();
+      this.LineNumber = 0;
+      this.LinkerTypeAndVersion = string.Empty;
+      this.FirmwareVersion = string.Empty;
+      this.MapID = string.Empty;
+      this.ReadListFiles = false;
+    }
+
+    public void Clear()
+    {
+      this.FirmwareParameterList.Clear();
+      this.FirmwareParameterListFull.Clear();
+      this.AddressList.Clear();
+      this.InfoFileLinesList.Clear();
+      this.ListFileParameterList.Clear();
+      this.SectionList.Clear();
+      this.SectionParameterList.Clear();
+      this.LineNumber = 0;
+      this.LinkerTypeAndVersion = string.Empty;
+      this.FirmwareVersion = string.Empty;
+      this.MapID = string.Empty;
+      this.ReadListFiles = false;
+    }
+
+    public virtual void ReadMap(string mapPath, MapClassManager mapClassMgr = null)
+    {
+      throw new NotImplementedException(nameof (ReadMap));
+    }
+
+    public virtual void GenerateByteArray(string classNameSpace, string className, string mapPath)
+    {
+      throw new NotImplementedException("generateMapFile");
+    }
+
+    public virtual void ReadLists(string mapPath, MapClassManager mapClassMgr = null)
+    {
+      throw new NotImplementedException(nameof (ReadLists));
+    }
+
+    public static MapReader GetReaderForMapFile(string mapFile, out string Linker)
+    {
+      MapReader readerForMapFile = (MapReader) null;
+      Linker = string.Empty;
+      using (StreamReader streamReader = new StreamReader(mapFile))
+      {
+        while (true)
+        {
+          string str = streamReader.ReadLine();
+          if (str != null)
+          {
+            if (str[0].Equals('#'))
+            {
+              if (Linker == string.Empty && str.ToUpper().IndexOf("LINKER") >= 0)
+              {
+                string input = str.Replace('#', ' ').Trim();
+                Linker = Regex.Replace(input, "\\s+", " ");
+                if (Linker.IndexOf("for ARM") > 0)
+                  break;
+              }
+            }
+            else
+              goto label_11;
+          }
+          else
+            goto label_11;
+        }
+        return (MapReader) new MapReaderARMv6();
+      }
+label_11:
+      return readerForMapFile;
+    }
+
+    protected void NewSection(uint StartAddress, uint BlockSize, string SectionName)
+    {
+      MapSectionInfo mapSectionInfo = new MapSectionInfo();
+      mapSectionInfo.SectionName = SectionName;
+      mapSectionInfo.StartAddress = StartAddress;
+      mapSectionInfo.BlockSize = BlockSize;
+      mapSectionInfo.EndAddress = (uint) ((int) StartAddress + (int) BlockSize - 1);
+      if (this.SectionList.ContainsKey(SectionName))
+        return;
+      this.SectionList.Add(SectionName, mapSectionInfo);
+    }
+
+    protected bool isSection(string sectionName)
+    {
+      foreach (string key in (IEnumerable<string>) this.SectionList.Keys)
+      {
+        if (key.Equals(sectionName))
+          return true;
+      }
+      return false;
+    }
+
+    protected void NewSectionParameter(uint StartAddress, uint Size, string SectionName)
+    {
+      MapSectionParameters sectionParameters = new MapSectionParameters();
+      sectionParameters.SectionName = SectionName;
+      sectionParameters.StartAddress = StartAddress;
+      sectionParameters.Size = Size;
+      if (this.SectionList.ContainsKey(SectionName))
+      {
+        if (this.SectionParameterList.ContainsKey(StartAddress))
+          return;
+        this.SectionParameterList.Add(StartAddress, sectionParameters);
+      }
+      else
+        this.AddInfo("Section is not in SectionList Name: " + SectionName);
+    }
+
+    protected string getSectionForAddress(uint startAdr)
+    {
+      foreach (MapSectionInfo mapSectionInfo in (IEnumerable<MapSectionInfo>) this.SectionList.Values)
+      {
+        if (startAdr >= mapSectionInfo.StartAddress && startAdr <= mapSectionInfo.EndAddress)
+          return mapSectionInfo.SectionName;
+      }
+      return string.Empty;
+    }
+
+    protected void NewVariable(
+      uint Address,
+      string Name,
+      uint BytesSize,
+      string SectionName = "UNKNOWN",
+      string TypName = "UNKNOWN",
+      bool ShowInMAP = true)
+    {
+      string empty = string.Empty;
+      if (!this.CheckIgnorParameter(Name))
+        return;
+      MapParameterInfo mapParameterInfo = new MapParameterInfo();
+      mapParameterInfo.FirmwareName = Name;
+      mapParameterInfo.MapAddress = Address;
+      mapParameterInfo.ByteSize = BytesSize;
+      mapParameterInfo.Section = SectionName;
+      mapParameterInfo.Typ = TypName;
+      mapParameterInfo.ShowInMAP = ShowInMAP;
+      if (!this.FirmwareParameterListFull.ContainsKey(Name))
+        this.FirmwareParameterListFull.Add(Name, Address);
+      if (!this.AddressList.ContainsKey(Address))
+        this.AddressList.Add(Address, Name);
+      else
+        this.AddInfo("Second use of address: 0x" + Address.ToString("x04") + " Name: " + Name);
+      if (!this.FirmwareParameterList.ContainsKey(Name))
+        this.FirmwareParameterList.Add(Name, mapParameterInfo.Clone());
+      else
+        this.AddInfo("; Second use of name: 0x" + Address.ToString("x04") + " Name: " + Name);
+      if (!string.IsNullOrEmpty(SectionName.Trim()))
+        return;
+      this.AddInfo("SectionName of address: 0x" + Address.ToString("x04") + " Name: " + Name + " is NOT specified !!!");
+    }
+
+    public static Type getDefaultTypeForSize(uint size)
+    {
+      switch (size)
+      {
+        case 1:
+          return typeof (byte);
+        case 2:
+          return typeof (ushort);
+        case 4:
+          return typeof (uint);
+        case 8:
+          return typeof (ulong);
+        default:
+          return (Type) null;
+      }
+    }
+
+    public static Type ConvertToRealType(string typeName)
+    {
+      string str = typeName;
+      Type realType;
+      if (str != null)
+      {
+        switch (str.Length)
+        {
+          case 3:
+            if (str == "int")
+              goto label_49;
+            else
+              goto label_53;
+          case 4:
+            switch (str[0])
+            {
+              case 'B':
+                if (str == "Byte")
+                  goto label_46;
+                else
+                  goto label_53;
+              case 'b':
+                if (str == "byte")
+                  goto label_46;
+                else
+                  goto label_53;
+              case 'u':
+                if (str == "uint")
+                  goto label_50;
+                else
+                  goto label_53;
+              default:
+                goto label_53;
+            }
+          case 5:
+            switch (str[0])
+            {
+              case 'F':
+                if (str == "Float")
+                  goto label_51;
+                else
+                  goto label_53;
+              case 'I':
+                switch (str)
+                {
+                  case "Int16":
+                    goto label_47;
+                  case "Int32":
+                    goto label_49;
+                  default:
+                    goto label_53;
+                }
+              case 'S':
+                if (str == "SByte")
+                  break;
+                goto label_53;
+              case 'f':
+                if (str == "float")
+                  goto label_51;
+                else
+                  goto label_53;
+              case 'i':
+                if (str == "int_t")
+                  goto label_49;
+                else
+                  goto label_53;
+              case 's':
+                switch (str)
+                {
+                  case "sbyte":
+                    break;
+                  case "short":
+                    goto label_47;
+                  default:
+                    goto label_53;
+                }
+                break;
+              default:
+                goto label_53;
+            }
+            break;
+          case 6:
+            switch (str[0])
+            {
+              case 'D':
+                if (str == "Double")
+                  goto label_52;
+                else
+                  goto label_53;
+              case 'S':
+                if (str == "Single")
+                  goto label_51;
+                else
+                  goto label_53;
+              case 'U':
+                switch (str)
+                {
+                  case "UInt16":
+                    goto label_48;
+                  case "UInt32":
+                    goto label_50;
+                  default:
+                    goto label_53;
+                }
+              case 'd':
+                if (str == "double")
+                  goto label_52;
+                else
+                  goto label_53;
+              case 'i':
+                if (str == "int8_t")
+                  break;
+                goto label_53;
+              case 'u':
+                switch (str)
+                {
+                  case "ushort":
+                    goto label_48;
+                  case "uint_t":
+                    goto label_50;
+                  default:
+                    goto label_53;
+                }
+              default:
+                goto label_53;
+            }
+            break;
+          case 7:
+            switch (str[3])
+            {
+              case '1':
+                if (str == "int16_t")
+                  goto label_47;
+                else
+                  goto label_53;
+              case '3':
+                if (str == "int32_t")
+                  goto label_49;
+                else
+                  goto label_53;
+              case 'a':
+                if (str == "float_t")
+                  goto label_51;
+                else
+                  goto label_53;
+              case 'r':
+                if (str == "short_t")
+                  goto label_47;
+                else
+                  goto label_53;
+              case 't':
+                if (str == "uint8_t")
+                  goto label_46;
+                else
+                  goto label_53;
+              default:
+                goto label_53;
+            }
+          case 8:
+            switch (str[4])
+            {
+              case '1':
+                if (str == "uint16_t")
+                  goto label_48;
+                else
+                  goto label_53;
+              case '3':
+                if (str == "uint32_t")
+                  goto label_50;
+                else
+                  goto label_53;
+              case 'l':
+                if (str == "double_t")
+                  goto label_52;
+                else
+                  goto label_53;
+              case 'r':
+                if (str == "ushort_t")
+                  goto label_48;
+                else
+                  goto label_53;
+              default:
+                goto label_53;
+            }
+          case 9:
+            switch (str[5])
+            {
+              case '3':
+                if (str == "float32_t")
+                  goto label_51;
+                else
+                  goto label_53;
+              case '6':
+                if (str == "float64_t")
+                  goto label_52;
+                else
+                  goto label_53;
+              default:
+                goto label_53;
+            }
+          case 11:
+            if (str == "System.Byte")
+              goto label_46;
+            else
+              goto label_53;
+          case 12:
+            switch (str[10])
+            {
+              case '1':
+                if (str == "System.Int16")
+                  goto label_47;
+                else
+                  goto label_53;
+              case '3':
+                if (str == "System.Int32")
+                  goto label_49;
+                else
+                  goto label_53;
+              case 'a':
+                if (str == "System.Float")
+                  goto label_51;
+                else
+                  goto label_53;
+              case 't':
+                if (str == "System.SByte")
+                  break;
+                goto label_53;
+              default:
+                goto label_53;
+            }
+            break;
+          case 13:
+            switch (str[7])
+            {
+              case 'D':
+                if (str == "System.Double")
+                  goto label_52;
+                else
+                  goto label_53;
+              case 'S':
+                if (str == "System.Single")
+                  goto label_51;
+                else
+                  goto label_53;
+              case 'U':
+                switch (str)
+                {
+                  case "System.UInt16":
+                    goto label_48;
+                  case "System.UInt32":
+                    goto label_50;
+                  default:
+                    goto label_53;
+                }
+              default:
+                goto label_53;
+            }
+          default:
+            goto label_53;
+        }
+        realType = typeof (sbyte);
+        goto label_54;
+label_46:
+        realType = typeof (byte);
+        goto label_54;
+label_47:
+        realType = typeof (short);
+        goto label_54;
+label_48:
+        realType = typeof (ushort);
+        goto label_54;
+label_49:
+        realType = typeof (int);
+        goto label_54;
+label_50:
+        realType = typeof (uint);
+        goto label_54;
+label_51:
+        realType = typeof (float);
+        goto label_54;
+label_52:
+        realType = typeof (double);
+        goto label_54;
+      }
+label_53:
+      realType = (Type) null;
+label_54:
+      return realType;
+    }
+
+    protected void NewOrUpdateFieldTypeParameter(ListFileParameter LFP)
+    {
+      LFP.IsOK = LFP.checkOK();
+      if (this.ListFileParameterList.ContainsKey(LFP.FieldName))
+      {
+        ListFileParameter listFileParameter = this.ListFileParameterList[LFP.FieldName];
+        if (!listFileParameter.IsOK && LFP.IsOK || listFileParameter.Type == "UNKNOWN")
+          listFileParameter.UpdateParameter(LFP);
+      }
+      else
+        this.ListFileParameterList.Add(LFP.FieldName, LFP.Clone());
+      if (!this.FirmwareParameterList.ContainsKey(LFP.FieldName) || !(this.FirmwareParameterList[LFP.FieldName].Typ == "UNKNOWN") || LFP.Type == null || !(LFP.Type != "UNKNOWN"))
+        return;
+      this.FirmwareParameterList[LFP.FieldName].Typ = LFP.Type;
+    }
+
+    private bool CheckIgnorParameter(string paramName)
+    {
+      foreach (string str1 in this.ParametersToIgnore)
+      {
+        if (str1.EndsWith("*"))
+        {
+          string str2 = str1.Substring(0, str1.Length - 1);
+          if (paramName.StartsWith(str2))
+          {
+            this.AddInfo("'" + paramName + "' ignord. It starts with: '" + str2 + "'");
+            return false;
+          }
+        }
+        else if (str1 == paramName)
+        {
+          this.AddInfo("'" + paramName + "' ignord. It is part of ignor lists");
+          return false;
+        }
+      }
+      return true;
+    }
+
+    protected void AddInfo(string info)
+    {
+      this.InfoFileLinesList.Add(new KeyValuePair<int, string>(this.LineNumber, info));
+    }
+
+    protected void ShowInfo()
+    {
+      StringBuilder stringBuilder = new StringBuilder();
+      foreach (KeyValuePair<int, string> infoFileLines in this.InfoFileLinesList)
+      {
+        stringBuilder.Append(infoFileLines.Key.ToString("d07") + ": ");
+        stringBuilder.AppendLine(infoFileLines.Value);
+      }
+      stringBuilder.ToString();
+    }
+
+    protected string RemoveMultipleSpaces(string ActualLine)
+    {
+      return Regex.Replace(ActualLine, "\\s+", " ");
+    }
+
+    protected string GetValueFromArray(
+      string[] StringArray,
+      string PointingField,
+      short Position = 0,
+      bool ExactMatch = true)
+    {
+      try
+      {
+        int num = !ExactMatch ? Array.FindIndex<string>(StringArray, (Predicate<string>) (x => x.Contains(PointingField))) : Array.FindIndex<string>(StringArray, (Predicate<string>) (x => x.Equals(PointingField)));
+        return num >= 0 ? StringArray[num + (int) Position] : string.Empty;
+      }
+      catch (Exception ex)
+      {
+        return (string) null;
+      }
+    }
+  }
+}
+
+
+--- MapReaderARMv6.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: HandlerLib.MapManagement.MapReaderARMv6
+// Assembly: HandlerLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 32680C26-DD6F-4028-82D3-7440714FE33F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll
+
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Windows;
+using ZENNER.CommonLibrary;
+
+#nullable disable
+namespace HandlerLib.MapManagement
+{
+  public class MapReaderARMv6 : MapReader
+  {
+    private List<string> RequiredSections;
+
+    public MapReaderARMv6()
+    {
+      this.ReaderName = nameof (MapReaderARMv6);
+      this.ReaderDescription = "This READER is actually only for Handler with their map file generated by the IAR ELF Linker.This Reader should be used for ARMv6 CPU's. ";
+    }
+
+    public override void ReadMap(string mapPath, MapClassManager mapClassMgr = null)
+    {
+      this.RequiredSections = mapClassMgr.RequiredSections;
+      using (StreamReader streamReader = new StreamReader(mapPath))
+      {
+        this.LineNumber = 0;
+        string str1 = "";
+        string Name = (string) null;
+        bool flag1 = false;
+        bool flag2 = false;
+        bool flag3 = false;
+        this.Clear();
+        while (true)
+        {
+          string info;
+          string[] strArray1;
+          do
+          {
+            do
+            {
+              string ActualLine;
+              do
+              {
+                string str2 = streamReader.ReadLine();
+                if (str2 != null)
+                {
+                  ++this.LineNumber;
+                  if (this.LinkerTypeAndVersion == string.Empty && str2.ToUpper().IndexOf("LINKER") >= 0)
+                  {
+                    this.LinkerTypeAndVersion = this.RemoveMultipleSpaces(str2.Replace('#', ' ').Trim());
+                    if (this.LinkerTypeAndVersion.IndexOf("ELF") < 0 && this.LinkerTypeAndVersion.IndexOf("ARM") < 0)
+                      goto label_4;
+                  }
+                  if (str2.IndexOf("*** PLACEMENT SUMMARY") >= 0)
+                  {
+                    flag2 = true;
+                    flag3 = true;
+                  }
+                  if (str2.IndexOf("*** INIT TABLE") >= 0)
+                    flag2 = false;
+                  if (str2.Contains("Section") && str2.Contains("Kind") && str2.Contains("Address") && str2.Contains("Size") && str2.Contains("Object"))
+                    flag3 = false;
+                  if (str2.IndexOf("ENTRY LIST") >= 0)
+                  {
+                    flag1 = true;
+                    str2 = "Start der Map Information";
+                  }
+                  if (str2.IndexOf(" {Abs}") >= 0 && !str2.Contains("FWVersion"))
+                    str2 = str2.Replace(" {Abs}", "");
+                  if (flag2 && !flag1 && !flag3)
+                  {
+                    string empty1 = string.Empty;
+                    string empty2 = string.Empty;
+                    string[] strArray2 = this.RemoveMultipleSpaces(str2.Trim()).Replace("[", "").Replace("]", "").Replace("{", "").Replace("}", "").Split(' ');
+                    string SectionName = strArray2[0];
+                    int num1 = this.checkArrayOfStringsForValue(strArray2, "<Block>");
+                    if (num1 != -1)
+                    {
+                      short index = 1;
+                      if (num1 == 2)
+                      {
+                        SectionName = str1.Trim();
+                        index = (short) 0;
+                      }
+                      string s1 = strArray2[(int) index].Substring(2);
+                      string s2 = strArray2[(int) (short) ((int) index + 1)].Substring(2);
+                      uint num2 = uint.Parse(s1, NumberStyles.HexNumber);
+                      uint BlockSize = uint.Parse(s2, NumberStyles.HexNumber);
+                      if (AddressRange.IsInAddressRanges(this.AddressRanges, num2))
+                        this.NewSection(num2, BlockSize, SectionName);
+                    }
+                  }
+                  str1 = str2;
+                  if (str2.ToUpper().IndexOf(" CODE ") + str2.ToUpper().IndexOf(" STM32L0 ") + str2.ToUpper().IndexOf(" LINKER CREATED ") < 0 && flag1)
+                  {
+                    int length = str2.IndexOfAny(new char[2]
+                    {
+                      '#',
+                      '*'
+                    });
+                    if (length >= 0)
+                      str2 = str2.Substring(0, length);
+                    if (str2.IndexOf('(') >= 0)
+                      str2 = string.Empty;
+                    ActualLine = str2.Trim();
+                  }
+                  else
+                    goto label_24;
+                }
+                else
+                  goto label_54;
+              }
+              while (ActualLine.Length == 0);
+              info = this.RemoveMultipleSpaces(ActualLine);
+            }
+            while (info[0] == '?' || info[0] == '_' || info[0] == '-');
+            strArray1 = info.Split(' ');
+            if (Name == null)
+            {
+              if (strArray1.Length < 2)
+                goto label_48;
+            }
+            else
+              goto label_32;
+          }
+          while (strArray1[1] == "-");
+          goto label_40;
+label_24:
+          Name = (string) null;
+          continue;
+label_32:
+          try
+          {
+            string s3 = strArray1[0].Substring(2);
+            string s4 = strArray1[1].Substring(2);
+            uint num = uint.Parse(s3, NumberStyles.HexNumber);
+            uint BytesSize1 = 0;
+            if (strArray1[1] != "--")
+            {
+              uint BytesSize2 = uint.Parse(s4, NumberStyles.HexNumber);
+              if (AddressRange.IsInAddressRanges(this.AddressRanges, num))
+              {
+                string sectionForAddress = this.getSectionForAddress(num);
+                string SectionName = string.IsNullOrEmpty(sectionForAddress) ? "UNKNOWN" : sectionForAddress;
+                this.NewVariable(num, Name, BytesSize2, SectionName);
+              }
+            }
+            else
+              this.NewVariable(num, Name, BytesSize1);
+          }
+          catch
+          {
+            info += "###! Hex-Format-Error on follow Line";
+          }
+          Name = (string) null;
+          goto label_52;
+label_40:
+          if (this.FirmwareVersion == string.Empty && strArray1[0].ToUpper().IndexOf("FWVERSION") >= 0)
+            this.FirmwareVersion = uint.Parse(strArray1[2].Substring(2), NumberStyles.HexNumber).ToString();
+          try
+          {
+            string s5 = strArray1[1].Substring(2);
+            string s6 = strArray1[2].Substring(2);
+            uint num = uint.Parse(s5, NumberStyles.HexNumber);
+            uint BytesSize3 = 0;
+            if (strArray1[2] != "--")
+            {
+              uint BytesSize4 = uint.Parse(s6, NumberStyles.HexNumber);
+              if (AddressRange.IsInAddressRanges(this.AddressRanges, num))
+              {
+                string sectionForAddress = this.getSectionForAddress(num);
+                string SectionName = string.IsNullOrEmpty(sectionForAddress) ? "UNKNOWN" : sectionForAddress;
+                this.NewVariable(num, strArray1[0], BytesSize4, SectionName);
+                goto label_52;
+              }
+              else
+                goto label_52;
+            }
+            else
+            {
+              this.NewVariable(num, strArray1[0], BytesSize3);
+              goto label_52;
+            }
+          }
+          catch
+          {
+            info += "###! Hex-Format-Error";
+            goto label_52;
+          }
+label_48:
+          if (strArray1[0].Length > 0)
+            Name = strArray1[0];
+          else
+            info += "#### leere Zeile";
+label_52:
+          this.AddInfo(info);
+        }
+label_4:
+        throw new Exception("This file is not supported by this READER!!!\nPlease use another Reader for this linker file.");
+label_54:
+        streamReader.Close();
+      }
+    }
+
+    public override void GenerateByteArray(string classNameSpace, string className, string path)
+    {
+      string[] usedFieldes = new string[5]
+      {
+        "Name",
+        "Address",
+        "Size",
+        "Section",
+        "Typ"
+      };
+      List<string> source1 = new List<string>()
+      {
+        "UNKNOWN"
+      };
+      List<string> source2 = new List<string>()
+      {
+        "UNKNOWN"
+      };
+      List<uint> source3 = new List<uint>() { 0U };
+      List<uint> source4 = new List<uint>() { 0U };
+      foreach (MapParameterInfo mapParameterInfo in (IEnumerable<MapParameterInfo>) this.FirmwareParameterList.Values)
+      {
+        if (!source2.Contains(mapParameterInfo.Typ))
+          source2.Add(mapParameterInfo.Typ);
+        if (!source1.Contains(mapParameterInfo.Section))
+        {
+          source1.Add(mapParameterInfo.Section);
+          source3.Add(this.SectionList[mapParameterInfo.Section].StartAddress);
+          source4.Add(this.SectionList[mapParameterInfo.Section].BlockSize);
+        }
+      }
+      if (this.RequiredSections != null)
+      {
+        foreach (MapSectionInfo mapSectionInfo in (IEnumerable<MapSectionInfo>) this.SectionList.Values)
+        {
+          if (this.RequiredSections.Contains(mapSectionInfo.SectionName))
+          {
+            try
+            {
+              if (!source1.Contains(mapSectionInfo.SectionName))
+              {
+                source1.Add(mapSectionInfo.SectionName);
+                source3.Add(this.SectionList[mapSectionInfo.SectionName].StartAddress);
+                source4.Add((uint) ((int) this.SectionList[mapSectionInfo.SectionName].EndAddress - (int) this.SectionList[mapSectionInfo.SectionName].StartAddress + 1));
+              }
+            }
+            catch
+            {
+            }
+          }
+        }
+      }
+      MapClassGenerator mapClassGenerator = new MapClassGenerator();
+      mapClassGenerator.StartClassGeneration((byte) 0, classNameSpace, className, usedFieldes, source1.ToArray<string>(), source2.ToArray<string>(), source3.ToArray<uint>(), source4.ToArray<uint>());
+      SortedList<uint, string> sortedList = new SortedList<uint, string>();
+      foreach (MapParameterInfo mapParameterInfo in (IEnumerable<MapParameterInfo>) this.FirmwareParameterList.Values)
+      {
+        MapParameterInfo parameterInfo = mapParameterInfo;
+        try
+        {
+          mapClassGenerator.InsertComment(parameterInfo.FirmwareName);
+          mapClassGenerator.AddAsByteListForced(parameterInfo.FirmwareName);
+          mapClassGenerator.InsertComment("Address: 0x" + parameterInfo.MapAddress.ToString("x8"));
+          mapClassGenerator.AddAsByteListForced(parameterInfo.MapAddress);
+          mapClassGenerator.InsertComment("Size: " + parameterInfo.ByteSize.ToString());
+          mapClassGenerator.AddAsByteListForced(parameterInfo.ByteSize);
+          mapClassGenerator.InsertComment("Section: " + parameterInfo.Section);
+          mapClassGenerator.AddAsByteListForced((ushort) source1.FindIndex((Predicate<string>) (x => x.Equals(parameterInfo.Section))));
+          mapClassGenerator.InsertComment("Typ: " + parameterInfo.Typ);
+          mapClassGenerator.AddAsByteListForced((ushort) source2.FindIndex((Predicate<string>) (x => x.Equals(parameterInfo.Typ))));
+          mapClassGenerator.NewLine();
+          if (!sortedList.ContainsKey(parameterInfo.MapAddress))
+            sortedList.Add(parameterInfo.MapAddress, parameterInfo.FirmwareName);
+          else
+            sortedList[parameterInfo.MapAddress] = sortedList[parameterInfo.MapAddress] + "; " + parameterInfo.FirmwareName;
+        }
+        catch (Exception ex)
+        {
+          int num = (int) MessageBox.Show(ex.Message);
+        }
+      }
+      mapClassGenerator.FinaliseClassGeneraton();
+      mapClassGenerator.StartCommentBlock("Parameter by address");
+      foreach (KeyValuePair<uint, string> keyValuePair in sortedList)
+        mapClassGenerator.AddAddressParameterLineToCommentBlock(keyValuePair.Key, keyValuePair.Value);
+      mapClassGenerator.FinishCommentBlock();
+      mapClassGenerator.SaveClass(path);
+    }
+
+    private int checkArrayOfStringsForValue(string[] strArray, string value)
+    {
+      int num1 = 0;
+      int num2 = -1;
+      foreach (string str in strArray)
+      {
+        if (str.Contains(value))
+        {
+          num2 = num1;
+          break;
+        }
+        ++num1;
+      }
+      return num2;
+    }
+
+    private uint GetSizeOfSection(string SectionName)
+    {
+      uint sizeOfSection = 0;
+      foreach (MapSectionParameters sectionParameters in this.SectionParameterList.Values.Where<MapSectionParameters>((Func<MapSectionParameters, bool>) (x => x.SectionName == SectionName)))
+        sizeOfSection += sectionParameters.Size;
+      return sizeOfSection;
+    }
+
+    public override void ReadLists(string mapPath, MapClassManager mapClassMgr = null)
+    {
+      DirectoryInfo directoryInfo = new DirectoryInfo(Path.GetDirectoryName(mapPath));
+      string[] extensions = new string[1]{ ".lst" };
+      FileInfo[] array = directoryInfo.EnumerateFiles().Where<FileInfo>((Func<FileInfo, bool>) (f => ((IEnumerable<string>) extensions).Contains<string>(f.Extension.ToLower()) && !f.Name.Contains("stm32"))).ToArray<FileInfo>();
+      List<string> list = this.FirmwareParameterList.Keys.ToList<string>();
+      foreach (FileInfo fileInfo in array)
+      {
+        mapClassMgr?.SetStatusString("reading from File: " + fileInfo.Name);
+        StreamReader streamReader = fileInfo.OpenText();
+        string empty1 = string.Empty;
+        string empty2 = string.Empty;
+        bool flag1 = false;
+        bool flag2 = false;
+        while (!streamReader.EndOfStream)
+        {
+          string ActualLine = streamReader.ReadLine();
+          if (ActualLine.Equals(string.Empty) && !flag1)
+          {
+            flag1 = true;
+            flag2 = false;
+            empty2 = string.Empty;
+          }
+          else
+          {
+            if (ActualLine.Equals(string.Empty) & flag1)
+              flag2 = true;
+            if (flag1 && !flag2)
+            {
+              string str = this.RemoveMultipleSpaces(ActualLine);
+              if (!str[0].Equals('#'))
+              {
+                if (str.Length > 1)
+                  empty2 += str;
+                else if (empty2.Length > 1)
+                  flag2 = true;
+                else
+                  flag1 = false;
+              }
+            }
+            if (flag1 & flag2 && empty2.Length > 1)
+            {
+              if (empty2.Contains("section") && empty2.Contains("align") && empty2.Contains("00000000") && empty2.IndexOf("??DataTable") < 0 && empty2.IndexOf("{") < 0 && empty2.IndexOf("}") < 0)
+              {
+                foreach (string str1 in list)
+                {
+                  string AttributName = str1;
+                  if (Regex.IsMatch(empty2, string.Format("\\b{0}\\b", (object) Regex.Escape(AttributName))))
+                  {
+                    string[] strArray = empty2.Split(' ');
+                    if (strArray.Length <= 15 || Array.FindIndex<string>(strArray, (Predicate<string>) (x => x.Contains(AttributName))) <= 15)
+                    {
+                      ListFileParameter LFP = new ListFileParameter();
+                      LFP.Section = this.GetValueFromArray(strArray, "section", (short) 1);
+                      string s1 = Regex.Match(this.GetValueFromArray(strArray, "align", (short) 1).Trim(), "\\d+").Value;
+                      LFP.Align = !string.IsNullOrEmpty(s1) ? (uint) ushort.Parse(s1) : 0U;
+                      LFP.Type = this.GetValueFromArray(strArray, "__absolute", (short) 1);
+                      LFP.Type_add = this.GetValueFromArray(strArray, "__absolute", (short) 2);
+                      if (LFP.Type != null && LFP.Type == string.Empty)
+                        LFP.Type = this.GetValueFromArray(strArray, AttributName, (short) -1, false);
+                      if (LFP.Type == "\\")
+                        LFP.Type = string.Empty;
+                      string empty3 = string.Empty;
+                      string source1 = !string.IsNullOrEmpty(LFP.Type) ? this.GetValueFromArray(strArray, "__absolute", (short) 3) : this.GetValueFromArray(strArray, "00000000", (short) 3);
+                      LFP.Type = !string.IsNullOrEmpty(LFP.Type) ? LFP.Type : "UNKNOWN";
+                      LFP.FieldName = AttributName;
+                      LFP.ArraySize = 1;
+                      LFP.IsArray = false;
+                      if (!string.IsNullOrEmpty(source1))
+                      {
+                        if (source1.Contains<char>('['))
+                        {
+                          int num1 = 1;
+                          string[] source2 = source1.Split('[');
+                          empty3 = source2[0];
+                          if (((IEnumerable<string>) source2).Count<string>() == 2)
+                          {
+                            string s2 = Regex.Match(source2[1], "\\d+").Value;
+                            num1 = !string.IsNullOrEmpty(s2) ? (int) ushort.Parse(s2) : 1;
+                          }
+                          if (((IEnumerable<string>) source2).Count<string>() == 3)
+                          {
+                            string s3 = Regex.Match(source2[1], "\\d+").Value;
+                            int num2 = !string.IsNullOrEmpty(s3) ? (int) ushort.Parse(s3) : 1;
+                            string s4 = Regex.Match(source2[2], "\\d+").Value;
+                            num1 = num2 * (!string.IsNullOrEmpty(s4) ? (int) ushort.Parse(s4) : 1);
+                          }
+                          LFP.IsArray = true;
+                          LFP.ArraySize = num1;
+                          LFP.InitValues = new string[LFP.ArraySize];
+                        }
+                        if (LFP.InitValues != null)
+                        {
+                          int num = 0;
+                          for (int Position = 0; Position < ((IEnumerable<string>) strArray).Count<string>(); ++Position)
+                          {
+                            string valueFromArray = this.GetValueFromArray(strArray, "00000000", (short) Position);
+                            if (!string.IsNullOrEmpty(valueFromArray))
+                            {
+                              if (valueFromArray.Contains("0x") && !valueFromArray.Contains("........"))
+                              {
+                                string str2 = valueFromArray.Trim().Replace("\\", "");
+                                LFP.InitValues[num++] = str2;
+                              }
+                              if (num == LFP.ArraySize)
+                                break;
+                            }
+                            else
+                              break;
+                          }
+                        }
+                      }
+                      try
+                      {
+                        if (LFP != null)
+                        {
+                          this.NewOrUpdateFieldTypeParameter(LFP);
+                          break;
+                        }
+                        break;
+                      }
+                      catch (Exception ex)
+                      {
+                        ex.ToString();
+                        break;
+                      }
+                    }
+                  }
+                }
+              }
+              flag2 = false;
+              empty2 = string.Empty;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+--- MapReaderS3.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: HandlerLib.MapManagement.MapReaderS3
+// Assembly: HandlerLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 32680C26-DD6F-4028-82D3-7440714FE33F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll
+
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Text;
+using System.Windows;
+
+#nullable disable
+namespace HandlerLib.MapManagement
+{
+  public class MapReaderS3 : MapReader
+  {
+    public MapReaderS3()
+    {
+      this.ReaderName = nameof (MapReaderS3);
+      this.ReaderDescription = "This reader is for map files generated by the IAR universal Linker for older Controller";
+      this.ParametersToIgnore.Add("DATA16_ID");
+      this.ParametersToIgnore.Add("Rel_*");
+    }
+
+    public override void ReadMap(string mapPath, MapClassManager mapClassMgr = null)
+    {
+      using (StreamReader streamReader = new StreamReader(mapPath))
+      {
+        string Name = (string) null;
+        this.Clear();
+        while (true)
+        {
+          string info;
+          string[] strArray;
+          do
+          {
+            do
+            {
+              string str1;
+              do
+              {
+                string str2 = streamReader.ReadLine();
+                if (str2 != null)
+                {
+                  ++this.LineNumber;
+                  if (str2.IndexOf("END OF CROSS REFERENCE") < 0)
+                  {
+                    if (this.LinkerTypeAndVersion == string.Empty && str2.ToUpper().IndexOf("LINKER") >= 0)
+                    {
+                      this.LinkerTypeAndVersion = this.RemoveMultipleSpaces(str2.Replace('#', ' ').Trim());
+                      if (this.LinkerTypeAndVersion.IndexOf("Universal") < 0)
+                        goto label_5;
+                    }
+                    if (str2.IndexOf("SEGMENTS IN ADDRESS ORDER") < 0)
+                    {
+                      int length = str2.IndexOfAny(new char[2]
+                      {
+                        '#',
+                        '*'
+                      });
+                      if (length >= 0)
+                        str2 = str2.Substring(0, length);
+                      if (str2.IndexOf('(') >= 0)
+                        str2 = string.Empty;
+                      str1 = str2.Trim();
+                    }
+                    else
+                      goto label_7;
+                  }
+                  else
+                    goto label_37;
+                }
+                else
+                  goto label_37;
+              }
+              while (str1.Length == 0);
+              StringBuilder stringBuilder = new StringBuilder(str1);
+              for (int index = 0; index < stringBuilder.Length; ++index)
+              {
+                if (stringBuilder.Length > index + 1 && stringBuilder[index] == ' ' && stringBuilder[index + 1] == ' ')
+                {
+                  stringBuilder.Remove(index + 1, 1);
+                  --index;
+                }
+              }
+              info = stringBuilder.ToString();
+            }
+            while (info[0] == '?' || info[0] == '_');
+            strArray = info.Split(' ');
+            if (Name == null)
+            {
+              if (strArray.Length < 2)
+                goto label_30;
+            }
+            else
+              goto label_20;
+          }
+          while (strArray[1] == "-");
+          goto label_25;
+label_7:
+          info = "Start der Map Information";
+          goto label_35;
+label_20:
+          try
+          {
+            this.NewVariable(uint.Parse(strArray[0], NumberStyles.HexNumber), Name, 0U);
+          }
+          catch
+          {
+            info += "###! Hex-Format-Error on follow Line";
+          }
+          Name = (string) null;
+          goto label_34;
+label_25:
+          if (this.FirmwareVersion == string.Empty && strArray[0].ToUpper().IndexOf("FWVERSION") >= 0)
+            this.FirmwareVersion = uint.Parse(strArray[1], NumberStyles.HexNumber).ToString();
+          try
+          {
+            this.NewVariable(uint.Parse(strArray[1], NumberStyles.HexNumber), strArray[0], 0U);
+            goto label_34;
+          }
+          catch
+          {
+            info += "###! Hex-Format-Error";
+            goto label_34;
+          }
+label_30:
+          if (strArray[0].Length > 0)
+            Name = strArray[0];
+          else
+            info += "#### leere Zeile";
+label_34:
+label_35:
+          this.AddInfo(info);
+        }
+label_5:
+        throw new Exception("This file is not supported by this READER!!!\nPlease use another Reader for this linker file.");
+label_37:
+        streamReader.Close();
+      }
+      this.ShowInfo();
+    }
+
+    public override void GenerateByteArray(string classNameSpace, string className, string path)
+    {
+      string[] usedFieldes = new string[2]
+      {
+        "ParameterName",
+        "ParameterAddress"
+      };
+      MapClassGenerator mapClassGenerator = new MapClassGenerator();
+      mapClassGenerator.StartClassGeneration((byte) 0, classNameSpace, className, usedFieldes);
+      SortedList<uint, string> sortedList = new SortedList<uint, string>();
+      foreach (MapParameterInfo mapParameterInfo in (IEnumerable<MapParameterInfo>) this.FirmwareParameterList.Values)
+      {
+        try
+        {
+          mapClassGenerator.InsertComment(mapParameterInfo.FirmwareName);
+          mapClassGenerator.AddAsByteListForced(mapParameterInfo.FirmwareName);
+          mapClassGenerator.InsertComment("Address: 0x" + mapParameterInfo.MapAddress.ToString("x"));
+          mapClassGenerator.AddAsByteListForced(mapParameterInfo.MapAddress);
+          mapClassGenerator.NewLine();
+          if (!sortedList.ContainsKey(mapParameterInfo.MapAddress))
+            sortedList.Add(mapParameterInfo.MapAddress, mapParameterInfo.FirmwareName);
+          else
+            sortedList[mapParameterInfo.MapAddress] = sortedList[mapParameterInfo.MapAddress] + "; " + mapParameterInfo.FirmwareName;
+        }
+        catch (Exception ex)
+        {
+          int num = (int) MessageBox.Show(ex.Message);
+        }
+      }
+      mapClassGenerator.FinaliseClassGeneraton();
+      mapClassGenerator.StartCommentBlock("Parameter by address");
+      foreach (KeyValuePair<uint, string> keyValuePair in sortedList)
+        mapClassGenerator.AddAddressParameterLineToCommentBlock(keyValuePair.Key, keyValuePair.Value);
+      mapClassGenerator.FinishCommentBlock();
+      mapClassGenerator.SaveClass(path);
+    }
+
+    public override void ReadLists(string mapPath, MapClassManager mapClassMgr = null)
+    {
+    }
+  }
+}
+
+
+--- MapReaderSelector.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: HandlerLib.MapManagement.MapReaderSelector
+// Assembly: HandlerLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 32680C26-DD6F-4028-82D3-7440714FE33F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+#nullable disable
+namespace HandlerLib.MapManagement
+{
+  public class MapReaderSelector
+  {
+    public SortedList<string, MapReader> MapReaderList;
+
+    public MapReaderSelector()
+    {
+      this.MapReaderList = new SortedList<string, MapReader>();
+      this.getAllDerivedMapReader();
+    }
+
+    private bool getAllDerivedMapReader()
+    {
+      try
+      {
+        foreach (MapReader mapReader in ((IEnumerable<Type>) typeof (MapReader).Assembly.GetTypes()).Where<Type>((Func<Type, bool>) (t => t.IsSubclassOf(typeof (MapReader)) && !t.IsAbstract)).Select<Type, MapReader>((Func<Type, MapReader>) (t => (MapReader) Activator.CreateInstance(t))))
+          this.MapReaderList.Add(mapReader.ReaderName, mapReader);
+        return true;
+      }
+      catch (Exception ex)
+      {
+        throw new Exception("An error occured: \n" + ex.Message);
+      }
+    }
+
+    public void Clear() => this.MapReaderList.Clear();
+
+    internal MapReader getReader(string p)
+    {
+      return this.MapReaderList.ContainsKey(p) ? this.MapReaderList[p] : (MapReader) null;
+    }
+  }
+}
+
+
+--- MapSectionInfo.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: HandlerLib.MapManagement.MapSectionInfo
+// Assembly: HandlerLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 32680C26-DD6F-4028-82D3-7440714FE33F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll
+
+#nullable disable
+namespace HandlerLib.MapManagement
+{
+  public class MapSectionInfo
+  {
+    public string SectionName { get; set; }
+
+    public uint StartAddress { get; set; }
+
+    public uint EndAddress { get; set; }
+
+    public uint BlockSize { get; set; }
+
+    public override string ToString()
+    {
+      return string.Format("BLOCK: 0x{0:X8} {1} {2} bytes", (object) this.StartAddress, (object) this.SectionName, (object) this.BlockSize);
+    }
+  }
+}
+
+
+--- MapSectionParameters.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: HandlerLib.MapManagement.MapSectionParameters
+// Assembly: HandlerLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 32680C26-DD6F-4028-82D3-7440714FE33F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll
+
+#nullable disable
+namespace HandlerLib.MapManagement
+{
+  public class MapSectionParameters
+  {
+    public string SectionName { get; set; }
+
+    public uint StartAddress { get; set; }
+
+    public uint Size { get; set; }
+
+    public override string ToString()
+    {
+      return string.Format("0x{0:X8} {1} {2} bytes", (object) this.StartAddress, (object) this.SectionName, (object) this.Size);
+    }
+  }
+}
+

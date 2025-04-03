@@ -1,0 +1,553 @@
+
+--- AppParametersManagement.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.AppParametersManagement.AppParametersManagement
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Errors;
+using MSS.Business.Modules.Configuration;
+using MSS.Business.Modules.GMM;
+using MSS.Core.Model.ApplicationParamenters;
+using MSS.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using System.Xml.Serialization;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS.Business.Modules.AppParametersManagement
+{
+  public class AppParametersManagement
+  {
+    private readonly IRepository<ApplicationParameter> _appParamRepository;
+
+    public AppParametersManagement(IRepositoryFactory repositoryFactory)
+    {
+      this._appParamRepository = repositoryFactory.GetRepository<ApplicationParameter>();
+    }
+
+    public IEnumerable<ApplicationParameter> GetApplicationParameters()
+    {
+      return (IEnumerable<ApplicationParameter>) this._appParamRepository.GetAll();
+    }
+
+    public void Update(ApplicationParameter appParameter)
+    {
+      this._appParamRepository.Update(appParameter);
+    }
+
+    public ApplicationParameter GetAppParam(string value)
+    {
+      return this._appParamRepository.FirstOrDefault((Expression<Func<ApplicationParameter, bool>>) (applicationParameter => value.Equals(applicationParameter.Parameter)));
+    }
+
+    public T GetAppParam<T>(string parameterName)
+    {
+      return (T) Convert.ChangeType((object) this._appParamRepository.FirstOrDefault((Expression<Func<ApplicationParameter, bool>>) (applicationParameter => parameterName.Equals(applicationParameter.Parameter))).Value, typeof (T));
+    }
+
+    private static string SerializeConfigsList(List<Config> configList)
+    {
+      XmlSerializer xmlSerializer = new XmlSerializer(typeof (List<Config>));
+      TextWriter textWriter = (TextWriter) new StringWriter();
+      xmlSerializer.Serialize(textWriter, (object) configList);
+      textWriter.Close();
+      return textWriter.ToString();
+    }
+
+    public static List<Config> DeserializeChangeableParams(string configParamValue)
+    {
+      if (string.IsNullOrEmpty(configParamValue))
+        return (List<Config>) null;
+      XmlSerializer xmlSerializer = new XmlSerializer(typeof (List<Config>));
+      StringReader stringReader = new StringReader(configParamValue);
+      List<Config> configList = (List<Config>) xmlSerializer.Deserialize((TextReader) stringReader);
+      stringReader.Close();
+      return configList;
+    }
+
+    public static async Task<List<Config>> CreateEquipmentConfigsList(EquipmentModel equipment)
+    {
+      if (equipment?.ChangeableParameters == null)
+        return (List<Config>) null;
+      List<ChangeableParameter> changeableParams = equipment.ChangeableParameters;
+      List<Config> configsList = changeableParams.Select<ChangeableParameter, Config>((Func<ChangeableParameter, Config>) (changeableParam =>
+      {
+        Config equipmentConfigsList = new Config();
+        equipmentConfigsList.IsReadOnly = false;
+        equipmentConfigsList.ProperListValues = !GMMHelper.UpdateAvailableValuesForParam(changeableParam) || changeableParam.AvailableValues == null ? (List<ConfigurationPropertyValue>) null : MSS.Business.Modules.AppParametersManagement.AppParametersManagement.GetAvailableConfigs(changeableParam.AvailableValues);
+        equipmentConfigsList.PropertyName = changeableParam.Key;
+        Config config = equipmentConfigsList;
+        List<ValueItem> availableValues = changeableParam.AvailableValues;
+        string str = (availableValues != null ? availableValues.FirstOrDefault<ValueItem>((Func<ValueItem, bool>) (p => p.Value == changeableParam.Value)) : (ValueItem) null) != null ? changeableParam.AvailableValues.FirstOrDefault<ValueItem>((Func<ValueItem, bool>) (p => p.Value == changeableParam.Value)).Value : (MSS.Business.Modules.AppParametersManagement.AppParametersManagement.GetControlType(changeableParam) == ViewObjectTypeEnum.CheckBox.ToString() ? changeableParam.Value : string.Empty);
+        config.PropertyValue = str;
+        equipmentConfigsList.Type = MSS.Business.Modules.AppParametersManagement.AppParametersManagement.GetControlType(changeableParam);
+        equipmentConfigsList.Parameter = (object) changeableParam;
+        return equipmentConfigsList;
+      })).ToList<Config>();
+      return configsList;
+    }
+
+    public static List<ConfigurationPropertyValue> GetAvailableConfigs(
+      List<ValueItem> availableValues)
+    {
+      return availableValues.Select<ValueItem, ConfigurationPropertyValue>((Func<ValueItem, ConfigurationPropertyValue>) (currentValue => new ConfigurationPropertyValue()
+      {
+        OriginalName = string.Format("{0}", (object) currentValue),
+        DisplayName = string.Format("{0}", (object) currentValue),
+        Value = currentValue.Value
+      })).ToList<ConfigurationPropertyValue>();
+    }
+
+    public static string GetControlType(ChangeableParameter param)
+    {
+      if (param.UpdateAvailableValuesHandler != null)
+        return ViewObjectTypeEnum.ComboBox.ToString();
+      return typeof (bool) == param.Type ? ViewObjectTypeEnum.CheckBox.ToString() : ViewObjectTypeEnum.TextBox.ToString();
+    }
+
+    public static List<Config> GetConfigListFromChangeableParameters(
+      List<ChangeableParameter> changeableParams)
+    {
+      if (changeableParams == null)
+        return (List<Config>) null;
+      List<Config> list = changeableParams.Select<ChangeableParameter, Config>((Func<ChangeableParameter, Config>) (changeableParam => MSS.Business.Modules.AppParametersManagement.AppParametersManagement.GetConfigFromChangeableParameters(changeableParam))).ToList<Config>();
+      return list.Any<Config>() ? list : (List<Config>) null;
+    }
+
+    public static Config GetConfigFromChangeableParameters(ChangeableParameter changeableParam)
+    {
+      if (changeableParam.Key == "COMserver" && changeableParam.Value == "-")
+        changeableParam.Value = string.Empty;
+      Config changeableParameters = new Config();
+      changeableParameters.IsReadOnly = false;
+      changeableParameters.ProperListValues = !GMMHelper.UpdateAvailableValuesForParam(changeableParam) || changeableParam.AvailableValues == null ? (List<ConfigurationPropertyValue>) null : MSS.Business.Modules.AppParametersManagement.AppParametersManagement.GetAvailableConfigs(changeableParam.AvailableValues);
+      changeableParameters.PropertyName = changeableParam.Key;
+      Config config = changeableParameters;
+      List<ValueItem> availableValues = changeableParam.AvailableValues;
+      string str = (availableValues != null ? availableValues.FirstOrDefault<ValueItem>((Func<ValueItem, bool>) (p => p.Value == changeableParam.Value))?.Value : (string) null) ?? changeableParam.Value ?? string.Empty;
+      config.PropertyValue = str;
+      changeableParameters.Type = MSS.Business.Modules.AppParametersManagement.AppParametersManagement.GetControlType(changeableParam);
+      changeableParameters.Parameter = (object) changeableParam;
+      return changeableParameters;
+    }
+
+    public static EquipmentModel UpdateEquipmentWithSavedParams(
+      EquipmentModel equipment,
+      string dbParamsString)
+    {
+      List<ChangeableParameter> changeableParameters = equipment?.ChangeableParameters;
+      if (changeableParameters == null)
+        return equipment;
+      MSS.Business.Modules.AppParametersManagement.AppParametersManagement.UpdateChangeableParamsWithSavedParams(changeableParameters, dbParamsString);
+      return equipment;
+    }
+
+    public static ProfileType UpdateProfileTypeWithSavedParams(
+      ProfileType profileType,
+      string dbParamsString)
+    {
+      List<ChangeableParameter> changeableParameters = profileType.ChangeableParameters;
+      if (changeableParameters == null)
+        return profileType;
+      MSS.Business.Modules.AppParametersManagement.AppParametersManagement.UpdateChangeableParamsWithSavedParams(changeableParameters, dbParamsString);
+      return profileType;
+    }
+
+    public static Meter UpdateDeviceWithSavedParams(Meter meter, string dbParamsString)
+    {
+      List<ChangeableParameter> changeableParameters = meter.DeviceModel.ChangeableParameters;
+      if (changeableParameters == null)
+        return meter;
+      MSS.Business.Modules.AppParametersManagement.AppParametersManagement.UpdateChangeableParamsWithSavedParams(changeableParameters, dbParamsString);
+      return meter;
+    }
+
+    public static DeviceModel UpdateDeviceModelWithSavedParams(
+      DeviceModel deviceModel,
+      string dbParamsString)
+    {
+      List<ChangeableParameter> changeableParameters = deviceModel.ChangeableParameters;
+      if (changeableParameters == null)
+        return deviceModel;
+      MSS.Business.Modules.AppParametersManagement.AppParametersManagement.UpdateChangeableParamsWithSavedParams(changeableParameters, dbParamsString);
+      return deviceModel;
+    }
+
+    public static void UpdateChangeableParamsWithSavedParams(
+      List<ChangeableParameter> changeableParams,
+      List<Config> paramsList)
+    {
+      foreach (ChangeableParameter changeableParam in changeableParams)
+      {
+        ChangeableParameter parameter = changeableParam;
+        Config dbParam = paramsList.FirstOrDefault<Config>((Func<Config, bool>) (e => e.PropertyName == parameter.Key));
+        if (dbParam != null)
+        {
+          try
+          {
+            if (GMMHelper.UpdateAvailableValuesForParam(parameter) && parameter.AvailableValues != null && parameter.AvailableValues.Any<ValueItem>())
+            {
+              ValueItem valueItem1 = parameter.AvailableValues.FirstOrDefault<ValueItem>((Func<ValueItem, bool>) (v => v.Value.ToString() == dbParam.PropertyValue));
+              if (valueItem1 != null)
+              {
+                parameter.Value = valueItem1.Value;
+              }
+              else
+              {
+                ValueItem valueItem2 = parameter.AvailableValues.FirstOrDefault<ValueItem>();
+                parameter.Value = valueItem2?.Value;
+              }
+            }
+            else
+              parameter.Value = dbParam.PropertyValue;
+          }
+          catch (Exception ex)
+          {
+            MessageHandler.LogException(ex);
+          }
+        }
+      }
+    }
+
+    private static void UpdateChangeableParamsWithSavedParams(
+      List<ChangeableParameter> changeableParams,
+      string dbParamsString)
+    {
+      List<Config> paramsList = MSS.Business.Modules.AppParametersManagement.AppParametersManagement.DeserializeChangeableParams(dbParamsString);
+      MSS.Business.Modules.AppParametersManagement.AppParametersManagement.UpdateChangeableParamsWithSavedParams(changeableParams, paramsList);
+    }
+
+    public void UpdateDefaultEquipment(
+      EquipmentModel selectedEquipmentModel,
+      List<Config> changeableParameters)
+    {
+      ApplicationParameter appParam1 = this.GetAppParam("DefaultEquipmentParams");
+      ApplicationParameter appParam2 = this.GetAppParam("DefaultEquipment");
+      if (selectedEquipmentModel != null)
+      {
+        if (!selectedEquipmentModel.Name.Equals(appParam2.Value))
+        {
+          appParam2.Value = selectedEquipmentModel.Name;
+          this.Update(appParam2);
+        }
+        List<ChangeableParameter> changeableParameters1 = selectedEquipmentModel.ChangeableParameters;
+        List<Config> configsList = changeableParameters;
+        if (configsList != null)
+        {
+          string str = MSS.Business.Modules.AppParametersManagement.AppParametersManagement.SerializedConfigList(configsList, changeableParameters1);
+          if (appParam1.Value == null || !appParam1.Value.Equals(str))
+          {
+            appParam1.Value = str;
+            this.Update(appParam1);
+          }
+        }
+        else
+        {
+          appParam1.Value = string.Empty;
+          this.Update(appParam1);
+        }
+      }
+      else
+      {
+        appParam2.Value = string.Empty;
+        this.Update(appParam2);
+      }
+      MSS.Business.Utils.AppContext.Current.LoadApplicationParameters(this._appParamRepository.GetAll());
+      MSS.Business.Utils.AppContext.Current.LoadDefaultEquipment();
+    }
+
+    public bool UpdateExpertConfigurationMode(bool isExpertConfigurationMode)
+    {
+      ApplicationParameter appParam = this.GetAppParam("ExpertConfigurationMode");
+      if (appParam == null)
+        return false;
+      appParam.Value = isExpertConfigurationMode.ToString();
+      this.Update(appParam);
+      MSS.Business.Utils.AppContext.Current.LoadApplicationParameters(this._appParamRepository.GetAll());
+      return true;
+    }
+
+    public static List<Config> CreateScanConfigsList(
+      List<ChangeableParameter> changeableParams,
+      List<string> skipParameterKeys)
+    {
+      return changeableParams == null ? (List<Config>) null : changeableParams.Where<ChangeableParameter>((Func<ChangeableParameter, bool>) (config => !skipParameterKeys.Contains(config.Key))).Select<ChangeableParameter, Config>((Func<ChangeableParameter, Config>) (changeableParam => new Config()
+      {
+        IsReadOnly = false,
+        ProperListValues = !GMMHelper.UpdateAvailableValuesForParam(changeableParam) || changeableParam.AvailableValues == null ? (List<ConfigurationPropertyValue>) null : MSS.Business.Modules.AppParametersManagement.AppParametersManagement.GetAvailableConfigs(changeableParam.AvailableValues),
+        PropertyName = changeableParam.Key,
+        PropertyValue = changeableParam.Value,
+        Type = MSS.Business.Modules.AppParametersManagement.AppParametersManagement.GetControlType(changeableParam),
+        Parameter = (object) changeableParam
+      })).ToList<Config>();
+    }
+
+    public static string SerializeEquipementParams(EquipmentModel equipementModel)
+    {
+      return MSS.Business.Modules.AppParametersManagement.AppParametersManagement.SerializedConfigList(MSS.Business.Modules.AppParametersManagement.AppParametersManagement.CreateEquipmentConfigsList(equipementModel).Result, equipementModel.ChangeableParameters);
+    }
+
+    public static string SerializedConfigList(
+      List<Config> configsList,
+      List<ChangeableParameter> changeableParams)
+    {
+      if (configsList == null)
+        return (string) null;
+      foreach (Config configs in configsList)
+      {
+        Config config = configs;
+        ChangeableParameter changeableParameter = changeableParams.FirstOrDefault<ChangeableParameter>((Func<ChangeableParameter, bool>) (p => p.Key == config.PropertyName));
+        if (changeableParameter != null)
+          changeableParameter.Value = config.PropertyValue;
+        config.Parameter = (object) null;
+      }
+      return MSS.Business.Modules.AppParametersManagement.AppParametersManagement.SerializeConfigsList(configsList);
+    }
+
+    public void ResetSystemAndScanMode()
+    {
+      ApplicationParameter appParam1 = this.GetAppParam("System");
+      appParam1.Value = string.Empty;
+      this.Update(appParam1);
+      ApplicationParameter appParam2 = this.GetAppParam("ScanModeParams");
+      ApplicationParameter appParam3 = this.GetAppParam("ScanMode");
+      appParam3.Value = string.Empty;
+      this.Update(appParam3);
+      appParam2.Value = string.Empty;
+      this.Update(appParam2);
+    }
+  }
+}
+
+
+--- ConfigurationPropertyDTO.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.AppParametersManagement.ConfigurationPropertyDTO
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Modules.AppParametersManagement
+{
+  public class ConfigurationPropertyDTO
+  {
+    public string DisplayName { get; set; }
+
+    public string Value { get; set; }
+
+    public bool IsOnline { get; set; }
+  }
+}
+
+
+--- EquipmentHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.AppParametersManagement.EquipmentHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using InTheHand.Net.Sockets;
+using Microsoft.Win32;
+using MSS.Business.Errors;
+using MSS.Business.Modules.GMM;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO.Ports;
+using System.Linq;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS.Business.Modules.AppParametersManagement
+{
+  public class EquipmentHelper
+  {
+    public static List<ConfigurationPropertyDTO> PrepareDataSourceListForParam(
+      ChangeableParameter item,
+      EquipmentModel equipment)
+    {
+      bool flag1 = item.Key == "COMserver";
+      bool flag2 = equipment.Name.Contains("MinoConnect");
+      if (flag1)
+        return EquipmentHelper.PrepareDataSourceListForParamComServer(item);
+      return flag2 ? EquipmentHelper.PreparePortsForBluetoothMinoConnect(item) : EquipmentHelper.PrepareDataSourceListForParam(item);
+    }
+
+    private static List<ConfigurationPropertyDTO> PrepareDataSourceListForParamComServer(
+      ChangeableParameter item)
+    {
+      MessageHandler.LogDebug("Prepare ComServer list for equipment");
+      List<ConfigurationPropertyDTO> listItem = new List<ConfigurationPropertyDTO>();
+      GMMHelper.UpdateAvailableValuesForParam(item);
+      MessageHandler.LogDebug("Number of found com servers: " + (object) item == null || item.AvailableValues == null ? "0" : item.AvailableValues.Count.ToString());
+      item?.AvailableValues?.ForEach((Action<ValueItem>) (availableValue => listItem.Add(EquipmentHelper.GetFormattedCOMServerItemForDropdown(availableValue))));
+      listItem = listItem.OrderByDescending<ConfigurationPropertyDTO, bool>((Func<ConfigurationPropertyDTO, bool>) (t => t.IsOnline)).ThenBy<ConfigurationPropertyDTO, string>((Func<ConfigurationPropertyDTO, string>) (t => t.DisplayName)).ToList<ConfigurationPropertyDTO>();
+      return listItem;
+    }
+
+    public static ConfigurationPropertyDTO GetFormattedCOMServerItemForDropdown(
+      ValueItem availableValue)
+    {
+      if (availableValue.AdditionalInfo == null)
+        return new ConfigurationPropertyDTO()
+        {
+          DisplayName = string.Empty,
+          Value = string.Empty,
+          IsOnline = false
+        };
+      ConfigurationPropertyDTO serverItemForDropdown = new ConfigurationPropertyDTO();
+      foreach (AdditionalInfoKey key in Enum.GetValues(typeof (AdditionalInfoKey)).Cast<AdditionalInfoKey>())
+      {
+        string str;
+        if (availableValue.AdditionalInfo != null && availableValue.AdditionalInfo.TryGetValue(key, out str))
+        {
+          if (key == AdditionalInfoKey.Name)
+          {
+            serverItemForDropdown.DisplayName = string.Format("{0} {1}", (object) str, (object) availableValue.Value);
+            serverItemForDropdown.Value = availableValue.Value;
+            MessageHandler.LogDebug("Add Com server to list:" + serverItemForDropdown.DisplayName);
+          }
+          else if (key == AdditionalInfoKey.IsOnline)
+            serverItemForDropdown.IsOnline = bool.Parse(str);
+        }
+      }
+      return serverItemForDropdown;
+    }
+
+    private static List<ConfigurationPropertyDTO> PreparePortsForBluetoothMinoConnect(
+      ChangeableParameter item)
+    {
+      List<ConfigurationPropertyDTO> listItem = new List<ConfigurationPropertyDTO>();
+      GMMHelper.UpdateAvailableValuesForParam(item);
+      if (item?.AvailableValues == null || item.AvailableValues.Count <= 0)
+        return listItem;
+      Dictionary<string, string> comPortsDictionary = EquipmentHelper.GetConnectedMiconsForPorts();
+      if (item.AvailableValues.Any<ValueItem>((Func<ValueItem, bool>) (c => c.AdditionalInfo[AdditionalInfoKey.HardwareType] == "Bluetooth" && !comPortsDictionary.ContainsKey(c.Value))))
+      {
+        MSS.Business.Utils.AppContext.Current.MinoConnectDeviceNames = EquipmentHelper.DiscoverMiCons();
+        comPortsDictionary = EquipmentHelper.GetConnectedMiconsForPorts();
+      }
+      item?.AvailableValues?.ForEach((Action<ValueItem>) (_ => listItem.Add(new ConfigurationPropertyDTO()
+      {
+        IsOnline = true,
+        Value = _.Value,
+        DisplayName = comPortsDictionary.ContainsKey(_.Value) ? string.Format("{0} {1}", (object) comPortsDictionary[_.Value], (object) _.ToString()) : string.Format("{0}", (object) _.ToString())
+      })));
+      return listItem;
+    }
+
+    private static List<ConfigurationPropertyDTO> PrepareDataSourceListForParam(
+      ChangeableParameter item)
+    {
+      List<ConfigurationPropertyDTO> listItem = new List<ConfigurationPropertyDTO>();
+      GMMHelper.UpdateAvailableValuesForParam(item);
+      item?.AvailableValues?.ForEach((Action<ValueItem>) (_ => listItem.Add(new ConfigurationPropertyDTO()
+      {
+        IsOnline = true,
+        DisplayName = _.ToString(),
+        Value = _.Value
+      })));
+      return listItem;
+    }
+
+    public static Dictionary<string, string> GetConnectedMiconsForPorts()
+    {
+      string[] portNames = SerialPort.GetPortNames();
+      List<BluetoothDeviceInfo> bluetoothDeviceInfoList = MSS.Business.Utils.AppContext.Current.MinoConnectDeviceNames ?? EquipmentHelper.DiscoverMiCons();
+      Dictionary<string, string> connectedMiconsForPorts = new Dictionary<string, string>();
+      if (bluetoothDeviceInfoList != null)
+      {
+        foreach (BluetoothDeviceInfo pairedDevice in bluetoothDeviceInfoList)
+        {
+          Hashtable hashtable = EquipmentHelper.BuildPortNameHash(portNames, pairedDevice);
+          if (hashtable != null && hashtable.Count > 0)
+          {
+            foreach (DictionaryEntry dictionaryEntry in hashtable)
+              connectedMiconsForPorts.Add((string) dictionaryEntry.Value, pairedDevice.DeviceName);
+          }
+        }
+      }
+      return connectedMiconsForPorts;
+    }
+
+    public static List<BluetoothDeviceInfo> DiscoverMiCons()
+    {
+      BluetoothClient bluetoothClient = (BluetoothClient) null;
+      List<BluetoothDeviceInfo> bluetoothDeviceInfoList = (List<BluetoothDeviceInfo>) null;
+      try
+      {
+        bluetoothClient = new BluetoothClient();
+        bluetoothDeviceInfoList = ((IEnumerable<BluetoothDeviceInfo>) bluetoothClient.DiscoverDevices()).Where<BluetoothDeviceInfo>((Func<BluetoothDeviceInfo, bool>) (device => device.DeviceName.StartsWith("MiCon"))).ToList<BluetoothDeviceInfo>();
+      }
+      catch (Exception ex)
+      {
+        MessageHandler.LogException(ex);
+      }
+      finally
+      {
+        bluetoothClient?.Dispose();
+      }
+      return bluetoothDeviceInfoList;
+    }
+
+    private static Hashtable BuildPortNameHash(
+      string[] oPortsToMap,
+      BluetoothDeviceInfo pairedDevice)
+    {
+      Hashtable oTargetMap = new Hashtable();
+      EquipmentHelper.MineRegistryForPortName("SYSTEM\\CurrentControlSet\\Enum", oTargetMap, oPortsToMap, pairedDevice.DeviceName.Substring(pairedDevice.DeviceName.LastIndexOf('_') + 1) + "_C00000000");
+      return oTargetMap;
+    }
+
+    private static void MineRegistryForPortName(
+      string strStartKey,
+      Hashtable oTargetMap,
+      string[] oPortNamesToMatch,
+      string toMatchMicon)
+    {
+      if (oTargetMap.Count >= oPortNamesToMatch.Length)
+        return;
+      RegistryKey localMachine = Registry.LocalMachine;
+      try
+      {
+        string[] subKeyNames = localMachine.OpenSubKey(strStartKey).GetSubKeyNames();
+        if (((ICollection<string>) subKeyNames).Contains("Device Parameters") && strStartKey != "SYSTEM\\CurrentControlSet\\Enum")
+        {
+          object obj1 = Registry.GetValue("HKEY_LOCAL_MACHINE\\" + strStartKey + "\\Device Parameters", "PortName", (object) null);
+          if (obj1 == null || !((ICollection<string>) oPortNamesToMatch).Contains(obj1.ToString()))
+            return;
+          object obj2 = Registry.GetValue("HKEY_LOCAL_MACHINE\\" + strStartKey, "FriendlyName", (object) null);
+          if (!strStartKey.EndsWith(toMatchMicon))
+            return;
+          string key = "N/A";
+          if (obj2 != null)
+            key = obj2.ToString();
+          if (!key.Contains(obj1.ToString()))
+            key = string.Format("{0} ({1})", (object) key, obj1);
+          oTargetMap[(object) key] = obj1;
+        }
+        else
+        {
+          foreach (string str in subKeyNames)
+            EquipmentHelper.MineRegistryForPortName(strStartKey + "\\" + str, oTargetMap, oPortNamesToMatch, toMatchMicon);
+        }
+      }
+      catch
+      {
+      }
+    }
+  }
+}
+

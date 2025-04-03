@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\PDC_Handler.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D6F0A3F9-4BE9-423B-9ECB-D99AB99A21AD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>PDC_Handler</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.3.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>PDC_Handler</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AsyncCom">
+      <HintPath>lib\AsyncCom.dll</HintPath>
+    </Reference>
+    <Reference Include="CorporateDesign">
+      <HintPath>lib\CorporateDesign.dll</HintPath>
+    </Reference>
+    <Reference Include="DeviceCollector">
+      <HintPath>lib\DeviceCollector.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="HandlerLib">
+      <HintPath>lib\HandlerLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationFramework" />
+    <Reference Include="StartupLib">
+      <HintPath>lib\StartupLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ConfigFlagsPDCwMBus.cs" />
+    <Compile Include="ConfigInit.cs" />
+    <Compile Include="HandlerMeterType.cs" />
+    <Compile Include="HardwareError.cs" />
+    <Compile Include="InputResolution.cs" />
+    <Compile Include="ParamLog.cs" />
+    <Compile Include="ControlWord0.cs" />
+    <Compile Include="ListStructure.cs" />
+    <Compile Include="MBusList.cs" />
+    <Compile Include="MBusParameter.cs" />
+    <Compile Include="Param.cs" />
+    <Compile Include="OverwritePart.cs" />
+    <Compile Include="RadioFlagsPDCwMBus.cs" />
+    <Compile Include="RadioList.cs" />
+    <Compile Include="RadioPower.cs" />
+    <Compile Include="RamLogger.cs" />
+    <Compile Include="RamLoggerFifoType.cs" />
+    <Compile Include="RamLoggerHeader.cs" />
+    <Compile Include="RamLoggerType.cs" />
+    <Compile Include="ReadValue.cs" />
+    <Compile Include="Warning.cs" />
+    <Compile Include="FirmwareManager.cs" />
+    <Compile Include="InvalidMapFileException.cs" />
+    <Compile Include="FirmwareEditor.cs" />
+    <Compile Include="LoggerEditor.cs" />
+    <Compile Include="Simulator.cs" />
+    <Compile Include="OverwriteEditor.cs" />
+    <Compile Include="PlugInAnchor.cs" />
+    <Compile Include="TypeDataEditor.cs" />
+    <Compile Include="TypeEditor.cs" />
+    <Compile Include="TestCommand.cs" />
+    <Compile Include="DatabaseDeviceInfo.cs" />
+    <Compile Include="FlashLoggerType.cs" />
+    <Compile Include="FlashLoggerEntry.cs" />
+    <Compile Include="ConfiguratorPdcRadio.cs" />
+    <Compile Include="LoggerManager.cs" />
+    <Compile Include="PDC_Database.cs" />
+    <Compile Include="Data.cs" />
+    <Compile Include="Firmware.cs" />
+    <Compile Include="PDC_HandlerWindow.cs" />
+    <Compile Include="PDC_HandlerFunctions.cs" />
+    <Compile Include="DeviceIdentification.cs" />
+    <Compile Include="DeviceVersion.cs" />
+    <Compile Include="PDC_MemoryMap.cs" />
+    <Compile Include="PDC_Meter.cs" />
+    <Compile Include="Parameter.cs" />
+    <Compile Include="ParameterEditor.cs" />
+    <Compile Include="ZoomEditor.cs" />
+    <Compile Include="Properties\Resources.cs" />
+    <Compile Include="Properties\Settings.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ConfiguratorPdcRadio.resx" />
+    <EmbeddedResource Include="FirmwareEditor.resx" />
+    <EmbeddedResource Include="LoggerEditor.resx" />
+    <EmbeddedResource Include="OverwriteEditor.resx" />
+    <EmbeddedResource Include="ParameterEditor.resx" />
+    <EmbeddedResource Include="PDC_HandlerWindow.resx" />
+    <EmbeddedResource Include="Properties\Resources.resx" />
+    <EmbeddedResource Include="Simulator.resx" />
+    <EmbeddedResource Include="TestCommand.resx" />
+    <EmbeddedResource Include="TypeDataEditor.resx" />
+    <EmbeddedResource Include="TypeEditor.resx" />
+    <EmbeddedResource Include="ZoomEditor.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

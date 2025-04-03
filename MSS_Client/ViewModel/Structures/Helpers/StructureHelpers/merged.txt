@@ -1,0 +1,414 @@
+
+--- CreateFixedStructureBehavior.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Structures.Helpers.StructureHelpers.CreateFixedStructureBehavior
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+#nullable disable
+namespace MSS_Client.ViewModel.Structures.Helpers.StructureHelpers
+{
+  public class CreateFixedStructureBehavior : FixedStructureBehavior
+  {
+  }
+}
+
+
+--- CreateLogicalStructureBehavior.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Structures.Helpers.StructureHelpers.CreateLogicalStructureBehavior
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+#nullable disable
+namespace MSS_Client.ViewModel.Structures.Helpers.StructureHelpers
+{
+  public class CreateLogicalStructureBehavior : LogicalStructureBehaviour
+  {
+  }
+}
+
+
+--- CreatePhysicalStructureBehavior.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Structures.Helpers.StructureHelpers.CreatePhysicalStructureBehavior
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+#nullable disable
+namespace MSS_Client.ViewModel.Structures.Helpers.StructureHelpers
+{
+  public class CreatePhysicalStructureBehavior : PhysicalStructureBehaviour
+  {
+  }
+}
+
+
+--- EditFixedStructureBehavior.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Structures.Helpers.StructureHelpers.EditFixedStructureBehavior
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+#nullable disable
+namespace MSS_Client.ViewModel.Structures.Helpers.StructureHelpers
+{
+  public class EditFixedStructureBehavior : FixedStructureBehavior
+  {
+  }
+}
+
+
+--- EditLogicalStructureBehavior.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Structures.Helpers.StructureHelpers.EditLogicalStructureBehavior
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+#nullable disable
+namespace MSS_Client.ViewModel.Structures.Helpers.StructureHelpers
+{
+  public class EditLogicalStructureBehavior : LogicalStructureBehaviour
+  {
+  }
+}
+
+
+--- EditPhysicalStructureBehavior.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Structures.Helpers.StructureHelpers.EditPhysicalStructureBehavior
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+#nullable disable
+namespace MSS_Client.ViewModel.Structures.Helpers.StructureHelpers
+{
+  public class EditPhysicalStructureBehavior : PhysicalStructureBehaviour
+  {
+  }
+}
+
+
+--- FixedStructureBehavior.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Structures.Helpers.StructureHelpers.FixedStructureBehavior
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS_Client.ViewModel.Structures.DeviceViewModels;
+using MSS_Client.ViewModel.Structures.Helpers.DeviceHelpers;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Structures.Helpers.StructureHelpers
+{
+  public class FixedStructureBehavior : StructureBehaviour
+  {
+    public static FixedStructureBehavior GetFixedStructureBehaviour(bool isEdit)
+    {
+      return !isEdit ? (FixedStructureBehavior) new CreateFixedStructureBehavior() : (FixedStructureBehavior) new EditFixedStructureBehavior();
+    }
+
+    public override void InitializeDeviceViewModel(
+      DeviceViewModel deviceVM,
+      DeviceStateEnum deviceState)
+    {
+      switch (deviceState)
+      {
+        case DeviceStateEnum.Create:
+          deviceVM.IsSerialNumberEnabled = true;
+          deviceVM.IsDeviceGroupEnabled = true;
+          deviceVM.IsDeviceModelEnabled = true;
+          deviceVM.IsSpecificTabSelected = true;
+          deviceVM.IsSaveAndCreateNewVisible = true;
+          break;
+        case DeviceStateEnum.Edit:
+          deviceVM.IsSerialNumberEnabled = deviceVM.SerialNo == string.Empty;
+          deviceVM.IsDeviceGroupEnabled = true;
+          deviceVM.IsDeviceModelEnabled = true;
+          deviceVM.IsSpecificTabSelected = true;
+          deviceVM.IsSaveAndCreateNewVisible = true;
+          break;
+        case DeviceStateEnum.Replace:
+          deviceVM.IsSerialNumberEnabled = true;
+          deviceVM.IsDeviceGroupEnabled = true;
+          deviceVM.IsDeviceModelEnabled = true;
+          deviceVM.IsSpecificTabSelected = true;
+          deviceVM.IsSaveAndCreateNewVisible = false;
+          break;
+      }
+    }
+
+    public override void UpdateName(DeviceViewModel deviceVM) => deviceVM.Name = deviceVM.SerialNo;
+  }
+}
+
+
+--- LogicalStructureBehaviour.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Structures.Helpers.StructureHelpers.LogicalStructureBehaviour
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Core.Model.Structures;
+using MSS_Client.ViewModel.Structures.DeviceViewModels;
+using MSS_Client.ViewModel.Structures.Helpers.DeviceHelpers;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Structures.Helpers.StructureHelpers
+{
+  public class LogicalStructureBehaviour : StructureBehaviour
+  {
+    public static LogicalStructureBehaviour GetLogicalStructureBehaviour(bool isEdit)
+    {
+      return !isEdit ? (LogicalStructureBehaviour) new CreateLogicalStructureBehavior() : (LogicalStructureBehaviour) new EditLogicalStructureBehavior();
+    }
+
+    public override void InitializeDeviceViewModel(
+      DeviceViewModel deviceVM,
+      DeviceStateEnum deviceState)
+    {
+      switch (deviceState)
+      {
+        case DeviceStateEnum.Create:
+          deviceVM.IsSerialNumberEnabled = true;
+          deviceVM.IsDeviceGroupEnabled = true;
+          deviceVM.IsDeviceModelEnabled = true;
+          deviceVM.IsMeterGeneralTabVisible = deviceVM.SelectedNodeType == StructureNodeTypeEnum.Meter;
+          deviceVM.IsRadioMeterGeneralTabVisible = deviceVM.SelectedNodeType == StructureNodeTypeEnum.RadioMeter;
+          deviceVM.IsSpecificTabSelected = true;
+          deviceVM.IsSaveAndCreateNewVisible = false;
+          break;
+        case DeviceStateEnum.Edit:
+          deviceVM.IsSerialNumberEnabled = deviceVM.SerialNo == string.Empty;
+          deviceVM.IsDeviceGroupEnabled = false;
+          deviceVM.IsDeviceModelEnabled = false;
+          deviceVM.IsMeterGeneralTabVisible = deviceVM.SelectedNodeType == StructureNodeTypeEnum.Meter;
+          deviceVM.IsMeterGeneralTabSelected = deviceVM.IsMeterGeneralTabVisible;
+          deviceVM.IsRadioMeterGeneralTabVisible = deviceVM.SelectedNodeType == StructureNodeTypeEnum.RadioMeter;
+          deviceVM.IsRadioMeterGeneralTabSelected = deviceVM.IsRadioMeterGeneralTabVisible;
+          deviceVM.IsSaveAndCreateNewVisible = false;
+          break;
+        case DeviceStateEnum.Replace:
+          deviceVM.IsSerialNumberEnabled = true;
+          deviceVM.IsDeviceGroupEnabled = true;
+          deviceVM.IsDeviceModelEnabled = true;
+          deviceVM.IsMeterGeneralTabVisible = deviceVM.SelectedNodeType == StructureNodeTypeEnum.Meter;
+          deviceVM.IsRadioMeterGeneralTabVisible = deviceVM.SelectedNodeType == StructureNodeTypeEnum.RadioMeter;
+          deviceVM.IsSpecificTabSelected = true;
+          deviceVM.IsSaveAndCreateNewVisible = false;
+          break;
+      }
+    }
+
+    public override void UpdateName(DeviceViewModel deviceVM)
+    {
+    }
+  }
+}
+
+
+--- PhysicalStructureBehaviour.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Structures.Helpers.StructureHelpers.PhysicalStructureBehaviour
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Core.Model.Structures;
+using MSS_Client.ViewModel.Structures.DeviceViewModels;
+using MSS_Client.ViewModel.Structures.Helpers.DeviceHelpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Structures.Helpers.StructureHelpers
+{
+  public class PhysicalStructureBehaviour : StructureBehaviour
+  {
+    public static PhysicalStructureBehaviour GetPhysicalStructureBehaviour(bool isEdit)
+    {
+      return !isEdit ? (PhysicalStructureBehaviour) new CreatePhysicalStructureBehavior() : (PhysicalStructureBehaviour) new EditPhysicalStructureBehavior();
+    }
+
+    public override void InitializeDeviceViewModel(
+      DeviceViewModel deviceVM,
+      DeviceStateEnum deviceState)
+    {
+      switch (deviceState)
+      {
+        case DeviceStateEnum.Create:
+          deviceVM.IsSerialNumberEnabled = true;
+          deviceVM.IsDeviceGroupEnabled = true;
+          deviceVM.IsDeviceModelEnabled = true;
+          deviceVM.IsMeterGeneralTabVisible = deviceVM.SelectedNodeType == StructureNodeTypeEnum.Meter;
+          deviceVM.IsRadioMeterGeneralTabVisible = deviceVM.SelectedNodeType == StructureNodeTypeEnum.RadioMeter;
+          deviceVM.IsSpecificTabSelected = true;
+          deviceVM.IsSaveAndCreateNewVisible = true;
+          break;
+        case DeviceStateEnum.Edit:
+          deviceVM.IsDeviceGroupEnabled = false;
+          deviceVM.IsDeviceModelEnabled = false;
+          deviceVM.IsMeterGeneralTabVisible = deviceVM.SelectedNodeType == StructureNodeTypeEnum.Meter;
+          deviceVM.IsMeterGeneralTabSelected = deviceVM.IsMeterGeneralTabVisible;
+          deviceVM.IsRadioMeterGeneralTabVisible = deviceVM.SelectedNodeType == StructureNodeTypeEnum.RadioMeter;
+          deviceVM.IsRadioMeterGeneralTabSelected = deviceVM.IsRadioMeterGeneralTabVisible;
+          deviceVM.IsSaveAndCreateNewVisible = true;
+          break;
+        case DeviceStateEnum.Replace:
+          deviceVM.IsSerialNumberEnabled = true;
+          deviceVM.IsDeviceGroupEnabled = true;
+          deviceVM.IsDeviceModelEnabled = true;
+          deviceVM.IsMeterGeneralTabVisible = deviceVM.SelectedNodeType == StructureNodeTypeEnum.Meter;
+          deviceVM.IsRadioMeterGeneralTabVisible = deviceVM.SelectedNodeType == StructureNodeTypeEnum.RadioMeter;
+          deviceVM.IsSpecificTabSelected = true;
+          deviceVM.IsSaveAndCreateNewVisible = false;
+          break;
+      }
+    }
+
+    public override void UpdateName(DeviceViewModel deviceVM)
+    {
+      deviceVM.Name = this.UpdateDeviceNameForLogicalAndPhysicalStr(deviceVM);
+    }
+
+    private string UpdateDeviceNameForLogicalAndPhysicalStr(DeviceViewModel deviceVM)
+    {
+      string str1 = string.Empty;
+      if (deviceVM.Name != null)
+      {
+        string[] source = deviceVM.Name.Split(new string[1]
+        {
+          " - "
+        }, 2, StringSplitOptions.None);
+        string str2 = source[source.Length - 1];
+        if (str2 == deviceVM.AnteriorSerialNumber)
+        {
+          if (deviceVM.SerialNo == string.Empty || str2 != deviceVM.SerialNo)
+          {
+            source[source.Length - 1] = deviceVM.SerialNo;
+            str1 = ((IEnumerable<string>) source).Aggregate<string, string>(string.Empty, (Func<string, string, string>) ((current, s) => !(current == string.Empty) ? current + " - " + s : s));
+            if (deviceVM.SerialNo == string.Empty)
+              str1 = str1.Remove(str1.Length - 2, 2);
+          }
+        }
+        else
+          str1 = deviceVM.SerialNo != string.Empty ? string.Format("{0} - {1}", (object) deviceVM.Name, (object) deviceVM.SerialNo) : deviceVM.Name;
+      }
+      else if (deviceVM.SerialNo != string.Empty)
+        str1 = string.Format("{0} - {1}", (object) string.Empty, (object) deviceVM.SerialNo);
+      return str1;
+    }
+  }
+}
+
+
+--- StructureBehaviour.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Structures.Helpers.StructureHelpers.StructureBehaviour
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS_Client.ViewModel.Structures.DeviceViewModels;
+using MSS_Client.ViewModel.Structures.Helpers.DeviceHelpers;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Structures.Helpers.StructureHelpers
+{
+  public abstract class StructureBehaviour
+  {
+    public abstract void InitializeDeviceViewModel(
+      DeviceViewModel deviceVM,
+      DeviceStateEnum deviceState);
+
+    public abstract void UpdateName(DeviceViewModel deviceVM);
+  }
+}
+
+
+--- StructureFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Structures.Helpers.StructureHelpers.StructureFactory
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Core.Model.Structures;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Structures.Helpers.StructureHelpers
+{
+  public class StructureFactory
+  {
+    public static StructureBehaviour GetStructureBehaviour(
+      StructureTypeEnum? structureType,
+      bool isEdit)
+    {
+      StructureTypeEnum? nullable = structureType;
+      StructureBehaviour structureBehaviour;
+      if (nullable.HasValue)
+      {
+        switch (nullable.GetValueOrDefault())
+        {
+          case StructureTypeEnum.Physical:
+            structureBehaviour = (StructureBehaviour) PhysicalStructureBehaviour.GetPhysicalStructureBehaviour(isEdit);
+            goto label_6;
+          case StructureTypeEnum.Logical:
+            structureBehaviour = (StructureBehaviour) LogicalStructureBehaviour.GetLogicalStructureBehaviour(isEdit);
+            goto label_6;
+          case StructureTypeEnum.Fixed:
+            structureBehaviour = (StructureBehaviour) FixedStructureBehavior.GetFixedStructureBehaviour(isEdit);
+            goto label_6;
+        }
+      }
+      structureBehaviour = (StructureBehaviour) null;
+label_6:
+      return structureBehaviour;
+    }
+
+    public static StructureBehaviour GetStructureBehaviour(StructureTypeEnum? structureType)
+    {
+      StructureTypeEnum? nullable = structureType;
+      StructureBehaviour structureBehaviour;
+      if (nullable.HasValue)
+      {
+        switch (nullable.GetValueOrDefault())
+        {
+          case StructureTypeEnum.Physical:
+            structureBehaviour = (StructureBehaviour) new PhysicalStructureBehaviour();
+            goto label_6;
+          case StructureTypeEnum.Logical:
+            structureBehaviour = (StructureBehaviour) new LogicalStructureBehaviour();
+            goto label_6;
+          case StructureTypeEnum.Fixed:
+            structureBehaviour = (StructureBehaviour) new FixedStructureBehavior();
+            goto label_6;
+        }
+      }
+      structureBehaviour = (StructureBehaviour) null;
+label_6:
+      return structureBehaviour;
+    }
+  }
+}
+

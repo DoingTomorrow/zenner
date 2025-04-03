@@ -1,0 +1,23 @@
+<Window x:Class="ReadoutConfiguration.ChangeNameAndDescription"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Loaded="Window_Loaded" Title="Change connection item name and description" Height="385" Width="607"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico">
+  <Grid>
+    <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
+    <Button Click="ButtonOk_Click" Name="ButtonOk" Content="Ok" HorizontalAlignment="Right" Margin="0,0,10,10"
+            VerticalAlignment="Bottom" Width="126"/>
+    <Label Content="Name:" HorizontalAlignment="Left" Margin="22,70,0,0" VerticalAlignment="Top"
+           RenderTransformOrigin="0.053,0.808"/>
+    <TextBox Name="TextBoxName" Height="23" Margin="146,72,10,0" TextWrapping="NoWrap" VerticalAlignment="Top"/>
+    <Label Content="TypeClassification:" HorizontalAlignment="Left" Margin="22,114,0,0"
+           VerticalAlignment="Top" RenderTransformOrigin="0.053,0.808"/>
+    <TextBox Name="TextBoxTypeClassification" Height="23" Margin="146,114,10,0" TextWrapping="NoWrap"
+             VerticalAlignment="Top"/>
+    <Label Content="Description:" HorizontalAlignment="Left" Margin="22,158,0,0" VerticalAlignment="Top"
+           RenderTransformOrigin="0.053,0.808"/>
+    <TextBox Name="TextBoxDescription" Margin="22,189,10,37" AcceptsReturn="true" TextWrapping="Wrap"/>
+    <Label x:Name="LableItemType" Content="Label" Margin="22,318,174,0" VerticalAlignment="Top" Height="31"/>
+  </Grid>
+</Window>

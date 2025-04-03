@@ -1,0 +1,400 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Synchronization.DatabaseConstants
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.DataFilters;
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.Orders;
+using MSS.Core.Model.Structures;
+using MSS.Core.Model.UsersManagement;
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Modules.Synchronization
+{
+  public static class DatabaseConstants
+  {
+    public const string TABLE__SCOPE_INFO = "scope_info";
+    public const string TABLE__ARCHIVE_READING_VALUE = "t_ReadingValues";
+    public const string TABLE__ARCHIVE_LOGS = "t_MinomatConnectionLog";
+    public const string TABLE__ARCHIVE_ORDER = "t_Order";
+    public const string TABLE__ARCHIVE_JOBS = "t_Job";
+    public const string TABLE__ARCHIVE_JOB_LOGS = "t_JobLogs";
+    public const string TABLE__ARCHIVE_METER = "t_Meter";
+    public const string TABLE__ARCHIVE_LOCATION = "t_Location";
+    public const string TABLE__ARCHIVE_TENANT = "t_Tenant";
+    public const string TABLE__ARCHIVE_MINOMAT = "t_Minomat";
+    public const string TABLE__ARCHIVE_METER_RADIO_DETAILS = "t_MeterRadioDetails";
+    public const string TABLE__ARCHIVE_METER_MBUS_RADIO = "t_MeterMbusRadio";
+    public const string TABLE__ARCHIVE_MINOMAT_RADIO_DETAILS = "t_MinomatRadioDetails";
+    public const string TABLE__ARCHIVE_STRUCTURE_NODE = "t_StructureNode";
+    public const string TABLE__ARCHIVE_STRUCTURE_NODE_LINKS = "t_StructureNodeLinks";
+    public const string TABLE__TEMP_PROCESSING_ITEMS = "temp_processing_items";
+    public const string TABLE__METER = "t_Meter";
+    public const string TABLE__MEASURE_UNIT = "t_MeasureUnit";
+    public const string TABLE__ROOM_TYPE = "t_RoomType";
+    public const string TABLE__CHANNEL = "t_Channel";
+    public const string TABLE__CONNECTED_DEVICE_TYPE = "t_ConnectedDeviceType";
+    public const string TABLE__USER = "t_User";
+    public const string TABLE__ROLE = "t_Role";
+    public const string TABLE__OPERATION = "t_Operation";
+    public const string TABLE__USER_ROLE = "t_UserRole";
+    public const string TABLE__ROLE_OPERATION = "t_RoleOperation";
+    public const string TABLE__STRUCTURE_NODE = "t_StructureNode";
+    public const string TABLE__STRUCTURE_NODE_LINKS = "t_StructureNodeLinks";
+    public const string TABLE__STRUCTURE_NODE_TYPE = "t_StructureNodeType";
+    public const string TABLE__TENANT = "t_Tenant";
+    public const string TABLE__LOCATION = "t_Location";
+    public const string TABLE__SCENARIO = "t_Scenario";
+    public const string TABLE__READING_VALUE = "t_ReadingValues";
+    public const string TABLE__LOGS = "t_MinomatConnectionLog";
+    public const string TABLE__METER_RADIO_DETAILS = "t_MeterRadioDetails";
+    public const string TABLE__ORDER = "t_Order";
+    public const string TABLE__ORDER_USER = "t_OrderUser";
+    public const string TABLE__FILTER = "t_Filters";
+    public const string TABLE__RULE = "t_Rules";
+    public const string TABLE__COM_SERVER = "t_COMServer";
+    public const string TABLE__PROVIDER = "t_Provider";
+    public const string TABLE__MDM_CONFIGS = "t_MDMConfigs";
+    public const string TABLE__CELESTA_READING_DEVICE_TYPE = "t_CelestaReadingDeviceTypes";
+    public const string TABLE__COUNTRY = "t_Country";
+    public const string TABLE__MINOMAT = "t_Minomat";
+    public const string TABLE__MINOMAT_RADIO_DETAILS = "t_MinomatRadioDetails";
+    public const string TABLE__USER_DEVICE_TYPE_SETTINGS = "t_UserDeviceTypeSettings";
+    public const string TABLE__RADIO_TESTRUN = "t_RadioTestRun";
+    public const string TABLE__RADIO_TESTRUN_DEVICE = "t_RadioTestRunDevice";
+    public const string TABLE__JOB_DEFINITIONS = "t_JobDefinitions";
+    public const string TABLE__SCENARIO_JOB_DEFINTIONS = "t_ScenarioJobDefinitions";
+    public const string TABLE__TEST_ORDER = "t_TestOrder";
+    public const string VIEW__ARCHIVE_ORDER = "view_ArchiveOrders";
+    public const string VIEW__ARCHIVE_READING_VALUES = "view_ArchiveReadingValues";
+    public const string VIEW__ARCHIVE_LOGS = "view_ArchiveLogs";
+    public const string VIEW__ARCHIVE_JOBS = "view_ArchiveMssReadingJobs";
+    public const string VIEW__ARCHIVE_JOB_LOGS = "view_ArchiveJobLogs";
+    public const string VIEW__ARCHIVE_METER = "view_ArchiveMeter";
+    public const string VIEW__ARCHIVE_LOCATION = "view_ArchiveLocation";
+    public const string VIEW__ARCHIVE_TENANT = "view_ArchiveTenant";
+    public const string VIEW__ARCHIVE_MINOMAT = "view_ArchiveMinomat";
+    public const string VIEW__ARCHIVE_METER_RADIO_DETAILS = "view_ArchiveMeterRadioDetails";
+    public const string VIEW__ARCHIVE_METER_MBUS_RADIO = "view_ArchiveMeterMbusRadio";
+    public const string VIEW__ARCHIVE_MINOMAT_RADIO_DETAILS = "view_ArchiveMinomatRadioDetails";
+    public const string VIEW__ARCHIVE_STRUCTURE_NODE = "view_ArchiveStructureNode";
+    public const string VIEW__ARCHIVE_STRUCTURE_NODE_LINKS = "view_ArchiveStructureNodeLinks";
+    public const string STORED_PROC__CHANNEL_SELECT_CHANGES = "t_Channel_selectchanges";
+    public const string STORED_PROC__CHANNEL_SELECT_CHANGES_FILTERED = "t_Channel_selectchangesfiltered";
+    public const string STORED_PROC__CHANNEL_SELECT_ROW = "t_Channel_selectrow";
+    public const string STORED_PROC__CHANNEL_SELECT_METADATA = "t_Channel_selectmetadata";
+    public const string STORED_PROC__CHANNEL_INSERT = "t_Channel_insert";
+    public const string STORED_PROC__CHANNEL_INSERT_METADATA = "t_Channel_insertmetadata";
+    public const string STORED_PROC__CHANNEL_UPDATE = "t_Channel_update";
+    public const string STORED_PROC__CHANNEL_UPDATE_METADATA = "t_Channel_updatemetadata";
+    public const string STORED_PROC__CHANNEL_DELETE = "t_Channel_delete";
+    public const string STORED_PROC__CHANNEL_DELETE_METADATA = "t_Channel_deletemetadata";
+    public const string STORED_PROC__CONNECTED_DEVICE_TYPE_SELECT_CHANGES = "t_ConnectedDeviceType_selectchanges";
+    public const string STORED_PROC__CONNECTED_DEVICE_TYPE_SELECT_CHANGES_FILTERED = "t_ConnectedDeviceType_selectchangesfiltered";
+    public const string STORED_PROC__CONNECTED_DEVICE_TYPE_SELECT_ROW = "t_ConnectedDeviceType_selectrow";
+    public const string STORED_PROC__CONNECTED_DEVICE_TYPE_SELECT_METADATA = "t_ConnectedDeviceType_selectmetadata";
+    public const string STORED_PROC__CONNECTED_DEVICE_TYPE_INSERT = "t_ConnectedDeviceType_insert";
+    public const string STORED_PROC__CONNECTED_DEVICE_TYPE_INSERT_METADATA = "t_ConnectedDeviceType_insertmetadata";
+    public const string STORED_PROC__CONNECTED_DEVICE_TYPE_UPDATE = "t_ConnectedDeviceType_update";
+    public const string STORED_PROC__CONNECTED_DEVICE_TYPE_UPDATE_METADATA = "t_ConnectedDeviceType_updatemetadata";
+    public const string STORED_PROC__CONNECTED_DEVICE_TYPE_DELETE = "t_ConnectedDeviceType_delete";
+    public const string STORED_PROC__CONNECTED_DEVICE_TYPE_DELETE_METADATA = "t_ConnectedDeviceType_deletemetadata";
+    public const string STORED_PROC__MEASURE_UNIT_SELECT_CHANGES = "t_MeasureUnit_selectchanges";
+    public const string STORED_PROC__MEASURE_UNIT_SELECT_CHANGES_FILTERED = "t_MeasureUnit_selectchangesfiltered";
+    public const string STORED_PROC__MEASURE_UNIT_SELECT_ROW = "t_MeasureUnit_selectrow";
+    public const string STORED_PROC__MEASURE_UNIT_SELECT_METADATA = "t_MeasureUnit_selectmetadata";
+    public const string STORED_PROC__MEASURE_UNIT_INSERT = "t_MeasureUnit_insert";
+    public const string STORED_PROC__MEASURE_UNIT_INSERT_METADATA = "t_MeasureUnit_insertmetadata";
+    public const string STORED_PROC__MEASURE_UNIT_UPDATE = "t_MeasureUnit_update";
+    public const string STORED_PROC__MEASURE_UNIT_UPDATE_METADATA = "t_MeasureUnit_updatemetadata";
+    public const string STORED_PROC__MEASURE_UNIT_DELETE = "t_MeasureUnit_delete";
+    public const string STORED_PROC__MEASURE_UNIT_DELETE_METADATA = "t_MeasureUnit_deletemetadata";
+    public const string STORED_PROC__METER_SELECT_CHANGES = "t_Meter_selectchanges";
+    public const string STORED_PROC__METER_SELECT_CHANGES_FILTERED = "t_Meter_selectchangesfiltered";
+    public const string STORED_PROC__METER_SELECT_ROW = "t_Meter_selectrow";
+    public const string STORED_PROC__METER_SELECT_METADATA = "t_Meter_selectmetadata";
+    public const string STORED_PROC__METER_INSERT = "t_Meter_insert";
+    public const string STORED_PROC__METER_INSERT_METADATA = "t_Meter_insertmetadata";
+    public const string STORED_PROC__METER_UPDATE = "t_Meter_update";
+    public const string STORED_PROC__METER_UPDATE_METADATA = "t_Meter_updatemetadata";
+    public const string STORED_PROC__METER_DELETE = "t_Meter_delete";
+    public const string STORED_PROC__METER_DELETE_METADATA = "t_Meter_deletemetadata";
+    public const string STORED_PROC__ROOM_TYPE_SELECT_CHANGES = "t_RoomType_selectchanges";
+    public const string STORED_PROC__ROOM_TYPE_SELECT_CHANGES_FILTERED = "t_RoomType_selectchangesfiltered";
+    public const string STORED_PROC__ROOM_TYPE_SELECT_ROW = "t_RoomType_selectrow";
+    public const string STORED_PROC__ROOM_TYPE_SELECT_METADATA = "t_RoomType_selectmetadata";
+    public const string STORED_PROC__ROOM_TYPE_INSERT = "t_RoomType_insert";
+    public const string STORED_PROC__ROOM_TYPE_INSERT_METADATA = "t_RoomType_insertmetadata";
+    public const string STORED_PROC__ROOM_TYPE_UPDATE = "t_RoomType_update";
+    public const string STORED_PROC__ROOM_TYPE_UPDATE_METADATA = "t_RoomType_updatemetadata";
+    public const string STORED_PROC__ROOM_TYPE_DELETE = "t_RoomType_delete";
+    public const string STORED_PROC__ROOM_TYPE_DELETE_METADATA = "t_RoomType_deletemetadata";
+    public const string STORED_PROC__USER_SELECT_CHANGES = "t_User_selectchanges";
+    public const string STORED_PROC__USER_SELECT_CHANGES_FILTERED = "t_User_selectchangesfiltered";
+    public const string STORED_PROC__USER_SELECT_ROW = "t_User_selectrow";
+    public const string STORED_PROC__USER_SELECT_METADATA = "t_User_selectmetadata";
+    public const string STORED_PROC__USER_INSERT = "t_User_insert";
+    public const string STORED_PROC__USER_INSERT_METADATA = "t_User_insertmetadata";
+    public const string STORED_PROC__USER_UPDATE = "t_User_update";
+    public const string STORED_PROC__USER_UPDATE_METADATA = "t_User_updatemetadata";
+    public const string STORED_PROC__USER_DELETE = "t_User_delete";
+    public const string STORED_PROC__USER_DELETE_METADATA = "t_User_deletemetadata";
+    public const string STORED_PROC__ROLE_SELECT_CHANGES = "t_Role_selectchanges";
+    public const string STORED_PROC__ROLE_SELECT_CHANGES_FILTERED = "t_Role_selectchangesfiltered";
+    public const string STORED_PROC__ROLE_SELECT_ROW = "t_Role_selectrow";
+    public const string STORED_PROC__ROLE_SELECT_METADATA = "t_Role_selectmetadata";
+    public const string STORED_PROC__ROLE_INSERT = "t_Role_insert";
+    public const string STORED_PROC__ROLE_INSERT_METADATA = "t_Role_insertmetadata";
+    public const string STORED_PROC__ROLE_UPDATE = "t_Role_update";
+    public const string STORED_PROC__ROLE_UPDATE_METADATA = "t_Role_updatemetadata";
+    public const string STORED_PROC__ROLE_DELETE = "t_Role_delete";
+    public const string STORED_PROC__ROLE_DELETE_METADATA = "t_Role_deletemetadata";
+    public const string STORED_PROC__OPERATION_SELECT_CHANGES = "t_Operation_selectchanges";
+    public const string STORED_PROC__OPERATION_SELECT_CHANGES_FILTERED = "t_Operation_selectchangesfiltered";
+    public const string STORED_PROC__OPERATION_SELECT_ROW = "t_Operation_selectrow";
+    public const string STORED_PROC__OPERATION_SELECT_METADATA = "t_Operation_selectmetadata";
+    public const string STORED_PROC__OPERATION_INSERT = "t_Operation_insert";
+    public const string STORED_PROC__OPERATION_INSERT_METADATA = "t_Operation_insertmetadata";
+    public const string STORED_PROC__OPERATION_UPDATE = "t_Operation_update";
+    public const string STORED_PROC__OPERATION_UPDATE_METADATA = "t_Operation_updatemetadata";
+    public const string STORED_PROC__OPERATION_DELETE = "t_Operation_delete";
+    public const string STORED_PROC__OPERATION_DELETE_METADATA = "t_Operation_deletemetadata";
+    public const string STORED_PROC__USER_ROLE_SELECT_CHANGES = "t_UserRole_selectchanges";
+    public const string STORED_PROC__USER_ROLE_SELECT_CHANGES_FILTERED = "t_UserRole_selectchangesfiltered";
+    public const string STORED_PROC__USER_ROLE_SELECT_ROW = "t_UserRole_selectrow";
+    public const string STORED_PROC__USER_ROLE_SELECT_METADATA = "t_UserRole_selectmetadata";
+    public const string STORED_PROC__USER_ROLE_INSERT = "t_UserRole_insert";
+    public const string STORED_PROC__USER_ROLE_INSERT_METADATA = "t_UserRole_insertmetadata";
+    public const string STORED_PROC__USER_ROLE_UPDATE = "t_UserRole_update";
+    public const string STORED_PROC__USER_ROLE_UPDATE_METADATA = "t_UserRole_updatemetadata";
+    public const string STORED_PROC__USER_ROLE_DELETE = "t_UserRole_delete";
+    public const string STORED_PROC__USER_ROLE_DELETE_METADATA = "t_UserRole_deletemetadata";
+    public const string STORED_PROC__ROLE_OPERATION_SELECT_CHANGES = "t_RoleOperation_selectchanges";
+    public const string STORED_PROC__ROLE_OPERATION_SELECT_CHANGES_FILTERED = "t_RoleOperation_selectchangesfiltered";
+    public const string STORED_PROC__ROLE_OPERATION_SELECT_ROW = "t_RoleOperation_selectrow";
+    public const string STORED_PROC__ROLE_OPERATION_SELECT_METADATA = "t_RoleOperation_selectmetadata";
+    public const string STORED_PROC__ROLE_OPERATION_INSERT = "t_RoleOperation_insert";
+    public const string STORED_PROC__ROLE_OPERATION_INSERT_METADATA = "t_RoleOperation_insertmetadata";
+    public const string STORED_PROC__ROLE_OPERATION_UPDATE = "t_RoleOperation_update";
+    public const string STORED_PROC__ROLE_OPERATION_UPDATE_METADATA = "t_RoleOperation_updatemetadata";
+    public const string STORED_PROC__ROLE_OPERATION_DELETE = "t_RoleOperation_delete";
+    public const string STORED_PROC__ROLE_OPERATION_DELETE_METADATA = "t_RoleOperation_deletemetadata";
+    public const string STORED_PROC__STRUCTURE_NODE_LINKS_SELECT_CHANGES = "t_StructureNodeLinks_selectchanges";
+    public const string STORED_PROC__STRUCTURE_NODE_LINKS_SELECT_CHANGES_FILTERED = "t_StructureNodeLinks_selectchangesfiltered";
+    public const string STORED_PROC__STRUCTURE_NODE_LINKS_SELECT_ROW = "t_StructureNodeLinks_selectrow";
+    public const string STORED_PROC__STRUCTURE_NODE_LINKS_SELECT_METADATA = "t_StructureNodeLinks_selectmetadata";
+    public const string STORED_PROC__STRUCTURE_NODE_LINKS_INSERT = "t_StructureNodeLinks_insert";
+    public const string STORED_PROC__STRUCTURE_NODE_LINKS_INSERT_METADATA = "t_StructureNodeLinks_insertmetadata";
+    public const string STORED_PROC__STRUCTURE_NODE_LINKS_UPDATE = "t_StructureNodeLinks_update";
+    public const string STORED_PROC__STRUCTURE_NODE_LINKS_UPDATE_METADATA = "t_StructureNodeLinks_updatemetadata";
+    public const string STORED_PROC__STRUCTURE_NODE_LINKS_DELETE = "t_StructureNodeLinks_delete";
+    public const string STORED_PROC__STRUCTURE_NODE_LINKS_DELETE_METADATA = "t_StructureNodeLinks_deletemetadata";
+    public const string STORED_PROC__STRUCTURE_NODE_TYPE_SELECT_CHANGES = "t_StructureNodeType_selectchanges";
+    public const string STORED_PROC__STRUCTURE_NODE_TYPE_SELECT_CHANGES_FILTERED = "t_StructureNodeType_selectchangesfiltered";
+    public const string STORED_PROC__STRUCTURE_NODE_TYPE_SELECT_ROW = "t_StructureNodeType_selectrow";
+    public const string STORED_PROC__STRUCTURE_NODE_TYPE_SELECT_METADATA = "t_StructureNodeType_selectmetadata";
+    public const string STORED_PROC__STRUCTURE_NODE_TYPE_INSERT = "t_StructureNodeType_insert";
+    public const string STORED_PROC__STRUCTURE_NODE_TYPE_INSERT_METADATA = "t_StructureNodeType_insertmetadata";
+    public const string STORED_PROC__STRUCTURE_NODE_TYPE_UPDATE = "t_StructureNodeType_update";
+    public const string STORED_PROC__STRUCTURE_NODE_TYPE_UPDATE_METADATA = "t_StructureNodeType_updatemetadata";
+    public const string STORED_PROC__STRUCTURE_NODE_TYPE_DELETE = "t_StructureNodeType_delete";
+    public const string STORED_PROC__STRUCTURE_NODE_TYPE_DELETE_METADATA = "t_StructureNodeType_deletemetadata";
+    public const string STORED_PROC__STRUCTURE_NODE_SELECT_CHANGES = "t_StructureNode_selectchanges";
+    public const string STORED_PROC__STRUCTURE_NODE_SELECT_CHANGES_FILTERED = "t_StructureNode_selectchangesfiltered";
+    public const string STORED_PROC__STRUCTURE_NODE_SELECT_ROW = "t_StructureNode_selectrow";
+    public const string STORED_PROC__STRUCTURE_NODE_SELECT_METADATA = "t_StructureNode_selectmetadata";
+    public const string STORED_PROC__STRUCTURE_NODE_INSERT = "t_StructureNode_insert";
+    public const string STORED_PROC__STRUCTURE_NODE_INSERT_METADATA = "t_StructureNode_insertmetadata";
+    public const string STORED_PROC__STRUCTURE_NODE_UPDATE = "t_StructureNode_update";
+    public const string STORED_PROC__STRUCTURE_NODE_UPDATE_METADATA = "t_StructureNode_updatemetadata";
+    public const string STORED_PROC__STRUCTURE_NODE_DELETE = "t_StructureNode_delete";
+    public const string STORED_PROC__STRUCTURE_NODE_DELETE_METADATA = "t_StructureNode_deletemetadata";
+    public const string STORED_PROC__TENANT_SELECT_CHANGES = "t_Tenant_selectchanges";
+    public const string STORED_PROC__TENANT_SELECT_CHANGES_FILTERED = "t_Tenant_selectchangesfiltered";
+    public const string STORED_PROC__TENANT_SELECT_ROW = "t_Tenant_selectrow";
+    public const string STORED_PROC__TENANT_SELECT_METADATA = "t_Tenant_selectmetadata";
+    public const string STORED_PROC__TENANT_INSERT = "t_Tenant_insert";
+    public const string STORED_PROC__TENANT_INSERT_METADATA = "t_Tenant_insertmetadata";
+    public const string STORED_PROC__TENANT_UPDATE = "t_Tenant_update";
+    public const string STORED_PROC__TENANT_UPDATE_METADATA = "t_Tenant_updatemetadata";
+    public const string STORED_PROC__TENANT_DELETE = "t_Tenant_delete";
+    public const string STORED_PROC__TENANT_DELETE_METADATA = "t_Tenant_deletemetadata";
+    public const string STORED_PROC__LOCATION_SELECT_CHANGES = "t_Location_selectchanges";
+    public const string STORED_PROC__LOCATION_SELECT_CHANGES_FILTERED = "t_Location_selectchangesfiltered";
+    public const string STORED_PROC__LOCATION_SELECT_ROW = "t_Location_selectrow";
+    public const string STORED_PROC__LOCATION_SELECT_METADATA = "t_Location_selectmetadata";
+    public const string STORED_PROC__LOCATION_INSERT = "t_Location_insert";
+    public const string STORED_PROC__LOCATION_INSERT_METADATA = "t_Location_insertmetadata";
+    public const string STORED_PROC__LOCATION_UPDATE = "t_Location_update";
+    public const string STORED_PROC__LOCATION_UPDATE_METADATA = "t_Location_updatemetadata";
+    public const string STORED_PROC__LOCATION_DELETE = "t_Location_delete";
+    public const string STORED_PROC__LOCATION_DELETE_METADATA = "t_Location_deletemetadata";
+    public const string STORED_PROC__SCENARIO_SELECT_CHANGES = "t_Scenario_selectchanges";
+    public const string STORED_PROC__SCENARIO_SELECT_CHANGES_FILTERED = "t_Scenario_selectchangesfiltered";
+    public const string STORED_PROC__SCENARIO_SELECT_ROW = "t_Scenario_selectrow";
+    public const string STORED_PROC__SCENARIO_SELECT_METADATA = "t_Scenario_selectmetadata";
+    public const string STORED_PROC__SCENARIO_INSERT = "t_Scenario_insert";
+    public const string STORED_PROC__SCENARIO_INSERT_METADATA = "t_Scenario_insertmetadata";
+    public const string STORED_PROC__SCENARIO_UPDATE = "t_Scenario_update";
+    public const string STORED_PROC__SCENARIO_UPDATE_METADATA = "t_Scenario_updatemetadata";
+    public const string STORED_PROC__SCENARIO_DELETE = "t_Scenario_delete";
+    public const string STORED_PROC__SCENARIO_DELETE_METADATA = "t_Scenario_deletemetadata";
+    public const string STORED_PROC__READING_VALUE_SELECT_CHANGES = "t_ReadingValues_selectchanges";
+    public const string STORED_PROC__READING_VALUE_SELECT_CHANGES_FILTERED = "t_ReadingValues_selectchangesfiltered";
+    public const string STORED_PROC__READING_VALUE_SELECT_ROW = "t_ReadingValues_selectrow";
+    public const string STORED_PROC__READING_VALUE_SELECT_METADATA = "t_ReadingValues_selectmetadata";
+    public const string STORED_PROC__READING_VALUE_INSERT = "t_ReadingValues_insert";
+    public const string STORED_PROC__READING_VALUE_INSERT_METADATA = "t_ReadingValues_insertmetadata";
+    public const string STORED_PROC__READING_VALUE_UPDATE = "t_ReadingValuesn_update";
+    public const string STORED_PROC__READING_VALUE_UPDATE_METADATA = "t_ReadingValues_updatemetadata";
+    public const string STORED_PROC__READING_VALUE_DELETE = "t_ReadingValues_delete";
+    public const string STORED_PROC__READING_VALUE_DELETE_METADATA = "t_ReadingValues_deletemetadata";
+    public const string STORED_PROC__ORDER_SELECT_CHANGES = "t_Order_selectchanges";
+    public const string STORED_PROC__ORDER_SELECT_CHANGES_FILTERED = "t_Order_selectchangesfiltered";
+    public const string STORED_PROC__ORDER_SELECT_ROW = "t_Order_selectrow";
+    public const string STORED_PROC__ORDER_SELECT_METADATA = "t_Order_selectmetadata";
+    public const string STORED_PROC__ORDER_INSERT = "t_Order_insert";
+    public const string STORED_PROC__ORDER_INSERT_METADATA = "t_Order_insertmetadata";
+    public const string STORED_PROC__ORDER_UPDATE = "t_Order_update";
+    public const string STORED_PROC__ORDER_UPDATE_METADATA = "t_Order_updatemetadata";
+    public const string STORED_PROC__ORDER_DELETE = "t_Order_delete";
+    public const string STORED_PROC__ORDER_DELETE_METADATA = "t_Order_deletemetadata";
+    public const string STORED_PROC__ORDER_USER_SELECT_CHANGES = "t_OrderUser_selectchanges";
+    public const string STORED_PROC__ORDER_USER_SELECT_CHANGES_FILTERED = "t_OrderUser_selectchangesfiltered";
+    public const string STORED_PROC__ORDER_USER_SELECT_ROW = "t_OrderUser_selectrow";
+    public const string STORED_PROC__ORDER_USER_SELECT_METADATA = "t_OrderUser_selectmetadata";
+    public const string STORED_PROC__ORDER_USER_INSERT = "t_OrderUser_insert";
+    public const string STORED_PROC__ORDER_USER_INSERT_METADATA = "t_OrderUser_insertmetadata";
+    public const string STORED_PROC__ORDER_USER_UPDATE = "t_OrderUser_update";
+    public const string STORED_PROC__ORDER_USER_UPDATE_METADATA = "t_OrderUser_updatemetadata";
+    public const string STORED_PROC__ORDER_USER_DELETE = "t_OrderUser_delete";
+    public const string STORED_PROC__ORDER_USER_DELETE_METADATA = "t_OrderUser_deletemetadata";
+    public const string STORED_PROC__METER_RADIO_DETAILS_SELECT_CHANGES = "t_MeterRadioDetails_selectchanges";
+    public const string STORED_PROC__METER_RADIO_DETAILS_SELECT_CHANGES_FILTERED = "t_MeterRadioDetails_selectchangesfiltered";
+    public const string STORED_PROC__METER_RADIO_DETAILS_SELECT_ROW = "t_MeterRadioDetails_selectrow";
+    public const string STORED_PROC__METER_RADIO_DETAILS_SELECT_METADATA = "t_MeterRadioDetails_selectmetadata";
+    public const string STORED_PROC__METER_RADIO_DETAILS_INSERT = "t_MeterRadioDetails_insert";
+    public const string STORED_PROC__METER_RADIO_DETAILS_INSERT_METADATA = "t_MeterRadioDetails_insertmetadata";
+    public const string STORED_PROC__METER_RADIO_DETAILS_UPDATE = "t_MeterRadioDetails_update";
+    public const string STORED_PROC__METER_RADIO_DETAILS_UPDATE_METADATA = "t_MeterRadioDetails_updatemetadata";
+    public const string STORED_PROC__METER_RADIO_DETAILS_DELETE = "t_MeterRadioDetails_delete";
+    public const string STORED_PROC__METER_RADIO_DETAILS_DELETE_METADATA = "t_MeterRadioDetails_deletemetadata";
+    public const string STORED_PROC__FILTER_SELECT_CHANGES = "t_Filter_selectchanges";
+    public const string STORED_PROC__FILTER_SELECT_CHANGES_FILTERED = "t_Filter_selectchangesfiltered";
+    public const string STORED_PROC__FILTER_SELECT_ROW = "t_Filter_selectrow";
+    public const string STORED_PROC__FILTER_SELECT_METADATA = "t_Filter_selectmetadata";
+    public const string STORED_PROC__FILTER_INSERT = "t_Filter_insert";
+    public const string STORED_PROC__FILTER_INSERT_METADATA = "t_Filter_insertmetadata";
+    public const string STORED_PROC__FILTER_UPDATE = "t_Filter_update";
+    public const string STORED_PROC__FILTER_UPDATE_METADATA = "t_Filter_updatemetadata";
+    public const string STORED_PROC__FILTER_DELETE = "t_Filter_delete";
+    public const string STORED_PROC__FILTER_DELETE_METADATA = "t_Filter_deletemetadata";
+    public const string STORED_PROC__RULE_SELECT_CHANGES = "t_Rule_selectchanges";
+    public const string STORED_PROC__RULE_SELECT_CHANGES_FILTERED = "t_Rule_selectchangesfiltered";
+    public const string STORED_PROC__RULE_SELECT_ROW = "t_Rule_selectrow";
+    public const string STORED_PROC__RULE_SELECT_METADATA = "t_Rule_selectmetadata";
+    public const string STORED_PROC__RULE_INSERT = "t_Rule_insert";
+    public const string STORED_PROC__RULE_INSERT_METADATA = "t_Rule_insertmetadata";
+    public const string STORED_PROC__RULE_UPDATE = "t_Rule_update";
+    public const string STORED_PROC__RULE_UPDATE_METADATA = "t_Rule_updatemetadata";
+    public const string STORED_PROC__RULE_DELETE = "t_Rule_delete";
+    public const string STORED_PROC__RULE_DELETE_METADATA = "t_Rule_deletemetadata";
+    public static readonly Dictionary<string, Type> DatabaseMappings = new Dictionary<string, Type>()
+    {
+      {
+        "t_Meter",
+        typeof (Meter)
+      },
+      {
+        "t_MeasureUnit",
+        typeof (MeasureUnit)
+      },
+      {
+        "t_RoomType",
+        typeof (RoomType)
+      },
+      {
+        "t_Channel",
+        typeof (Channel)
+      },
+      {
+        "t_ConnectedDeviceType",
+        typeof (ConnectedDeviceType)
+      },
+      {
+        "t_User",
+        typeof (User)
+      },
+      {
+        "t_Role",
+        typeof (Role)
+      },
+      {
+        "t_Operation",
+        typeof (Operation)
+      },
+      {
+        "t_UserRole",
+        typeof (UserRole)
+      },
+      {
+        "t_RoleOperation",
+        typeof (RoleOperation)
+      },
+      {
+        "t_StructureNode",
+        typeof (StructureNode)
+      },
+      {
+        "t_StructureNodeLinks",
+        typeof (StructureNodeLinks)
+      },
+      {
+        "t_StructureNodeType",
+        typeof (StructureNodeType)
+      },
+      {
+        "t_Tenant",
+        typeof (Tenant)
+      },
+      {
+        "t_Location",
+        typeof (Location)
+      },
+      {
+        "t_Scenario",
+        typeof (Scenario)
+      },
+      {
+        "t_Order",
+        typeof (Order)
+      },
+      {
+        "t_Filters",
+        typeof (MSS.Core.Model.DataFilters.Filter)
+      },
+      {
+        "t_Rules",
+        typeof (Rules)
+      }
+    };
+    public const string COLUMN_SYNC_ID = "Id";
+    public const string COLUMN_ICON_URL = "IconUrl";
+    public const string COLUMN_SYNC_UPDATE_PEER_TIMESTAMP = "sync_update_peer_timestamp";
+    public const string COLUMN_SYNC_UPDATE_PEER_KEY = "sync_update_peer_key";
+    public const string COLUMN_SYNC_CREATE_PEER_TIMESTAMP = "sync_create_peer_timestamp";
+    public const string COLUMN_SYNC_CREATE_PEER_KEY = "sync_create_peer_key";
+    public const string COLUMN_NODEID = "NodeId";
+    public const string COLUMN_PARENTNODEID = "RootNodeId";
+    public const string COLUMN_ROOTNODEID = "ParentNodeId";
+    public const string COLUMN_ROOTSTRUCTURENODEID = "RootStructureNodeId";
+    public const string COLUMN_NODE = "Node";
+    public const string COLUMN_PARENTNODE = "RootNode";
+    public const string COLUMN_ROOTNODE = "ParentNode";
+    public const string COLUMN_ROOTSTRUCTURENODE = "RootStructureNode";
+  }
+}

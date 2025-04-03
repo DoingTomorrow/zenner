@@ -1,0 +1,135 @@
+<Window x:Class="HandlerLib.ParameterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Loaded="Window_Loaded" Title="ParameterWindow" Height="600" Width="1000"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico" WindowState="Maximized">
+  <Grid>
+    <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="56"/>
+    <Grid Margin="0,56,0,0">
+      <DataGrid Loaded="DataGrid_Loaded" PreparingCellForEdit="DataGridParameterView_PreparingCellForEdit"
+                SelectionChanged="DataGrid_SelectionChanged" Name="DataGridParameterView" Margin="9,34,11,147"
+                AutoGenerateColumns="false" CanUserResizeColumns="true" CanUserDeleteRows="false"
+                CanUserAddRows="false" CanUserResizeRows="false" ItemsSource="{Binding Source=list}">
+        <DataGrid.CellStyle>
+          <Style TargetType="{x:Type DataGridCell}">
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding IsChanged}" Value="true">
+                <Setter Property="Control.Foreground" Value="Red"/>
+                <Setter Property="Control.FontWeight" Value="Bold"/>
+              </DataTrigger>
+              <DataTrigger Binding="{Binding IsInit}" Value="true">
+                <Setter Property="Control.Background">
+                  <Setter.Value>
+                    <SolidColorBrush Color="LightGoldenrodYellow" Opacity="0.7"/>
+                  </Setter.Value>
+                </Setter>
+              </DataTrigger>
+              <DataTrigger Binding="{Binding IsMemoryAvail}" Value="false">
+                <Setter Property="Control.FontStyle" Value="Italic"/>
+                <Setter Property="Control.FontWeight" Value="Normal"/>
+              </DataTrigger>
+              <DataTrigger Binding="{Binding IsMemoryAvail}" Value="true">
+                <Setter Property="Control.FontStyle" Value="Normal"/>
+                <Setter Property="Control.FontWeight" Value="Bold"/>
+              </DataTrigger>
+              <Trigger Property="DataGridCell.IsSelected" Value="true">
+                <Setter Property="Control.BorderThickness" Value="3,1,3,0.2"/>
+                <Setter Property="Control.Foreground" Value="Yellow"/>
+                <Setter Property="Control.Background" Value="Gray"/>
+                <Setter Property="Control.BorderBrush" Value="RoyalBlue"/>
+                <Setter Property="Control.FontStyle" Value="Italic"/>
+              </Trigger>
+            </Style.Triggers>
+          </Style>
+        </DataGrid.CellStyle>
+        <DataGrid.RowStyle>
+          <Style TargetType="{x:Type DataGridRow}">
+            <Style.Triggers>
+              <Trigger Property="DataGridRow.IsSelected" Value="true">
+                <Setter Property="Control.BorderThickness" Value="3,0.5,3,0.5"/>
+                <Setter Property="Control.Foreground" Value="RoyalBlue"/>
+                <Setter Property="Control.BorderBrush" Value="RoyalBlue"/>
+                <Setter Property="Control.FontStyle" Value="Italic"/>
+              </Trigger>
+            </Style.Triggers>
+          </Style>
+        </DataGrid.RowStyle>
+        <FrameworkElement.ContextMenu>
+          <ContextMenu Name="contextM1">
+            <MenuItem Click="DataGridReadValue_MouseClick" Name="miReadValue" Header="Read Value" IsEnabled="true"/>
+            <MenuItem Click="DataGridWriteValue_MouseClick" Name="miWriteValue" Header="Write Value" IsEnabled="true"/>
+            <MenuItem Name="miNone1" Header="-----------------"/>
+            <MenuItem Click="DataGridSetType_MouseClick" Name="miInt32" Header="int"/>
+            <MenuItem Click="DataGridSetType_MouseClick" Name="miUInt32" Header="uint"/>
+            <MenuItem Click="DataGridSetType_MouseClick" Name="miInt16" Header="short"/>
+            <MenuItem Click="DataGridSetType_MouseClick" Name="miUInt16" Header="ushort"/>
+            <MenuItem Click="DataGridSetType_MouseClick" Name="miSByte" Header="sbyte"/>
+            <MenuItem Click="DataGridSetType_MouseClick" Name="miByte" Header="byte"/>
+            <MenuItem Click="DataGridSetType_MouseClick" Name="miBool" Header="bool"/>
+            <MenuItem Click="DataGridSetType_MouseClick" Name="miFloat" Header="float"/>
+            <MenuItem Click="DataGridSetType_MouseClick" Name="miDouble" Header="double"/>
+            <MenuItem Name="miNone2" Header="-----------------"/>
+            <MenuItem Click="DataGridUpdatePTF_MouseClick" Name="miUpdatePTF" Header="Create/Update ParameterTypeFile"
+                      Visibility="Hidden"/>
+          </ContextMenu>
+        </FrameworkElement.ContextMenu>
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="Name" IsReadOnly="true" Binding="{Binding Name}"/>
+          <DataGridTextColumn Header="Section" IsReadOnly="true" Binding="{Binding Section}"/>
+          <DataGridTextColumn Header="MemoryArea" IsReadOnly="true" Binding="{Binding MemoryArea}"/>
+          <DataGridTextColumn Header="Typ" IsReadOnly="true"
+                              Binding="{Binding Typ, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+          <DataGridTextColumn Header="Bytes" IsReadOnly="true" Binding="{Binding Bytes}"/>
+          <DataGridTextColumn Header="Address" IsReadOnly="true" Binding="{Binding Address}"/>
+          <DataGridTextColumn Header="ValueHEX" Binding="{Binding ValueHEX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+          <DataGridTextColumn Header="Value" Binding="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </DataGrid.Columns>
+      </DataGrid>
+      <Button Click="ButtonCancel_Click" Name="ButtonCancel" Content="Cancel" HorizontalAlignment="Right"
+              Height="25" Margin="0,0,138,10" VerticalAlignment="Bottom" Width="100"/>
+      <Label Content="List of available parameter for this device:" HorizontalAlignment="Left" Margin="11,4,0,0"
+             VerticalAlignment="Top" Width="337" FontSize="14" FontWeight="Bold"/>
+      <Label Content="Search:" HorizontalAlignment="Right" Margin="0,3,578,0" VerticalAlignment="Top" Width="59"
+             RenderTransformOrigin="0.61,0.423" HorizontalContentAlignment="Right"/>
+      <TextBox x:Name="TextBoxSearchParameter" HorizontalAlignment="Right" Height="23" Margin="0,7,52,0"
+               TextWrapping="Wrap" VerticalAlignment="Top" Width="523"/>
+      <Button Click="ButtonSearchForParameter_Click" x:Name="ButtonSearchForParameter" Content="L"
+              HorizontalAlignment="Right" Margin="0,5,15,0" VerticalAlignment="Top" Width="30"
+              RenderTransformOrigin="0.147,0.091" FontFamily="Webdings" IsDefault="true" FontSize="18"/>
+      <ProgressBar x:Name="ProgressBar1" HorizontalAlignment="Left" Height="22" Margin="9,0,0,118.4"
+                   VerticalAlignment="Bottom" Width="265"/>
+      <Button Click="ButtonPrint_Click" x:Name="ButtonPrint" Content="Print" HorizontalAlignment="Left"
+              Margin="9,0,0,89" Width="75" Height="22" VerticalAlignment="Bottom"/>
+      <Button Click="ButtonOK_Click" x:Name="ButtonOK" Content="OK" HorizontalAlignment="Right" Height="25"
+              Margin="0,0,15,10" VerticalAlignment="Bottom" Width="100" RenderTransformOrigin="0.44,-1"/>
+      <Label Name="labelParameterInfoAvail" HorizontalAlignment="Left" Margin="0,0,3,2"
+             VerticalAlignment="Bottom" Height="30" Foreground="Red" HorizontalContentAlignment="Left">
+        <TextBlock TextWrapping="NoWrap" Height="30" TextAlignment="Left">
+          Info ---
+          <Bold>
+            ParameterTypeInfo file not avail.
+          </Bold>
+          --- All changes to TYPES will not be saved.
+        </TextBlock>
+      </Label>
+      <GroupBox Header="Key" HorizontalAlignment="Left" Margin="295,0,0,30" VerticalAlignment="Bottom" Height="110"
+                Width="287">
+        <Grid Name="Walter" Height="100" Margin="1,0,1,0" VerticalAlignment="Top">
+          <Canvas Name="Sign1" HorizontalAlignment="Left" Height="21" Margin="9,0,0,83" VerticalAlignment="Bottom"
+                  Width="26" Background="LightGoldenrodYellow"/>
+          <Label Content="Init Value (same as on Device)" HorizontalAlignment="Left" Margin="40,0,0,82"
+                 VerticalAlignment="Bottom" Height="23" FontSize="10"/>
+          <Label Content="Memory not avail" HorizontalAlignment="Left" Margin="40,0,0,60" VerticalAlignment="Bottom"
+                 Height="23" FontStyle="Italic" FontSize="10"/>
+          <Label Content="Changed Value" HorizontalAlignment="Left" Margin="40,0,0,37" VerticalAlignment="Bottom"
+                 Height="23" Foreground="Red" FontWeight="Bold" FontSize="10"/>
+          <Label Content="Memory avail" HorizontalAlignment="Left" Margin="40,0,0,14" VerticalAlignment="Bottom"
+                 Height="23" FontWeight="Bold" FontSize="10"/>
+        </Grid>
+      </GroupBox>
+      <Button Click="ButtonLoadPrintFile_Click" x:Name="ButtonLoadPrintFile" Content="Load Backup"
+              HorizontalAlignment="Left" Margin="9,0,0,59" Width="103" Height="22" VerticalAlignment="Bottom"/>
+    </Grid>
+  </Grid>
+</Window>

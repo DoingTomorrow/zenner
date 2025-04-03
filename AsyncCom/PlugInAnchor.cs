@@ -1,0 +1,50 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: AsyncCom.PlugInAnchor
+// Assembly: AsyncCom, Version=1.3.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: D6F4F79A-8F4B-4BF8-A607-52E7B777C135
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AsyncCom.dll
+
+using PlugInLib;
+using StartupLib;
+using ZENNER.CommonLibrary;
+
+#nullable disable
+namespace AsyncCom
+{
+  [ComponentPath("Reading")]
+  public class PlugInAnchor : GmmPlugIn, IReadoutConfig
+  {
+    private AsyncFunctions MyFunctions;
+    internal static string[] UsedRights = new string[4]
+    {
+      "DeviceCollector",
+      "Designer",
+      "Configurator",
+      "Developer"
+    };
+
+    public PlugInAnchor()
+    {
+      if (!PlugInLoader.IsPluginLoaderInitialised())
+        return;
+      this.MyFunctions = new AsyncFunctions();
+      this.MyFunctions.IsPluginObject = true;
+    }
+
+    public override void Dispose() => this.MyFunctions.GMM_Dispose();
+
+    public override string ShowMainWindow() => this.MyFunctions.ShowComWindow("");
+
+    public override PlugInInfo GetPluginInfo()
+    {
+      return new PlugInInfo("AsyncCom", "Communication", "Byteübertragung", "Grundeinstellung der Schnittstelle und der Übertragungskanäle", new string[0], PlugInAnchor.UsedRights, (object) this.MyFunctions);
+    }
+
+    public void SetReadoutConfiguration(ConfigList configList)
+    {
+      this.MyFunctions.SetReadoutConfiguration(configList);
+    }
+
+    public ConfigList GetReadoutConfiguration() => this.MyFunctions.GetReadoutConfiguration();
+  }
+}

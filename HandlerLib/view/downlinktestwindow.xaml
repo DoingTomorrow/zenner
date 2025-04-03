@@ -1,0 +1,82 @@
+<Window x:Class="HandlerLib.DownLinkTestWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Closing="Window_Closing" Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico"
+        Title="Down link test" Height="546.95" Width="761" WindowStartupLocation="CenterOwner">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="5"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+      <Setter Property="FrameworkElement.HorizontalAlignment" Value="Right"/>
+    </Style>
+    <Style TargetType="{x:Type TextBox}">
+      <Setter Property="FrameworkElement.Margin" Value="5"/>
+      <Setter Property="TextBox.TextWrapping" Value="Wrap"/>
+    </Style>
+    <Style TargetType="{x:Type ComboBox}">
+      <Setter Property="FrameworkElement.Margin" Value="5"/>
+    </Style>
+    <Style TargetType="{x:Type TextBlock}">
+      <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style TargetType="{x:Type Label}">
+      <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" DockPanel.Dock="Top"/>
+    <StackPanel>
+      <GroupBox Header="LoRa downlink test setup">
+        <StackPanel>
+          <Label Content="Element URI:"/>
+          <TextBox LostFocus="TextBoxElementURL_LostFocus" Name="TextBoxElementURL"/>
+          <Label Content="Element ApiKey:"/>
+          <TextBox LostFocus="TextBoxElementApiKey_LostFocus" Name="TextBoxElementApiKey"/>
+          <Label Content="Test flow selection:"/>
+          <ComboBox SelectionChanged="ComboBoxTestSetup_SelectionChanged" Name="ComboBoxTestSetup">
+            <ComboBoxItem Content="Server test by manual step management"/>
+            <ComboBoxItem Content="Server test by automatic flow control"/>
+            <ComboBoxItem Content="Server test by automatic flow and hidden window"/>
+          </ComboBox>
+        </StackPanel>
+      </GroupBox>
+      <StackPanel Orientation="Horizontal">
+        <Label Content="Downlink protocol: (To server);   Downlink bytes: "/>
+        <TextBlock Name="TextBlockDownlinkBytes"/>
+      </StackPanel>
+      <TextBox Name="TextBoxDownlinkProtocol" TextWrapping="Wrap"/>
+      <DockPanel>
+        <Button Click="ButtonPrepareLoRaServerForDownlink_Click" Name="ButtonPrepareLoRaServerForDownlink"
+                DockPanel.Dock="Right" Content="Prepare LoRa server for downlink" IsEnabled="false"/>
+        <StackPanel Orientation="Horizontal">
+          <Label Content="Last prepare time: "/>
+          <TextBlock Name="TextBlockLastPrepareTime" Visibility="Collapsed"/>
+        </StackPanel>
+      </DockPanel>
+      <DockPanel>
+        <Button Click="ButtonSendDeviceCommand_Click" Name="ButtonSendDeviceCommand" DockPanel.Dock="Right"
+                Content="Force LoRa communication (SendConfirmedData)" IsEnabled="false"/>
+        <StackPanel Orientation="Horizontal">
+          <Label Content="Last send time: "/>
+          <TextBlock Name="TextBlockLastSendTime" Visibility="Collapsed"/>
+        </StackPanel>
+      </DockPanel>
+      <DockPanel>
+        <Button Click="ButtonLoadUplinkDataFromLoRaServer_Click" Name="ButtonLoadUplinkDataFromLoRaServer"
+                DockPanel.Dock="Right" Content="Load uplink data from LoRa server." IsEnabled="false"/>
+        <StackPanel Orientation="Horizontal">
+          <Label Content="Last load time: "/>
+          <TextBlock Name="TextBlockLastLoadTime" Visibility="Collapsed"/>
+        </StackPanel>
+      </DockPanel>
+      <StackPanel Orientation="Horizontal">
+        <Label Content="Uplink protocol data: (From server);   Uplink bytes: "/>
+        <TextBlock Name="TextBlockUplinkBytes"/>
+      </StackPanel>
+      <TextBox TextChanged="TextBoxUplinkProtocol_TextChanged" Name="TextBoxUplinkProtocol" TextWrapping="Wrap"/>
+      <Button Click="ButtonWorkUplinkProtocol_Click" Name="ButtonWorkUplinkProtocol"
+              Content="Work uplink protocol by handler" IsEnabled="false"/>
+    </StackPanel>
+  </DockPanel>
+</Window>

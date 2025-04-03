@@ -1,0 +1,72 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.ParameterKey
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+#nullable disable
+namespace ZENNER.CommonLibrary
+{
+  public enum ParameterKey
+  {
+    BusMode,
+    Type,
+    COMserver,
+    Port,
+    Parity,
+    Baudrate,
+    UseBreak,
+    MinoConnectPowerOffTime,
+    TransceiverDevice,
+    ForceMinoConnectState,
+    IrDaSelection,
+    HardwareHandshake,
+    EchoOn,
+    TestEcho,
+    RecTime_BeforFirstByte,
+    RecTime_OffsetPerByte,
+    RecTime_GlobalOffset,
+    TransTime_GlobalOffset,
+    RecTransTime,
+    TransTime_BreakTime,
+    TransTime_AfterOpen,
+    TransTime_AfterBreak,
+    WaitBeforeRepeatTime,
+    BreakIntervalTime,
+    MinoConnectTestFor,
+    Wakeup,
+    MinoConnectIsUSB,
+    MinoConnectIrDaPulseTime,
+    RecTime_OffsetPerBlock,
+    MinoConnectBaseState,
+    PrimaryAddress,
+    SecondaryAddress,
+    UseREQ_UD2_5B,
+    IsMultiTelegrammEnabled,
+    MaxRequestRepeat,
+    OnlySecondaryAddressing,
+    ScanStartAddress,
+    ScanStartSerialnumber,
+    FastSecondaryAddressing,
+    KeepExistingDestinationAddress,
+    SendFirstApplicationReset,
+    SendFirstSND_NKE,
+    OrganizeStartAddress,
+    ChangeInterfaceBaudrateToo,
+    CycleTime,
+    ConnectionProfileID,
+    TransceiverType,
+    SelectedDeviceMBusType,
+    FromTime,
+    ToTime,
+    BeepSignalOnReadResult,
+    DaKonId,
+    LogFilePath,
+    LogToFileEnabled,
+    Password,
+    UseExternalKeyForReading,
+    UsedHandler,
+    AES,
+    CombiHeadSelection,
+  }
+}

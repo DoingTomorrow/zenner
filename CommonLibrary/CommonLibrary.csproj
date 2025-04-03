@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4A019B93-E8E6-478B-88F6-0B7B81CDFE8E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>CommonLibrary</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>ZENNER.CommonLibrary</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Runtime.WindowsRuntime" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ChannelLogger.cs" />
+    <Compile Include="ConfigList.cs" />
+    <Compile Include="AddressRange.cs" />
+    <Compile Include="ParameterKey.cs" />
+    <Compile Include="EnumExtensions.cs" />
+    <Compile Include="FirmwareType.cs" />
+    <Compile Include="VersionMasks.cs" />
+    <Compile Include="FirmwareVersion.cs" />
+    <Compile Include="GMM_VersionInfo.cs" />
+    <Compile Include="IPort.cs" />
+    <Compile Include="IPrintable.cs" />
+    <Compile Include="IReadoutConfig.cs" />
+    <Compile Include="MeterVPN.cs" />
+    <Compile Include="AsyncComConnectionType.cs" />
+    <Compile Include="WakeupSystem.cs" />
+    <Compile Include="IrDaSelection.cs" />
+    <Compile Include="CombiHeadSelection.cs" />
+    <Compile Include="TransceiverDevice.cs" />
+    <Compile Include="MinoConnectBaseStates.cs" />
+    <Compile Include="BusMode.cs" />
+    <Compile Include="ConfigurationParameterEnvironment.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="LoRa_ProtocolType.cs" />
+    <Compile Include="IdentificationMapping.cs" />
+    <Compile Include="ManufacturerDefinitions.cs" />
+    <Compile Include="CommonTypeRange.cs" />
+    <Compile Include="AsyncHelpers.cs" />
+    <Compile Include="AsyncObservableCollection`1.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="FixedSizedQueue`1.cs" />
+    <Compile Include="NLogSupport.cs" />
+    <Compile Include="NLogFileRecord.cs" />
+    <Compile Include="NotepadHelper.cs" />
+    <Compile Include="SingletonRepository.cs" />
+    <Compile Include="Utility.cs" />
+    <Compile Include="ProgressArg.cs" />
+    <Compile Include="ProgressHandler.cs" />
+    <Compile Include="ProgressTimeArg.cs" />
+    <Compile Include="ProgressSplitArg.cs" />
+    <Compile Include="Scheduler.cs" />
+    <Compile Include="MeterVPNServer\MeterVPNPort.cs" />
+    <Compile Include="MeterVPNServer\COMserver.cs" />
+    <Compile Include="MeterVPNServer\MeterVPNPortChannel.cs" />
+    <Compile Include="MeterVPNServer\MeterVPNPortClient.cs" />
+    <Compile Include="Exceptions\CurrentOverloadException.cs" />
+    <Compile Include="Exceptions\FailedToReadException.cs" />
+    <Compile Include="Exceptions\FramingErrorException.cs" />
+    <Compile Include="Exceptions\InvalidResponceException.cs" />
+    <Compile Include="Exceptions\InvalidDBAccessException.cs" />
+    <Compile Include="Exceptions\NACK_Exception.cs" />
+    <Compile Include="Exceptions\ServerException.cs" />
+    <Compile Include="Exceptions\HttpPacketIsNotCompleteException.cs" />
+    <Compile Include="Exceptions\AccessDeniedException.cs" />
+    <Compile Include="Exceptions\ConnectionOpenException.cs" />
+    <Compile Include="Exceptions\InvalidJobException.cs" />
+    <Compile Include="Exceptions\InvalidMeterException.cs" />
+    <Compile Include="Exceptions\InvalidConnectionException.cs" />
+    <Compile Include="Exceptions\InvalidSettingsException.cs" />
+    <Compile Include="ExcelOpenDocument\ExcelOdSheet.cs" />
+    <Compile Include="ExcelOpenDocument\ExcelOdWorkbook.cs" />
+    <Compile Include="Entities\AdditionalInfoKey.cs" />
+    <Compile Include="Entities\ChangeableParameterUsings.cs" />
+    <Compile Include="Entities\ChangeableParameter.cs" />
+    <Compile Include="Entities\ChangeableParameterComparer.cs" />
+    <Compile Include="Entities\ConnectionAdjuster.cs" />
+    <Compile Include="Entities\ConnectionProfile.cs" />
+    <Compile Include="Entities\ConnectionProfileFilter.cs" />
+    <Compile Include="Entities\ConnectionParameterGroup.cs" />
+    <Compile Include="Entities\ConnectionProfileParameterPair.cs" />
+    <Compile Include="Entities\ConnectionProfileParameter.cs" />
+    <Compile Include="Entities\ConnectionProfileFilterGroupFunctions.cs" />
+    <Compile Include="Entities\ConnectionSettingsParameter.cs" />
+    <Compile Include="Entities\DeviceGroup.cs" />
+    <Compile Include="Entities\DeviceModel.cs" />
+    <Compile Include="Entities\EquipmentGroup.cs" />
+    <Compile Include="Entities\EquipmentModel.cs" />
+    <Compile Include="Entities\ConnectionSettings.cs" />
+    <Compile Include="Entities\IConnectionDeviceItem.cs" />
+    <Compile Include="Entities\IConnectionItem.cs" />
+    <Compile Include="Entities\ConnectionItemComparer.cs" />
+    <Compile Include="Entities\ParameterUsings.cs" />
+    <Compile Include="Entities\ProfileType.cs" />
+    <Compile Include="Entities\ProfileTypeGroup.cs" />
+    <Compile Include="Entities\DeviceModelTags.cs" />
+    <Compile Include="Entities\EquipmentTags.cs" />
+    <Compile Include="Entities\ProfileTypeTags.cs" />
+    <Compile Include="Entities\TransceiverType.cs" />
+    <Compile Include="Entities\ValueItem.cs" />
+    <Compile Include="Entities\Job.cs" />
+    <Compile Include="Entities\Location.cs" />
+    <Compile Include="Entities\Meter.cs" />
+    <Compile Include="Entities\MinomatConnectionLog.cs" />
+    <Compile Include="Entities\MinomatDevice.cs" />
+    <Compile Include="Entities\MinomatDataLog.cs" />
+    <Compile Include="Entities\ServiceTask.cs" />
+    <Compile Include="DeliveryNote\extensionMethods.cs" />
+    <Compile Include="DeliveryNote\DeliveryNote.cs" />
+    <Compile Include="DeliveryNote\HardwareTypeHardwareName.cs" />
+    <Compile Include="DeliveryNote\DeliveryNoteContent.cs" />
+    <Compile Include="DeliveryNote\Device_DeliveryNote.cs" />
+    <Compile Include="DeliveryNote\Converter.cs" />
+    <Compile Include="DeliveryNote\XML_ZR_Converter.cs" />
+    <Compile Include="DeliveryNote\Paramter_Device.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

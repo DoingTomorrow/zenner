@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GMM_Handler.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1950B4DA-7722-4405-AACD-A498F4AE47DE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>GMM_Handler</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>4.4.1.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>GMM_Handler</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AsyncCom">
+      <HintPath>lib\AsyncCom.dll</HintPath>
+    </Reference>
+    <Reference Include="CorporateDesign">
+      <HintPath>lib\CorporateDesign.dll</HintPath>
+    </Reference>
+    <Reference Include="DeviceCollector">
+      <HintPath>lib\DeviceCollector.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="StartupLib">
+      <HintPath>lib\StartupLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AllMeters.cs" />
+    <Compile Include="Backup.cs" />
+    <Compile Include="CodeBlock.cs" />
+    <Compile Include="CodeObject.cs" />
+    <Compile Include="Compiler.cs" />
+    <Compile Include="DataBaseAccess.cs" />
+    <Compile Include="DataChecker.cs" />
+    <Compile Include="DataSetGMM_Handler.cs" />
+    <Compile Include="DataSetAllErr8002Meters.cs" />
+    <Compile Include="DataSetLogData.cs" />
+    <Compile Include="Datenliste.cs" />
+    <Compile Include="DisplayCode.cs" />
+    <Compile Include="EpromHeader.cs" />
+    <Compile Include="EpromParameter.cs" />
+    <Compile Include="EpromRuntime.cs" />
+    <Compile Include="EpromVars.cs" />
+    <Compile Include="ERR8002_Form.cs" />
+    <Compile Include="ErrTypeAnalysis.cs" />
+    <Compile Include="FixedParameter.cs" />
+    <Compile Include="FunctionLocalisableType.cs" />
+    <Compile Include="Function.cs" />
+    <Compile Include="FunctionPalette.cs" />
+    <Compile Include="PalettData.cs" />
+    <Compile Include="FunctionData.cs" />
+    <Compile Include="FunctionTable.cs" />
+    <Compile Include="HandlerLists.cs" />
+    <Compile Include="HandlerWindow.cs" />
+    <Compile Include="LoggerTypes.cs" />
+    <Compile Include="IntervalAndLogger.cs" />
+    <Compile Include="LoggerParameterData.cs" />
+    <Compile Include="LinkBlockTypes.cs" />
+    <Compile Include="LinkBlock.cs" />
+    <Compile Include="Linker.cs" />
+    <Compile Include="BlockLinkDefines.cs" />
+    <Compile Include="LinkObj.cs" />
+    <Compile Include="LinkPointer.cs" />
+    <Compile Include="LoadedFunctions.cs" />
+    <Compile Include="LoggerInfo.cs" />
+    <Compile Include="LoggerStore.cs" />
+    <Compile Include="MBusLoggerInfo.cs" />
+    <Compile Include="MBusInfo.cs" />
+    <Compile Include="MBusList.cs" />
+    <Compile Include="MBusParameterInfo.cs" />
+    <Compile Include="MenuItem.cs" />
+    <Compile Include="MenuItemBrunch.cs" />
+    <Compile Include="MeterBasis.cs" />
+    <Compile Include="Meter.cs" />
+    <Compile Include="MeterCommunication.cs" />
+    <Compile Include="MeterResource.cs" />
+    <Compile Include="IoFunctionResourceCorrelation.cs" />
+    <Compile Include="OverrideParameter.cs" />
+    <Compile Include="Parameter.cs" />
+    <Compile Include="PlugInAnchor.cs" />
+    <Compile Include="RamParameter.cs" />
+    <Compile Include="RuntimeCode.cs" />
+    <Compile Include="RuntimeVars.cs" />
+    <Compile Include="TypeAnalysis.cs" />
+    <Compile Include="TypeDetailWindow.cs" />
+    <Compile Include="WritePermTable.cs" />
+    <Compile Include="ZelsiusInterpreter.cs" />
+    <Compile Include="ZelsiusBaseSettings.cs" />
+    <Compile Include="PTypeToDo.cs" />
+    <Compile Include="ZelsiusMath.cs" />
+    <Compile Include="MeterObjectSelector.cs" />
+    <Compile Include="LoggerRestor.cs" />
+    <Compile Include="SpecialFunctionSelection.cs" />
+    <Compile Include="ScalingPermissionsStruct.cs" />
+    <Compile Include="InfoFlags.cs" />
+    <Compile Include="ZR_HandlerFunctions.cs" />
+    <Compile Include="IZR_HandlerFunctions.cs" />
+    <Compile Include="ZR_MeterIdent.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Datenliste.resx" />
+    <EmbeddedResource Include="ERR8002_Form.resx" />
+    <EmbeddedResource Include="ErrTypeAnalysis.resx" />
+    <EmbeddedResource Include="GMM_HandlerRes.resx" />
+    <EmbeddedResource Include="HandlerWindow.resx" />
+    <EmbeddedResource Include="TypeAnalysis.resx" />
+    <EmbeddedResource Include="TypeDetailWindow.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

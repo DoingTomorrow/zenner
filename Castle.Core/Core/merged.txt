@@ -1,0 +1,452 @@
+
+--- CollectionExtensions.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.CollectionExtensions
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace Castle.Core
+{
+  public static class CollectionExtensions
+  {
+    public static void ForEach<T>(this IEnumerable<T> items, Action<T> action)
+    {
+      if (items == null)
+        return;
+      foreach (T obj in items)
+        action(obj);
+    }
+  }
+}
+
+
+--- IServiceEnabledComponent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.IServiceEnabledComponent
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core
+{
+  public interface IServiceEnabledComponent
+  {
+    void Service(IServiceProvider provider);
+  }
+}
+
+
+--- IServiceProviderEx.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.IServiceProviderEx
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core
+{
+  public interface IServiceProviderEx : IServiceProvider
+  {
+    T GetService<T>() where T : class;
+  }
+}
+
+
+--- IServiceProviderExAccessor.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.IServiceProviderExAccessor
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.Core
+{
+  public interface IServiceProviderExAccessor
+  {
+    IServiceProviderEx ServiceProvider { get; }
+  }
+}
+
+
+--- Pair`2.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Pair`2
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core
+{
+  public class Pair<TFirst, TSecond> : IEquatable<Pair<TFirst, TSecond>>
+  {
+    private readonly TFirst first;
+    private readonly TSecond second;
+
+    public Pair(TFirst first, TSecond second)
+    {
+      this.first = first;
+      this.second = second;
+    }
+
+    public TFirst First => this.first;
+
+    public TSecond Second => this.second;
+
+    public override string ToString() => this.first.ToString() + " " + (object) this.second;
+
+    public bool Equals(Pair<TFirst, TSecond> other)
+    {
+      return other != null && object.Equals((object) this.first, (object) other.first) && object.Equals((object) this.second, (object) other.second);
+    }
+
+    public override bool Equals(object obj)
+    {
+      return object.ReferenceEquals((object) this, obj) || this.Equals(obj as Pair<TFirst, TSecond>);
+    }
+
+    public override int GetHashCode() => this.first.GetHashCode() + 29 * this.second.GetHashCode();
+  }
+}
+
+
+--- ProxyServices.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.ProxyServices
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core
+{
+  public static class ProxyServices
+  {
+    public static bool IsDynamicProxy(Type type)
+    {
+      return type.Assembly.FullName.StartsWith("DynamicAssemblyProxyGen", StringComparison.Ordinal) || type.Assembly.FullName.StartsWith("DynamicProxyGenAssembly2", StringComparison.Ordinal);
+    }
+  }
+}
+
+
+--- ReflectionBasedDictionaryAdapter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.ReflectionBasedDictionaryAdapter
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.Core
+{
+  public sealed class ReflectionBasedDictionaryAdapter : IDictionary, ICollection, IEnumerable
+  {
+    private readonly Dictionary<string, object> properties = new Dictionary<string, object>((IEqualityComparer<string>) StringComparer.OrdinalIgnoreCase);
+
+    public ReflectionBasedDictionaryAdapter(object target)
+    {
+      if (target == null)
+        throw new ArgumentNullException(nameof (target));
+      foreach (PropertyInfo property in target.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+      {
+        if (property.CanRead && property.GetIndexParameters().Length <= 0)
+        {
+          object propertyValue = this.GetPropertyValue(target, property);
+          this.properties[property.Name] = propertyValue;
+        }
+      }
+    }
+
+    public bool Contains(object key) => this.properties.ContainsKey(key.ToString());
+
+    public object this[object key]
+    {
+      get
+      {
+        object obj;
+        this.properties.TryGetValue(key.ToString(), out obj);
+        return obj;
+      }
+      set => throw new NotImplementedException();
+    }
+
+    public void Add(object key, object value) => throw new NotImplementedException();
+
+    public void Clear() => throw new NotImplementedException();
+
+    IDictionaryEnumerator IDictionary.GetEnumerator()
+    {
+      return (IDictionaryEnumerator) new ReflectionBasedDictionaryAdapter.DictionaryEntryEnumeratorAdapter((IDictionaryEnumerator) this.properties.GetEnumerator());
+    }
+
+    public void Remove(object key)
+    {
+    }
+
+    public ICollection Keys => (ICollection) this.properties.Keys;
+
+    public ICollection Values => (ICollection) this.properties.Values;
+
+    public bool IsReadOnly => true;
+
+    bool IDictionary.IsFixedSize => throw new NotImplementedException();
+
+    void ICollection.CopyTo(Array array, int index) => throw new NotImplementedException();
+
+    public int Count => this.properties.Count;
+
+    public object SyncRoot => (object) this.properties;
+
+    public bool IsSynchronized => false;
+
+    public IEnumerator GetEnumerator()
+    {
+      return (IEnumerator) new ReflectionBasedDictionaryAdapter.DictionaryEntryEnumeratorAdapter((IDictionaryEnumerator) this.properties.GetEnumerator());
+    }
+
+    private object GetPropertyValue(object target, PropertyInfo property)
+    {
+      try
+      {
+        return property.GetValue(target, (object[]) null);
+      }
+      catch (MethodAccessException ex)
+      {
+        throw;
+      }
+    }
+
+    private class DictionaryEntryEnumeratorAdapter : IDictionaryEnumerator, IEnumerator
+    {
+      private readonly IDictionaryEnumerator enumerator;
+      private KeyValuePair<string, object> current;
+
+      public DictionaryEntryEnumeratorAdapter(IDictionaryEnumerator enumerator)
+      {
+        this.enumerator = enumerator;
+      }
+
+      public object Key => (object) this.current.Key;
+
+      public object Value => this.current.Value;
+
+      public DictionaryEntry Entry => new DictionaryEntry(this.Key, this.Value);
+
+      public bool MoveNext()
+      {
+        bool flag = this.enumerator.MoveNext();
+        if (flag)
+          this.current = (KeyValuePair<string, object>) this.enumerator.Current;
+        return flag;
+      }
+
+      public void Reset() => this.enumerator.Reset();
+
+      public object Current => (object) new DictionaryEntry(this.Key, this.Value);
+    }
+  }
+}
+
+
+--- StringObjectDictionaryAdapter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.StringObjectDictionaryAdapter
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+#nullable disable
+namespace Castle.Core
+{
+  public sealed class StringObjectDictionaryAdapter : 
+    IDictionary<string, object>,
+    ICollection<KeyValuePair<string, object>>,
+    IEnumerable<KeyValuePair<string, object>>,
+    IEnumerable
+  {
+    private readonly IDictionary dictionary;
+
+    public StringObjectDictionaryAdapter(IDictionary dictionary) => this.dictionary = dictionary;
+
+    bool IDictionary<string, object>.ContainsKey(string key)
+    {
+      return this.dictionary.Contains((object) key);
+    }
+
+    void IDictionary<string, object>.Add(string key, object value)
+    {
+      throw new NotImplementedException();
+    }
+
+    bool IDictionary<string, object>.Remove(string key) => throw new NotImplementedException();
+
+    bool IDictionary<string, object>.TryGetValue(string key, out object value)
+    {
+      value = (object) null;
+      if (!this.dictionary.Contains((object) key))
+        return false;
+      value = this.dictionary[(object) key];
+      return true;
+    }
+
+    object IDictionary<string, object>.this[string key]
+    {
+      get => this.dictionary[(object) key];
+      set => throw new NotImplementedException();
+    }
+
+    ICollection<string> IDictionary<string, object>.Keys
+    {
+      get
+      {
+        string[] keys = new string[this.Count];
+        this.dictionary.Keys.CopyTo((Array) keys, 0);
+        return (ICollection<string>) keys;
+      }
+    }
+
+    ICollection<object> IDictionary<string, object>.Values
+    {
+      get
+      {
+        object[] values = new object[this.Count];
+        this.dictionary.Values.CopyTo((Array) values, 0);
+        return (ICollection<object>) values;
+      }
+    }
+
+    void ICollection<KeyValuePair<string, object>>.Add(KeyValuePair<string, object> item)
+    {
+      throw new NotImplementedException();
+    }
+
+    bool ICollection<KeyValuePair<string, object>>.Contains(KeyValuePair<string, object> item)
+    {
+      throw new NotImplementedException();
+    }
+
+    void ICollection<KeyValuePair<string, object>>.CopyTo(
+      KeyValuePair<string, object>[] array,
+      int arrayIndex)
+    {
+      throw new NotImplementedException();
+    }
+
+    bool ICollection<KeyValuePair<string, object>>.Remove(KeyValuePair<string, object> item)
+    {
+      throw new NotImplementedException();
+    }
+
+    IEnumerator<KeyValuePair<string, object>> IEnumerable<KeyValuePair<string, object>>.GetEnumerator()
+    {
+      return (IEnumerator<KeyValuePair<string, object>>) new StringObjectDictionaryAdapter.EnumeratorAdapter(this);
+    }
+
+    public bool Contains(object key) => this.dictionary.Contains(key);
+
+    public void Add(object key, object value) => this.dictionary.Add(key, value);
+
+    public void Clear() => this.dictionary.Clear();
+
+    public void Remove(object key) => this.dictionary.Remove(key);
+
+    public object this[object key]
+    {
+      get => this.dictionary[key];
+      set => this.dictionary[key] = value;
+    }
+
+    public ICollection Keys => this.dictionary.Keys;
+
+    public ICollection Values => this.dictionary.Values;
+
+    public bool IsReadOnly => this.dictionary.IsReadOnly;
+
+    public bool IsFixedSize => this.dictionary.IsFixedSize;
+
+    public void CopyTo(Array array, int index) => this.dictionary.CopyTo(array, index);
+
+    public int Count => this.dictionary.Count;
+
+    public object SyncRoot => this.dictionary.SyncRoot;
+
+    public bool IsSynchronized => this.dictionary.IsSynchronized;
+
+    public IEnumerator GetEnumerator() => this.dictionary.GetEnumerator();
+
+    internal class EnumeratorAdapter : 
+      IEnumerator<KeyValuePair<string, object>>,
+      IDisposable,
+      IEnumerator
+    {
+      private readonly StringObjectDictionaryAdapter adapter;
+      private IEnumerator<string> keyEnumerator;
+      private string currentKey;
+      private object currentValue;
+
+      public EnumeratorAdapter(StringObjectDictionaryAdapter adapter)
+      {
+        this.adapter = adapter;
+        this.keyEnumerator = ((IDictionary<string, object>) adapter).Keys.GetEnumerator();
+      }
+
+      public bool MoveNext()
+      {
+        if (!this.keyEnumerator.MoveNext())
+          return false;
+        this.currentKey = this.keyEnumerator.Current;
+        this.currentValue = this.adapter[(object) this.currentKey];
+        return true;
+      }
+
+      public void Reset() => this.keyEnumerator.Reset();
+
+      public object Current
+      {
+        get => (object) new KeyValuePair<string, object>(this.currentKey, this.currentValue);
+      }
+
+      KeyValuePair<string, object> IEnumerator<KeyValuePair<string, object>>.Current
+      {
+        get => new KeyValuePair<string, object>(this.currentKey, this.currentValue);
+      }
+
+      public void Dispose() => GC.SuppressFinalize((object) this);
+    }
+  }
+}
+

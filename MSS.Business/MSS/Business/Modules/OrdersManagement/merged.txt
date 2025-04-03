@@ -1,0 +1,1572 @@
+
+--- ExecutingStateEnum.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.OrdersManagement.ExecutingStateEnum
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Modules.OrdersManagement
+{
+  public enum ExecutingStateEnum
+  {
+    OK,
+    NotOK,
+  }
+}
+
+
+--- OrderResult.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.OrdersManagement.OrderResult
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.Orders;
+using MSS.Core.Model.Structures;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Modules.OrdersManagement
+{
+  public class OrderResult
+  {
+    public List<Order> Orders { get; set; }
+
+    public List<Location> Locations { get; set; }
+
+    public List<Tenant> Tenants { get; set; }
+
+    public List<Meter> Meters { get; set; }
+
+    public List<MSS.Core.Model.Structures.StructureNodeLinks> StructureNodeLinks { get; set; }
+
+    public List<StructureNode> StructureNodes { get; set; }
+  }
+}
+
+
+--- OrdersHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.OrdersManagement.OrdersHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+using MSS.Business.Modules.StructuresManagement;
+using MSS.Core.Model.DataCollectors;
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.Orders;
+using MSS.Core.Model.Structures;
+using MSS.DTO.Meters;
+using MSS.DTO.Orders;
+using MSS.DTO.Structures;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MSS_Client.Utils;
+using NHibernate;
+using NHibernate.Linq;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Linq.Expressions;
+
+#nullable disable
+namespace MSS.Business.Modules.OrdersManagement
+{
+  public class OrdersHelper
+  {
+    public static OrderResult GetOrderData(
+      IEnumerable<Guid> orderIds,
+      IRepository<Order> orderRepository,
+      IRepository<StructureNodeLinks> structureNodeLinksRepository,
+      IRepository<StructureNode> structureNodeReporsitory,
+      IRepository<StructureNodeType> structureNodeTypeRepository,
+      ISession session)
+    {
+      OrderResult orderResult = new OrderResult()
+      {
+        Orders = new List<Order>(),
+        Locations = new List<Location>(),
+        Meters = new List<Meter>(),
+        Tenants = new List<Tenant>(),
+        StructureNodeLinks = new List<StructureNodeLinks>(),
+        StructureNodes = new List<StructureNode>()
+      };
+      foreach (Guid orderId1 in orderIds)
+      {
+        Guid orderId = orderId1;
+        Order order = orderRepository.FirstOrDefault((Expression<Func<Order, bool>>) (o => o.Id == orderId));
+        if (order != null)
+        {
+          orderResult.Orders.Add(order);
+          Guid rootStructureNodeId = order.RootStructureNodeId;
+          if (rootStructureNodeId != Guid.Empty)
+          {
+            IEnumerable<StructureNodeLinks> structureNodeLinks = OrdersHelper.GetStructureNodeLinks(structureNodeLinksRepository, rootStructureNodeId);
+            TypeHelperExtensionMethods.ForEach<StructureNodeLinks>(structureNodeLinks, (Action<StructureNodeLinks>) (s => orderResult.StructureNodeLinks.Add(s)));
+            IList<StructureNode> structureNodes = OrdersHelper.GetStructureNodes(structureNodeReporsitory, structureNodeLinks);
+            TypeHelperExtensionMethods.ForEach<StructureNode>((IEnumerable<StructureNode>) structureNodes, (Action<StructureNode>) (s => orderResult.StructureNodes.Add(s)));
+            foreach (StructureNode structureNode in (IEnumerable<StructureNode>) structureNodes)
+            {
+              if (structureNode.EntityId != Guid.Empty)
+              {
+                StructureNodeTypeEnum structureNodeTypeEnum = (StructureNodeTypeEnum) Enum.Parse(typeof (StructureNodeTypeEnum), structureNode.EntityName, true);
+                object obj = new object();
+                switch (structureNodeTypeEnum)
+                {
+                  case StructureNodeTypeEnum.Location:
+                    object entity1 = (object) StructuresHelper.GetEntity<Location>(structureNode.EntityId, session);
+                    orderResult.Locations.Add(entity1 as Location);
+                    break;
+                  case StructureNodeTypeEnum.Tenant:
+                    object entity2 = (object) StructuresHelper.GetEntity<Tenant>(structureNode.EntityId, session);
+                    orderResult.Tenants.Add(entity2 as Tenant);
+                    break;
+                  case StructureNodeTypeEnum.Meter:
+                  case StructureNodeTypeEnum.RadioMeter:
+                    object entity3 = (object) StructuresHelper.GetEntity<Meter>(structureNode.EntityId, session);
+                    orderResult.Meters.Add(entity3 as Meter);
+                    break;
+                }
+              }
+            }
+          }
+        }
+      }
+      return orderResult;
+    }
+
+    private static IList<StructureNode> GetStructureNodes(
+      IRepository<StructureNode> structureNodeReporsitory,
+      IEnumerable<StructureNodeLinks> validStructureNodeLinks)
+    {
+      List<Guid> nodeIDs = StructuresHelper.GetNodeIdList(validStructureNodeLinks);
+      return structureNodeReporsitory.SearchFor((Expression<Func<StructureNode, bool>>) (s => nodeIDs.Contains(s.Id) && s.EndDate == new DateTime?()));
+    }
+
+    private static IEnumerable<StructureNodeLinks> GetStructureNodeLinks(
+      IRepository<StructureNodeLinks> structureNodeLinksRepository,
+      Guid rootStructureNodeId)
+    {
+      StructureNodeLinks structureNodeLinks = structureNodeLinksRepository.FirstOrDefault((Expression<Func<StructureNodeLinks, bool>>) (s => s.Node.Id == rootStructureNodeId));
+      return structureNodeLinks != null ? StructuresHelper.GetStructureNodesForRootNode(structureNodeLinksRepository, structureNodeLinks.Node.Id).Where<StructureNodeLinks>((Func<StructureNodeLinks, bool>) (s => !s.EndDate.HasValue)) : (IEnumerable<StructureNodeLinks>) new List<StructureNodeLinks>();
+    }
+
+    public static IEnumerable<StructureNodeDTO> GetStructureNodeDTOForRootNode(
+      Guid structureRootNodeId,
+      IRepository<StructureNodeLinks> structureNodeLinksRepository,
+      IRepository<StructureNode> structureNodeReporsitory,
+      IRepository<StructureNodeType> structureNodeTypeRepository,
+      ISession session,
+      IList<MeterReplacementHistorySerializableDTO> meterReplacementHistoryRepository = null)
+    {
+      return StructuresHelper.GetStructureNodeDTOForRootNode(structureRootNodeId, structureNodeLinksRepository, structureNodeReporsitory, structureNodeTypeRepository, session, meterReplacementHistoryRepository);
+    }
+
+    public static IEnumerable<Tenant> GetTenants(
+      IEnumerable<StructureNodeDTO> structureDTOCollection,
+      ISession session)
+    {
+      ObservableCollection<Tenant> tenants = new ObservableCollection<Tenant>();
+      foreach (StructureNodeDTO structureDto in structureDTOCollection)
+      {
+        foreach (StructureNodeDTO subNode in (Collection<StructureNodeDTO>) structureDto.SubNodes)
+        {
+          if ((StructureNodeTypeEnum) Enum.Parse(typeof (StructureNodeTypeEnum), subNode.NodeType.Name, true) == StructureNodeTypeEnum.Tenant && subNode.Entity != null)
+          {
+            Tenant entity = StructuresHelper.GetEntity<Tenant>((subNode.Entity as TenantDTO).Id, session);
+            tenants.Add(entity);
+          }
+        }
+      }
+      return (IEnumerable<Tenant>) tenants;
+    }
+
+    public static IEnumerable<Meter> GetMetersForTenant(
+      Tenant tenant,
+      IEnumerable<StructureNodeDTO> structureDTOCollection,
+      ISession session)
+    {
+      ObservableCollection<Meter> metersForTenant = new ObservableCollection<Meter>();
+      foreach (StructureNodeDTO structureDto in structureDTOCollection)
+      {
+        foreach (StructureNodeDTO subNode1 in (Collection<StructureNodeDTO>) structureDto.SubNodes)
+        {
+          if ((StructureNodeTypeEnum) Enum.Parse(typeof (StructureNodeTypeEnum), subNode1.NodeType.Name, true) == StructureNodeTypeEnum.Tenant && subNode1.Entity != null && (subNode1.Entity as TenantDTO).Id == tenant.Id)
+          {
+            foreach (StructureNodeDTO subNode2 in (Collection<StructureNodeDTO>) subNode1.SubNodes)
+            {
+              if (subNode2.Entity != null)
+              {
+                Meter entity = StructuresHelper.GetEntity<Meter>((subNode2.Entity as MeterDTO).Id, session);
+                metersForTenant.Add(entity);
+              }
+            }
+          }
+        }
+      }
+      return (IEnumerable<Meter>) metersForTenant;
+    }
+
+    public static int GetNumberOfMetersByDeviceType(
+      IEnumerable<Meter> meterList,
+      DeviceTypeEnum deviceType)
+    {
+      return meterList.Count<Meter>((Func<Meter, bool>) (m => m.DeviceType == deviceType));
+    }
+
+    public static IEnumerable<ExecuteOrderStructureNode> Descendants(ExecuteOrderStructureNode root)
+    {
+      Stack<ExecuteOrderStructureNode> nodes = new Stack<ExecuteOrderStructureNode>((IEnumerable<ExecuteOrderStructureNode>) new ExecuteOrderStructureNode[1]
+      {
+        root
+      });
+      while (nodes.Any<ExecuteOrderStructureNode>())
+      {
+        ExecuteOrderStructureNode node = nodes.Pop();
+        yield return node;
+        foreach (ExecuteOrderStructureNode n in (Collection<ExecuteOrderStructureNode>) node.Children)
+          nodes.Push(n);
+        node = (ExecuteOrderStructureNode) null;
+      }
+    }
+
+    private bool StructureContainsAllMandatoryExportableData(
+      Structure structure,
+      out List<Meter> notExportableMeters)
+    {
+      List<Meter> meters = structure.Meters;
+      List<Meter> source = new List<Meter>();
+      notExportableMeters = new List<Meter>();
+      foreach (Meter meter in meters)
+      {
+        if (meter.DeviceType == DeviceTypeEnum.MinotelContactRadio3 || meter.DeviceType == DeviceTypeEnum.MinomessMicroRadio3 || meter.DeviceType == DeviceTypeEnum.M7 || meter.DeviceType == DeviceTypeEnum.M6 || meter.DeviceType == DeviceTypeEnum.C5MBus || meter.DeviceType == DeviceTypeEnum.C5Radio || meter.DeviceType == DeviceTypeEnum.Minoprotect3)
+          source.Add(meter);
+      }
+      notExportableMeters = source.Where<Meter>((Func<Meter, bool>) (x => x.SerialNumber == string.Empty)).ToList<Meter>();
+      return source.All<Meter>((Func<Meter, bool>) (meter => meter.SerialNumber != string.Empty));
+    }
+
+    public bool IsReadingOrderExportable(
+      Dictionary<Order, Structure> structures,
+      out List<OrderErrorMessages> errorMessages,
+      IRepository<StructureNodeType> _structureNodeTypeRepository)
+    {
+      errorMessages = new List<OrderErrorMessages>();
+      List<OrderErrorMessages> messages = errorMessages;
+      bool isNotExportable = true;
+      TypeHelperExtensionMethods.ForEach<KeyValuePair<Order, Structure>>((IEnumerable<KeyValuePair<Order, Structure>>) structures, (Action<KeyValuePair<Order, Structure>>) (x =>
+      {
+        if (x.Key == null)
+          return;
+        StructureTypeEnum? structureType = x.Key.StructureType;
+        StructureTypeEnum structureTypeEnum = StructureTypeEnum.Fixed;
+        if (structureType.GetValueOrDefault() == structureTypeEnum && structureType.HasValue)
+        {
+          Guid? lockedBy = x.Key.LockedBy;
+          Guid empty = Guid.Empty;
+          int num;
+          if ((lockedBy.HasValue ? (lockedBy.HasValue ? (lockedBy.GetValueOrDefault() == empty ? 1 : 0) : 1) : 0) == 0)
+          {
+            lockedBy = x.Key.LockedBy;
+            num = !lockedBy.HasValue ? 1 : 0;
+          }
+          else
+            num = 1;
+          if (num != 0)
+          {
+            string error;
+            if (!this.ValidExportableCompleteStructure(x.Value, x.Key, out error))
+            {
+              messages.Add(new OrderErrorMessages()
+              {
+                Order = x.Key,
+                Message = error
+              });
+              isNotExportable = false;
+            }
+            List<Meter> totalNrOfNonExportableMeters;
+            if (this.IsNoMeterExportableInStructure(x.Value, out totalNrOfNonExportableMeters))
+            {
+              string invalidMeters = string.Empty;
+              totalNrOfNonExportableMeters.ForEach((Action<Meter>) (y =>
+              {
+                Guid tenantId = StructuresHelper.GetParentEntityIdForNode(x.Value, y.Id);
+                Tenant tenant = tenantId != Guid.Empty ? x.Value.Tenants.FirstOrDefault<Tenant>((Func<Tenant, bool>) (t => t.Id == tenantId)) : (Tenant) null;
+                string[] strArray = new string[5]
+                {
+                  invalidMeters,
+                  Environment.NewLine,
+                  null,
+                  null,
+                  null
+                };
+                string str;
+                if (tenant == null)
+                  str = string.Empty;
+                else
+                  str = "Tenant:" + (object) tenant.TenantNr + " - " + tenant.Name + ";";
+                strArray[2] = str;
+                strArray[3] = " SerialNumber: ";
+                strArray[4] = y.SerialNumber;
+                invalidMeters = string.Concat(strArray);
+              }));
+              invalidMeters += Environment.NewLine;
+              string str1 = string.Format(Resources.VALIDATION_READING_ORDER_DEVICE_TYPES, (object) invalidMeters);
+              messages.Add(new OrderErrorMessages()
+              {
+                Order = x.Key,
+                Message = str1
+              });
+              isNotExportable = false;
+            }
+          }
+          else
+          {
+            messages.Add(new OrderErrorMessages()
+            {
+              Order = x.Key,
+              Message = Resources.MSS_ExportOrder_Error_Message_FixedStructure
+            });
+            isNotExportable = false;
+          }
+        }
+        else
+        {
+          messages.Add(new OrderErrorMessages()
+          {
+            Order = x.Key,
+            Message = Resources.MSS_ExportOrder_Error_Message_FixedStructure
+          });
+          isNotExportable = false;
+        }
+        List<Meter> notExportableMeters;
+        if (this.StructureContainsAllMandatoryExportableData(x.Value, out notExportableMeters))
+        {
+          List<string> errorListUnique;
+          if (!this.TenantAndMeterUniqueness(x.Value, OrderTypeEnum.ReadingOrder, out errorListUnique, _structureNodeTypeRepository))
+          {
+            string uniqueError = string.Empty;
+            errorListUnique.ForEach((Action<string>) (error => uniqueError += error));
+            messages.Add(new OrderErrorMessages()
+            {
+              Order = x.Key,
+              Message = uniqueError
+            });
+            isNotExportable = false;
+          }
+        }
+        else
+        {
+          string metersWithProblems = string.Empty;
+          notExportableMeters.ForEach((Action<Meter>) (m =>
+          {
+            Guid tenantId = StructuresHelper.GetParentEntityIdForNode(x.Value, m.Id);
+            Tenant tenant = tenantId != Guid.Empty ? x.Value.Tenants.FirstOrDefault<Tenant>((Func<Tenant, bool>) (t => t.Id == tenantId)) : (Tenant) null;
+            string[] strArray = new string[5]
+            {
+              metersWithProblems,
+              Environment.NewLine,
+              null,
+              null,
+              null
+            };
+            string str;
+            if (tenant == null)
+              str = string.Empty;
+            else
+              str = "Tenant: " + (object) tenant.TenantNr + " - " + tenant.Name + ";";
+            strArray[2] = str;
+            strArray[3] = " SerialNumber: ";
+            strArray[4] = m.SerialNumber;
+            metersWithProblems = string.Concat(strArray);
+          }));
+          metersWithProblems += Environment.NewLine;
+          string str2 = string.Format(Resources.MSS_ExportOrder_Error_Message_MissingMeterMandatoryData, (object) metersWithProblems);
+          messages.Add(new OrderErrorMessages()
+          {
+            Order = x.Key,
+            Message = str2
+          });
+          isNotExportable = false;
+        }
+      }));
+      return isNotExportable;
+    }
+
+    private bool ValidExportableCompleteStructure(
+      Structure structure,
+      Order selectedOrder,
+      out string error)
+    {
+      if (selectedOrder.StructureBytes != null)
+      {
+        if (structure == null)
+        {
+          error = Resources.VALIDATION_READING_ORDER_STRUCTURE_NULL;
+          return false;
+        }
+        StructureNodeLinks rootNode = structure.Links.FirstOrDefault<StructureNodeLinks>((Func<StructureNodeLinks, bool>) (s => s.ParentNodeId == Guid.Empty && s.RootNode.Id == s.Node.Id));
+        if (rootNode != null)
+        {
+          StructureNode structureNode1 = structure.Nodes.FirstOrDefault<StructureNode>((Func<StructureNode, bool>) (n => n.Id == rootNode.Node.Id));
+          if (structureNode1.EntityId == Guid.Empty)
+          {
+            error = string.Format(Resources.VALIDATION_READING_ORDER_LOCATION_IS_NULL, (object) structureNode1.Description);
+            return false;
+          }
+          IEnumerable<StructureNodeLinks> source = structure.Links.Where<StructureNodeLinks>((Func<StructureNodeLinks, bool>) (s => s.ParentNodeId == rootNode.Node.Id && s.RootNode.Id == rootNode.Node.Id));
+          if (source.Any<StructureNodeLinks>())
+          {
+            foreach (StructureNodeLinks structureNodeLinks1 in source)
+            {
+              StructureNodeLinks tenantLink = structureNodeLinks1;
+              StructureNode structureNode2 = structure.Nodes.FirstOrDefault<StructureNode>((Func<StructureNode, bool>) (n => n.Id == tenantLink.Node.Id));
+              if (structureNode2.EntityId == Guid.Empty)
+              {
+                error = string.Format(Resources.VALIDATION_READING_ORDER_TENANT_IS_NULL, (object) structureNode2.Description);
+                return false;
+              }
+              if ((structureNode2 == null || !(structureNode2.EntityName == "Minomat")) && (structureNode2 == null || !(structureNode2.EntityName == "MinomatSerializableDTO")))
+              {
+                foreach (StructureNodeLinks structureNodeLinks2 in structure.Links.Where<StructureNodeLinks>((Func<StructureNodeLinks, bool>) (s => s.ParentNodeId == tenantLink.Node.Id && s.RootNode.Id == rootNode.Node.Id)))
+                {
+                  StructureNodeLinks link = structureNodeLinks2;
+                  StructureNode structureNode3 = structure.Nodes.FirstOrDefault<StructureNode>((Func<StructureNode, bool>) (x => x.Id == link.Node.Id));
+                  if (structureNode3 != null && structureNode3.EntityId == Guid.Empty)
+                  {
+                    error = string.Format(Resources.VALIDATION_READING_ORDER_METER_IS_NOT_VALID, (object) structureNode3.Description);
+                    return false;
+                  }
+                }
+              }
+            }
+          }
+          else
+          {
+            error = Resources.VALIDATION_READING_ORDER_NOTENANT;
+            return false;
+          }
+        }
+      }
+      error = string.Empty;
+      return true;
+    }
+
+    private bool IsAnyTenantWithNoValidExportableMeterInStructure(
+      Structure structure,
+      out List<StructureNode> tenantsWithoutMeters)
+    {
+      bool flag = false;
+      tenantsWithoutMeters = new List<StructureNode>();
+      List<StructureNodeLinks> structureNodeLinksList = new List<StructureNodeLinks>();
+      StructureNodeLinks rootNode = structure.Links.FirstOrDefault<StructureNodeLinks>((Func<StructureNodeLinks, bool>) (s => s.ParentNodeId == Guid.Empty && s.RootNode.Id == s.Node.Id));
+      if (rootNode != null)
+      {
+        IEnumerable<StructureNodeLinks> source = structure.Links.Where<StructureNodeLinks>((Func<StructureNodeLinks, bool>) (s => s.ParentNodeId == rootNode.Node.Id && s.RootNode.Id == rootNode.Node.Id));
+        if (source.Any<StructureNodeLinks>())
+        {
+          foreach (StructureNodeLinks structureNodeLinks in source)
+          {
+            StructureNodeLinks tenantLink = structureNodeLinks;
+            StructureNode structureNode = structure.Nodes.FirstOrDefault<StructureNode>((Func<StructureNode, bool>) (n => n.Id == tenantLink.Node.Id));
+            if ((structureNode == null || !(structureNode.EntityName == "Minomat")) && (structureNode == null || !(structureNode.EntityName == "MinomatSerializableDTO")) && !structure.Links.Where<StructureNodeLinks>((Func<StructureNodeLinks, bool>) (s => s.ParentNodeId == tenantLink.Node.Id && s.RootNode.Id == rootNode.Node.Id)).Select<StructureNodeLinks, StructureNode>((Func<StructureNodeLinks, StructureNode>) (meterLink => structure.Nodes.FirstOrDefault<StructureNode>((Func<StructureNode, bool>) (s => s.Id == meterLink.Node.Id)))).ToList<StructureNode>().Select<StructureNode, Meter>((Func<StructureNode, Meter>) (meterNode => structure.Meters.FirstOrDefault<Meter>((Func<Meter, bool>) (m => m.Id == meterNode.EntityId && meterNode.EntityId != Guid.Empty)))).Where<Meter>((Func<Meter, bool>) (meter =>
+            {
+              if (meter == null)
+                return false;
+              return meter.DeviceType == DeviceTypeEnum.MinotelContactRadio3 || meter.DeviceType == DeviceTypeEnum.MinomessMicroRadio3 || meter.DeviceType == DeviceTypeEnum.M7 || meter.DeviceType == DeviceTypeEnum.M6 || meter.DeviceType == DeviceTypeEnum.C5MBus || meter.DeviceType == DeviceTypeEnum.C5Radio || meter.DeviceType == DeviceTypeEnum.Minoprotect3;
+            })).ToList<Meter>().Any<Meter>())
+            {
+              flag = true;
+              structureNodeLinksList.Add(tenantLink);
+            }
+          }
+        }
+      }
+      List<StructureNode> meters = tenantsWithoutMeters;
+      structureNodeLinksList.ForEach((Action<StructureNodeLinks>) (x => meters.Add(structure.Nodes.FirstOrDefault<StructureNode>((Func<StructureNode, bool>) (n => n.Id == x.Node.Id)))));
+      tenantsWithoutMeters = meters;
+      return flag;
+    }
+
+    private bool IsNoMeterExportableInStructure(
+      Structure structure,
+      out List<Meter> totalNrOfNonExportableMeters)
+    {
+      List<Meter> meters = structure.Meters;
+      List<Meter> list = meters.Where<Meter>((Func<Meter, bool>) (meter => meter.DeviceType == DeviceTypeEnum.MinotelContactRadio3 || meter.DeviceType == DeviceTypeEnum.MinomessMicroRadio3 || meter.DeviceType == DeviceTypeEnum.M7 || meter.DeviceType == DeviceTypeEnum.M6 || meter.DeviceType == DeviceTypeEnum.C5MBus || meter.DeviceType == DeviceTypeEnum.C5Radio || meter.DeviceType == DeviceTypeEnum.Minoprotect3)).ToList<Meter>();
+      totalNrOfNonExportableMeters = meters.Where<Meter>((Func<Meter, bool>) (meter => meter.DeviceType != DeviceTypeEnum.MinotelContactRadio3 && meter.DeviceType != DeviceTypeEnum.MinomessMicroRadio3 && meter.DeviceType != DeviceTypeEnum.M7 && meter.DeviceType != DeviceTypeEnum.M6 && meter.DeviceType != DeviceTypeEnum.C5MBus && meter.DeviceType != DeviceTypeEnum.C5Radio && meter.DeviceType != DeviceTypeEnum.Minoprotect3)).ToList<Meter>();
+      return list.Count == 0;
+    }
+
+    private bool TenantAndMeterUniqueness(
+      Structure structure,
+      OrderTypeEnum orderType,
+      out List<string> errorListUnique,
+      IRepository<StructureNodeType> _structureNodeTypeRepository)
+    {
+      StructureNodeDTO rootNodeDTO = this.CreateStructureDTOFromStructure(structure, _structureNodeTypeRepository).FirstOrDefault<StructureNodeDTO>((Func<StructureNodeDTO, bool>) (n => n.ParentNode == null && n.RootNode.Id == n.Id));
+      errorListUnique = new List<string>();
+      List<TenantDTO> duplicates;
+      if (StructuresHelper.ValidateTenantUniqueness(rootNodeDTO, out duplicates))
+      {
+        List<MeterDTO> notUniqueReadingMeters;
+        List<MeterDTO> notUniqueInstallationMeters;
+        if (StructuresHelper.ValidationMeterUniqueness(rootNodeDTO, orderType, out notUniqueReadingMeters, out notUniqueInstallationMeters))
+          return true;
+        if (notUniqueInstallationMeters.Any<MeterDTO>())
+        {
+          string error = string.Empty;
+          notUniqueInstallationMeters.ForEach((Action<MeterDTO>) (x => error = error + Resources.METER_NOT_UNIQUE_TENANT_DECRIPTION + x.TenantNo + "  " + Resources.METER_NOT_UNIQUE_TENANT_DECRIPTION + x.TenantNo + "  " + string.Format(Resources.VALIDATION_SERIAL_NUMBER_NOT_UNIQUE, (object) x.SerialNumber) + Environment.NewLine));
+          errorListUnique.Add(error);
+        }
+        if (notUniqueReadingMeters.Any<MeterDTO>())
+        {
+          string error = string.Empty;
+          notUniqueReadingMeters.ForEach((Action<MeterDTO>) (x => error = error + Resources.METER_NOT_UNIQUE_TENANT_DECRIPTION + x.TenantNo + "  " + Resources.METER_NOT_UNIQUE_TENANT_DECRIPTION + string.Format(Resources.VALIDATION_SERIAL_NUMBER_NOT_UNIQUE, (object) x.SerialNumber) + Environment.NewLine));
+          errorListUnique.Add(error);
+        }
+        return false;
+      }
+      if (duplicates.Any<TenantDTO>())
+      {
+        string error = string.Empty;
+        duplicates.ForEach((Action<TenantDTO>) (x => error = error + string.Format(Resources.VALIDATION_TENANT_NOT_UNIQUE, (object) x.Description) + Environment.NewLine));
+        errorListUnique.Add(error);
+      }
+      return false;
+    }
+
+    private ObservableCollection<StructureNodeDTO> CreateStructureDTOFromStructure(
+      Structure structure,
+      IRepository<StructureNodeType> _structureNodeTypeRepository)
+    {
+      Dictionary<Guid, object> entitiesDictionary = new Dictionary<Guid, object>();
+      structure.Locations.ForEach((Action<Location>) (l => entitiesDictionary.Add(l.Id, (object) l)));
+      structure.Tenants.ForEach((Action<Tenant>) (t => entitiesDictionary.Add(t.Id, (object) t)));
+      structure.Meters.ForEach((Action<Meter>) (m => entitiesDictionary.Add(m.Id, (object) m)));
+      structure.Minomats.ForEach((Action<Minomat>) (m => entitiesDictionary.Add(m.Id, (object) m)));
+      return StructuresHelper.GetTreeFromList(_structureNodeTypeRepository.GetAll(), (IList<StructureNodeLinks>) structure.Links, entitiesDictionary);
+    }
+  }
+}
+
+
+--- OrdersManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.OrdersManagement.OrdersManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using AutoMapper;
+using MSS.Business.Modules.GMM;
+using MSS.Business.Modules.LicenseManagement;
+using MSS.Business.Modules.StructuresManagement;
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.Orders;
+using MSS.Core.Model.Structures;
+using MSS.Core.Model.UsersManagement;
+using MSS.DTO.Meters;
+using MSS.DTO.Minomat;
+using MSS.DTO.Orders;
+using MSS.DTO.Structures;
+using MSS.Interfaces;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Linq;
+using NHibernate.SqlCommand;
+using Ninject;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+
+#nullable disable
+namespace MSS.Business.Modules.OrdersManagement
+{
+  public class OrdersManager
+  {
+    private readonly ISession _nhSession;
+    private readonly IRepository<MSS.Core.Model.Orders.Order> _orderRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly IRepository<StructureNodeLinks> _structureNodeLinksRepository;
+    private readonly IRepository<OrderUser> _orderUserRepository;
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly IRepository<StructureNode> _structureNodeRepository;
+    private readonly IRepository<Location> _locationRepository;
+    private readonly IRepository<OrderReadingValues> _orderReadingValuesRepository;
+    private readonly IRepository<MeterReadingValue> _meterReadingValueRepository;
+    private List<string> deviceModelsInLicense;
+
+    [Inject]
+    public OrdersManager(IRepositoryFactory repositoryFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._nhSession = repositoryFactory.GetSession();
+      this._orderRepository = repositoryFactory.GetRepository<MSS.Core.Model.Orders.Order>();
+      this._userRepository = repositoryFactory.GetUserRepository();
+      this._structureNodeLinksRepository = repositoryFactory.GetRepository<StructureNodeLinks>();
+      this._orderUserRepository = repositoryFactory.GetRepository<OrderUser>();
+      this._structureNodeRepository = repositoryFactory.GetRepository<StructureNode>();
+      this._locationRepository = repositoryFactory.GetRepository<Location>();
+      this._orderReadingValuesRepository = repositoryFactory.GetRepository<OrderReadingValues>();
+      this._meterReadingValueRepository = repositoryFactory.GetRepository<MeterReadingValue>();
+      this.deviceModelsInLicense = LicenseHelper.GetDeviceTypes().ToList<string>();
+      OrdersManager.InitalizeMappings();
+    }
+
+    private static void InitalizeMappings()
+    {
+      Mapper.CreateMap<MeterSerializableDTO, MeterDTO>();
+      Mapper.CreateMap<TenantSerializableDTO, TenantDTO>();
+      Mapper.CreateMap<LocationSerializableDTO, LocationDTO>();
+      Mapper.CreateMap<MinomatSerializableDTO, MinomatDTO>();
+    }
+
+    public IEnumerable<OrderDTO> GetReadingOrdersDTO()
+    {
+      List<OrderDTO> readingOrdersDto = new List<OrderDTO>();
+      IRepository<MSS.Core.Model.Orders.Order> orderRepository = this._orderRepository;
+      Expression<Func<MSS.Core.Model.Orders.Order, bool>> predicate = (Expression<Func<MSS.Core.Model.Orders.Order, bool>>) (r => r.IsDeactivated == false && (int) r.OrderType == 0);
+      Expression<Func<MSS.Core.Model.Orders.Order, IList<OrderUser>>> fetchExpression = (Expression<Func<MSS.Core.Model.Orders.Order, IList<OrderUser>>>) (o => o.OrderUsers);
+      foreach (MSS.Core.Model.Orders.Order order in orderRepository.SearchWithFetch<IList<OrderUser>>(predicate, fetchExpression).ToList<MSS.Core.Model.Orders.Order>())
+      {
+        StructureNodeSerializableDTO nodeSerializableDto = (StructureNodeSerializableDTO) null;
+        int num1 = this.GetNodes(order.StructureBytes, order.Id, new List<Guid>(), this.deviceModelsInLicense).Item2;
+        if (order.StructureBytes != null)
+        {
+          OrderSerializableStructure serializableStructure = StructuresHelper.DeserializeStructure(order.StructureBytes);
+          if (serializableStructure.structureNodesLinksList.Count > 0)
+          {
+            Guid rootId = serializableStructure.structureNodesLinksList[0].RootNodeId;
+            nodeSerializableDto = serializableStructure.structureNodeList.FirstOrDefault<StructureNodeSerializableDTO>((Func<StructureNodeSerializableDTO, bool>) (sn => sn.Id == rootId));
+          }
+        }
+        List<OrderDTO> orderDtoList = readingOrdersDto;
+        OrderDTO orderDto1 = new OrderDTO();
+        orderDto1.Id = order.Id;
+        orderDto1.InstallationNumber = order.InstallationNumber;
+        orderDto1.RootStructureNodeId = order.RootStructureNodeId;
+        orderDto1.StructureType = order.StructureType;
+        orderDto1.Details = order.Details;
+        orderDto1.Status = order.Status;
+        orderDto1.UserIds = order.OrderUsers != null ? order.OrderUsers.Select<OrderUser, Guid>((Func<OrderUser, Guid>) (ou => ou.User.Id)).ToList<Guid>() : (List<Guid>) null;
+        orderDto1.Exported = order.Exported;
+        orderDto1.TestConfig = order.TestConfig;
+        orderDto1.DeviceNumber = order.DeviceNumber;
+        orderDto1.LockedBy = order.LockedBy;
+        orderDto1.IsDeactivated = order.IsDeactivated;
+        orderDto1.DueDate = order.DueDate;
+        orderDto1.OrderType = order.OrderType;
+        orderDto1.CloseOrderReason = order.CloseOrderReason;
+        OrderDTO orderDto2 = orderDto1;
+        Guid? lockedBy = order.LockedBy;
+        Guid empty = Guid.Empty;
+        int num2;
+        if ((lockedBy.HasValue ? (lockedBy.HasValue ? (lockedBy.GetValueOrDefault() != empty ? 1 : 0) : 0) : 1) != 0)
+        {
+          lockedBy = order.LockedBy;
+          num2 = lockedBy.HasValue ? 1 : 0;
+        }
+        else
+          num2 = 0;
+        orderDto2.IsLocked = num2 != 0;
+        orderDto1.FilterId = order.Filter != null ? order.Filter.Id : Guid.Empty;
+        orderDto1.StructureBytes = order.StructureBytes;
+        orderDto1.RootNodeName = nodeSerializableDto?.Name;
+        orderDto1.RootNodeDescription = nodeSerializableDto?.Description;
+        orderDto1.DevicesCount = num1;
+        orderDto1.AssignedUserName = order.OrderUsers == null || order.OrderUsers.Count <= 0 ? string.Empty : order.OrderUsers[0].User.LastName + " " + order.OrderUsers[0].User.FirstName;
+        OrderDTO orderDto3 = orderDto1;
+        orderDtoList.Add(orderDto3);
+      }
+      return (IEnumerable<OrderDTO>) readingOrdersDto;
+    }
+
+    public IEnumerable<OrderDTO> GetInstallationOrdersDTO()
+    {
+      List<OrderDTO> installationOrdersDto = new List<OrderDTO>();
+      List<MSS.Core.Model.Orders.Order> list = this._orderRepository.SearchWithFetch<IList<OrderUser>>((Expression<Func<MSS.Core.Model.Orders.Order, bool>>) (r => r.IsDeactivated == false && (int) r.OrderType == 1), (Expression<Func<MSS.Core.Model.Orders.Order, IList<OrderUser>>>) (o => o.OrderUsers)).ToList<MSS.Core.Model.Orders.Order>();
+      Guid[] orderIds = list.Select<MSS.Core.Model.Orders.Order, Guid>((Func<MSS.Core.Model.Orders.Order, Guid>) (o => o.RootStructureNodeId)).ToArray<Guid>();
+      IList<StructureNode> source = this._repositoryFactory.GetRepository<StructureNode>().SearchFor((Expression<Func<StructureNode, bool>>) (sn => orderIds.Contains<Guid>(sn.Id)));
+      foreach (MSS.Core.Model.Orders.Order order in list)
+      {
+        MSS.Core.Model.Orders.Order r = order;
+        StructureNode structureNode = source.FirstOrDefault<StructureNode>((Func<StructureNode, bool>) (n => n.Id == r.RootStructureNodeId));
+        List<OrderDTO> orderDtoList = installationOrdersDto;
+        OrderDTO orderDto1 = new OrderDTO();
+        orderDto1.Id = r.Id;
+        orderDto1.InstallationNumber = r.InstallationNumber;
+        orderDto1.RootStructureNodeId = r.RootStructureNodeId;
+        orderDto1.StructureType = r.StructureType;
+        orderDto1.Details = r.Details;
+        orderDto1.Status = r.Status;
+        orderDto1.UserIds = r.OrderUsers != null ? r.OrderUsers.Select<OrderUser, Guid>((Func<OrderUser, Guid>) (ou => ou.User.Id)).ToList<Guid>() : (List<Guid>) null;
+        orderDto1.Exported = r.Exported;
+        orderDto1.TestConfig = r.TestConfig;
+        orderDto1.DeviceNumber = r.DeviceNumber;
+        orderDto1.LockedBy = r.LockedBy;
+        orderDto1.IsDeactivated = r.IsDeactivated;
+        orderDto1.DueDate = r.DueDate;
+        orderDto1.OrderType = r.OrderType;
+        orderDto1.CloseOrderReason = r.CloseOrderReason;
+        OrderDTO orderDto2 = orderDto1;
+        Guid? lockedBy = r.LockedBy;
+        Guid empty = Guid.Empty;
+        int num;
+        if ((lockedBy.HasValue ? (lockedBy.HasValue ? (lockedBy.GetValueOrDefault() != empty ? 1 : 0) : 0) : 1) != 0)
+        {
+          lockedBy = r.LockedBy;
+          num = lockedBy.HasValue ? 1 : 0;
+        }
+        else
+          num = 0;
+        orderDto2.IsLocked = num != 0;
+        orderDto1.FilterId = r.Filter != null ? r.Filter.Id : Guid.Empty;
+        orderDto1.StructureBytes = r.StructureBytes;
+        orderDto1.RootNodeName = structureNode?.Name;
+        orderDto1.RootNodeDescription = structureNode?.Description;
+        OrderDTO orderDto3 = orderDto1;
+        orderDtoList.Add(orderDto3);
+      }
+      return (IEnumerable<OrderDTO>) installationOrdersDto;
+    }
+
+    public void DeleteOrder(Guid orderId)
+    {
+      MSS.Core.Model.Orders.Order byId = this._orderRepository.GetById((object) orderId);
+      byId.IsDeactivated = true;
+      byId.Status = StatusOrderEnum.Closed;
+      this._orderRepository.Update(byId);
+    }
+
+    public void CreateOrder(OrderDTO orderDTO, bool? updateDueDateStructureValue)
+    {
+      try
+      {
+        this._nhSession.BeginTransaction();
+        MSS.Core.Model.Orders.Order entity1 = new MSS.Core.Model.Orders.Order()
+        {
+          InstallationNumber = orderDTO.InstallationNumber,
+          RootStructureNodeId = orderDTO.RootStructureNodeId,
+          Details = orderDTO.Details,
+          Exported = orderDTO.Exported,
+          Status = orderDTO.Status,
+          DeviceNumber = orderDTO.DeviceNumber,
+          LockedBy = orderDTO.LockedBy,
+          TestConfig = orderDTO.TestConfig,
+          IsDeactivated = orderDTO.IsDeactivated,
+          DueDate = orderDTO.DueDate,
+          OrderType = orderDTO.OrderType,
+          CloseOrderReason = orderDTO.CloseOrderReason,
+          Filter = this._repositoryFactory.GetRepository<MSS.Core.Model.DataFilters.Filter>().GetById((object) orderDTO.FilterId),
+          StructureBytes = orderDTO.StructureBytes,
+          StructureType = orderDTO.StructureType,
+          CreatedOn = DateTime.Now
+        };
+        this._orderRepository.TransactionalInsert(entity1);
+        foreach (Guid userId in orderDTO.UserIds)
+        {
+          User byId = this._userRepository.GetById((object) userId);
+          this._orderUserRepository.TransactionalInsert(new OrderUser()
+          {
+            User = byId,
+            Order = entity1
+          });
+        }
+        bool? nullable = updateDueDateStructureValue;
+        bool flag = true;
+        if (nullable.GetValueOrDefault() == flag && nullable.HasValue)
+        {
+          Location entity2 = this.UpdateDueDateStructureValue(orderDTO);
+          if (entity2 != null)
+            this._locationRepository.TransactionalUpdate(entity2);
+        }
+        this._nhSession.Transaction.Commit();
+      }
+      catch (Exception ex)
+      {
+        this._nhSession.Transaction.Rollback();
+        throw;
+      }
+    }
+
+    public void EditOrder(MSS.Core.Model.Orders.Order order)
+    {
+      try
+      {
+        this._nhSession.FlushMode = FlushMode.Commit;
+        this._nhSession.BeginTransaction();
+        this._orderRepository.TransactionalUpdate(order);
+        this._nhSession.Transaction.Commit();
+      }
+      catch (Exception ex)
+      {
+        this._nhSession.Transaction.Rollback();
+        throw;
+      }
+    }
+
+    public void EditOrder(OrderDTO orderDTO, bool? updateDueDateStructureValue)
+    {
+      try
+      {
+        this._nhSession.FlushMode = FlushMode.Commit;
+        this._nhSession.BeginTransaction();
+        MSS.Core.Model.Orders.Order order = this._orderRepository.GetById((object) orderDTO.Id);
+        if (order != null)
+        {
+          order.InstallationNumber = orderDTO.InstallationNumber;
+          order.RootStructureNodeId = orderDTO.RootStructureNodeId;
+          order.Details = orderDTO.Details;
+          order.Exported = orderDTO.Exported;
+          order.Status = orderDTO.Status;
+          order.DeviceNumber = orderDTO.DeviceNumber;
+          order.LockedBy = orderDTO.LockedBy;
+          order.TestConfig = orderDTO.TestConfig;
+          order.DueDate = orderDTO.DueDate;
+          order.IsDeactivated = orderDTO.IsDeactivated;
+          order.OrderType = orderDTO.OrderType;
+          order.CloseOrderReason = orderDTO.CloseOrderReason;
+          order.Filter = this._repositoryFactory.GetRepository<MSS.Core.Model.DataFilters.Filter>().GetById((object) orderDTO.FilterId);
+          order.StructureBytes = orderDTO.StructureBytes;
+          order.StructureType = orderDTO.StructureType;
+          this._orderRepository.TransactionalUpdate(order);
+        }
+        if (orderDTO.UserIds != null)
+        {
+          List<User> userList = orderDTO.UserIds.Select<Guid, User>((Func<Guid, User>) (userId => this._userRepository.GetById((object) userId))).ToList<User>();
+          foreach (OrderUser entity in order.OrderUsers.Where<OrderUser>((Func<OrderUser, bool>) (ou => userList.All<User>((Func<User, bool>) (u => u.Id != ou.User.Id)))).ToList<OrderUser>())
+            this._orderUserRepository.TransactionalDelete(entity);
+          foreach (User user in userList.Where<User>((Func<User, bool>) (u => order.OrderUsers.All<OrderUser>((Func<OrderUser, bool>) (ou => ou.User.Id != u.Id)))))
+          {
+            User byId = this._userRepository.GetById((object) user.Id);
+            this._orderUserRepository.TransactionalInsert(new OrderUser()
+            {
+              User = byId,
+              Order = order
+            });
+          }
+        }
+        else
+        {
+          IList<OrderUser> orderUsers = order.OrderUsers;
+          if (orderUsers != null)
+          {
+            foreach (OrderUser entity in (IEnumerable<OrderUser>) orderUsers)
+              this._orderUserRepository.TransactionalDelete(entity);
+          }
+        }
+        bool? nullable = updateDueDateStructureValue;
+        bool flag = true;
+        if (nullable.GetValueOrDefault() == flag && nullable.HasValue)
+        {
+          Location entity = this.UpdateDueDateStructureValue(orderDTO);
+          if (entity != null)
+            this._locationRepository.TransactionalUpdate(entity);
+        }
+        this._nhSession.Transaction.Commit();
+      }
+      catch (Exception ex)
+      {
+        this._nhSession.Transaction.Rollback();
+        throw;
+      }
+    }
+
+    public IEnumerable<OrderDTO> GetOrders(string searchText, OrderTypeEnum orderType)
+    {
+      List<Guid> guidList = new List<Guid>();
+      IList<MSS.Core.Model.Orders.Order> orderList = this._orderRepository.SearchFor((Expression<Func<MSS.Core.Model.Orders.Order, bool>>) (s => s.InstallationNumber.Contains(searchText) && (int) s.OrderType == (int) orderType));
+      List<OrderDTO> orderDtos = new List<OrderDTO>();
+      TypeHelperExtensionMethods.ForEach<MSS.Core.Model.Orders.Order>((IEnumerable<MSS.Core.Model.Orders.Order>) orderList, (Action<MSS.Core.Model.Orders.Order>) (r => orderDtos.Add(new OrderDTO()
+      {
+        Id = r.Id,
+        InstallationNumber = r.InstallationNumber,
+        RootStructureNodeId = r.RootStructureNodeId,
+        StructureType = r.StructureType,
+        Details = r.Details,
+        Status = r.Status,
+        UserIds = r.OrderUsers.Select<OrderUser, Guid>((Func<OrderUser, Guid>) (ou => ou.User.Id)).ToList<Guid>(),
+        Exported = r.Exported,
+        TestConfig = r.TestConfig,
+        DeviceNumber = r.DeviceNumber,
+        LockedBy = r.LockedBy,
+        IsDeactivated = r.IsDeactivated,
+        DueDate = r.DueDate,
+        OrderType = r.OrderType,
+        CloseOrderReason = r.CloseOrderReason,
+        StructureBytes = r.StructureBytes
+      })));
+      return (IEnumerable<OrderDTO>) orderDtos;
+    }
+
+    public Location GetLocationBasedOnRootNodeId(Guid rootNodeId)
+    {
+      StructureNodeLinks link = this._structureNodeLinksRepository.FirstOrDefault((Expression<Func<StructureNodeLinks, bool>>) (l => l.ParentNodeId == Guid.Empty && l.RootNode.Id == l.Node.Id && l.RootNode.Id == rootNodeId && l.EndDate == new DateTime?()));
+      if (link != null && link.StructureType == StructureTypeEnum.Fixed)
+      {
+        StructureNode node = this._structureNodeRepository.FirstOrDefault((Expression<Func<StructureNode, bool>>) (n => n.Id == link.Node.Id && n.EndDate == new DateTime?()));
+        if (node != null)
+        {
+          Location basedOnRootNodeId = this._locationRepository.FirstOrDefault((Expression<Func<Location, bool>>) (l => l.Id == node.EntityId));
+          if (basedOnRootNodeId != null)
+            return basedOnRootNodeId;
+        }
+      }
+      return (Location) null;
+    }
+
+    private Location UpdateDueDateStructureValue(OrderDTO orderDTO)
+    {
+      if (orderDTO.OrderType == OrderTypeEnum.InstallationOrder && orderDTO.RootStructureNodeId != Guid.Empty)
+      {
+        Location basedOnRootNodeId = this.GetLocationBasedOnRootNodeId(orderDTO.RootStructureNodeId);
+        if (basedOnRootNodeId != null)
+        {
+          basedOnRootNodeId.DueDate = new DateTime?(orderDTO.DueDate);
+          return basedOnRootNodeId;
+        }
+      }
+      return (Location) null;
+    }
+
+    public System.Tuple<ObservableCollection<ExecuteOrderStructureNode>, int> GetNodes(
+      byte[] structureBytes,
+      Guid orderId,
+      List<Guid> metersReadByWalkBy,
+      List<string> importableDeviceModelNameList)
+    {
+      OrderSerializableStructure orderSerializableStructure = StructuresHelper.DeserializeStructure(structureBytes);
+      if (orderSerializableStructure.structureNodesLinksList == null || orderSerializableStructure.structureNodesLinksList.Count == 0)
+        return (System.Tuple<ObservableCollection<ExecuteOrderStructureNode>, int>) null;
+      if (metersReadByWalkBy != null && metersReadByWalkBy.Any<Guid>())
+      {
+        foreach (MeterSerializableDTO meterSerializableDto in orderSerializableStructure.meterList.Where<MeterSerializableDTO>((Func<MeterSerializableDTO, bool>) (m => metersReadByWalkBy.Contains(m.Id))))
+          meterSerializableDto.Status = new ReadingValueStatusEnum?(ReadingValueStatusEnum.ok);
+      }
+      List<string> list = orderSerializableStructure.meterList.Select<MeterSerializableDTO, string>((Func<MeterSerializableDTO, string>) (m => m.SerialNumber)).ToList<string>();
+      IList<MeterReadingValue> readingValues = this._repositoryFactory.GetSession().CreateCriteria<MeterReadingValue>("RV").CreateCriteria("RV.OrderReadingValues", "ORV", JoinType.InnerJoin).Add((ICriterion) Restrictions.Eq("ORV.OrderObj.Id", (object) orderId)).Add((ICriterion) Restrictions.In("RV.MeterSerialNumber", (ICollection) list)).List<MeterReadingValue>();
+      Guid rootId = orderSerializableStructure.structureNodesLinksList.FirstOrDefault<StructureNodeLinksSerializableDTO>().RootNodeId;
+      StructureNodeSerializableDTO nodeSerializableDto = orderSerializableStructure.structureNodeList.FirstOrDefault<StructureNodeSerializableDTO>((Func<StructureNodeSerializableDTO, bool>) (n => n.Id == rootId));
+      IList<StructureNodeType> all = this._repositoryFactory.GetRepository<StructureNodeType>().GetAll();
+      DateTime dueDate = this._orderRepository.GetById((object) orderId).DueDate;
+      return this.ConstructExecuteOrderStructureNodeCollection(new List<StructureNodeSerializableDTO>()
+      {
+        nodeSerializableDto
+      }, all, readingValues, orderSerializableStructure, metersReadByWalkBy, dueDate, importableDeviceModelNameList);
+    }
+
+    public System.Tuple<ObservableCollection<ExecuteOrderStructureNode>, int> ConstructExecuteOrderStructureNodeCollection(
+      List<StructureNodeSerializableDTO> nodesList,
+      IList<StructureNodeType> nodeTypes,
+      IList<MeterReadingValue> readingValues,
+      OrderSerializableStructure orderSerializableStructure,
+      List<Guid> metersReadByWalkBy,
+      DateTime orderDueDate,
+      List<string> importableDeviceModelNameList)
+    {
+      ObservableCollection<ExecuteOrderStructureNode> observableCollection = new ObservableCollection<ExecuteOrderStructureNode>();
+      int num1 = 0;
+      StructureTypeEnum? nullable = new StructureTypeEnum?();
+      if (orderSerializableStructure != null && orderSerializableStructure.structureNodesLinksList.Count > 0)
+        nullable = new StructureTypeEnum?(orderSerializableStructure.structureNodesLinksList[0].StructureType);
+      foreach (StructureNodeSerializableDTO nodes in nodesList)
+      {
+        StructureNodeSerializableDTO node = nodes;
+        if (node == null)
+          return (System.Tuple<ObservableCollection<ExecuteOrderStructureNode>, int>) null;
+        StructureNodeType nodeType = nodeTypes.FirstOrDefault<StructureNodeType>((Func<StructureNodeType, bool>) (t => t.Id == node.NodeType));
+        StructureNodeTypeEnum structureNodeTypeName = (StructureNodeTypeEnum) Enum.Parse(typeof (StructureNodeTypeEnum), nodeType.Name);
+        StructureNodeTypeEnum nodeTypeEnum = (StructureNodeTypeEnum) Enum.Parse(typeof (StructureNodeTypeEnum), nodeType.Name);
+        object nodeEntity = OrdersManager.GetNodeEntity(orderSerializableStructure, nodeTypeEnum, node);
+        ExecuteOrderStructureNode node1 = new ExecuteOrderStructureNode()
+        {
+          Id = node.Id,
+          Name = node.Name,
+          NodeType = nodeTypeEnum,
+          Image = StructuresHelper.GetImageForNode(nodeType, OrdersManager.GetEntityDTOFromSerializableDTO(structureNodeTypeName, nodeEntity), node.EntityId != Guid.Empty)
+        };
+        switch (node1.NodeType)
+        {
+          case StructureNodeTypeEnum.Tenant:
+            TenantSerializableDTO tenantSerializableDto = orderSerializableStructure.tenantList.FirstOrDefault<TenantSerializableDTO>((Func<TenantSerializableDTO, bool>) (t => t.Id == node.EntityId));
+            if (tenantSerializableDto != null)
+            {
+              node1.TenantFloor = string.Format("{0}/{1}/{2}/{3}", (object) tenantSerializableDto.FloorNr, (object) tenantSerializableDto.FloorName, (object) tenantSerializableDto.ApartmentNr, (object) tenantSerializableDto.Direction);
+              break;
+            }
+            break;
+          case StructureNodeTypeEnum.Meter:
+          case StructureNodeTypeEnum.RadioMeter:
+            MeterSerializableDTO meter = orderSerializableStructure.meterList.FirstOrDefault<MeterSerializableDTO>((Func<MeterSerializableDTO, bool>) (m => m.Id == node.EntityId));
+            if (meter != null)
+            {
+              node1.MeterId = meter.Id;
+              node1.SerialNumber = meter.SerialNumber;
+              node1.DeviceType = new DeviceTypeEnum?(meter.DeviceType);
+              node1.Room = meter.RoomTypeCode;
+              node1.PrimaryAddres = meter.PrimaryAddress;
+              node1.Manufacturer = meter.Manufacturer;
+              node1.Medium = meter.Medium;
+              node1.ReadingEnabled = meter.ReadingEnabled;
+              node1.ShortDeviceNo = meter.ShortDeviceNo;
+              node1.Generation = meter.Generation;
+              node1.InputNumber = meter.InputNumber;
+              node1.DeviceInfo = meter.DeviceInfo;
+              if (meter.MbusRadioMeterId != Guid.Empty)
+                node1.MbusRadioMeter = new MbusRadioMeter()
+                {
+                  City = meter.City,
+                  Street = meter.Street,
+                  HouseNumber = meter.HouseNumber,
+                  HouseNumberSupplement = meter.HouseNumberSupplement,
+                  ApartmentNumber = meter.ApartmentNumber,
+                  ZipCode = meter.ZipCode,
+                  FirstName = meter.FirstName,
+                  LastName = meter.LastName,
+                  Location = meter.Location,
+                  RadioSerialNumber = meter.RadioSerialNumber
+                };
+              if (orderDueDate == DateTime.MinValue && readingValues != null && readingValues.Any<MeterReadingValue>((Func<MeterReadingValue, bool>) (r => r.MeterSerialNumber == meter.SerialNumber)))
+                meter.Status = new ReadingValueStatusEnum?(ReadingValueStatusEnum.ok);
+              node1.Status = meter.Status;
+              ReadingValueStatusEnum? status = meter.Status;
+              ReadingValueStatusEnum readingValueStatusEnum1 = ReadingValueStatusEnum.notavailable;
+              int num2;
+              if ((status.GetValueOrDefault() == readingValueStatusEnum1 ? (status.HasValue ? 1 : 0) : 0) == 0)
+              {
+                status = meter.Status;
+                ReadingValueStatusEnum readingValueStatusEnum2 = ReadingValueStatusEnum.nok;
+                num2 = status.GetValueOrDefault() == readingValueStatusEnum2 ? (status.HasValue ? 1 : 0) : 0;
+              }
+              else
+                num2 = 1;
+              if (num2 != 0)
+              {
+                OrdersManager.SetImageAndColor(node1, Brushes.OrangeRed);
+              }
+              else
+              {
+                status = meter.Status;
+                ReadingValueStatusEnum readingValueStatusEnum3 = ReadingValueStatusEnum.MissingTranslationRules;
+                if (status.GetValueOrDefault() == readingValueStatusEnum3 && status.HasValue)
+                {
+                  OrdersManager.SetImageAndColor(node1, Brushes.Yellow);
+                }
+                else
+                {
+                  status = meter.Status;
+                  ReadingValueStatusEnum readingValueStatusEnum4 = ReadingValueStatusEnum.ok;
+                  if (status.GetValueOrDefault() == readingValueStatusEnum4 && status.HasValue)
+                  {
+                    OrdersManager.SetImageAndColor(node1, Brushes.LightGreen);
+                  }
+                  else
+                  {
+                    status = meter.Status;
+                    if (!status.HasValue)
+                      node1.ColorState = (Brush) Brushes.Transparent;
+                  }
+                }
+              }
+              break;
+            }
+            break;
+        }
+        IEnumerable<Guid> linkIds = orderSerializableStructure.structureNodesLinksList.Where<StructureNodeLinksSerializableDTO>((Func<StructureNodeLinksSerializableDTO, bool>) (l => l.ParentNodeId == node.Id)).Select<StructureNodeLinksSerializableDTO, Guid>((Func<StructureNodeLinksSerializableDTO, Guid>) (l => l.NodeId));
+        List<StructureNodeSerializableDTO> list = orderSerializableStructure.structureNodeList.Where<StructureNodeSerializableDTO>((Func<StructureNodeSerializableDTO, bool>) (n => linkIds.Contains<Guid>(n.Id))).ToList<StructureNodeSerializableDTO>();
+        if (!node1.IsMeter() || this.IsReadableMeter(node1))
+        {
+          System.Tuple<ObservableCollection<ExecuteOrderStructureNode>, int> tuple = this.ConstructExecuteOrderStructureNodeCollection(list, nodeTypes, readingValues, orderSerializableStructure, metersReadByWalkBy, orderDueDate, importableDeviceModelNameList);
+          node1.Children = tuple.Item1;
+          num1 += tuple.Item2;
+        }
+        if (node1.NodeType == StructureNodeTypeEnum.Tenant)
+        {
+          BitmapImage image = node1.Image;
+          node1.Image = node1.Children.Where<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (n => n.ReadingEnabled)).All<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (n =>
+          {
+            ReadingValueStatusEnum? status = n.Status;
+            ReadingValueStatusEnum readingValueStatusEnum = ReadingValueStatusEnum.ok;
+            return status.GetValueOrDefault() == readingValueStatusEnum && status.HasValue;
+          })) ? StructuresHelper.Combine2Images(image, Brushes.LightGreen) : (node1.Children.Where<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (n => n.ReadingEnabled)).All<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (n =>
+          {
+            ReadingValueStatusEnum? status = n.Status;
+            ReadingValueStatusEnum readingValueStatusEnum5 = ReadingValueStatusEnum.nok;
+            if ((status.GetValueOrDefault() == readingValueStatusEnum5 ? (status.HasValue ? 1 : 0) : 0) == 0)
+            {
+              status = n.Status;
+              ReadingValueStatusEnum readingValueStatusEnum6 = ReadingValueStatusEnum.notavailable;
+              if ((status.GetValueOrDefault() == readingValueStatusEnum6 ? (status.HasValue ? 1 : 0) : 0) == 0)
+              {
+                status = n.Status;
+                return !status.HasValue;
+              }
+            }
+            return true;
+          })) ? StructuresHelper.Combine2Images(image, Brushes.OrangeRed) : (node1.Children.Where<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (n => n.ReadingEnabled)).All<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (n =>
+          {
+            ReadingValueStatusEnum? status = n.Status;
+            ReadingValueStatusEnum readingValueStatusEnum = ReadingValueStatusEnum.MissingTranslationRules;
+            return status.GetValueOrDefault() == readingValueStatusEnum && status.HasValue;
+          })) ? StructuresHelper.Combine2Images(image, Brushes.Yellow) : StructuresHelper.Combine2Images(image, (SolidColorBrush) null)));
+          node1.ColorState = node1.Children.Where<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (n => n.ReadingEnabled)).All<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (n =>
+          {
+            ReadingValueStatusEnum? status = n.Status;
+            ReadingValueStatusEnum readingValueStatusEnum = ReadingValueStatusEnum.ok;
+            return status.GetValueOrDefault() == readingValueStatusEnum && status.HasValue;
+          })) ? (Brush) Brushes.LightGreen : (node1.Children.Where<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (n => n.ReadingEnabled)).All<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (n =>
+          {
+            ReadingValueStatusEnum? status = n.Status;
+            ReadingValueStatusEnum readingValueStatusEnum = ReadingValueStatusEnum.notavailable;
+            return status.GetValueOrDefault() == readingValueStatusEnum && status.HasValue;
+          })) || node1.Children.Where<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (n => n.ReadingEnabled)).All<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (n =>
+          {
+            ReadingValueStatusEnum? status = n.Status;
+            ReadingValueStatusEnum readingValueStatusEnum7 = ReadingValueStatusEnum.nok;
+            if ((status.GetValueOrDefault() == readingValueStatusEnum7 ? (status.HasValue ? 1 : 0) : 0) != 0)
+              return true;
+            status = n.Status;
+            ReadingValueStatusEnum readingValueStatusEnum8 = ReadingValueStatusEnum.MissingTranslationRules;
+            return status.GetValueOrDefault() == readingValueStatusEnum8 && status.HasValue;
+          })) || node1.Children.Where<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (n => n.ReadingEnabled)).All<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (n => !n.Status.HasValue)) ? (Brush) Brushes.OrangeRed : (Brush) Brushes.Transparent);
+        }
+        if (!node1.IsMeter() || this.IsReadableMeterIncludedInLicense(node1, importableDeviceModelNameList))
+          observableCollection.Add(node1);
+        if (this.IsReadableMeterIncludedInLicense(node1, importableDeviceModelNameList))
+          ++num1;
+      }
+      return new System.Tuple<ObservableCollection<ExecuteOrderStructureNode>, int>(observableCollection, num1);
+    }
+
+    private bool IsReadableMeter(ExecuteOrderStructureNode node)
+    {
+      return node.IsMeter() && node.ReadingEnabled;
+    }
+
+    private bool IsReadableMeterIncludedInLicense(
+      ExecuteOrderStructureNode node,
+      List<string> importableDeviceModelNameList)
+    {
+      return this.IsReadableMeter(node) && GMMHelper.IsDeviceIncludedInLicense(node.DeviceType, importableDeviceModelNameList);
+    }
+
+    private static object GetNodeEntity(
+      OrderSerializableStructure orderSerializableStructure,
+      StructureNodeTypeEnum nodeTypeEnum,
+      StructureNodeSerializableDTO node)
+    {
+      switch (nodeTypeEnum)
+      {
+        case StructureNodeTypeEnum.Location:
+          return (object) orderSerializableStructure.locationList.FirstOrDefault<LocationSerializableDTO>((Func<LocationSerializableDTO, bool>) (l => l.Id == node.EntityId));
+        case StructureNodeTypeEnum.Tenant:
+          return (object) orderSerializableStructure.tenantList.FirstOrDefault<TenantSerializableDTO>((Func<TenantSerializableDTO, bool>) (t => t.Id == node.EntityId));
+        case StructureNodeTypeEnum.Meter:
+        case StructureNodeTypeEnum.RadioMeter:
+          return (object) orderSerializableStructure.meterList.FirstOrDefault<MeterSerializableDTO>((Func<MeterSerializableDTO, bool>) (m => m.Id == node.EntityId));
+        case StructureNodeTypeEnum.MinomatMaster:
+        case StructureNodeTypeEnum.MinomatSlave:
+          return (object) orderSerializableStructure.minomatList.FirstOrDefault<MinomatSerializableDTO>((Func<MinomatSerializableDTO, bool>) (m => m.Id == node.EntityId));
+        default:
+          return (object) null;
+      }
+    }
+
+    public static object GetEntityDTOFromSerializableDTO(
+      StructureNodeTypeEnum structureNodeTypeName,
+      object entityObj)
+    {
+      object obj = new object();
+      object fromSerializableDto = new object();
+      switch (structureNodeTypeName)
+      {
+        case StructureNodeTypeEnum.Location:
+          fromSerializableDto = (object) Mapper.Map<LocationSerializableDTO, LocationDTO>(entityObj as LocationSerializableDTO);
+          break;
+        case StructureNodeTypeEnum.Tenant:
+          fromSerializableDto = (object) Mapper.Map<TenantSerializableDTO, TenantDTO>(entityObj as TenantSerializableDTO);
+          break;
+        case StructureNodeTypeEnum.Meter:
+        case StructureNodeTypeEnum.RadioMeter:
+          fromSerializableDto = (object) Mapper.Map<MeterSerializableDTO, MeterDTO>(entityObj as MeterSerializableDTO);
+          break;
+        case StructureNodeTypeEnum.MinomatMaster:
+        case StructureNodeTypeEnum.MinomatSlave:
+          fromSerializableDto = (object) Mapper.Map<MinomatSerializableDTO, MinomatSerializableDTO>(entityObj as MinomatSerializableDTO);
+          break;
+      }
+      return fromSerializableDto;
+    }
+
+    public static ExecuteOrderStructureNode FindNodeById(
+      Guid id,
+      ObservableCollection<ExecuteOrderStructureNode> nodes)
+    {
+      ExecuteOrderStructureNode nodeById = nodes.FirstOrDefault<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (n => n.Id == id));
+      if (nodeById != null)
+        return nodeById;
+      using (IEnumerator<ExecuteOrderStructureNode> enumerator = nodes.GetEnumerator())
+      {
+        if (enumerator.MoveNext())
+        {
+          ExecuteOrderStructureNode current = enumerator.Current;
+          return OrdersManager.FindNodeById(id, current.Children);
+        }
+      }
+      return (ExecuteOrderStructureNode) null;
+    }
+
+    public static void SetImageAndColor(
+      ExecuteOrderStructureNode node,
+      SolidColorBrush brush,
+      BitmapImage image = null)
+    {
+      node.Image = StructuresHelper.Combine2Images(image ?? node.Image, brush);
+      node.ColorState = (Brush) brush;
+    }
+  }
+}
+
+
+--- ReadingValuesHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.OrdersManagement.ReadingValuesHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.Meters;
+using System;
+using System.Collections.Generic;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.OrdersManagement
+{
+  public class ReadingValuesHelper
+  {
+    public long GetPredefinedValueId(
+      DeviceTypeEnum type,
+      ValueIdent.ValueIdPart_MeterType register,
+      ValueIdent.ValueIdPart_StorageInterval readingValueType)
+    {
+      return readingValueType == ValueIdent.ValueIdPart_StorageInterval.DueDate ? this.GetPredefinedDueDateValueId(type, register) : this.GetPredefinedActualValueId(type, register);
+    }
+
+    public long GetPredefinedDueDateValueId(
+      DeviceTypeEnum type,
+      ValueIdent.ValueIdPart_MeterType register)
+    {
+      long predefinedDueDateValueId;
+      switch (type)
+      {
+        case DeviceTypeEnum.M6:
+          predefinedDueDateValueId = 12653192L;
+          break;
+        case DeviceTypeEnum.M7:
+        case DeviceTypeEnum.MinomessMicroRadio3:
+          predefinedDueDateValueId = 12653192L;
+          break;
+        case DeviceTypeEnum.MinotelContactRadio3:
+          predefinedDueDateValueId = 12653258L;
+          break;
+        default:
+          predefinedDueDateValueId = !register.Equals((object) ValueIdent.ValueIdPart_MeterType.ColdWater) ? 12652866L : 12653378L;
+          break;
+      }
+      return predefinedDueDateValueId;
+    }
+
+    public long GetPredefinedActualValueId(
+      DeviceTypeEnum type,
+      ValueIdent.ValueIdPart_MeterType register)
+    {
+      long predefinedActualValueId;
+      switch (type)
+      {
+        case DeviceTypeEnum.M6:
+          predefinedActualValueId = 4264584L;
+          break;
+        case DeviceTypeEnum.M7:
+        case DeviceTypeEnum.MinomessMicroRadio3:
+          predefinedActualValueId = 4264584L;
+          break;
+        case DeviceTypeEnum.MinotelContactRadio3:
+          predefinedActualValueId = 4264650L;
+          break;
+        default:
+          predefinedActualValueId = !register.Equals((object) ValueIdent.ValueIdPart_MeterType.ColdWater) ? 4264258L : 4264770L;
+          break;
+      }
+      return predefinedActualValueId;
+    }
+
+    public static List<MeterReadingValue> ConvertValueIdentToReadingValues(ValueIdentSet valueIdent)
+    {
+      SortedList<long, SortedList<DateTime, ReadingValue>> availableValues = valueIdent.AvailableValues;
+      List<MeterReadingValue> readingValues = new List<MeterReadingValue>();
+      if (availableValues != null)
+      {
+        foreach (KeyValuePair<long, SortedList<DateTime, ReadingValue>> keyValuePair1 in availableValues)
+        {
+          long key = keyValuePair1.Key;
+          foreach (KeyValuePair<DateTime, ReadingValue> keyValuePair2 in keyValuePair1.Value)
+          {
+            MeterReadingValue meterReadingValue = new MeterReadingValue()
+            {
+              MeterSerialNumber = valueIdent.SerialNumber,
+              CreatedOn = DateTime.Now,
+              Date = keyValuePair2.Key,
+              Value = keyValuePair2.Value.value,
+              ValueId = key,
+              StorageInterval = (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_StorageInterval>(key),
+              PhysicalQuantity = (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_PhysicalQuantity>(key),
+              MeterType = (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_MeterType>(key),
+              CalculationStart = (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_CalculationStart>(key),
+              Creation = (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_Creation>(key),
+              Calculation = (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_Calculation>(key),
+              Unit = new MeasureUnit()
+              {
+                Code = ValueIdent.GetUnit(Convert.ToInt64(key))
+              }
+            };
+            readingValues.Add(meterReadingValue);
+          }
+        }
+      }
+      return readingValues;
+    }
+  }
+}
+
+
+--- ReadingValuesManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.OrdersManagement.ReadingValuesManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Common.Library.NHibernate.Data;
+using GmmDbLib.DataSets;
+using MSS.Business.Modules.StructuresManagement;
+using MSS.Core.Model.Jobs;
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.Structures;
+using MSS.DTO.Structures;
+using MSS.Interfaces;
+using NHibernate;
+using NHibernate.Criterion;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.OrdersManagement
+{
+  public class ReadingValuesManager
+  {
+    private IRepositoryFactory _repositoryFactory;
+    private readonly ISession _nhSession;
+    private IRepository<MeterReadingValue> _meterReadingValueRepository;
+    private IRepository<MSS.Core.Model.Meters.Meter> _meterRepository;
+
+    public ReadingValuesManager(IRepositoryFactory repositoryFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._nhSession = repositoryFactory.GetSession();
+      this._meterReadingValueRepository = repositoryFactory.GetRepository<MeterReadingValue>();
+      this._meterRepository = repositoryFactory.GetRepository<MSS.Core.Model.Meters.Meter>();
+    }
+
+    public IEnumerable<MeterReadingValue> GetReadingValuesList(ISession nhSession, string serialNr)
+    {
+      return nhSession.CreateCriteria<MeterReadingValue>("RV").SetProjection((IProjection) Projections.ProjectionList().Add((IProjection) Projections.Property("Date"), "Date").Add((IProjection) Projections.Property("ValueId"), "ValueId").Add((IProjection) Projections.Property("MeterSerialNumber"), "MeterSerialNumber")).Add((ICriterion) Restrictions.Eq("RV.MeterSerialNumber", (object) serialNr)).List<IList>().Select<IList, MeterReadingValue>((Func<IList, MeterReadingValue>) (l => new MeterReadingValue()
+      {
+        Date = (DateTime) l[0],
+        ValueId = (long) l[1],
+        MeterSerialNumber = (string) l[2]
+      }));
+    }
+
+    public bool IsValidReadingValues(MeterReadingValue readingValue)
+    {
+      if (readingValue.Date <= new DateTime(1753, 1, 1))
+        return false;
+      return !this._meterReadingValueRepository.ExistsInMemoryOrDb((Expression<Func<MeterReadingValue, bool>>) (x => x.Date == readingValue.Date && x.ValueId == readingValue.ValueId && x.MeterSerialNumber == readingValue.MeterSerialNumber), (Func<MeterReadingValue, bool>) (x => x.Date == readingValue.Date && x.ValueId == readingValue.ValueId && x.MeterSerialNumber == readingValue.MeterSerialNumber));
+    }
+
+    public void InsertOrderReadingValues(
+      ISession nhSession,
+      MSS.Core.Model.Orders.Order order,
+      MeterReadingValue meterReadingValue)
+    {
+      if (this._repositoryFactory.GetRepository<OrderReadingValues>().SearchFor((Expression<Func<OrderReadingValues, bool>>) (x => x.OrderObj.Id == order.Id && x.MeterReadingValue.Id == meterReadingValue.Id)).Count != 0)
+        return;
+      HibernateMultipleDatabasesManager.TransactionalInsert((object) new OrderReadingValues()
+      {
+        MeterReadingValue = meterReadingValue,
+        OrderObj = order
+      }, nhSession);
+    }
+
+    public void InsertJobReadingValues(
+      ISession nhSession,
+      MssReadingJob selectedJob,
+      MeterReadingValue meterReadingValue)
+    {
+      if (selectedJob == null)
+        return;
+      HibernateMultipleDatabasesManager.TransactionalInsert((object) new JobReadingValues()
+      {
+        ReadingValue = meterReadingValue,
+        Job = selectedJob
+      }, nhSession);
+    }
+
+    public bool ConvertAndSaveReadingValues(
+      string serialNumber,
+      List<DriverTables.MeterValuesMSSRow> gmmMeterValues,
+      MSS.Core.Model.Orders.Order selectedOrder)
+    {
+      bool flag = false;
+      IRepository<MeasureUnit> repository = this._repositoryFactory.GetRepository<MeasureUnit>();
+      MSS.Core.Model.Meters.Meter mssMeter = this._meterRepository.FirstOrDefault((Expression<Func<MSS.Core.Model.Meters.Meter, bool>>) (x => x.SerialNumber == serialNumber));
+      foreach (DriverTables.MeterValuesMSSRow gmmMeterValue in gmmMeterValues)
+      {
+        MeterReadingValue readingValue = this.CreateReadingValues(serialNumber, mssMeter, repository.GetAll().ToList<MeasureUnit>(), gmmMeterValue);
+        if (this.IsValidReadingValues(readingValue))
+        {
+          this._meterReadingValueRepository.TransactionalInsert(readingValue);
+          if (selectedOrder != null)
+          {
+            this.InsertOrderReadingValues(this._nhSession, selectedOrder, readingValue);
+            flag = true;
+          }
+        }
+        else
+        {
+          MeterReadingValue meterReadingValue = this._meterReadingValueRepository.FirstOrDefault((Expression<Func<MeterReadingValue, bool>>) (rv => rv.Date == readingValue.Date && rv.MeterSerialNumber == readingValue.MeterSerialNumber && rv.ValueId == readingValue.ValueId));
+          if (selectedOrder != null && meterReadingValue != null)
+          {
+            this.InsertOrderReadingValues(this._nhSession, selectedOrder, meterReadingValue);
+            flag = true;
+          }
+        }
+      }
+      return flag;
+    }
+
+    private MeterReadingValue CreateReadingValues(
+      string serialNumber,
+      MSS.Core.Model.Meters.Meter mssMeter,
+      List<MeasureUnit> meaureUnits,
+      DriverTables.MeterValuesMSSRow gmmMeterValue)
+    {
+      MeterReadingValue readingValues = new MeterReadingValue();
+      readingValues.CreatedOn = DateTime.Now;
+      readingValues.Date = gmmMeterValue.TimePoint;
+      readingValues.MeterSerialNumber = serialNumber;
+      readingValues.Value = gmmMeterValue.Value;
+      readingValues.ValueId = Convert.ToInt64(ValueIdent.GetValueIdent(gmmMeterValue.ValueIdentIndex, gmmMeterValue.PhysicalQuantity, gmmMeterValue.MeterType, gmmMeterValue.Calculation, gmmMeterValue.CalculationStart, gmmMeterValue.StorageInterval, gmmMeterValue.Creation));
+      readingValues.MeterId = mssMeter != null ? mssMeter.Id : Guid.Empty;
+      string unitName = ValueIdent.GetUnit(Convert.ToInt64(readingValues.ValueId));
+      MeasureUnit entity = meaureUnits.FirstOrDefault<MeasureUnit>((Func<MeasureUnit, bool>) (m => m.Code == unitName));
+      if (entity == null && !string.IsNullOrEmpty(unitName))
+      {
+        entity = new MeasureUnit() { Code = unitName };
+        this._repositoryFactory.GetRepository<MeasureUnit>().TransactionalInsert(entity);
+        meaureUnits.Add(entity);
+      }
+      if (entity != null)
+        readingValues.Unit = entity;
+      long valueId = readingValues.ValueId;
+      ValueIdent.ValueIdPart_StorageInterval partStorageInterval = ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_StorageInterval>(valueId);
+      readingValues.StorageInterval = (long) partStorageInterval;
+      readingValues.PhysicalQuantity = (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_PhysicalQuantity>(valueId);
+      readingValues.MeterType = (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_MeterType>(valueId);
+      readingValues.CalculationStart = (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_CalculationStart>(valueId);
+      readingValues.Creation = (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_Creation>(valueId);
+      readingValues.Calculation = (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_Calculation>(valueId);
+      return readingValues;
+    }
+
+    public void ConvertAndSaveReadingValues(
+      string serialNumber,
+      MSS.Core.Model.Meters.Meter mssMeter,
+      List<DriverTables.MeterValuesMSSRow> gmmMeterValues,
+      MssReadingJob job,
+      List<MeasureUnit> meaureUnits)
+    {
+      DateTime startDate = DateTime.Today.AddDays(-90.0);
+      IList<MeterReadingValue> source = this._repositoryFactory.GetRepository<MeterReadingValue>().SearchFor((Expression<Func<MeterReadingValue, bool>>) (rv => rv.MeterSerialNumber == serialNumber && rv.Date >= startDate));
+      foreach (DriverTables.MeterValuesMSSRow gmmMeterValue in gmmMeterValues)
+      {
+        MeterReadingValue readingValue = this.CreateReadingValues(serialNumber, mssMeter, meaureUnits, gmmMeterValue);
+        bool flag = true;
+        if (gmmMeterValue.TimePoint.Date >= startDate)
+        {
+          if (source != null && source.Any<MeterReadingValue>((Func<MeterReadingValue, bool>) (x => x.Date == readingValue.Date && x.ValueId == readingValue.ValueId)))
+            flag = false;
+        }
+        else if (!this.IsValidReadingValues(readingValue))
+          flag = false;
+        if (flag)
+        {
+          this._meterReadingValueRepository.TransactionalInsert(readingValue);
+          if (job != null)
+            this.InsertJobReadingValues(this._nhSession, job, readingValue);
+        }
+      }
+    }
+
+    public Dictionary<Guid, Location> GetLocationForOrderReadingValues(
+      IList<OrderReadingValues> orderReadingvalues)
+    {
+      Dictionary<Guid, Location> dictionary = new Dictionary<Guid, Location>();
+      Dictionary<Guid, Location> orderReadingValues1 = new Dictionary<Guid, Location>();
+      if (orderReadingvalues != null && orderReadingvalues.Any<OrderReadingValues>())
+      {
+        foreach (IEnumerable<OrderReadingValues> source in orderReadingvalues.GroupBy<OrderReadingValues, Guid>((Func<OrderReadingValues, Guid>) (o => o.OrderObj.Id)))
+        {
+          OrderReadingValues orderReadingValues2 = source.First<OrderReadingValues>();
+          Structure structure = new StructuresManager(this._repositoryFactory).GetStructure(StructuresHelper.DeserializeStructure(orderReadingValues2.OrderObj.StructureBytes));
+          dictionary.Add(orderReadingValues2.OrderObj.Id, structure.Locations.FirstOrDefault<Location>());
+        }
+      }
+      if (orderReadingvalues != null && orderReadingvalues.Any<OrderReadingValues>())
+      {
+        foreach (OrderReadingValues orderReadingvalue in (IEnumerable<OrderReadingValues>) orderReadingvalues)
+        {
+          Location location = dictionary[orderReadingvalue.OrderObj.Id];
+          if (location != null)
+            orderReadingValues1.Add(orderReadingvalue.MeterReadingValue.Id, location);
+        }
+      }
+      return orderReadingValues1;
+    }
+  }
+}
+

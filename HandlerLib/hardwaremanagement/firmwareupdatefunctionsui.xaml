@@ -1,0 +1,177 @@
+<Window x:Class="HandlerLib.FirmwareUpdateFunctionsUI"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Title="Firmware Update Developer Functions" Height="820" MinHeight="820" Width="1024"
+        MinWidth="900" Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico"
+        WindowStartupLocation="CenterScreen">
+  <Grid>
+    <Menu Name="menuMain" Height="23" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+      <MenuItem Name="MenuItemComponents" Header="Components"/>
+    </Menu>
+    <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" Margin="0,23,0,0" VerticalAlignment="Top"
+                                    Height="56"/>
+    <Grid Margin="0,79,0,10">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="30"/>
+        <RowDefinition/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition/>
+        <ColumnDefinition Width="300"/>
+      </Grid.ColumnDefinitions>
+      <TextBlock Name="TextBlockStatus" Margin="6,0,2,0" Text="Status"/>
+      <ProgressBar Name="ProgressBar1" Grid.Column="1" Grid.Row="0" Margin="2"/>
+      <GridSplitter Grid.Row="2" Height="2" VerticalAlignment="Top"/>
+      <GridSplitter Grid.Row="3" Height="2" VerticalAlignment="Top"/>
+      <GroupBox Name="GroupBoxConnected" Header="Information" Margin="2,10,0,10" IsEnabled="true" Grid.Row="1"
+                HorizontalAlignment="Left" Width="718">
+        <Grid>
+          <TextBox x:Name="TextBoxFWDB" Text="FW from DB:" Height="27" Margin="10,10,0,0" VerticalAlignment="Top"
+                   IsEnabled="false" HorizontalAlignment="Left" Width="86"/>
+          <ComboBox x:Name="ComboBoxFWDB" Margin="100,10,10,10" Height="27" FontFamily="Courier New" IsReadOnly="true"
+                    Visibility="Visible" VerticalAlignment="Top" IsEnabled="true"/>
+          <TextBox x:Name="TextBoxBSLDB" Text="BSL from DB:" Height="27" Margin="10,44,0,0" VerticalAlignment="Top"
+                   IsEnabled="false" HorizontalAlignment="Left" Width="86"/>
+          <ComboBox x:Name="ComboBoxBSLDB" Margin="100,44,10,10" Height="27" FontFamily="Courier New" IsReadOnly="true"
+                    Visibility="Visible" VerticalAlignment="Top" IsEnabled="true"/>
+          <TextBox x:Name="TextBoxInfo" Margin="10,84,10,39" FontFamily="Consolas" AcceptsReturn="true"
+                   AcceptsTab="true" IsReadOnly="false" IsUndoEnabled="false" TextWrapping="Wrap" IsEnabled="true"
+                   FontSize="10"/>
+          <Button Click="ButtonBackUPDevice_Click" x:Name="ButtonBackUPDevice" Margin="10,0,0,5"
+                  FontFamily="Consolas" FontSize="10" Content="BackUP to DB" IsEnabled="true" Height="24" Width="100"
+                  VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+          <Button Click="ButtonLoadBackUP_Click" x:Name="ButtonLoadBackUP" Margin="120,0,0,5" FontFamily="Consolas"
+                  FontSize="10" Content="Show BackUPs" IsEnabled="true" Height="24" Width="100"
+                  VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+          <Button Click="ButtonOverrideDevice_Click" x:Name="ButtonOverrideDevice" Margin="230,0,0,5"
+                  FontFamily="Consolas" FontSize="10" Content="Override from BackUP" IsEnabled="true" Height="24"
+                  Width="120" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+          <TextBox x:Name="TextBoxMeterID" Margin="385,0,0,5" FontFamily="Courier New" FontWeight="ExtraBold"
+                   Text="MeterID" IsEnabled="true" Height="24" Width="87" VerticalContentAlignment="Center"
+                   HorizontalContentAlignment="Center" VerticalAlignment="Bottom" HorizontalAlignment="Left"
+                   IsReadOnly="false" RenderTransformOrigin="0.195,0.417"/>
+          <Button Click="ButtonCreatefromArmID_Click" x:Name="ButtonCreatefromArmID" Margin="497,0,0,5"
+                  FontFamily="Consolas" FontSize="10" Content="Create from ArmID" IsEnabled="false" Height="24"
+                  Width="107" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+        </Grid>
+      </GroupBox>
+      <GridSplitter Grid.Row="4" Height="2" VerticalAlignment="Top"/>
+      <StackPanel Name="StackPanalButtons" Grid.Column="1" Grid.Row="1" Margin="0,5,0,54">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="57"/>
+            <ColumnDefinition Width="45"/>
+            <ColumnDefinition Width="45"/>
+            <ColumnDefinition Width="45"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+          </Grid.RowDefinitions>
+          <Label x:Name="LabelByteSize" Grid.Column="0" Content="ByteSize:"/>
+          <TextBox x:Name="TextBoxVerifyReadByteSize" Grid.Column="1" Height="20" Width="40" IsEnabled="true"/>
+          <Label x:Name="LabelLoops" Grid.Column="2" Content="Loops:"/>
+          <TextBox x:Name="TextBoxVerifyLoops" Grid.Column="3" Height="20" Width="30" IsEnabled="true"/>
+        </Grid>
+        <Label Content="__Bootloader Functions____________________________________________________________________________"
+               Margin="0,10,0,0"/>
+        <StackPanel Height="25" Orientation="Horizontal">
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonFWConnect" Content="Read version" Width="127"
+                  Height="20" Margin="15,1,0,1"/>
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonFWReadARMID" Content="Read ARM ID" Width="127"
+                  Height="20" Margin="15,1,0,1" IsEnabled="true"/>
+        </StackPanel>
+        <StackPanel Height="25" Orientation="Horizontal">
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonFWLoadFromFile" Content="Load FW from file"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="false"/>
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonFWLoadFromDB" Content="Load FW from DB"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="false"/>
+        </StackPanel>
+        <StackPanel Height="25" Orientation="Horizontal">
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonFWDeleteOnDevice" Content="Delete FW on device"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="false"/>
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonFWWriteToDevice" Content="Write FW to device"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="false"/>
+        </StackPanel>
+        <StackPanel Height="25" Orientation="Horizontal">
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonFWVerifyOnDevice" Content="Verify FW on device"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="false"/>
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonFWReadFlashSize" Content="Read FW flash size"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="true"/>
+        </StackPanel>
+        <StackPanel Height="25" Orientation="Horizontal">
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonFWReadVectorTable" Content="Read vector table"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="false"/>
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonFWWriteVectorTable" Content="Write vector table"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="false"/>
+        </StackPanel>
+        <StackPanel Height="25" Orientation="Horizontal">
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonGo" Content="start Firmware" Width="127"
+                  Height="20" Margin="15,1,0,1" IsEnabled="false"/>
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonFWReadMeterKey" Content="read MeterKey"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="true"/>
+        </StackPanel>
+        <StackPanel Height="25" Orientation="Horizontal">
+          <Label x:Name="LabelRange" Content="Verify Exclude Range:" Width="125" Height="27" Margin="15,0,0,0"
+                 IsEnabled="true"/>
+          <TextBox x:Name="TextBoxStartRange" Width="70" Height="23" Margin="1,1,0,1" IsEnabled="true"/>
+          <TextBox x:Name="TextBoxEndRange" Width="70" Height="23" Margin="1,1,0,1" IsEnabled="true"/>
+        </StackPanel>
+        <Label Content="__Firmware Functions_______________________________________________________________________"
+               Margin="0,10,0,0"/>
+        <StackPanel Height="25" Orientation="Horizontal">
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonBSLConnect" Content="Read version" Width="127"
+                  Height="20" Margin="15,1,0,1" IsEnabled="true"/>
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonBSLReadARMID" Content="Read ARM ID" Width="127"
+                  Height="20" Margin="15,1,0,1" IsEnabled="true"/>
+        </StackPanel>
+        <StackPanel Height="25" Orientation="Horizontal">
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonBSLLoadFromFile" Content="Load BSL from file"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="false"/>
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonBSLLoadFromDB" Content="Load BSL from DB"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="false"/>
+        </StackPanel>
+        <StackPanel Height="25" Orientation="Horizontal">
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonBSLWriteToDevice" Content="Write BSL" Width="127"
+                  Height="20" Margin="15,1,0,1" IsEnabled="false"/>
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonBSLVerifyOnDevice" Content="Verify BSL"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="false"/>
+        </StackPanel>
+        <StackPanel Height="25" Orientation="Horizontal">
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonBSLDeleteOnDevice" Content="Delete BSL"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="false"/>
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonBSLOverwriteOnDevice" Content="Overwrite BSL"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="false"/>
+        </StackPanel>
+        <StackPanel Height="25" Orientation="Horizontal">
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonBSLReadFlashSize" Content="Read flash size"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="true"/>
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonBSLResetMeterKey" Content="Reset MeterKey"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="true"/>
+        </StackPanel>
+        <StackPanel Height="25" Orientation="Horizontal">
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonBSLReadFirst8Byte" Content="Read first eight byte"
+                  Width="127" Height="20" Margin="15,1,15,1" IsEnabled="false" Visibility="Collapsed"/>
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonBSLWriteFirst8Byte"
+                  Content="Write first eight byte" Width="127" Height="20" Margin="15,1,15,1" IsEnabled="false"
+                  Visibility="Collapsed"/>
+          <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonDeviceReset" Content="Start BSL on Device"
+                  Width="127" Height="20" Margin="15,1,0,1" IsEnabled="false"/>
+        </StackPanel>
+        <Label Content="___________________________________________________________________________________________________________________"/>
+        <CheckBox x:Name="CheckShowDetails" Content="show debug information" Height="20" Margin="15,2,15,0"
+                  IsEnabled="true" IsChecked="False"/>
+        <CheckBox x:Name="CheckIgnoreError" Content="ignore Errors" Height="20" Margin="15,0,15,1" IsEnabled="true"
+                  IsChecked="False"/>
+        <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonWriteBSLtoDB" Content="Manage BootLoader"
+                Height="20" Margin="15,2,15,1" IsEnabled="true"/>
+        <Button Click="ButtonHandlerDoEvent_Click" x:Name="ButtonCheckFWworkWithBSL"
+                Content="Check FW work with BSL" Height="20" Margin="15,2,15,1" IsEnabled="true"/>
+      </StackPanel>
+      <Button Click="ButtonClear_Click" Name="ButtonClear" Content="Clear" Grid.Column="1" Height="21"
+              Margin="2.4,0,1.6,28" Grid.Row="4" VerticalAlignment="Bottom"/>
+      <Button Click="ButtonBreak_Click" Name="ButtonBreak" Content="Break" Grid.Column="1" Height="21"
+              Margin="2,0,2,2" Grid.Row="4" VerticalAlignment="Bottom" IsEnabled="false"/>
+    </Grid>
+  </Grid>
+</Window>

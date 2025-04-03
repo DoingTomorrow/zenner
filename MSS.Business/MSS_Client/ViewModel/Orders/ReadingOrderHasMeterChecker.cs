@@ -1,0 +1,34 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Orders.ReadingOrderHasMeterChecker
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+using MSS.Business.Modules.StructuresManagement;
+using MSS.Core.Model.Structures;
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Orders
+{
+  public class ReadingOrderHasMeterChecker
+  {
+    private readonly string _errorFixedPart;
+
+    public ReadingOrderHasMeterChecker(string errorFixedPart)
+    {
+      this._errorFixedPart = errorFixedPart;
+    }
+
+    public string CheckForErrors(StructureNodeDTO rootNode)
+    {
+      return StructuresHelper.HasAny(new List<StructureNodeTypeEnum>()
+      {
+        StructureNodeTypeEnum.Meter,
+        StructureNodeTypeEnum.RadioMeter
+      }, rootNode) ? string.Empty : string.Format("{0} {1}", (object) this._errorFixedPart, (object) Environment.NewLine);
+    }
+  }
+}

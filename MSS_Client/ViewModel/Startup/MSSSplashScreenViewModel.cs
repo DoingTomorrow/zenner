@@ -1,0 +1,43 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Startup.MSSSplashScreenViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MVVM.ViewModel;
+using System.Configuration;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Startup
+{
+  public class MSSSplashScreenViewModel : ViewModelBase
+  {
+    private string message;
+    private double _currentProgress;
+
+    public string Message
+    {
+      get => this.message;
+      set
+      {
+        this.message = value;
+        this.OnPropertyChanged(nameof (Message));
+      }
+    }
+
+    public double CurrentProgress
+    {
+      get => this._currentProgress;
+      set
+      {
+        this._currentProgress = value;
+        this.OnPropertyChanged(nameof (CurrentProgress));
+      }
+    }
+
+    public string ApplicationVersion
+    {
+      get => "Version " + ConfigurationManager.AppSettings[nameof (ApplicationVersion)];
+    }
+  }
+}

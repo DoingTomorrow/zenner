@@ -1,0 +1,376 @@
+<UserControl x:Class="HandlerLib.ConfiguratorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="2"/>
+      <Setter Property="Control.Padding" Value="10,2,10,2"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="3*"/>
+      <ColumnDefinition Width="5"/>
+      <ColumnDefinition Width="2*" MinWidth="300"/>
+    </Grid.ColumnDefinitions>
+    <TabControl Name="tabCtrl" Grid.Column="0">
+      <TabItem Name="tab0" Header="General">
+        <DataGrid SelectionChanged="DataGridParameter_SelectionChanged" x:Name="DataGridParameterMain"
+                  SelectionMode="Single" AutoGenerateColumns="false" HorizontalScrollBarVisibility="Visible"
+                  VerticalScrollBarVisibility="Visible" HeadersVisibility="Column" ItemsSource="{Binding DataSource}">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Parameter" Binding="{Binding Parameter}"/>
+            <DataGridTemplateColumn Header="Value">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <ContentControl>
+                    <FrameworkElement.Style>
+                      <Style TargetType="{x:Type ContentControl}">
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding ControlType}" Value="TextBox">
+                            <Setter Property="ContentControl.ContentTemplate">
+                              <Setter.Value>
+                                <DataTemplate>
+                                  <TextBox BorderThickness="0"
+                                           Text="{Binding DataContext.Value, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                           Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                           Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                           IsReadOnly="{Binding DataContext.IsReadonly, RelativeSource={RelativeSource AncestorType=DataGridRow}}"/>
+                                </DataTemplate>
+                              </Setter.Value>
+                            </Setter>
+                          </DataTrigger>
+                          <DataTrigger Binding="{Binding ControlType}" Value="CheckBox">
+                            <Setter Property="ContentControl.ContentTemplate">
+                              <Setter.Value>
+                                <DataTemplate>
+                                  <CheckBox IsEnabled="{Binding DataContext.IsEnabled, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            IsChecked="{Binding DataContext.Value, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=DataGridRow}}"/>
+                                </DataTemplate>
+                              </Setter.Value>
+                            </Setter>
+                          </DataTrigger>
+                          <DataTrigger Binding="{Binding ControlType}" Value="ComboBox">
+                            <Setter Property="ContentControl.ContentTemplate">
+                              <Setter.Value>
+                                <DataTemplate>
+                                  <ComboBox IsReadOnly="{Binding DataContext.IsReadonly, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            IsEditable="{Binding DataContext.IsEditable, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            IsEnabled="{Binding DataContext.IsEnabled, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            ItemsSource="{Binding DataContext.PossibleValues, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            Text="{Binding DataContext.Value, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=DataGridRow}, UpdateSourceTrigger=PropertyChanged}"/>
+                                </DataTemplate>
+                              </Setter.Value>
+                            </Setter>
+                          </DataTrigger>
+                          <DataTrigger Binding="{Binding ControlType}" Value="ComboBoxWithCheckBox">
+                            <Setter Property="ContentControl.ContentTemplate">
+                              <Setter.Value>
+                                <DataTemplate>
+                                  <ComboBox IsReadOnly="{Binding DataContext.IsReadonly, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            IsEditable="{Binding DataContext.IsEditable, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            IsEnabled="{Binding DataContext.IsEnabled, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            ItemsSource="{Binding DataContext.Options, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            Text="{Binding DataContext.Options.LimmitedSelectedNames, RelativeSource={RelativeSource AncestorType=DataGridRow}}">
+                                    <ItemsControl.ItemTemplate>
+                                      <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                          <CheckBox Width="20" IsChecked="{Binding Path=IsChecked, Mode=TwoWay}"
+                                                    Command="{Binding Path=CheckedCommand}"/>
+                                          <TextBlock Width="100" Text="{Binding Name, Mode=OneWay}"/>
+                                        </StackPanel>
+                                      </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                  </ComboBox>
+                                </DataTemplate>
+                              </Setter.Value>
+                            </Setter>
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </FrameworkElement.Style>
+                  </ContentControl>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn Header="Unit" Binding="{Binding Unit}"/>
+          </DataGrid.Columns>
+          <DataGrid.RowStyle>
+            <Style TargetType="{x:Type DataGridRow}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding IsReadonly}" Value="True">
+                  <Setter Property="Control.Background" Value="#BBDEFB"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsFunction}" Value="True">
+                  <Setter Property="Control.Background" Value="#C8E6C9"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsChanged}" Value="True">
+                  <Setter Property="Control.Background" Value="#ffff00"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </DataGrid.RowStyle>
+        </DataGrid>
+      </TabItem>
+      <TabItem Name="tab1" Header="Channel 1">
+        <DataGrid SelectionChanged="DataGridParameter_SelectionChanged" x:Name="DataGridParameterSub1"
+                  SelectionMode="Single" AutoGenerateColumns="false" HorizontalScrollBarVisibility="Visible"
+                  VerticalScrollBarVisibility="Visible" HeadersVisibility="Column" ItemsSource="{Binding DataSource}">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Parameter" Binding="{Binding Parameter}"/>
+            <DataGridTemplateColumn Header="Value">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <ContentControl>
+                    <FrameworkElement.Style>
+                      <Style TargetType="{x:Type ContentControl}">
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding ControlType}" Value="TextBox">
+                            <Setter Property="ContentControl.ContentTemplate">
+                              <Setter.Value>
+                                <DataTemplate>
+                                  <TextBox BorderThickness="0"
+                                           Text="{Binding DataContext.Value, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                           Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                           Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                           IsReadOnly="{Binding DataContext.IsReadonly, RelativeSource={RelativeSource AncestorType=DataGridRow}}"/>
+                                </DataTemplate>
+                              </Setter.Value>
+                            </Setter>
+                          </DataTrigger>
+                          <DataTrigger Binding="{Binding ControlType}" Value="CheckBox">
+                            <Setter Property="ContentControl.ContentTemplate">
+                              <Setter.Value>
+                                <DataTemplate>
+                                  <CheckBox IsEnabled="{Binding DataContext.IsEnabled, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            IsChecked="{Binding DataContext.Value, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=DataGridRow}}"/>
+                                </DataTemplate>
+                              </Setter.Value>
+                            </Setter>
+                          </DataTrigger>
+                          <DataTrigger Binding="{Binding ControlType}" Value="ComboBox">
+                            <Setter Property="ContentControl.ContentTemplate">
+                              <Setter.Value>
+                                <DataTemplate>
+                                  <ComboBox IsReadOnly="{Binding DataContext.IsReadonly, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            IsEditable="{Binding DataContext.IsEditable, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            IsEnabled="{Binding DataContext.IsEnabled, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            ItemsSource="{Binding DataContext.PossibleValues, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            Text="{Binding DataContext.Value, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=DataGridRow}, UpdateSourceTrigger=PropertyChanged}"/>
+                                </DataTemplate>
+                              </Setter.Value>
+                            </Setter>
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </FrameworkElement.Style>
+                  </ContentControl>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn Header="Unit" Binding="{Binding Unit}"/>
+          </DataGrid.Columns>
+          <DataGrid.RowStyle>
+            <Style TargetType="{x:Type DataGridRow}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding IsReadonly}" Value="True">
+                  <Setter Property="Control.Background" Value="#BBDEFB"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsFunction}" Value="True">
+                  <Setter Property="Control.Background" Value="#C8E6C9"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsChanged}" Value="True">
+                  <Setter Property="Control.Background" Value="#ffff00"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </DataGrid.RowStyle>
+        </DataGrid>
+      </TabItem>
+      <TabItem Name="tab2" Header="Channel 2">
+        <DataGrid SelectionChanged="DataGridParameter_SelectionChanged" x:Name="DataGridParameterSub2"
+                  SelectionMode="Single" AutoGenerateColumns="false" HorizontalScrollBarVisibility="Visible"
+                  VerticalScrollBarVisibility="Visible" HeadersVisibility="Column" ItemsSource="{Binding DataSource}">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Parameter" Binding="{Binding Parameter}"/>
+            <DataGridTemplateColumn Header="Value">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <ContentControl>
+                    <FrameworkElement.Style>
+                      <Style TargetType="{x:Type ContentControl}">
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding ControlType}" Value="TextBox">
+                            <Setter Property="ContentControl.ContentTemplate">
+                              <Setter.Value>
+                                <DataTemplate>
+                                  <TextBox BorderThickness="0"
+                                           Text="{Binding DataContext.Value, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                           Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                           Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                           IsReadOnly="{Binding DataContext.IsReadonly, RelativeSource={RelativeSource AncestorType=DataGridRow}}"/>
+                                </DataTemplate>
+                              </Setter.Value>
+                            </Setter>
+                          </DataTrigger>
+                          <DataTrigger Binding="{Binding ControlType}" Value="CheckBox">
+                            <Setter Property="ContentControl.ContentTemplate">
+                              <Setter.Value>
+                                <DataTemplate>
+                                  <CheckBox IsEnabled="{Binding DataContext.IsEnabled, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            IsChecked="{Binding DataContext.Value, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=DataGridRow}}"/>
+                                </DataTemplate>
+                              </Setter.Value>
+                            </Setter>
+                          </DataTrigger>
+                          <DataTrigger Binding="{Binding ControlType}" Value="ComboBox">
+                            <Setter Property="ContentControl.ContentTemplate">
+                              <Setter.Value>
+                                <DataTemplate>
+                                  <ComboBox IsReadOnly="{Binding DataContext.IsReadonly, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            IsEditable="{Binding DataContext.IsEditable, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            IsEnabled="{Binding DataContext.IsEnabled, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            ItemsSource="{Binding DataContext.PossibleValues, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            Text="{Binding DataContext.Value, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=DataGridRow}, UpdateSourceTrigger=PropertyChanged}"/>
+                                </DataTemplate>
+                              </Setter.Value>
+                            </Setter>
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </FrameworkElement.Style>
+                  </ContentControl>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn Header="Unit" Binding="{Binding Unit}"/>
+          </DataGrid.Columns>
+          <DataGrid.RowStyle>
+            <Style TargetType="{x:Type DataGridRow}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding IsReadonly}" Value="True">
+                  <Setter Property="Control.Background" Value="#BBDEFB"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsFunction}" Value="True">
+                  <Setter Property="Control.Background" Value="#C8E6C9"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsChanged}" Value="True">
+                  <Setter Property="Control.Background" Value="#ffff00"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </DataGrid.RowStyle>
+        </DataGrid>
+      </TabItem>
+      <TabItem Name="tab3" Header="Channel 3">
+        <DataGrid SelectionChanged="DataGridParameter_SelectionChanged" x:Name="DataGridParameterSub3"
+                  SelectionMode="Single" AutoGenerateColumns="false" HorizontalScrollBarVisibility="Visible"
+                  VerticalScrollBarVisibility="Visible" HeadersVisibility="Column" ItemsSource="{Binding DataSource}">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Parameter" Binding="{Binding Parameter}"/>
+            <DataGridTemplateColumn Header="Value">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <ContentControl>
+                    <FrameworkElement.Style>
+                      <Style TargetType="{x:Type ContentControl}">
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding ControlType}" Value="TextBox">
+                            <Setter Property="ContentControl.ContentTemplate">
+                              <Setter.Value>
+                                <DataTemplate>
+                                  <TextBox BorderThickness="0"
+                                           Text="{Binding DataContext.Value, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                           Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                           Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                           IsReadOnly="{Binding DataContext.IsReadonly, RelativeSource={RelativeSource AncestorType=DataGridRow}}"/>
+                                </DataTemplate>
+                              </Setter.Value>
+                            </Setter>
+                          </DataTrigger>
+                          <DataTrigger Binding="{Binding ControlType}" Value="CheckBox">
+                            <Setter Property="ContentControl.ContentTemplate">
+                              <Setter.Value>
+                                <DataTemplate>
+                                  <CheckBox IsEnabled="{Binding DataContext.IsEnabled, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            IsChecked="{Binding DataContext.Value, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=DataGridRow}}"/>
+                                </DataTemplate>
+                              </Setter.Value>
+                            </Setter>
+                          </DataTrigger>
+                          <DataTrigger Binding="{Binding ControlType}" Value="ComboBox">
+                            <Setter Property="ContentControl.ContentTemplate">
+                              <Setter.Value>
+                                <DataTemplate>
+                                  <ComboBox IsReadOnly="{Binding DataContext.IsReadonly, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            IsEditable="{Binding DataContext.IsEditable, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            IsEnabled="{Binding DataContext.IsEnabled, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            ItemsSource="{Binding DataContext.PossibleValues, RelativeSource={RelativeSource AncestorType=DataGridRow}}"
+                                            Text="{Binding DataContext.Value, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=DataGridRow}, UpdateSourceTrigger=PropertyChanged}"/>
+                                </DataTemplate>
+                              </Setter.Value>
+                            </Setter>
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </FrameworkElement.Style>
+                  </ContentControl>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn Header="Unit" Binding="{Binding Unit}"/>
+          </DataGrid.Columns>
+          <DataGrid.RowStyle>
+            <Style TargetType="{x:Type DataGridRow}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding IsReadonly}" Value="True">
+                  <Setter Property="Control.Background" Value="#BBDEFB"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsFunction}" Value="True">
+                  <Setter Property="Control.Background" Value="#C8E6C9"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsChanged}" Value="True">
+                  <Setter Property="Control.Background" Value="#ffff00"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </DataGrid.RowStyle>
+        </DataGrid>
+      </TabItem>
+    </TabControl>
+    <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
+    <DockPanel Grid.Column="2">
+      <DockPanel Dock="Bottom">
+        <Button Click="ButtonSave_Click" x:Name="ButtonSave" DockPanel.Dock="Right" IsEnabled="false">
+          <ContentControl.Content>
+            <TextBlock Name="TextBlockSave" TextAlignment="Center">
+              Check and accept
+              <LineBreak/>
+              all changes
+            </TextBlock>
+          </ContentControl.Content>
+        </Button>
+        <DockPanel Dock="Top">
+          <Label DockPanel.Dock="Left" Content="Level:" VerticalAlignment="Center"/>
+          <ComboBox SelectionChanged="ComboBoxLevel_SelectionChanged" x:Name="ComboBoxLevel" Margin="5"/>
+        </DockPanel>
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button Click="ButtonLoadValuesFromFile_Click" x:Name="ButtonLoadValuesFromFile" Grid.ColumnSpan="2"
+                  Content="Load values from file" Visibility="Hidden"/>
+          <Button Click="ButtonRead_Click" x:Name="ButtonRead" Content="Read device"/>
+          <Button Click="ButtonWrite_Click" x:Name="ButtonWrite" Grid.Column="1" Content="Write device"
+                  IsEnabled="false"/>
+        </Grid>
+      </DockPanel>
+      <TextBox x:Name="TextBlockParameterInfo" Background="White" TextWrapping="Wrap" IsReadOnly="true"
+               VerticalScrollBarVisibility="Auto"/>
+    </DockPanel>
+    <ProgressBar Name="ProgressBar1" Height="10" Width="200"/>
+  </Grid>
+</UserControl>

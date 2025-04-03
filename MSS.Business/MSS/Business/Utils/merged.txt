@@ -1,0 +1,3118 @@
+
+--- AppConstants.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.AppConstants
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public static class AppConstants
+  {
+    public const string METER_BUTTON_NAME = "btnMeters";
+    public const string DATA_COLLECTORS_BUTTON_NAME = "btnDataCollectors";
+    public const string ARCHIVING_BUTTON_NAME = "btnArchiving";
+    public const string JOBS_BUTTON_NAME = "btnJobs";
+    public const string SETTINGS_BUTTON_NAME = "btnSettings";
+    public const string USERS_BUTTON_NAME = "btnUsers";
+    public const string REPORTING_BUTTON_NAME = "btnReporting";
+    public const string CONFIGURATION_BUTTON_NAME = "btnConfiguration";
+    public const string STRUCTURES_BUTTON_NAME = "btnStructures";
+    public const string ORDERS_BUTTON_NAME = "btnOrders";
+    public const string STRUCTURES_AVAILABLE_NODES_FOLDER = "MSS_Available_Nodes_Folder";
+    public const string STRUCTURES_PHYSICAL_NODES_FOLDER = "MSS_Physical_Nodes_Folder";
+    public const string APP_CONFIG_CLIENT_DB_CONNECTION = "ClientDBConnection";
+    public const string APP_CONFIG_SERVER_DB_CONNECTION = "ServerDBConnection";
+    public const string APP_CONFIG_APPLICATION_NAME = "ApplicationName";
+    public const string APP_CONFIG_APPLICATION_VERSION = "ApplicationVersion";
+    public const string APP_CONFIG_APPLICATION_RELEASE_DATE = "ReleaseDate";
+    public const string APP_CONFIG_LICENSE_WEB_API = "LicenseWebApi";
+    public const string APP_CONFIG_DATABASE_ENGINE = "DatabaseEngine";
+    public const string APP_CONFIG_ARHIVE_DATABASE_ENGINE = "ArhiveDatabaseEngine";
+    public const string APP_CONFIG_NHIBERNATE_DATABASE_CONFIG = "NHibernateDatabaseConfig";
+    public const string APP_CONFIG_CONNECTION_STRING = "connection.connection_string";
+    public const string APP_CONFIG_DIALECT = "dialect";
+    public const string APP_CONFIG_ARCHIVE_DIRECTORY = "ArchiveDirectory";
+    public const string APP_CONFIG_COMMONDATATEMPPATH = "CommonAppDataTempPath";
+    public const string APP_CONFIG_GMM_DATABASE_PATH = "GMMDatabasePath";
+    public const string APP_CONFIG_SERVER_CHECK_LICENSE_INTERVAL_IN_SECONDS = "CheckLicenseIntervalInHours";
+    public const string APP_CONFIG_GMM_MIGRATION_DBPATH = "GMMMigrationDatabasePath";
+    public const string APP_CONFIG_IS_PARTIAL_SYNC = "IsPartialSync";
+    public const string APP_CONFIG_CUSTOMER = "Customer";
+    public const string APP_CONFIG_CUSTOMER_SETTINGS_CONFIG = "CustomerSettings";
+    public const string APP_CONFIG_CUSTOMER_LAUNCHER_ICON = "LauncherIcon";
+    public const string APP_CONFIG_SYNC_SERVICE_URL = "SyncServiceUrl";
+    public const string APP_CONFIG_IS_TABLET_MODE = "IsTabletMode";
+    public const string APP_CONFIG_IS_DEVICE_CONNECTION_MANDATORY = "IsDeviceConnectionMandatory";
+    public const string APP_PARAM_SERVER_IP = "ServerIp";
+    public const string APP_PARAM_MDM_OFFICE = "Office";
+    public const string APP_PARAM_MDM_COUNTRY = "Country";
+    public const string APP_PARAM_MDM_AMR_ROUTE_METHOD_NAME = "MinomatHandler.RoutingTable GetRoutingTable()";
+    public const string APP_PARAM_URL = "Url";
+    public const string APP_PARAM_POLLING = "Polling";
+    public const string APP_PARAM_HOSTANDPORT = "HostAndPort";
+    public const string APP_PARAM_PAGE_SIZE = "PageSize";
+    public const string APP_PARAM_LOAD_SIZE_FOR_VIRTUAL_SCROLLING = "LoadSizeForVirtualScrolling";
+    public const string APP_PARAM_LOAD_SIZE_FOR_EXPORTING = "LoadSizeForExportOfArchive";
+    public const string APP_PARAM_COUNTRY = "Country";
+    public const string APP_PARAM_OFFICE = "Office";
+    public const string APP_PARAM_BATCH_SIZE = "BatchSize";
+    public const string APP_PARAM_SELECTED_EQUIPMENT = "DefaultEquipment";
+    public const string APP_PARAM_SELECTED_EQUIPMENT_PARAMS = "DefaultEquipmentParams";
+    public const string APP_PARAM_EXPERT_CONFIGURATION_MODE = "ExpertConfigurationMode";
+    public const string APP_PARAM_SELECTED_SCAN_MODE = "ScanMode";
+    public const string APP_PARAM_SELECTED_SCAN_MODE_PARAMS = "ScanModeParams";
+    public const string APP_PARAM_SELECTED_SYSTEM = "System";
+    public const string APP_PARAM_PREVIOUS_SELECTED_DEVICE_GROUP = "PreviousSelectedDeviceGroup";
+    public const string APP_PARAM_PREVIOUS_SELECTED_DEVICE_MODEL = "PreviousSelectedDeviceModel";
+    public const string APP_PARAM_SQLITE_SYNC_WEBSERVICE = "SqliteSyncWebServiceUrl";
+    public const string APP_PARAM_MINOMAT_USEMASTERPOOL = "MinomatUseMasterpool";
+    public const string APP_PARAM_DO_NOT_SHOW_GMM_SCREEN_AT_STARTUP = "DoNotShowGmmImportScreenAtStartup";
+    public const string APP_PARAM_PARTIALSYNC_LAST_UPLOAD = "LastSuccesfullUpload";
+    public const string APP_PARAM_PARTIALSYNC_LAST_DOWNLOAD = "LastSuccesfullDownload";
+    public const string APP_PARAM_CLEANUP_OLD_ORDERS_DEFINITION_IN_DAYS = "CleanupOldOrdersDefinitionInDays";
+    public const string APP_PARAM_GSM_TEST_WAITING_TIME = "GSMTestWaitingTime";
+    public const string APP_PARAM_START_IN_FULLSCREEN = "StartInFullScreen";
+    public const string APP_PARAM_START_WINDOW_WIDTH = "StartWindowWidth";
+    public const string APP_PARAM_START_WINDOW_HEIGHT = "StartWindowHeight";
+    public const string SETTINGS_GRID_NAME = "settingsGrid";
+    public const string LIGHT_GREEN = "pack://application:,,,/Styles;component/Images/Settings/light-green.png";
+    public const string LIGHT_RED = "pack://application:,,,/Styles;component/Images/Settings/light-red.png";
+    public const string LIGHT_YELLOW = "pack://application:,,,/Styles;component/Images/Settings/light-yellow.png";
+    public const string SELECTED_CONFLICT = "pack://application:,,,/Styles;component/Images/Universal/selected_conflict.png";
+    public const string UNSELECTED_CONFLICT = "pack://application:,,,/Styles;component/Images/Universal/unselected_conflict.png";
+    public const short rowSize = 50;
+    public const string MSS_ERROR_SERVER_NOT_FOUND = "MSS_Error_Message_Server_Not_Found";
+    public const string REFRESH_STATUS = "StatusRefresh";
+    public const string MSS_STATUS_ACCEPTED = "MSS_StatusEnum_Accepted";
+    public const string MSS_STATUS_DISCONNECTED = "MSS_StatusEnum_Disconnected";
+    public const string MSS_STATUS_PENDING = "MSS_StatusEnum_Pending";
+    public const string MSS_REQUEST_STATUS = "MSS_Client_Settings_Request_Status";
+    public const string MSS_CLIENT_SETTINGS_GENERAL = "MSS_Client_Settings_";
+    public const string MSS_LANGENUM_GENERAL = "MSS_LangEnum_";
+    public const string MSS_SERVER_NOT_FOUND = "MSS_Client_Server_Not_Available";
+    public const byte SERVER_TIME_OUT_TIME = 10;
+    public const int MSS_SERVICE_SERVER_PORT = 13758;
+    public const int MSS_SYNCHRONIZATIONSERVICE_SERVER_PORT = 13759;
+    public const string MSS_SERVICE_SERVER_URL = "net.tcp://{0}:13758/MSSService";
+    public const string MSS_SYNCRONIZATIONSERVICE_SERVER_URL = "net.tcp://{0}:13759/MSSSynchronizationService";
+    public const string SQL_CE_HANDHELD_DATABASE = "SQLCEDatabase";
+    public const string DATABASE_ENGINE_MSSQL = "MSSQLDatabase";
+    public const string DATABASE_ENGINE_SQLITE = "SQLiteDatabase";
+    public const string PATHPDA = "\\\\\\Program Files\\Apollo\\Database\\Apollo.sdf";
+    public const string PATHPDA_BACKUP = "\\\\\\Program Files\\Apollo\\Database\\Apollo";
+    public const string CLEANDBENGL = "CLEANDBENGL";
+    public const string CLEANDBGER = "CLEANDBGER";
+    public const string DEFAULT_NAME = "default";
+    public const string INFO = "pack://application:,,,/Styles;component/Images/Universal/info.png";
+    public const string INFO_SELECTED = "pack://application:,,,/Styles;component/Images/Universal/info-deselect.png";
+    public const string DATE_FORMAT = "yyyy-MM-dd";
+    public const string AUTOMATED_EXPORT_DATA_EXPORT_NOT_YET_EXPORTED = "NotYetExported";
+    public const string AUTOMATED_EXPORT_DATA_EXPORT_FROM_THE_LAST_X_DAYS = "FromTheLastXDays";
+    public const string AUTOMATED_EXPORT_EXPORT_FOR_SAS = "SAS";
+    public const string AUTOMATED_EXPORT_EXPORT_FOR_GMM = "GMM";
+    public const string AUTOMATED_EXPORT_FILE_TYPE_CSV = "CSV";
+    public const string AUTOMATED_EXPORT_FILE_TYPE_XML = "XML";
+    public const string AUTOMATED_EXPORT_FILE_TYPE_EXCEL = "EXCEL";
+    public const char AUTOMATED_EXPORT_DECIMAL_SEPARATOR_COMMA = ',';
+    public const char AUTOMATED_EXPORT_DECIMAL_SEPARATOR_DOT = '.';
+    public const char AUTOMATED_EXPORT_VALUE_SEPARATOR_SEMICOLON = ';';
+    public const char AUTOMATED_EXPORT_VALUE_SEPARATOR_COMMA = ',';
+    public const string ACTION_CREATE = "create";
+    public const string ACTION_EDIT = "edit";
+    public const string METERDTO_NAME = "MeterDTO";
+    public const string TENANTDTO_NAME = "TenantDTO";
+    public const string LOCATIONDTO_NAME = "LocationDTO";
+    public const string CONFIG_SCENARIO = "Radio protocol";
+    public const string CONFIG_DUE_DATE = "Due date";
+    public const string CONFIG_SCALE = "EnumName_ZR_ClassLibrary.OverrideID_HCA_Scale";
+    public const string CONFIG_DEVICE_ERROR = "Device error";
+    public const string CONFIG_MANIPULATION = "Manipulation";
+    public const string PROFILE_TYPE_IR = "IR";
+    public const string PROFILE_TYPE_IR_MINOMAT_V4 = "IR Minomat V4";
+    public const string PROFILE_TYPE_WALK_BY = "WalkBy Radio3";
+    public const string SYSTEM_RADIO3 = "Radio3";
+    public const string DEVICEMODEL_MINOMATMASTER = "Minomat V4 Master";
+    public const string DEVICEMODEL_MINOMATSLAVE = "Minomat V4 Slave";
+    public const string COMSERVER_NODETYPE = "COMServer";
+    public const string RADIO_NODETYPE = "Radio";
+    public const string CONVERTER_NODETYPE = "Converter";
+    public const string REPEATER_NODETYPE = "Repeater";
+    public const string LOCATION_NODETYPE = "Location";
+    public const string TENANT_NODETYPE = "Tenant";
+    public const string METER_NODETYPE = "Meter";
+    public const string RADIOMETER_NODETYPE = "RadioMeter";
+    public const string PROPERTY_CREATED_ON = "CreatedOn";
+    public const string PROPERTY_LAST_UPDATED_ON = "LastUpdatedOn";
+    public const string PROPERTY_LAST_CHANGED_ON = "LastChangedOn";
+    public const string EQUIPMENT_MODEL_REQUIRED = "EQUIPMENT_MODEL_SELECTION_REQUIRED";
+    public const int START_WINDOW_WIDTH_DEFAULT = 1040;
+    public const int START_WINDOW_HEIGHT_DEFAULT = 770;
+  }
+}
+
+
+--- AppContext.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.AppContext
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using InTheHand.Net.Sockets;
+using MSS.Business.Errors;
+using MSS.Business.Modules.Synchronization.HandleConflicts;
+using MSS.Core.Model.ApplicationParamenters;
+using MSS.Core.Model.TechnicalParameters;
+using MSS.Core.Model.UsersManagement;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public class AppContext
+  {
+    private static AppContext _instance;
+    private IEnumerable<ApplicationParameter> _parameters;
+    private readonly Dictionary<Guid, ConflictDetails> _syncConflicts = new Dictionary<Guid, ConflictDetails>();
+    private Dictionary<Guid, string> _syncExtraData = new Dictionary<Guid, string>();
+    private User _loggedUser;
+
+    public static AppContext Current
+    {
+      get
+      {
+        lock (typeof (AppContext))
+          return AppContext._instance ?? (AppContext._instance = new AppContext());
+      }
+    }
+
+    public User LoggedUser
+    {
+      get => this._loggedUser;
+      set => this._loggedUser = value;
+    }
+
+    public string MSSClientId { get; set; }
+
+    public IEnumerable<ApplicationParameter> Parameters => this._parameters;
+
+    public IEnumerable<string> Operations { get; set; }
+
+    public bool HasServer { get; set; }
+
+    public bool HasConflicts => this.SyncConflicts.Count > 0;
+
+    public bool HandleConflicts { get; set; }
+
+    public bool HasLocks { get; set; }
+
+    public Dictionary<Guid, ConflictDetails> SyncConflicts => this._syncConflicts;
+
+    public Dictionary<Guid, string> SyncExtraData
+    {
+      get => this._syncExtraData;
+      set => this._syncExtraData = value;
+    }
+
+    public bool IsServerAvailableAndStatusAccepted { get; set; }
+
+    public bool IsClientUpToDateSend { get; set; }
+
+    public EquipmentModel DefaultEquipment { get; set; }
+
+    public List<BluetoothDeviceInfo> MinoConnectDeviceNames { get; set; }
+
+    public void LoadApplicationParameters(IList<ApplicationParameter> applicationParameters)
+    {
+      this._parameters = (IEnumerable<ApplicationParameter>) applicationParameters;
+      this.HasServer = !string.IsNullOrEmpty(this.GetParameterValue<string>("ServerIp"));
+    }
+
+    public void Initialize(IList<ApplicationParameter> applicationParameters)
+    {
+      this.LoadApplicationParameters(applicationParameters);
+    }
+
+    public void LoadDefaultEquipment()
+    {
+      string equipmentName = AppContext.Current.GetParameterValue<string>("DefaultEquipment");
+      Application.Current.Dispatcher.Invoke((Action) (() => AppContext.Current.DefaultEquipment = GmmInterface.DeviceManager.GetEquipmentModels().FirstOrDefault<EquipmentModel>((Func<EquipmentModel, bool>) (d => d.Name == equipmentName))));
+      if (AppContext.Current.DefaultEquipment == null)
+        return;
+      AppContext.Current.DefaultEquipment = MSS.Business.Modules.AppParametersManagement.AppParametersManagement.UpdateEquipmentWithSavedParams(AppContext.Current.DefaultEquipment, AppContext.Current.GetParameterValue<string>("DefaultEquipmentParams"));
+    }
+
+    public T GetParameterValue<T>(string name)
+    {
+      return (T) Convert.ChangeType((object) (this.Parameters.FirstOrDefault<ApplicationParameter>((Func<ApplicationParameter, bool>) (p => p.Parameter.Equals(name))) ?? throw new BaseApplicationException(string.Format(ErrorCodes.GetErrorMessage("MSSError_5"), (object) name))).Value, typeof (T));
+    }
+
+    public bool IsDeviceConnected { get; set; }
+
+    public bool IsMinoConnectConnected { get; set; }
+
+    public TechnicalParameter TechnicalParameters { get; set; }
+  }
+}
+
+
+--- AppDataFolderHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.AppDataFolderHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+using System.IO;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public static class AppDataFolderHelper
+  {
+    public static string GetUserAppDataPath()
+    {
+      string path = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\MSS\\";
+      if (!Directory.Exists(path))
+        Directory.CreateDirectory(path);
+      return path;
+    }
+  }
+}
+
+
+--- ApplicationTabsEnum.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.ApplicationTabsEnum
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public enum ApplicationTabsEnum
+  {
+    ReadingOrders,
+    InstallationOrders,
+    StructuresPhysical,
+    StructuresLogical,
+    StructuresFixed,
+    UsersUsers,
+    UsersRoles,
+    GeneralSettings,
+    ServerSettings,
+    MinomatSettings,
+    EquipmentSettings,
+    DataCollectors,
+    DataCollectorsPool,
+    Job,
+    JobLogs,
+    JobDefinitions,
+    Scenarios,
+  }
+}
+
+
+--- AppServerContext.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.AppServerContext
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.TechnicalParameters;
+using MSS.DTO.Sync;
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public class AppServerContext
+  {
+    private static AppServerContext _instance;
+
+    public static AppServerContext Current
+    {
+      get
+      {
+        lock (typeof (AppServerContext))
+          return AppServerContext._instance ?? (AppServerContext._instance = new AppServerContext());
+      }
+    }
+
+    public List<Guid> ClientState { get; set; }
+
+    public Dictionary<Guid, SimpleMetadata> TemporaryMetadataDictionary { get; set; }
+
+    public TechnicalParameter TechnicalParameters { get; set; }
+
+    public string HardwareKey { get; set; }
+  }
+}
+
+
+--- ConversionHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.ConversionHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.CSharp.RuntimeBinder;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
+using System.Threading;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public class ConversionHelper
+  {
+    public static object ConvertValue(Type valueType, string value)
+    {
+      if (valueType == typeof (bool))
+      {
+        switch (value.ToUpper())
+        {
+          case "YES":
+            value = true.ToString();
+            break;
+          case "NO":
+            value = false.ToString();
+            break;
+        }
+      }
+      if (valueType == typeof (double))
+        value = value.TrimEnd('%');
+      if (valueType == typeof (double) || valueType == typeof (int) || valueType == typeof (float))
+      {
+        string numberGroupSeparator = Thread.CurrentThread.CurrentCulture.NumberFormat.NumberGroupSeparator;
+        value = value.Replace(numberGroupSeparator, string.Empty);
+      }
+      if (!valueType.IsGenericType || !(valueType.GetGenericTypeDefinition() == typeof (Nullable<>)))
+        return Convert.ChangeType((object) value, valueType, (IFormatProvider) Thread.CurrentThread.CurrentCulture);
+      Activator.CreateInstance(valueType);
+      object obj1 = (object) value;
+      // ISSUE: reference to a compiler-generated field
+      if (ConversionHelper.\u003C\u003Eo__0.\u003C\u003Ep__2 == null)
+      {
+        // ISSUE: reference to a compiler-generated field
+        ConversionHelper.\u003C\u003Eo__0.\u003C\u003Ep__2 = CallSite<Func<CallSite, object, bool>>.Create(Binder.UnaryOperation(CSharpBinderFlags.None, ExpressionType.IsTrue, typeof (ConversionHelper), (IEnumerable<CSharpArgumentInfo>) new CSharpArgumentInfo[1]
+        {
+          CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, (string) null)
+        }));
+      }
+      // ISSUE: reference to a compiler-generated field
+      Func<CallSite, object, bool> target1 = ConversionHelper.\u003C\u003Eo__0.\u003C\u003Ep__2.Target;
+      // ISSUE: reference to a compiler-generated field
+      CallSite<Func<CallSite, object, bool>> p2 = ConversionHelper.\u003C\u003Eo__0.\u003C\u003Ep__2;
+      // ISSUE: reference to a compiler-generated field
+      if (ConversionHelper.\u003C\u003Eo__0.\u003C\u003Ep__1 == null)
+      {
+        // ISSUE: reference to a compiler-generated field
+        ConversionHelper.\u003C\u003Eo__0.\u003C\u003Ep__1 = CallSite<Func<CallSite, object, object>>.Create(Binder.UnaryOperation(CSharpBinderFlags.None, ExpressionType.Not, typeof (ConversionHelper), (IEnumerable<CSharpArgumentInfo>) new CSharpArgumentInfo[1]
+        {
+          CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, (string) null)
+        }));
+      }
+      // ISSUE: reference to a compiler-generated field
+      Func<CallSite, object, object> target2 = ConversionHelper.\u003C\u003Eo__0.\u003C\u003Ep__1.Target;
+      // ISSUE: reference to a compiler-generated field
+      CallSite<Func<CallSite, object, object>> p1 = ConversionHelper.\u003C\u003Eo__0.\u003C\u003Ep__1;
+      // ISSUE: reference to a compiler-generated field
+      if (ConversionHelper.\u003C\u003Eo__0.\u003C\u003Ep__0 == null)
+      {
+        // ISSUE: reference to a compiler-generated field
+        ConversionHelper.\u003C\u003Eo__0.\u003C\u003Ep__0 = CallSite<Func<CallSite, Type, object, object>>.Create(Binder.InvokeMember(CSharpBinderFlags.None, "IsNullOrEmpty", (IEnumerable<Type>) null, typeof (ConversionHelper), (IEnumerable<CSharpArgumentInfo>) new CSharpArgumentInfo[2]
+        {
+          CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.UseCompileTimeType | CSharpArgumentInfoFlags.IsStaticType, (string) null),
+          CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, (string) null)
+        }));
+      }
+      // ISSUE: reference to a compiler-generated field
+      // ISSUE: reference to a compiler-generated field
+      object obj2 = ConversionHelper.\u003C\u003Eo__0.\u003C\u003Ep__0.Target((CallSite) ConversionHelper.\u003C\u003Eo__0.\u003C\u003Ep__0, typeof (string), obj1);
+      object obj3 = target2((CallSite) p1, obj2);
+      if (!target1((CallSite) p2, obj3))
+        return (object) null;
+      // ISSUE: reference to a compiler-generated field
+      if (ConversionHelper.\u003C\u003Eo__0.\u003C\u003Ep__3 == null)
+      {
+        // ISSUE: reference to a compiler-generated field
+        ConversionHelper.\u003C\u003Eo__0.\u003C\u003Ep__3 = CallSite<Func<CallSite, Type, object, Type, CultureInfo, object>>.Create(Binder.InvokeMember(CSharpBinderFlags.None, "ChangeType", (IEnumerable<Type>) null, typeof (ConversionHelper), (IEnumerable<CSharpArgumentInfo>) new CSharpArgumentInfo[4]
+        {
+          CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.UseCompileTimeType | CSharpArgumentInfoFlags.IsStaticType, (string) null),
+          CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, (string) null),
+          CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.UseCompileTimeType, (string) null),
+          CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.UseCompileTimeType, (string) null)
+        }));
+      }
+      // ISSUE: reference to a compiler-generated field
+      // ISSUE: reference to a compiler-generated field
+      return ConversionHelper.\u003C\u003Eo__0.\u003C\u003Ep__3.Target((CallSite) ConversionHelper.\u003C\u003Eo__0.\u003C\u003Ep__3, typeof (Convert), obj1, Nullable.GetUnderlyingType(valueType), Thread.CurrentThread.CurrentCulture);
+    }
+  }
+}
+
+
+--- CustomerConfiguration.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.CustomerConfiguration
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using NHibernate.Linq;
+using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Configuration;
+using System.Linq;
+using System.Xml.Linq;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public static class CustomerConfiguration
+  {
+    private static NameValueCollection _settings;
+
+    private static void LoadCustomerSettings(string customerName)
+    {
+      XDocument document = XDocument.Load(ConfigurationManager.AppSettings["CustomerSettings"]);
+      System.Diagnostics.Debug.Assert(CustomerConfiguration.AreCustomerPropertiesMatching(document), "Please check the customer-settings sections from CustomerSettings.config file.");
+      CustomerConfiguration._settings = new NameValueCollection();
+      TypeHelperExtensionMethods.ForEach<XElement>(document.Descendants((XName) "customer-settings").Where<XElement>((Func<XElement, bool>) (node => node.Attribute((XName) "name").Value == customerName)).Elements<XElement>((XName) "property"), (Action<XElement>) (p => CustomerConfiguration._settings.Add(p.Attribute((XName) "name").Value, p.Value)));
+    }
+
+    private static bool AreCustomerPropertiesMatching(XDocument document)
+    {
+      IEnumerable<XElement> source1 = document.Descendants((XName) "customer-settings");
+      List<string> propertiesList = new List<string>();
+      TypeHelperExtensionMethods.ForEach<XElement>(source1.FirstOrDefault<XElement>().Elements((XName) "property"), (Action<XElement>) (p => propertiesList.Add(p.Attribute((XName) "name").Value)));
+      foreach (XContainer xcontainer in source1)
+      {
+        IEnumerable<XElement> source2 = xcontainer.Elements((XName) "property");
+        if (source2.Count<XElement>() != propertiesList.Count)
+          return false;
+        foreach (XElement xelement in source2)
+        {
+          if (!propertiesList.Contains(xelement.Attribute((XName) "name").Value))
+            return false;
+        }
+      }
+      return true;
+    }
+
+    private static string GetPropertyValue(string customerName, string propertyName)
+    {
+      if (CustomerConfiguration._settings == null)
+        CustomerConfiguration.LoadCustomerSettings(customerName);
+      return CustomerConfiguration._settings != null && CustomerConfiguration._settings[propertyName] != null ? CustomerConfiguration._settings[propertyName] : throw new InvalidEnumArgumentException(propertyName);
+    }
+
+    public static T GetPropertyValue<T>(string propertyName)
+    {
+      string propertyValue = CustomerConfiguration.GetPropertyValue(propertyName);
+      return (T) TypeDescriptor.GetConverter(typeof (T)).ConvertFromInvariantString(propertyValue);
+    }
+
+    public static string GetPropertyValue(string propertyName)
+    {
+      return CustomerConfiguration.GetPropertyValue(ConfigurationManager.AppSettings["Customer"], propertyName);
+    }
+  }
+}
+
+
+--- DatabaseDialect.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.DatabaseDialect
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public enum DatabaseDialect
+  {
+    MSSQL,
+    SQLite,
+    MSSQLCE,
+  }
+}
+
+
+--- DatabaseEngineEnum.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.DatabaseEngineEnum
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public enum DatabaseEngineEnum
+  {
+    MSSQLDatabase,
+    SQLiteDatabase,
+    SQLCEDatabase,
+  }
+}
+
+
+--- DataTableHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.DataTableHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public static class DataTableHelper
+  {
+    public static List<TSource> ToList<TSource>(this DataTable dataTable) where TSource : new()
+    {
+      List<TSource> list1 = new List<TSource>();
+      List<\u003C\u003Ef__AnonymousType2<string, Type>> list2 = Enumerable.Cast<PropertyInfo>(typeof (TSource).GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)).Select(aProp =>
+      {
+        string name = aProp.Name;
+        Type type = Nullable.GetUnderlyingType(aProp.PropertyType);
+        if ((object) type == null)
+          type = aProp.PropertyType;
+        return new{ Name = name, Type = type };
+      }).ToList();
+      foreach (DataRow dataRow in dataTable.AsEnumerable().ToList<DataRow>())
+      {
+        TSource source = new TSource();
+        foreach (var data in list2)
+        {
+          PropertyInfo property = source.GetType().GetProperty(data.Name);
+          string str = dataRow[data.Name] == DBNull.Value ? (string) null : dataRow[data.Name].ToString();
+          property.SetValue((object) source, ConversionHelper.ConvertValue(data.Type, str), (object[]) null);
+        }
+        list1.Add(source);
+      }
+      return list1;
+    }
+  }
+}
+
+
+--- DragDropAttachedObject.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.DragDropAttachedObject
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.Structures;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public class DragDropAttachedObject
+  {
+    public bool IsEnabled { get; set; }
+
+    public List<StructureNodeLinks> PhysicalLinks { get; set; }
+  }
+}
+
+
+--- EModul.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.EModul
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public enum EModul
+  {
+    Meters,
+    Archiving,
+    Jobs,
+    Settings,
+    Users,
+    Reporting,
+    Configuration,
+    DataCollectors,
+    Structures,
+    Orders,
+    MSS,
+  }
+}
+
+
+--- EnumHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.EnumHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Utils.Utils;
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public static class EnumHelper
+  {
+    public static Dictionary<string, string> GetEnumElements<T>()
+    {
+      Dictionary<string, string> enumElements = new Dictionary<string, string>();
+      foreach (Enum @enum in Enum.GetValues(typeof (T)))
+      {
+        string stringValue = @enum.GetStringValue();
+        string key = @enum.ToString();
+        enumElements.Add(key, stringValue);
+      }
+      return enumElements;
+    }
+
+    public static Dictionary<T, string> GetEnumTranslationsDictionary<T>()
+    {
+      Dictionary<T, string> translationsDictionary = new Dictionary<T, string>();
+      foreach (Enum enum1 in Enum.GetValues(typeof (T)))
+      {
+        string stringValue = enum1.GetStringValue();
+        Enum enum2 = enum1;
+        translationsDictionary.Add((T) Enum.Parse(typeof (T), enum2.ToString()), stringValue);
+      }
+      return translationsDictionary;
+    }
+  }
+}
+
+
+--- ImageHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.ImageHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Windows;
+using System.Windows.Media.Imaging;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public sealed class ImageHelper
+  {
+    private static readonly ImageHelper instance = new ImageHelper();
+    private IDictionary<string[], BitmapImage> bitmapImageDictionaries = (IDictionary<string[], BitmapImage>) new Dictionary<string[], BitmapImage>((IEqualityComparer<string[]>) new ImageHelper.KeyEqualityComparer());
+
+    private ImageHelper()
+    {
+    }
+
+    public static ImageHelper Instance => ImageHelper.instance;
+
+    public BitmapImage GetBitmapImageFromFiles(string[] files)
+    {
+      if (this.bitmapImageDictionaries.ContainsKey(files))
+        return this.bitmapImageDictionaries[files].Clone();
+      BitmapImage bitmapImage = this.ConvertBitmapToBitmapImage(this.Combine(files));
+      bitmapImage.Freeze();
+      this.bitmapImageDictionaries.Add(files, bitmapImage);
+      return bitmapImage;
+    }
+
+    private Bitmap Combine(string[] files)
+    {
+      List<Bitmap> bitmapList = new List<Bitmap>();
+      Bitmap bitmap1 = (Bitmap) null;
+      try
+      {
+        int width = 0;
+        int height = 0;
+        foreach (string file in files)
+        {
+          Bitmap bitmap2 = new Bitmap(Application.GetResourceStream(new Uri(file, UriKind.RelativeOrAbsolute)).Stream);
+          width = 16;
+          height = 16;
+          bitmapList.Add(bitmap2);
+        }
+        bitmap1 = new Bitmap(width, height);
+        using (Graphics graphics = Graphics.FromImage((Image) bitmap1))
+        {
+          graphics.Clear(Color.Transparent);
+          int num = 0;
+          foreach (Bitmap bitmap3 in bitmapList)
+          {
+            graphics.DrawImage((Image) bitmap3, new Rectangle(0, 0, bitmap3.Width, bitmap3.Height));
+            num += bitmap3.Width;
+          }
+        }
+        return bitmap1;
+      }
+      catch (Exception ex)
+      {
+        bitmap1?.Dispose();
+        throw;
+      }
+      finally
+      {
+        foreach (Image image in bitmapList)
+          image.Dispose();
+      }
+    }
+
+    private BitmapImage ConvertBitmapToBitmapImage(Bitmap target)
+    {
+      MemoryStream memoryStream = new MemoryStream();
+      target.Save((Stream) memoryStream, ImageFormat.Png);
+      BitmapImage bitmapImage = new BitmapImage();
+      bitmapImage.BeginInit();
+      bitmapImage.StreamSource = (Stream) new MemoryStream(memoryStream.ToArray());
+      bitmapImage.EndInit();
+      return bitmapImage;
+    }
+
+    public Bitmap BitmapImage2Bitmap(BitmapImage bitmapImage)
+    {
+      using (MemoryStream memoryStream = new MemoryStream())
+      {
+        BitmapEncoder bitmapEncoder = (BitmapEncoder) new PngBitmapEncoder();
+        bitmapEncoder.Frames.Add(BitmapFrame.Create((BitmapSource) bitmapImage));
+        bitmapEncoder.Save((Stream) memoryStream);
+        Bitmap original = new Bitmap((Stream) memoryStream);
+        original.MakeTransparent(Color.Black);
+        return new Bitmap((Image) original);
+      }
+    }
+
+    public BitmapImage Combine2Images(Bitmap firstImage, Bitmap secondImage)
+    {
+      List<Bitmap> bitmapList = new List<Bitmap>();
+      Bitmap target = (Bitmap) null;
+      try
+      {
+        if (firstImage != null)
+          bitmapList.Add(firstImage);
+        if (secondImage != null)
+          bitmapList.Add(secondImage);
+        target = new Bitmap(16, 16);
+        using (Graphics graphics = Graphics.FromImage((Image) target))
+        {
+          graphics.Clear(Color.Transparent);
+          int num = 0;
+          foreach (Bitmap bitmap in bitmapList)
+          {
+            graphics.DrawImage((Image) bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height));
+            num += bitmap.Width;
+          }
+        }
+        return this.ConvertBitmapToBitmapImage(target);
+      }
+      catch (Exception ex)
+      {
+        target?.Dispose();
+        throw;
+      }
+      finally
+      {
+        foreach (Image image in bitmapList)
+          image.Dispose();
+      }
+    }
+
+    private class KeyEqualityComparer : EqualityComparer<string[]>
+    {
+      public override bool Equals(string[] x, string[] y)
+      {
+        if (x == null || y == null || x.Length != y.Length)
+          return false;
+        for (int index = 0; index < x.Length; ++index)
+        {
+          if (!x[index].Equals(y[index]))
+            return false;
+        }
+        return true;
+      }
+
+      public override int GetHashCode(string[] obj)
+      {
+        if (obj == null)
+          return 0;
+        string empty = string.Empty;
+        foreach (string str in obj)
+          empty += str;
+        return empty.GetHashCode();
+      }
+    }
+  }
+}
+
+
+--- IUIPrinter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.IUIPrinter
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System.Windows;
+using System.Windows.Controls;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public interface IUIPrinter
+  {
+    void Print();
+
+    void Print(Grid content, PrintDialog printDialog, Thickness margin);
+  }
+}
+
+
+--- JobCycles.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.JobCycles
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+using MSS.Core.Model.Jobs;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public class JobCycles
+  {
+    public MssReadingJob Job { get; set; }
+
+    public StructureNodeDTO StructureRootNode { get; set; }
+  }
+}
+
+
+--- JobCyclesCache.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.JobCyclesCache
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+using MSS.Business.Events;
+using MSS.Business.Modules.StructuresManagement;
+using MSS.Core.Model.Jobs;
+using MSS.DTO.Meters;
+using MSS.Interfaces;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public sealed class JobCyclesCache
+  {
+    private static readonly JobCyclesCache _instance = new JobCyclesCache();
+    private static ObservableCollection<JobCycles> _jobCycles = new ObservableCollection<JobCycles>();
+
+    private JobCyclesCache()
+    {
+    }
+
+    public static JobCyclesCache Instance => JobCyclesCache._instance;
+
+    public void UpdateJobCycles(JobCacheUpdate jobUpdate)
+    {
+      if (jobUpdate == null)
+        return;
+      JobCycles jobCycles = (JobCycles) null;
+      if (jobUpdate.JobId != Guid.Empty)
+        jobCycles = JobCyclesCache._jobCycles.FirstOrDefault<JobCycles>((Func<JobCycles, bool>) (item => item.Job.Id == jobUpdate.JobId));
+      if (jobCycles != null || jobCycles == null && jobUpdate.UpdateType == JobCacheUpdateEnum.JobError)
+      {
+        switch (jobUpdate.UpdateType)
+        {
+          case JobCacheUpdateEnum.JobStarted:
+            jobCycles.Job.Status = JobStatusEnum.Active;
+            break;
+          case JobCacheUpdateEnum.JobError:
+            if (jobCycles != null)
+              jobCycles.Job.Status = JobStatusEnum.Iserror;
+            if (jobUpdate.JobId == Guid.Empty && !string.IsNullOrEmpty(jobUpdate.SerialNumberToUpdate))
+            {
+              foreach (JobCycles jobCycle in (Collection<JobCycles>) JobCyclesCache._jobCycles)
+              {
+                StructureNodeDTO foundMeter = (StructureNodeDTO) null;
+                this.GetMeterFromStructure(jobCycle.StructureRootNode, jobUpdate.SerialNumberToUpdate, ref foundMeter);
+                if (foundMeter != null)
+                {
+                  foundMeter.Cycles++;
+                  foundMeter.Failed++;
+                }
+              }
+            }
+            if (jobUpdate.JobId != Guid.Empty && !string.IsNullOrEmpty(jobUpdate.SerialNumberToUpdate) && jobCycles != null)
+            {
+              StructureNodeDTO foundMeter = (StructureNodeDTO) null;
+              this.GetMeterFromStructure(jobCycles.StructureRootNode, jobUpdate.SerialNumberToUpdate, ref foundMeter);
+              if (foundMeter != null)
+              {
+                foundMeter.Cycles++;
+                foundMeter.Failed++;
+              }
+              break;
+            }
+            break;
+          case JobCacheUpdateEnum.JobValueIdentSetReceived:
+            StructureNodeDTO foundMeter1 = (StructureNodeDTO) null;
+            this.GetMeterFromStructure(jobCycles.StructureRootNode, jobUpdate.SerialNumberToUpdate, ref foundMeter1);
+            if (foundMeter1 != null)
+            {
+              foundMeter1.Cycles++;
+              foundMeter1.Succeeded++;
+              break;
+            }
+            break;
+        }
+      }
+    }
+
+    public void AddJobToCache(
+      IRepositoryFactory repositoryFactory,
+      MssReadingJob newJob,
+      Guid rootNodeId)
+    {
+      if (!(rootNodeId != new Guid()) || JobCyclesCache._jobCycles.FirstOrDefault<JobCycles>((Func<JobCycles, bool>) (item => item.Job.Id == newJob.Id)) != null)
+        return;
+      JobCyclesCache._jobCycles.Add(new JobCycles()
+      {
+        Job = newJob,
+        StructureRootNode = StructuresHelper.LoadStructureFromRootNodeId(repositoryFactory, rootNodeId)
+      });
+    }
+
+    public void RemoveJobFromCache(Guid jobId)
+    {
+      if (!(jobId != new Guid()))
+        return;
+      JobCycles jobCycles = JobCyclesCache._jobCycles.FirstOrDefault<JobCycles>((Func<JobCycles, bool>) (item => item.Job.Id == jobId));
+      if (jobCycles != null)
+        JobCyclesCache._jobCycles.Remove(jobCycles);
+    }
+
+    public StructureNodeDTO GetJobStructureByJobId(Guid jobId)
+    {
+      return JobCyclesCache._jobCycles.FirstOrDefault<JobCycles>((Func<JobCycles, bool>) (item => item.Job.Id == jobId))?.StructureRootNode;
+    }
+
+    private void GetMeterFromStructure(
+      StructureNodeDTO rootNode,
+      string serialNumber,
+      ref StructureNodeDTO foundMeter)
+    {
+      foreach (StructureNodeDTO subNode in (Collection<StructureNodeDTO>) rootNode.SubNodes)
+      {
+        if (subNode.NodeType.Name == "Meter" || subNode.NodeType.Name == "RadioMeter")
+        {
+          if (subNode?.Entity is MeterDTO entity && entity.SerialNumber == serialNumber)
+            foundMeter = subNode;
+          else
+            this.GetMeterFromStructure(subNode, serialNumber, ref foundMeter);
+        }
+        else
+          this.GetMeterFromStructure(subNode, serialNumber, ref foundMeter);
+      }
+    }
+  }
+}
+
+
+--- MappingsManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.MappingsManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using AutoMapper;
+using MSS.Business.Modules.Reporting;
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.Reporting;
+using MSS.DTO.Meters;
+using MSS.DTO.Reporting;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public static class MappingsManager
+  {
+    public static void AutomatedExportJob_to_AutomatedExportJobDTO()
+    {
+      Mapper.CreateMap<AutomatedExportJob, AutomatedExportJobDTO>().ForMember((Expression<Func<AutomatedExportJobDTO, object>>) (m => (object) m.DataToExport), (Action<IMemberConfigurationExpression<AutomatedExportJob>>) (action => action.ResolveUsing((Func<AutomatedExportJob, object>) (j => (object) JsonConvert.DeserializeObject<DataToExport>(j.DataToExport))))).ForMember((Expression<Func<AutomatedExportJobDTO, object>>) (m => m.DecimalSeparator), (Action<IMemberConfigurationExpression<AutomatedExportJob>>) (action => action.ResolveUsing((Func<AutomatedExportJob, object>) (j => (object) string.Format("{0} (" + ReportingHelper.GetLocalizedCharacterName(j.DecimalSeparator) + ")", (object) j.DecimalSeparator))))).ForMember((Expression<Func<AutomatedExportJobDTO, object>>) (m => m.ValueSeparator), (Action<IMemberConfigurationExpression<AutomatedExportJob>>) (action => action.ResolveUsing((Func<AutomatedExportJob, object>) (j => (object) string.Format("{0} (" + ReportingHelper.GetLocalizedCharacterName(j.ValueSeparator) + ")", (object) j.ValueSeparator))))).ForMember((Expression<Func<AutomatedExportJobDTO, object>>) (m => m.ExportedDataFormatted), (Action<IMemberConfigurationExpression<AutomatedExportJob>>) (action => action.ResolveUsing((Func<AutomatedExportJob, object>) (j => (object) ReportingHelper.GetLocalizedDataToExport(j.DataToExport))))).ForMember((Expression<Func<AutomatedExportJobDTO, object>>) (m => m.ExportPath), (Action<IMemberConfigurationExpression<AutomatedExportJob>>) (action => action.MapFrom<string>((Expression<Func<AutomatedExportJob, string>>) (j => j.Path))));
+    }
+
+    public static void MeterReadingValue_to_MeterReadingValueDTO()
+    {
+      Mapper.CreateMap<MeterReadingValue, MeterReadingValueDTO>().ForMember((Expression<Func<MeterReadingValueDTO, object>>) (m => (object) m.Index), (Action<IMemberConfigurationExpression<MeterReadingValue>>) (action => action.ResolveUsing((Func<MeterReadingValue, object>) (j => (object) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_Index>(j.ValueId)))));
+    }
+
+    public static void SetIsReplacedForMeterReadingValueDTO(List<Guid> replacedMeterIds)
+    {
+      Mapper.CreateMap<MeterReadingValue, MeterReadingValueDTO>().ForMember((Expression<Func<MeterReadingValueDTO, object>>) (m => (object) m.IsReplacedMeter), (Action<IMemberConfigurationExpression<MeterReadingValue>>) (action => action.ResolveUsing((Func<MeterReadingValue, object>) (j => (object) replacedMeterIds.Contains(j.MeterId)))));
+    }
+  }
+}
+
+
+--- MSSHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.MSSHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Common.Library.NHibernate.Data;
+using GmmDbLib;
+using MSS.Business.Errors;
+using MSS.Business.Modules.Archiving;
+using MSS.Business.Modules.LicenseManagement;
+using MSS.Localisation;
+using MSS.Utils.Utils;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Configuration;
+using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Net.Security;
+using System.ServiceModel;
+using Telerik.Windows.Data;
+using ZENNER;
+using ZENNER.CommonLibrary;
+using ZENNER.CommonLibrary.Entities;
+using ZENNER.Managers;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public static class MSSHelper
+  {
+    public static bool InitializeGMM()
+    {
+      string currentLicenseFileName;
+      if (!string.IsNullOrEmpty(currentLicenseFileName = LicenseHelper.GetCurrentLicenseFileName(LicenseHelper.GetValidHardwareKey())))
+      {
+        try
+        {
+          GmmInterface.Initialize(currentLicenseFileName, MeterDbTypes.SQLite, Path.Combine(AppDataFolderHelper.GetUserAppDataPath(), ConfigurationManager.AppSettings["GMMDatabasePath"]));
+        }
+        catch (Exception ex)
+        {
+          MessageHandler.LogException(ex);
+          return false;
+        }
+        return true;
+      }
+      MessageHandler.LogDebug("License not valid for GMM or does not exist. GMM could not be initialized.");
+      return false;
+    }
+
+    public static bool InitializeGMMAndSetEquipment()
+    {
+      if (!MSSHelper.InitializeGMM())
+        return false;
+      AppContext.Current.LoadDefaultEquipment();
+      return true;
+    }
+
+    public static bool IsMinoConnectConnected()
+    {
+      if (!LicenseHelper.LicenseExistsAndIsValid() || !LicenseHelper.IsMinoConnectNeeded(LicenseHelper.GetValidHardwareKey()))
+        return false;
+      bool flag = false;
+      foreach (ValueItem availableComPort in Constants.GetAvailableComPorts())
+      {
+        try
+        {
+          flag |= MinoConnectManager.IsMinoConnect(availableComPort.Value);
+        }
+        catch (Exception ex)
+        {
+          MessageHandler.LogException(ex);
+        }
+      }
+      return flag;
+    }
+
+    public static NetTcpBinding GetNetTcpBinding()
+    {
+      NetTcpBinding netTcpBinding = new NetTcpBinding()
+      {
+        TransactionFlow = false
+      };
+      netTcpBinding.Security.Transport.ProtectionLevel = ProtectionLevel.EncryptAndSign;
+      netTcpBinding.Security.Transport.ClientCredentialType = TcpClientCredentialType.Windows;
+      netTcpBinding.Security.Mode = SecurityMode.None;
+      netTcpBinding.MaxReceivedMessageSize = (long) int.MaxValue;
+      netTcpBinding.OpenTimeout = new TimeSpan(0, 10, 0);
+      netTcpBinding.CloseTimeout = new TimeSpan(0, 10, 0);
+      netTcpBinding.ReceiveTimeout = new TimeSpan(0, 10, 0);
+      netTcpBinding.SendTimeout = new TimeSpan(0, 10, 0);
+      netTcpBinding.MaxReceivedMessageSize = 734003200L;
+      netTcpBinding.MaxBufferSize = 734003200;
+      netTcpBinding.MaxBufferPoolSize = 734003200L;
+      return netTcpBinding;
+    }
+
+    public static List<T> GetUnique<T>(this List<T> nonUniqueItems)
+    {
+      return nonUniqueItems.GroupBy<T, object>((Func<T, object>) (item => item.GetType().GetProperty("Id").GetValue((object) item))).Select<IGrouping<object, T>, T>((Func<IGrouping<object, T>, T>) (item => item.First<T>())).ToList<T>();
+    }
+
+    public static bool IsSimpleType(this Type type)
+    {
+      if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof (Nullable<>))
+        type = Nullable.GetUnderlyingType(type);
+      return type.IsPrimitive || type == typeof (DateTime) || type == typeof (Decimal) || type == typeof (string) || type == typeof (Guid) || type == typeof (int) || type == typeof (long) || type == typeof (long) || type == typeof (double) || type == typeof (int);
+    }
+
+    private static bool IsIList(Type type) => typeof (IList).IsAssignableFrom(type);
+
+    public static string GetErrorMessage(Exception ex)
+    {
+      return CultureResources.GetValue(ErrorCodes.GetErrorMessage("MSSError_3")) + Environment.NewLine + "Message:" + ex.Message + Environment.NewLine + "Inner Exception:" + (ex.InnerException != null ? ex.InnerException.Message : string.Empty) + Environment.NewLine + "Stack Trace:" + ex.StackTrace;
+    }
+
+    public static string GenerateRandomNumber(int length)
+    {
+      return BitConverter.ToUInt32(Guid.NewGuid().ToByteArray(), length).ToString();
+    }
+
+    public static IEnumerable<T2> GetListOfObjectsFromEnum<T1, T2>()
+    {
+      ObservableCollection<T2> ofObjectsFromEnum = new ObservableCollection<T2>();
+      Dictionary<string, string> enumElements = EnumHelper.GetEnumElements<T1>();
+      int num = 1;
+      foreach (KeyValuePair<string, string> keyValuePair in enumElements)
+      {
+        object obj = Enum.Parse(typeof (T1), keyValuePair.Key, true);
+        ofObjectsFromEnum.Add((T2) Activator.CreateInstance(typeof (T2), (object) num, (object) ((Enum) obj).GetStringValue(), obj));
+        ++num;
+      }
+      return (IEnumerable<T2>) ofObjectsFromEnum;
+    }
+
+    public static string ParseJsonToString(string jsonString)
+    {
+      string empty = string.Empty;
+      return ((IEnumerable<string>) jsonString.Split(',')).Aggregate<string, string>(empty, (Func<string, string, string>) ((current, item) => current + item.TrimStart('{').TrimEnd('}') + Environment.NewLine));
+    }
+
+    public static void InitializeNHibernateFactoryForMSSDatabase()
+    {
+      HibernateMultipleDatabasesManager.Initialize(ConfigurationManager.AppSettings["DatabaseEngine"]);
+    }
+
+    public static Telerik.Windows.Data.VirtualQueryableCollectionView<T> LoadCollection<T>(
+      Expression<Func<T, bool>> mySearchExpression)
+    {
+      return MSSHelper.VirtualQueryableCollectionView<T>(new PagingProvider<T>(ArchiveManagerNHibernate.GetSessionFactoryMSSArchive(), mySearchExpression));
+    }
+
+    public static Telerik.Windows.Data.VirtualQueryableCollectionView<T> LoadCollection<T>()
+    {
+      return MSSHelper.VirtualQueryableCollectionView<T>(new PagingProvider<T>(ArchiveManagerNHibernate.GetSessionFactoryMSSArchive()));
+    }
+
+    public static Telerik.Windows.Data.VirtualQueryableCollectionView<T> VirtualQueryableCollectionView<T>(
+      PagingProvider<T> pagingProvider)
+    {
+      Telerik.Windows.Data.VirtualQueryableCollectionView<T> queryableCollectionView = new Telerik.Windows.Data.VirtualQueryableCollectionView<T>();
+      queryableCollectionView.LoadSize = AppContext.Current.GetParameterValue<int>("LoadSizeForVirtualScrolling");
+      queryableCollectionView.VirtualItemCount = pagingProvider.FetchCount();
+      Telerik.Windows.Data.VirtualQueryableCollectionView<T> collection = queryableCollectionView;
+      collection.ItemsLoading += (EventHandler<VirtualQueryableCollectionViewItemsLoadingEventArgs>) ((s, args) => collection.Load(args.StartIndex, (IEnumerable) pagingProvider.FetchRange(args.StartIndex, args.ItemCount)));
+      return collection;
+    }
+
+    public static IEnumerable<TSource> DistinctBy<TSource, TKey>(
+      IEnumerable<TSource> source,
+      Func<TSource, TKey> keySelector)
+    {
+      HashSet<TKey> seenKeys = new HashSet<TKey>();
+      foreach (TSource source1 in source)
+      {
+        TSource element = source1;
+        if (seenKeys.Add(keySelector(element)))
+          yield return element;
+        element = default (TSource);
+      }
+    }
+
+    public static ObservableCollection<T> ListToObsCollection<T>(IEnumerable<T> enumCollection)
+    {
+      List<T> list = enumCollection.ToList<T>();
+      ObservableCollection<T> obsCollection = new ObservableCollection<T>();
+      list.ForEach(new Action<T>(((Collection<T>) obsCollection).Add));
+      return obsCollection;
+    }
+  }
+}
+
+
+--- MultiselectTreeListView.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.MultiselectTreeListView
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Input;
+using Telerik.Windows.Controls;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public class MultiselectTreeListView : RadTreeListView
+  {
+    private RadTreeViewItem deselectionRealTarget;
+    private bool _isSelectionRootNode;
+    private StructureNodeDTO _currentSelectionParentNode;
+    private int _noOfSelectedItems;
+    private List<object> _itemsWithOtherParents;
+
+    static MultiselectTreeListView()
+    {
+      FrameworkElement.DefaultStyleKeyProperty.OverrideMetadata(typeof (MultiselectTreeListView), (PropertyMetadata) new FrameworkPropertyMetadata((object) typeof (MultiselectTreeListView)));
+    }
+
+    public MultiselectTreeListView()
+    {
+      this.SelectionChanging += new EventHandler<SelectionChangingEventArgs>(this.rt_OnSelectionChanging);
+      this.SelectionChanged += new EventHandler<SelectionChangeEventArgs>(this.rt_OnSelectionChange);
+      this._currentSelectionParentNode = (StructureNodeDTO) null;
+      this._isSelectionRootNode = false;
+      this._noOfSelectedItems = 0;
+    }
+
+    ~MultiselectTreeListView()
+    {
+      this.PreviewMouseLeftButtonDown -= new MouseButtonEventHandler(this.rt_PreviewMouseLeftButtonDown);
+      this.PreviewMouseLeftButtonUp -= new MouseButtonEventHandler(this.rt_PreviewMouseLeftButtonUp);
+      this.SelectionChanging -= new EventHandler<SelectionChangingEventArgs>(this.rt_OnSelectionChanging);
+      this.SelectionChanged -= new EventHandler<SelectionChangeEventArgs>(this.rt_OnSelectionChange);
+      this._currentSelectionParentNode = (StructureNodeDTO) null;
+      this._isSelectionRootNode = false;
+      this._noOfSelectedItems = 0;
+    }
+
+    private void rt_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+      e.Handled = true;
+    }
+
+    private void rt_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+      RadTreeViewItem radTreeViewItem = (e.OriginalSource as UIElement).ParentOfType<RadTreeViewItem>();
+      if (radTreeViewItem == null || !radTreeViewItem.IsSelected)
+        return;
+      this.deselectionRealTarget = (e.OriginalSource as UIElement).ParentOfType<RadTreeViewItem>();
+      this.Dispatcher.BeginInvoke((Delegate) (() =>
+      {
+        this.deselectionRealTarget.IsSelected = false;
+        this.deselectionRealTarget = (RadTreeViewItem) null;
+      }));
+    }
+
+    private void rt_OnSelectionChanging(object sender, SelectionChangingEventArgs e)
+    {
+      this._itemsWithOtherParents = new List<object>();
+      this._noOfSelectedItems = (sender as MultiselectTreeListView).SelectedItems.Count;
+      if (e.RemovedItems.Count > 0 && this._noOfSelectedItems == 0)
+      {
+        this._currentSelectionParentNode = (StructureNodeDTO) null;
+        this._isSelectionRootNode = false;
+      }
+      if (e.AddedItems.Count <= 0)
+        return;
+      if (this._noOfSelectedItems == 0 || this._noOfSelectedItems == 1 && e.AddedItems.Count == 1 && e.RemovedItems.Count == 1)
+      {
+        this._currentSelectionParentNode = (e.AddedItems[0] as StructureNodeDTO).ParentNode;
+        this._isSelectionRootNode = this._currentSelectionParentNode == null;
+      }
+      else
+      {
+        foreach (object addedItem in e.AddedItems)
+        {
+          if (this._isSelectionRootNode && (addedItem as StructureNodeDTO).ParentNode != null)
+            this._itemsWithOtherParents.Add(addedItem);
+          if (!this._isSelectionRootNode && (addedItem as StructureNodeDTO).ParentNode != this._currentSelectionParentNode)
+            this._itemsWithOtherParents.Add(addedItem);
+        }
+      }
+    }
+
+    private void rt_OnSelectionChange(object sender, SelectionChangeEventArgs e)
+    {
+      foreach (object itemsWithOtherParent in this._itemsWithOtherParents)
+        (sender as MultiselectTreeListView).SelectedItems.Remove(itemsWithOtherParent);
+    }
+  }
+}
+
+
+--- NHibernateConfigurationHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.NHibernateConfigurationHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using NHibernate;
+using NHibernate.Metadata;
+using NHibernate.Persister.Entity;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Linq;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public static class NHibernateConfigurationHelper
+  {
+    public static string GetPropertyValue(string sessionFactoryName, string propertyName)
+    {
+      return XDocument.Load(ConfigurationManager.AppSettings["NHibernateDatabaseConfig"]).Descendants((XName) "{urn:nhibernate-configuration-2.2-x-factories}session-factory").Where<XElement>((Func<XElement, bool>) (node => node.Attribute((XName) "name").Value == sessionFactoryName)).Elements<XElement>((XName) "{urn:nhibernate-configuration-2.2-x-factories}property").First<XElement>((Func<XElement, bool>) (node => node.Attribute((XName) "name").Value == propertyName)).Value;
+    }
+
+    public static string GetDataSourceForConnString(string sessionFactoryName)
+    {
+      string str = XDocument.Load(ConfigurationManager.AppSettings["NHibernateDatabaseConfig"]).Descendants((XName) "{urn:nhibernate-configuration-2.2-x-factories}session-factory").Where<XElement>((Func<XElement, bool>) (node => node.Attribute((XName) "name").Value == sessionFactoryName)).Elements<XElement>((XName) "{urn:nhibernate-configuration-2.2-x-factories}property").First<XElement>((Func<XElement, bool>) (node => node.Attribute((XName) "name").Value == "connection.connection_string")).Value;
+      int startIndex = str.IndexOf("data source=", StringComparison.Ordinal) + "data source=".Length;
+      int length = str.IndexOf(";", startIndex, StringComparison.Ordinal) - startIndex;
+      return str.Substring(startIndex, length);
+    }
+
+    public static Dictionary<string, string> GetPropertyAndColumnNames(
+      ISessionFactory sessionFactory,
+      Type entityType)
+    {
+      IClassMetadata classMetadata = sessionFactory.GetClassMetadata(entityType.ToString());
+      AbstractEntityPersister abstractEntityPersister = (AbstractEntityPersister) classMetadata;
+      Dictionary<string, string> propertyAndColumnNames = new Dictionary<string, string>();
+      string identifierPropertyName = classMetadata.IdentifierPropertyName;
+      string keyColumnName = abstractEntityPersister.KeyColumnNames[0];
+      propertyAndColumnNames.Add(identifierPropertyName, keyColumnName);
+      foreach (KeyValuePair<string, string[]> keyValuePair in (Dictionary<string, string[]>) typeof (AbstractEntityPersister).GetField("subclassPropertyColumnNames", BindingFlags.Instance | BindingFlags.NonPublic).GetValue((object) abstractEntityPersister))
+      {
+        if (keyValuePair.Value.Length != 0)
+        {
+          if (!(keyValuePair.Value[0] == keyColumnName))
+            propertyAndColumnNames.Add(keyValuePair.Key, keyValuePair.Value[0]);
+          else
+            break;
+        }
+      }
+      return propertyAndColumnNames;
+    }
+  }
+}
+
+
+--- NHibernateEventListener.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.NHibernateEventListener
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Events;
+using MSS.Interfaces;
+using NHibernate.Event;
+using NHibernate.Persister.Entity;
+using System;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public class NHibernateEventListener : 
+    IPreInsertEventListener,
+    IPreUpdateEventListener,
+    IPostInsertEventListener,
+    IPostUpdateEventListener,
+    IPostDeleteEventListener
+  {
+    private string[] preinsertPropertyNamesToUpdate = new string[3]
+    {
+      "CreatedOn",
+      "LastChangedOn",
+      "LastUpdatedOn"
+    };
+    private string[] preupdatePropertyNamesToUpdate = new string[2]
+    {
+      "LastChangedOn",
+      "LastUpdatedOn"
+    };
+
+    private bool IsSynchronizationObject(object obj) => obj is ISynchronizableEntity;
+
+    public bool OnPreInsert(PreInsertEvent @event)
+    {
+      DateTime now = DateTime.Now;
+      foreach (string propertyName in this.preinsertPropertyNamesToUpdate)
+        this.SetEntityAndProperty(@event.Persister, @event.State, propertyName, (object) now);
+      return false;
+    }
+
+    public bool OnPreUpdate(PreUpdateEvent @event)
+    {
+      DateTime now = DateTime.Now;
+      foreach (string propertyName in this.preupdatePropertyNamesToUpdate)
+        this.SetEntityAndProperty(@event.Persister, @event.State, propertyName, (object) now);
+      return false;
+    }
+
+    private void SetEntityAndProperty(
+      IEntityPersister persister,
+      object[] state,
+      string propertyName,
+      object value)
+    {
+      int index = Array.IndexOf<string>(persister.PropertyNames, propertyName);
+      if (index == -1)
+        return;
+      state[index] = value;
+    }
+
+    public void OnPostInsert(PostInsertEvent @event)
+    {
+      if (!this.IsSynchronizationObject(@event.Entity))
+        return;
+      EventPublisher.Publish<LocalDatabaseModified>(new LocalDatabaseModified()
+      {
+        IsChanged = true
+      }, (object) this);
+    }
+
+    public void OnPostUpdate(PostUpdateEvent @event)
+    {
+      if (!this.IsSynchronizationObject(@event.Entity))
+        return;
+      EventPublisher.Publish<LocalDatabaseModified>(new LocalDatabaseModified()
+      {
+        IsChanged = true
+      }, (object) this);
+    }
+
+    public void OnPostDelete(PostDeleteEvent @event)
+    {
+      if (!this.IsSynchronizationObject(@event.Entity))
+        return;
+      EventPublisher.Publish<LocalDatabaseModified>(new LocalDatabaseModified()
+      {
+        IsChanged = true
+      }, (object) this);
+    }
+  }
+}
+
+
+--- NHibernateNLogFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.NHibernateNLogFactory
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using NHibernate;
+using NLog;
+using System;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public class NHibernateNLogFactory : ILoggerFactory
+  {
+    public IInternalLogger LoggerFor(Type type)
+    {
+      return (IInternalLogger) new NLogLogger(LogManager.GetLogger(type.FullName));
+    }
+
+    public IInternalLogger LoggerFor(string keyName)
+    {
+      return (IInternalLogger) new NLogLogger(LogManager.GetLogger(keyName));
+    }
+  }
+}
+
+
+--- NHibernateToSQLConverter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.NHibernateToSQLConverter
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using NHibernate;
+using NHibernate.Engine;
+using NHibernate.Hql.Ast.ANTLR;
+using NHibernate.Impl;
+using NHibernate.Linq;
+using NHibernate.Loader.Criteria;
+using NHibernate.Persister.Entity;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public static class NHibernateToSQLConverter
+  {
+    public static string GetGeneratedSql(System.Linq.IQueryable queryable, ISession session)
+    {
+      ISessionImplementor sessionImplementor = (ISessionImplementor) session;
+      NhLinqExpression nhLinqExpression = new NhLinqExpression(queryable.Expression, (ISessionFactory) sessionImplementor.Factory);
+      return new ASTQueryTranslatorFactory().CreateQueryTranslators(nhLinqExpression.Key, (IQueryExpression) nhLinqExpression, (string) null, false, sessionImplementor.EnabledFilters, sessionImplementor.Factory)[0].SQLString;
+    }
+
+    public static string GetGeneratedSql(ICriteria criteria)
+    {
+      CriteriaImpl criteriaImpl = (CriteriaImpl) criteria;
+      SessionImpl session = (SessionImpl) criteriaImpl.Session;
+      SessionFactoryImpl sessionFactory = (SessionFactoryImpl) session.SessionFactory;
+      string[] implementors = sessionFactory.GetImplementors(criteriaImpl.EntityOrClassName);
+      return ((object) new CriteriaLoader((IOuterJoinLoadable) sessionFactory.GetEntityPersister(implementors[0]), (ISessionFactoryImplementor) sessionFactory, criteriaImpl, implementors[0], ((AbstractSessionImpl) session).EnabledFilters).SqlString).ToString();
+    }
+
+    public static string GetGeneratedSql(IQueryOver queryOver)
+    {
+      return NHibernateToSQLConverter.GetGeneratedSql(queryOver.UnderlyingCriteria);
+    }
+
+    public static string GetGeneratedSql(IQuery query, ISession session)
+    {
+      ISessionImplementor sessionImplementor = (ISessionImplementor) session;
+      string generatedSql = new ASTQueryTranslatorFactory().CreateQueryTranslators(query.QueryString, (string) null, false, sessionImplementor.EnabledFilters, sessionImplementor.Factory)[0].CollectSqlStrings[0];
+      foreach (string namedParameter in query.NamedParameters)
+        generatedSql = generatedSql.Replace("?", "@" + namedParameter);
+      return generatedSql;
+    }
+  }
+}
+
+
+--- NLogLogger.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.NLogLogger
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using NHibernate;
+using NHibernate.Impl;
+using NLog;
+using System;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public class NLogLogger : IInternalLogger
+  {
+    private readonly Logger logger;
+
+    public NLogLogger(Logger logger) => this.logger = logger;
+
+    public bool IsDebugEnabled => this.logger.IsDebugEnabled;
+
+    public bool IsErrorEnabled => this.logger.IsErrorEnabled;
+
+    public bool IsFatalEnabled => this.logger.IsFatalEnabled;
+
+    public bool IsInfoEnabled => this.logger.IsInfoEnabled;
+
+    public bool IsWarnEnabled => this.logger.IsWarnEnabled;
+
+    public void Debug(object message, Exception exception)
+    {
+      this.logger.Debug("SessionId: " + new NLogLogger.SessionIdCapturer().ToString() + "; " + message.ToString(), exception);
+    }
+
+    public void Debug(object message)
+    {
+      this.logger.Debug("SessionId: " + new NLogLogger.SessionIdCapturer().ToString() + "; " + message.ToString());
+    }
+
+    public void DebugFormat(string format, params object[] args)
+    {
+      this.logger.Debug("SessionId: " + new NLogLogger.SessionIdCapturer().ToString() + "; " + string.Format(format, args));
+    }
+
+    public void Error(object message, Exception exception)
+    {
+      this.logger.Error("SessionId: " + new NLogLogger.SessionIdCapturer().ToString() + "; " + message.ToString(), exception);
+    }
+
+    public void Error(object message)
+    {
+      this.logger.Error("SessionId: " + new NLogLogger.SessionIdCapturer().ToString() + "; " + message.ToString());
+    }
+
+    public void ErrorFormat(string format, params object[] args)
+    {
+      this.logger.Error("SessionId: " + new NLogLogger.SessionIdCapturer().ToString() + "; " + string.Format(format, args));
+    }
+
+    public void Fatal(object message, Exception exception)
+    {
+      this.logger.Fatal("SessionId: " + new NLogLogger.SessionIdCapturer().ToString() + "; " + message.ToString(), exception);
+    }
+
+    public void Fatal(object message)
+    {
+      this.logger.Fatal("SessionId: " + new NLogLogger.SessionIdCapturer().ToString() + "; " + message.ToString());
+    }
+
+    public void Info(object message, Exception exception)
+    {
+      this.logger.Info(message.ToString(), exception);
+    }
+
+    public void Info(object message) => this.logger.Info(message.ToString());
+
+    public void InfoFormat(string format, params object[] args)
+    {
+      this.logger.Info(string.Format(format, args));
+    }
+
+    public void Warn(object message, Exception exception)
+    {
+      this.logger.Warn(message.ToString(), exception);
+    }
+
+    public void Warn(object message) => this.logger.Warn(message.ToString());
+
+    public void WarnFormat(string format, params object[] args)
+    {
+      this.logger.Warn(string.Format(format, args));
+    }
+
+    public class SessionIdCapturer
+    {
+      public override string ToString() => SessionIdLoggingContext.SessionId.ToString();
+    }
+  }
+}
+
+
+--- PagingProvider`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.PagingProvider`1
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using NHibernate;
+using NHibernate.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public class PagingProvider<T1>
+  {
+    private readonly int _count;
+    private readonly ISessionFactory _sessionFactory;
+    private readonly Expression<Func<T1, bool>> _searchExpression;
+
+    public PagingProvider(
+      ISessionFactory nhSessionfactory,
+      Expression<Func<T1, bool>> searchExpression)
+    {
+      this._sessionFactory = nhSessionfactory;
+      this._searchExpression = searchExpression;
+      using (IStatelessSession statelessSession = this._sessionFactory.OpenStatelessSession())
+        this._count = LinqExtensionMethods.Query<T1>(statelessSession).Count<T1>(this._searchExpression);
+    }
+
+    public PagingProvider(ISessionFactory nhSessionfactory)
+    {
+      this._sessionFactory = nhSessionfactory;
+      using (IStatelessSession statelessSession = this._sessionFactory.OpenStatelessSession())
+        this._count = LinqExtensionMethods.Query<T1>(statelessSession).Count<T1>();
+    }
+
+    public int FetchCount() => this._count;
+
+    public IList<T1> FetchRange(int startIndex, int pageSize)
+    {
+      List<T1> objList;
+      using (IStatelessSession statelessSession = this._sessionFactory.OpenStatelessSession())
+        objList = this._searchExpression == null ? LinqExtensionMethods.Query<T1>(statelessSession).Take<T1>(pageSize).Skip<T1>(startIndex - 1).ToList<T1>() : LinqExtensionMethods.Query<T1>(statelessSession).Where<T1>(this._searchExpression).Take<T1>(pageSize).Skip<T1>(startIndex - 1).ToList<T1>();
+      return (IList<T1>) objList;
+    }
+  }
+}
+
+
+--- PathsHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.PathsHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+using System.Configuration;
+using System.IO;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public static class PathsHelper
+  {
+    public static string GetTempFolderPath()
+    {
+      string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), ConfigurationManager.AppSettings["CommonAppDataTempPath"]);
+      if (!Directory.Exists(path))
+        Directory.CreateDirectory(path);
+      return path + "\\";
+    }
+  }
+}
+
+
+--- PrintAborted.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.PrintAborted
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  [Serializable]
+  public class PrintAborted : Exception
+  {
+    public PrintAborted(string message)
+    {
+    }
+  }
+}
+
+
+--- Sql2008StructuredForReadingValues.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.Sql2008StructuredForReadingValues
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using NHibernate;
+using NHibernate.Engine;
+using NHibernate.SqlTypes;
+using NHibernate.Type;
+using System;
+using System.Collections;
+using System.Data;
+using System.Data.SqlClient;
+using System.Xml;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public class Sql2008StructuredForReadingValues : IType, ICacheAssembler
+  {
+    private static readonly SqlType[] x = new SqlType[1]
+    {
+      new SqlType(DbType.Object)
+    };
+
+    public SqlType[] SqlTypes(IMapping mapping) => Sql2008StructuredForReadingValues.x;
+
+    public bool IsXMLElement { get; private set; }
+
+    public bool IsCollectionType => true;
+
+    public bool IsComponentType { get; private set; }
+
+    public bool IsEntityType { get; private set; }
+
+    public bool IsAnyType { get; private set; }
+
+    public int GetColumnSpan(IMapping mapping) => 1;
+
+    public bool IsDirty(object old, object current, ISessionImplementor session)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool IsDirty(object old, object current, bool[] checkable, ISessionImplementor session)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool IsModified(
+      object oldHydratedState,
+      object currentState,
+      bool[] checkable,
+      ISessionImplementor session)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object NullSafeGet(
+      IDataReader rs,
+      string[] names,
+      ISessionImplementor session,
+      object owner)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object NullSafeGet(
+      IDataReader rs,
+      string name,
+      ISessionImplementor session,
+      object owner)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void NullSafeSet(
+      IDbCommand st,
+      object value,
+      int index,
+      bool[] settable,
+      ISessionImplementor session)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void NullSafeSet(IDbCommand st, object value, int index, ISessionImplementor session)
+    {
+      if (!(st is SqlCommand sqlCommand))
+        throw new NotImplementedException();
+      sqlCommand.Parameters[index].SqlDbType = SqlDbType.Structured;
+      sqlCommand.Parameters[index].TypeName = "ReadingValuesToParse_TableType";
+      sqlCommand.Parameters[index].Value = value;
+    }
+
+    public string ToLoggableString(object value, ISessionFactoryImplementor factory)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object DeepCopy(object val, EntityMode entityMode, ISessionFactoryImplementor factory)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object Hydrate(
+      IDataReader rs,
+      string[] names,
+      ISessionImplementor session,
+      object owner)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object ResolveIdentifier(object value, ISessionImplementor session, object owner)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object SemiResolve(object value, ISessionImplementor session, object owner)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object Replace(
+      object original,
+      object target,
+      ISessionImplementor session,
+      object owner,
+      IDictionary copiedAlready)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object Replace(
+      object original,
+      object target,
+      ISessionImplementor session,
+      object owner,
+      IDictionary copyCache,
+      ForeignKeyDirection foreignKeyDirection)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool IsSame(object x, object y, EntityMode entityMode)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool IsEqual(object x, object y, EntityMode entityMode)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool IsEqual(
+      object x,
+      object y,
+      EntityMode entityMode,
+      ISessionFactoryImplementor factory)
+    {
+      throw new NotImplementedException();
+    }
+
+    public int GetHashCode(object x, EntityMode entityMode) => throw new NotImplementedException();
+
+    public int GetHashCode(object x, EntityMode entityMode, ISessionFactoryImplementor factory)
+    {
+      throw new NotImplementedException();
+    }
+
+    public int Compare(object x, object y, EntityMode? entityMode)
+    {
+      throw new NotImplementedException();
+    }
+
+    public IType GetSemiResolvedType(ISessionFactoryImplementor factory)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void SetToXMLNode(XmlNode node, object value, ISessionFactoryImplementor factory)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object FromXMLNode(XmlNode xml, IMapping factory) => throw new NotImplementedException();
+
+    public bool[] ToColumnNullness(object value, IMapping mapping)
+    {
+      throw new NotImplementedException();
+    }
+
+    public string Name { get; private set; }
+
+    public System.Type ReturnedClass { get; private set; }
+
+    public bool IsMutable { get; private set; }
+
+    public bool IsAssociationType { get; private set; }
+
+    public object Disassemble(object value, ISessionImplementor session, object owner)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object Assemble(object cached, ISessionImplementor session, object owner)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void BeforeAssemble(object cached, ISessionImplementor session)
+    {
+      throw new NotImplementedException();
+    }
+  }
+}
+
+
+--- Sql2008StructuredStringList.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.Sql2008StructuredStringList
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using NHibernate;
+using NHibernate.Engine;
+using NHibernate.SqlTypes;
+using NHibernate.Type;
+using System;
+using System.Collections;
+using System.Data;
+using System.Data.SqlClient;
+using System.Xml;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public class Sql2008StructuredStringList : IType, ICacheAssembler
+  {
+    private static readonly SqlType[] x = new SqlType[1]
+    {
+      new SqlType(DbType.Object)
+    };
+
+    public SqlType[] SqlTypes(IMapping mapping) => Sql2008StructuredStringList.x;
+
+    public bool IsXMLElement { get; private set; }
+
+    public bool IsCollectionType => true;
+
+    public bool IsComponentType { get; private set; }
+
+    public bool IsEntityType { get; private set; }
+
+    public bool IsAnyType { get; private set; }
+
+    public int GetColumnSpan(IMapping mapping) => 1;
+
+    public bool IsDirty(object old, object current, ISessionImplementor session)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool IsDirty(object old, object current, bool[] checkable, ISessionImplementor session)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool IsModified(
+      object oldHydratedState,
+      object currentState,
+      bool[] checkable,
+      ISessionImplementor session)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object NullSafeGet(
+      IDataReader rs,
+      string[] names,
+      ISessionImplementor session,
+      object owner)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object NullSafeGet(
+      IDataReader rs,
+      string name,
+      ISessionImplementor session,
+      object owner)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void NullSafeSet(
+      IDbCommand st,
+      object value,
+      int index,
+      bool[] settable,
+      ISessionImplementor session)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void NullSafeSet(IDbCommand st, object value, int index, ISessionImplementor session)
+    {
+      if (!(st is SqlCommand sqlCommand))
+        throw new NotImplementedException();
+      sqlCommand.Parameters[index].SqlDbType = SqlDbType.Structured;
+      sqlCommand.Parameters[index].TypeName = "StringList";
+      sqlCommand.Parameters[index].Value = value;
+    }
+
+    public string ToLoggableString(object value, ISessionFactoryImplementor factory)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object DeepCopy(object val, EntityMode entityMode, ISessionFactoryImplementor factory)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object Hydrate(
+      IDataReader rs,
+      string[] names,
+      ISessionImplementor session,
+      object owner)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object ResolveIdentifier(object value, ISessionImplementor session, object owner)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object SemiResolve(object value, ISessionImplementor session, object owner)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object Replace(
+      object original,
+      object target,
+      ISessionImplementor session,
+      object owner,
+      IDictionary copiedAlready)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object Replace(
+      object original,
+      object target,
+      ISessionImplementor session,
+      object owner,
+      IDictionary copyCache,
+      ForeignKeyDirection foreignKeyDirection)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool IsSame(object x, object y, EntityMode entityMode)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool IsEqual(object x, object y, EntityMode entityMode)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool IsEqual(
+      object x,
+      object y,
+      EntityMode entityMode,
+      ISessionFactoryImplementor factory)
+    {
+      throw new NotImplementedException();
+    }
+
+    public int GetHashCode(object x, EntityMode entityMode) => throw new NotImplementedException();
+
+    public int GetHashCode(object x, EntityMode entityMode, ISessionFactoryImplementor factory)
+    {
+      throw new NotImplementedException();
+    }
+
+    public int Compare(object x, object y, EntityMode? entityMode)
+    {
+      throw new NotImplementedException();
+    }
+
+    public IType GetSemiResolvedType(ISessionFactoryImplementor factory)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void SetToXMLNode(XmlNode node, object value, ISessionFactoryImplementor factory)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object FromXMLNode(XmlNode xml, IMapping factory) => throw new NotImplementedException();
+
+    public bool[] ToColumnNullness(object value, IMapping mapping)
+    {
+      throw new NotImplementedException();
+    }
+
+    public string Name { get; private set; }
+
+    public System.Type ReturnedClass { get; private set; }
+
+    public bool IsMutable { get; private set; }
+
+    public bool IsAssociationType { get; private set; }
+
+    public object Disassemble(object value, ISessionImplementor session, object owner)
+    {
+      throw new NotImplementedException();
+    }
+
+    public object Assemble(object cached, ISessionImplementor session, object owner)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void BeforeAssemble(object cached, ISessionImplementor session)
+    {
+      throw new NotImplementedException();
+    }
+  }
+}
+
+
+--- StructuredExtensions.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.StructuredExtensions
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using NHibernate;
+using NHibernate.Type;
+using System.Data;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public static class StructuredExtensions
+  {
+    private static readonly Sql2008StructuredForReadingValues StructuredForReadingValues = new Sql2008StructuredForReadingValues();
+    private static readonly Sql2008StructuredStringList StructuredStringList = new Sql2008StructuredStringList();
+
+    public static IQuery SetStructuredForReadingValues(
+      this IQuery query,
+      string name,
+      DataTable dt)
+    {
+      return query.SetParameter(name, (object) dt, (IType) StructuredExtensions.StructuredForReadingValues);
+    }
+
+    public static IQuery SetStructuredStringList(this IQuery query, string name, DataTable dt)
+    {
+      return query.SetParameter(name, (object) dt, (IType) StructuredExtensions.StructuredStringList);
+    }
+  }
+}
+
+
+--- TaskScheduler.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.TaskScheduler
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Utils.Utils;
+using System;
+using System.Collections;
+using System.IO;
+using System.Windows.Forms;
+using System.Xml.Serialization;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public class TaskScheduler
+  {
+    private TaskScheduler.TriggerItemCollection _triggerItems;
+    private int _Interval = 500;
+    private bool _Enabled = false;
+    private Timer _triggerTimer;
+
+    public TaskScheduler()
+    {
+      this._triggerItems = new TaskScheduler.TriggerItemCollection();
+      this._triggerTimer = new Timer();
+      this._triggerTimer.Tick += new EventHandler(this._triggerTimer_Tick);
+    }
+
+    public int Interval
+    {
+      get => this._Interval;
+      set => this._Interval = value;
+    }
+
+    public bool Enabled
+    {
+      get => this._Enabled;
+      set
+      {
+        this._Enabled = value;
+        if (this._Enabled)
+          this.Start();
+        else
+          this.Stop();
+      }
+    }
+
+    public TaskScheduler.TriggerItem AddTrigger(TaskScheduler.TriggerItem item)
+    {
+      return this._triggerItems[this._triggerItems.Add(item)];
+    }
+
+    private void Start()
+    {
+      this._triggerTimer.Interval = this._Interval;
+      this._triggerTimer.Start();
+    }
+
+    private void Stop() => this._triggerTimer.Stop();
+
+    public TaskScheduler.TriggerItemCollection TriggerItems => this._triggerItems;
+
+    private void _triggerTimer_Tick(object sender, EventArgs e)
+    {
+      this._triggerTimer.Stop();
+      foreach (TaskScheduler.TriggerItem triggerItem in (CollectionBase) this.TriggerItems)
+      {
+        if (triggerItem.Enabled)
+        {
+          while (triggerItem.TriggerTime <= DateTime.Now)
+            triggerItem.RunCheck(DateTime.Now);
+        }
+      }
+      this._triggerTimer.Start();
+    }
+
+    public enum DayOccurrence
+    {
+      [StringEnum("MSS_INTERVALS_ORDINAL_FIRST")] First,
+      [StringEnum("MSS_INTERVALS_ORDINAL_SECOND")] Second,
+      [StringEnum("MSS_INTERVALS_ORDINAL_THIRD")] Third,
+      [StringEnum("MSS_INTERVALS_ORDINAL_FOURTH")] Fourth,
+      [StringEnum("MSS_INTERVALS_ORDINAL_LAST")] Last,
+    }
+
+    public enum MonthOfTheYeay
+    {
+      January,
+      February,
+      March,
+      April,
+      May,
+      June,
+      July,
+      August,
+      September,
+      October,
+      November,
+      December,
+    }
+
+    public class TriggerSettingsOneTimeOnly
+    {
+      private DateTime _date;
+      private bool _active;
+
+      [XmlIgnore]
+      public DateTime Date
+      {
+        get => this._date;
+        set => this._date = value;
+      }
+
+      [XmlElement("Date")]
+      public string XMLDate
+      {
+        get => this._date.ToString("yyyy-MM-dd HH:mm:ss");
+        set
+        {
+          this.Date = DateTime.ParseExact(value, "yyyy-MM-dd HH:mm:ss", (IFormatProvider) null).Date;
+        }
+      }
+
+      public bool Active
+      {
+        get => this._active;
+        set => this._active = value;
+      }
+    }
+
+    public class TriggerSettingsDaily
+    {
+      private ushort _Interval;
+
+      public ushort Interval
+      {
+        get => this._Interval;
+        set
+        {
+          this._Interval = value;
+          if (this._Interval >= (ushort) 0)
+            return;
+          this._Interval = (ushort) 0;
+        }
+      }
+    }
+
+    public class TriggerSettingsWeekly
+    {
+      private bool[] _DaysOfWeek;
+
+      public bool[] DaysOfWeek
+      {
+        get => this._DaysOfWeek;
+        set => this._DaysOfWeek = value;
+      }
+
+      public TriggerSettingsWeekly() => this._DaysOfWeek = new bool[7];
+    }
+
+    public class TriggerSettingsMonthlyWeekDay
+    {
+      private bool[] _WeekNumber;
+      private bool[] _DayOfWeek;
+
+      public bool[] WeekNumber
+      {
+        get => this._WeekNumber;
+        set => this._WeekNumber = value;
+      }
+
+      public bool[] DayOfWeek
+      {
+        get => this._DayOfWeek;
+        set => this._DayOfWeek = value;
+      }
+
+      public TriggerSettingsMonthlyWeekDay()
+      {
+        this._WeekNumber = new bool[5];
+        this._DayOfWeek = new bool[7];
+      }
+    }
+
+    public class TriggerSettingsMonthly
+    {
+      private bool[] _Month;
+      private bool[] _DaysOfMonth;
+      private TaskScheduler.TriggerSettingsMonthlyWeekDay _WeekDay;
+
+      public bool[] Month
+      {
+        get => this._Month;
+        set => this._Month = value;
+      }
+
+      public bool[] DaysOfMonth
+      {
+        get => this._DaysOfMonth;
+        set => this._DaysOfMonth = value;
+      }
+
+      public TaskScheduler.TriggerSettingsMonthlyWeekDay WeekDay
+      {
+        get => this._WeekDay;
+        set => this._WeekDay = value;
+      }
+
+      public TriggerSettingsMonthly()
+      {
+        this._Month = new bool[12];
+        this._DaysOfMonth = new bool[32];
+        this._WeekDay = new TaskScheduler.TriggerSettingsMonthlyWeekDay();
+      }
+    }
+
+    public class TriggerSettings
+    {
+      private TaskScheduler.TriggerSettingsOneTimeOnly _OneTimeOnly;
+      private TaskScheduler.TriggerSettingsDaily _Daily;
+      private TaskScheduler.TriggerSettingsWeekly _Weekly;
+      private TaskScheduler.TriggerSettingsMonthly _Monthly;
+
+      public TaskScheduler.TriggerSettingsOneTimeOnly OneTimeOnly
+      {
+        get => this._OneTimeOnly;
+        set => this._OneTimeOnly = value;
+      }
+
+      public TaskScheduler.TriggerSettingsDaily Daily
+      {
+        get => this._Daily;
+        set => this._Daily = value;
+      }
+
+      public TaskScheduler.TriggerSettingsWeekly Weekly
+      {
+        get => this._Weekly;
+        set => this._Weekly = value;
+      }
+
+      public TaskScheduler.TriggerSettingsMonthly Monthly
+      {
+        get => this._Monthly;
+        set => this._Monthly = value;
+      }
+
+      public TriggerSettings()
+      {
+        this._OneTimeOnly = new TaskScheduler.TriggerSettingsOneTimeOnly();
+        this._Daily = new TaskScheduler.TriggerSettingsDaily();
+        this._Weekly = new TaskScheduler.TriggerSettingsWeekly();
+        this._Monthly = new TaskScheduler.TriggerSettingsMonthly();
+      }
+    }
+
+    public class OnTriggerEventArgs : EventArgs
+    {
+      private TaskScheduler.TriggerItem _item;
+      private DateTime _triggerDate;
+
+      public OnTriggerEventArgs(TaskScheduler.TriggerItem item, DateTime triggerDate)
+      {
+        this._item = item;
+        this._triggerDate = triggerDate;
+      }
+
+      public TaskScheduler.TriggerItem Item => this._item;
+
+      public DateTime TriggerDate => this._triggerDate;
+    }
+
+    public class TriggerItem
+    {
+      private DateTime _StartDate = DateTime.MinValue;
+      private DateTime _EndDate = DateTime.MaxValue;
+      private TaskScheduler.TriggerSettings _TriggerSettings;
+      private DateTime _TriggerTime;
+      private const byte LastDayOfMonthID = 31;
+      private object _Tag;
+      private bool _Enabled;
+
+      public event TaskScheduler.TriggerItem.OnTriggerEventHandler OnTrigger;
+
+      public TriggerItem() => this._TriggerSettings = new TaskScheduler.TriggerSettings();
+
+      public string ToXML()
+      {
+        bool enabled = this.Enabled;
+        this.Enabled = false;
+        XmlSerializer xmlSerializer = new XmlSerializer(typeof (TaskScheduler.TriggerItem));
+        TextWriter textWriter = (TextWriter) new StringWriter();
+        xmlSerializer.Serialize(textWriter, (object) this);
+        textWriter.Close();
+        this.Enabled = enabled;
+        return textWriter.ToString();
+      }
+
+      public static TaskScheduler.TriggerItem FromXML(string Configuration)
+      {
+        XmlSerializer xmlSerializer = new XmlSerializer(typeof (TaskScheduler.TriggerItem));
+        TextReader textReader = (TextReader) new StringReader(Configuration);
+        TaskScheduler.TriggerItem triggerItem = (TaskScheduler.TriggerItem) xmlSerializer.Deserialize(textReader);
+        textReader.Close();
+        return triggerItem;
+      }
+
+      public object Tag
+      {
+        get => this._Tag;
+        set => this._Tag = value;
+      }
+
+      public bool Enabled
+      {
+        get => this._Enabled;
+        set
+        {
+          this._Enabled = value;
+          if (this._Enabled)
+            this._TriggerTime = this.FindNextTriggerDate(this._StartDate);
+          else
+            this._TriggerTime = new DateTime(1, 1, 1, this._TriggerTime.Hour, this._TriggerTime.Minute, this._TriggerTime.Second);
+        }
+      }
+
+      [XmlIgnore]
+      public DateTime StartDate
+      {
+        get => this._StartDate;
+        set
+        {
+          this._StartDate = value;
+          if (!(this._EndDate < this._StartDate))
+            return;
+          this._EndDate = this._StartDate;
+        }
+      }
+
+      [XmlElement("StartDate")]
+      public string XMLStartDate
+      {
+        get => this._StartDate.ToString("yyyy-MM-dd HH:mm:ss");
+        set
+        {
+          this.StartDate = DateTime.ParseExact(value, "yyyy-MM-dd HH:mm:ss", (IFormatProvider) null);
+        }
+      }
+
+      [XmlIgnore]
+      public DateTime EndDate
+      {
+        get => this._EndDate;
+        set => this._EndDate = value.Date;
+      }
+
+      [XmlElement("EndDate")]
+      public string XMLEndDate
+      {
+        get => this._EndDate.ToString("yyyy-MM-dd HH:mm:ss");
+        set
+        {
+          this.EndDate = DateTime.ParseExact(value, "yyyy-MM-dd HH:mm:ss", (IFormatProvider) null);
+        }
+      }
+
+      [XmlIgnore]
+      public DateTime TriggerTime
+      {
+        get => this._TriggerTime;
+        set
+        {
+          this._TriggerTime = new DateTime(this._TriggerTime.Year, this._TriggerTime.Month, this._TriggerTime.Day, value.Hour, value.Minute, value.Second);
+        }
+      }
+
+      [XmlElement("TriggerTime")]
+      public string XMLTriggerTime
+      {
+        get => this.TriggerTime.ToString("HH:mm:ss");
+        set => this.TriggerTime = DateTime.ParseExact(value, "HH:mm:ss", (IFormatProvider) null);
+      }
+
+      public TaskScheduler.TriggerSettings TriggerSettings
+      {
+        get => this._TriggerSettings;
+        set => this._TriggerSettings = value;
+      }
+
+      private DateTime LastDayOfMonth(DateTime date)
+      {
+        DateTime dateTime = new DateTime(date.Year, date.Month, 1);
+        dateTime = dateTime.AddMonths(1);
+        return dateTime.AddDays(-1.0);
+      }
+
+      private int WeekDayOccurInMonth(DateTime date)
+      {
+        byte num = 0;
+        for (int day = 1; day <= date.Day; ++day)
+        {
+          if (new DateTime(date.Year, date.Month, day).DayOfWeek == date.DayOfWeek)
+            ++num;
+        }
+        return (int) num - 1;
+      }
+
+      private bool IsLastWeekDayInMonth(DateTime date)
+      {
+        return this.WeekDayOccurInMonth(date.AddDays(7.0)) == 0;
+      }
+
+      private bool TriggerOneTimeOnly(DateTime date)
+      {
+        return this._TriggerSettings.OneTimeOnly.Active && this._TriggerSettings.OneTimeOnly.Date == date;
+      }
+
+      private bool TriggerDaily(DateTime date)
+      {
+        if (date < this._StartDate.Date || date > this._EndDate.Date || this._TriggerSettings.Daily.Interval == (ushort) 0)
+          return false;
+        DateTime dateTime = this._StartDate.Date;
+        while (dateTime.Date < date)
+          dateTime = dateTime.AddDays((double) this._TriggerSettings.Daily.Interval);
+        return dateTime == date;
+      }
+
+      private bool TriggerWeekly(DateTime date)
+      {
+        return !(date < this._StartDate.Date) && !(date > this._EndDate.Date) && this._TriggerSettings.Weekly.DaysOfWeek[(int) date.DayOfWeek];
+      }
+
+      private bool TriggerMonthly(DateTime date)
+      {
+        if (date < this._StartDate.Date || date > this._EndDate.Date)
+          return false;
+        bool flag = false;
+        if (this._TriggerSettings.Monthly.Month[date.Month - 1])
+        {
+          if (this._TriggerSettings.Monthly.DaysOfMonth[31])
+            flag = flag || date == this.LastDayOfMonth(date);
+          flag = flag || this._TriggerSettings.Monthly.DaysOfMonth[date.Day - 1];
+          if (this._TriggerSettings.Monthly.WeekDay.DayOfWeek[(int) date.DayOfWeek])
+          {
+            if (this._TriggerSettings.Monthly.WeekDay.WeekNumber[4])
+              flag = flag || this.IsLastWeekDayInMonth(date);
+            flag = flag || this._TriggerSettings.Monthly.WeekDay.WeekNumber[this.WeekDayOccurInMonth(date)];
+          }
+        }
+        return flag;
+      }
+
+      public bool CheckDate(DateTime date)
+      {
+        return this.TriggerOneTimeOnly(date) || this.TriggerDaily(date) || this.TriggerWeekly(date) || this.TriggerMonthly(date);
+      }
+
+      public bool RunCheck(DateTime dateTimeToCheck)
+      {
+        if (!this._Enabled || !(dateTimeToCheck >= this._TriggerTime))
+          return false;
+        TaskScheduler.OnTriggerEventArgs e = new TaskScheduler.OnTriggerEventArgs(this, this._TriggerTime);
+        this._TriggerTime = this.FindNextTriggerDate(this._TriggerTime.AddDays(1.0));
+        if (this.OnTrigger != null)
+          this.OnTrigger((object) this, e);
+        return true;
+      }
+
+      private DateTime FindNextTriggerDate(DateTime lastTriggerDate)
+      {
+        if (!this._Enabled)
+          return DateTime.MaxValue;
+        for (DateTime dateTime = lastTriggerDate.Date; dateTime <= this._EndDate; dateTime = dateTime.AddDays(1.0))
+        {
+          if (this.CheckDate(dateTime.Date))
+            return new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, this._TriggerTime.Hour, this._TriggerTime.Minute, this._TriggerTime.Second);
+        }
+        return DateTime.MaxValue;
+      }
+
+      public DateTime GetNextTriggerTime() => this._Enabled ? this._TriggerTime : DateTime.MaxValue;
+
+      public delegate void OnTriggerEventHandler(object sender, TaskScheduler.OnTriggerEventArgs e);
+    }
+
+    public class TriggerItemCollection : CollectionBase
+    {
+      public TaskScheduler.TriggerItem this[int index]
+      {
+        get => (TaskScheduler.TriggerItem) this.List[index];
+        set => this.List[index] = (object) value;
+      }
+
+      public int Add(TaskScheduler.TriggerItem value) => this.List.Add((object) value);
+
+      public int IndexOf(TaskScheduler.TriggerItem value) => this.List.IndexOf((object) value);
+
+      public void Insert(int index, TaskScheduler.TriggerItem value)
+      {
+        this.List.Insert(index, (object) value);
+      }
+
+      public void Remove(TaskScheduler.TriggerItem value) => this.List.Remove((object) value);
+
+      public bool Contains(TaskScheduler.TriggerItem value) => this.List.Contains((object) value);
+
+      protected override void OnInsert(int index, object value)
+      {
+      }
+
+      protected override void OnRemove(int index, object value)
+      {
+      }
+
+      protected override void OnSet(int index, object oldValue, object newValue)
+      {
+      }
+
+      protected override void OnValidate(object value)
+      {
+        if (value.GetType() != typeof (TaskScheduler.TriggerItem))
+          throw new ArgumentException("Das angegebene Argument ist kein TaskScheduler-Element", nameof (value));
+      }
+    }
+  }
+}
+
+
+--- UIPrinter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.UIPrinter
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+using System.Printing;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Markup;
+using System.Windows.Media;
+using Telerik.Windows.Controls;
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public class UIPrinter : IUIPrinter
+  {
+    public int VerticalOffset { get; set; }
+
+    public int HorizontalOffset { get; set; }
+
+    public string Title { get; set; }
+
+    public Grid Content { get; set; }
+
+    public UIPrinter()
+    {
+      this.HorizontalOffset = 20;
+      this.VerticalOffset = 20;
+      this.Title = "Print " + (object) DateTime.Now;
+    }
+
+    public void Print()
+    {
+      PrintDialog printDialog = new PrintDialog();
+      if (!printDialog.ShowDialog().GetValueOrDefault())
+        return;
+      FixedDocument fixedDocument = this.GetFixedDocument((FrameworkElement) this.Content, printDialog, new Thickness(48.0, 48.0, 48.0, 48.0));
+      printDialog.PrintDocument(fixedDocument.DocumentPaginator, this.Title);
+    }
+
+    public void Print(Grid content, PrintDialog printDialog, Thickness margin)
+    {
+      FixedDocument documentFromRadGridView = this.GetFixedDocumentFromRadGridView((FrameworkElement) content, printDialog, margin);
+      printDialog.PrintDocument(documentFromRadGridView.DocumentPaginator, this.Title);
+    }
+
+    private FixedDocument GetFixedDocument(
+      FrameworkElement toPrint,
+      PrintDialog printDialog,
+      Thickness margin)
+    {
+      PrintCapabilities printCapabilities = printDialog.PrintQueue.GetPrintCapabilities(printDialog.PrintTicket);
+      Size size1 = new Size(printDialog.PrintableAreaWidth, printDialog.PrintableAreaHeight);
+      Size size2 = new Size(printCapabilities.PageImageableArea.ExtentWidth - margin.Left - margin.Right, printCapabilities.PageImageableArea.ExtentHeight - margin.Top - margin.Bottom);
+      FixedDocument fixedDocument = new FixedDocument();
+      toPrint.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+      toPrint.Arrange(new Rect(new System.Windows.Point(0.0, 0.0), toPrint.DesiredSize));
+      Size desiredSize = toPrint.DesiredSize;
+      for (double y = 0.0; y < desiredSize.Height; y += size2.Height)
+      {
+        VisualBrush visualBrush = new VisualBrush((Visual) toPrint);
+        visualBrush.Stretch = Stretch.None;
+        visualBrush.AlignmentX = AlignmentX.Left;
+        visualBrush.AlignmentY = AlignmentY.Top;
+        visualBrush.ViewboxUnits = BrushMappingMode.Absolute;
+        visualBrush.TileMode = TileMode.None;
+        visualBrush.Viewbox = new Rect(0.0, y, size2.Width, size2.Height);
+        PageContent newPageContent = new PageContent();
+        FixedPage fixedPage = new FixedPage();
+        ((IAddChild) newPageContent).AddChild((object) fixedPage);
+        fixedDocument.Pages.Add(newPageContent);
+        fixedPage.Width = size1.Width;
+        fixedPage.Height = size1.Height;
+        Canvas element = new Canvas();
+        FixedPage.SetLeft((UIElement) element, printCapabilities.PageImageableArea.OriginWidth);
+        FixedPage.SetTop((UIElement) element, printCapabilities.PageImageableArea.OriginHeight);
+        element.Width = size2.Width;
+        element.Height = size2.Height;
+        element.Background = (Brush) visualBrush;
+        element.Margin = margin;
+        fixedPage.Children.Add((UIElement) element);
+      }
+      return fixedDocument;
+    }
+
+    private FixedDocument GetFixedDocumentFromRadGridView(
+      FrameworkElement toPrint,
+      PrintDialog printDialog,
+      Thickness margin)
+    {
+      PrintCapabilities printCapabilities = printDialog.PrintQueue.GetPrintCapabilities(printDialog.PrintTicket);
+      Size size1 = new Size(printDialog.PrintableAreaWidth, printDialog.PrintableAreaHeight);
+      Size size2 = new Size(printCapabilities.PageImageableArea.ExtentWidth - margin.Left - margin.Right, printCapabilities.PageImageableArea.ExtentHeight - margin.Top - margin.Bottom);
+      FixedDocument documentFromRadGridView = new FixedDocument();
+      toPrint.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+      toPrint.Arrange(new Rect(new System.Windows.Point(0.0, 0.0), toPrint.DesiredSize));
+      Size desiredSize = toPrint.DesiredSize;
+      double num1 = 0.0;
+      TextBlock childByType1 = toPrint.FindChildByType<TextBlock>();
+      if (childByType1 != null)
+        num1 = childByType1.ActualHeight;
+      RadGridView childByType2 = toPrint.FindChildByType<RadGridView>();
+      double rowHeight = childByType2.RowHeight;
+      int count = childByType2.Items.Count;
+      double num2 = childByType2.RenderSize.Height - rowHeight * (double) count;
+      double num3;
+      for (double y = 0.0; y < desiredSize.Height; y += num3)
+      {
+        double width = size2.Width;
+        double num4 = 0.0;
+        if (y == 0.0)
+          num4 += num1 + num2;
+        int int32 = Convert.ToInt32(Math.Truncate((size2.Height - num4) / rowHeight));
+        num3 = num4 + (double) int32 * rowHeight;
+        VisualBrush visualBrush = new VisualBrush((Visual) toPrint);
+        visualBrush.Stretch = Stretch.None;
+        visualBrush.AlignmentX = AlignmentX.Left;
+        visualBrush.AlignmentY = AlignmentY.Top;
+        visualBrush.ViewboxUnits = BrushMappingMode.Absolute;
+        visualBrush.TileMode = TileMode.None;
+        visualBrush.Viewbox = new Rect(0.0, y, size2.Width, size2.Height);
+        PageContent newPageContent = new PageContent();
+        FixedPage fixedPage = new FixedPage();
+        ((IAddChild) newPageContent).AddChild((object) fixedPage);
+        documentFromRadGridView.Pages.Add(newPageContent);
+        fixedPage.Width = size1.Width;
+        fixedPage.Height = size1.Height;
+        Canvas element = new Canvas();
+        FixedPage.SetLeft((UIElement) element, printCapabilities.PageImageableArea.OriginWidth);
+        FixedPage.SetTop((UIElement) element, printCapabilities.PageImageableArea.OriginHeight);
+        element.Width = width;
+        element.Height = num3;
+        element.Background = (Brush) visualBrush;
+        element.Margin = margin;
+        fixedPage.Children.Add((UIElement) element);
+      }
+      return documentFromRadGridView;
+    }
+  }
+}
+
+
+--- UnitConversionHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Utils.UnitConversionHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Utils
+{
+  public static class UnitConversionHelper
+  {
+    public static double? ConvertValueToImpulses(
+      double? startValue,
+      string readingUnit,
+      double? impValue,
+      string impUnit)
+    {
+      impUnit = impUnit.ToUpper();
+      readingUnit = readingUnit.ToUpper();
+      if (impUnit == "L" && (readingUnit == "M3" || readingUnit == "M\u00B3"))
+      {
+        double? nullable1 = startValue;
+        double num = 1000.0;
+        double? nullable2 = nullable1.HasValue ? new double?(nullable1.GetValueOrDefault() * num) : new double?();
+        double? nullable3 = impValue;
+        double? impulses;
+        if (!(nullable2.HasValue & nullable3.HasValue))
+        {
+          nullable1 = new double?();
+          impulses = nullable1;
+        }
+        else
+          impulses = new double?(nullable2.GetValueOrDefault() / nullable3.GetValueOrDefault());
+        return impulses;
+      }
+      if (impUnit == "KWH" && readingUnit == "KWH")
+      {
+        double? nullable4 = startValue;
+        double? nullable5 = impValue;
+        return nullable4.HasValue & nullable5.HasValue ? new double?(nullable4.GetValueOrDefault() / nullable5.GetValueOrDefault()) : new double?();
+      }
+      if (impUnit == "KWH" && readingUnit == "MWH")
+      {
+        double? nullable6 = startValue;
+        double num = 1000.0;
+        double? nullable7 = nullable6.HasValue ? new double?(nullable6.GetValueOrDefault() * num) : new double?();
+        double? nullable8 = impValue;
+        double? impulses;
+        if (!(nullable7.HasValue & nullable8.HasValue))
+        {
+          nullable6 = new double?();
+          impulses = nullable6;
+        }
+        else
+          impulses = new double?(nullable7.GetValueOrDefault() / nullable8.GetValueOrDefault());
+        return impulses;
+      }
+      if (impUnit == "MWH" && readingUnit == "KWH")
+      {
+        double? nullable9 = startValue;
+        double? nullable10 = impValue;
+        double? nullable11 = nullable9.HasValue & nullable10.HasValue ? new double?(nullable9.GetValueOrDefault() / nullable10.GetValueOrDefault()) : new double?();
+        double num = 1000.0;
+        return nullable11.HasValue ? new double?(nullable11.GetValueOrDefault() / num) : new double?();
+      }
+      double? nullable12 = startValue;
+      double? nullable13 = impValue;
+      return nullable12.HasValue & nullable13.HasValue ? new double?(nullable12.GetValueOrDefault() / nullable13.GetValueOrDefault()) : new double?();
+    }
+  }
+}
+

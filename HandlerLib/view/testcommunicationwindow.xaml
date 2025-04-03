@@ -1,0 +1,53 @@
+<Window x:Class="HandlerLib.TestCommunicationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Closing="Window_Closing" Height="500" Width="600" MinHeight="500" MinWidth="600"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico" Title="TestCommunicationWindow">
+  <Grid>
+    <StartupLib:GmmCorporateControl HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="56"/>
+    <Grid Margin="0,60,0,8">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="20"/>
+        <RowDefinition Height="40"/>
+        <RowDefinition Height="70"/>
+        <RowDefinition/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition/>
+        <ColumnDefinition Width="200"/>
+      </Grid.ColumnDefinitions>
+      <TextBlock Name="TextBlockStatus" Grid.Column="0" Grid.Row="0" Margin="6,0,2,0" Text="Status"/>
+      <ProgressBar Name="ProgressBar1" Grid.Column="1" Grid.Row="0" Margin="2"/>
+      <TextBox Name="TextBlockResult" Grid.Row="3" Grid.Column="0" Margin="2,5,10,1.6" TextWrapping="Wrap"
+               Text="Result"/>
+      <WrapPanel Name="PanalButtons" Grid.Row="1" Grid.Column="0" Margin="1,5,5,6">
+        <Label Content="Cyle:" Height="25" Width="45" HorizontalAlignment="Left"/>
+        <TextBox x:Name="TextBoxCyles" Margin="4" Width="50" IsReadOnly="true"/>
+        <Label Content="Successful:" Height="25" Width="70" HorizontalAlignment="Left"/>
+        <TextBox x:Name="TextBoxCycleSuccessful" Margin="4" Width="50" IsReadOnly="true"/>
+        <Label Content="Failed:" Height="25"/>
+        <TextBox x:Name="TextBoxCycleFailed" Margin="4" Width="50" HorizontalAlignment="Left" IsReadOnly="true"/>
+      </WrapPanel>
+      <WrapPanel Name="PanalButtons2" Width="190" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left">
+        <Label Content="Stop after errors:" Height="25" Width="110"/>
+        <TextBox x:Name="TextBoxCycleStopAfterErrors" Margin="4" Width="40" HorizontalAlignment="Left"/>
+        <Label Content="Cycle time:" Height="25" Width="110"/>
+        <TextBox LostFocus="TextBoxCycleTime_LostFocus" KeyDown="TextBoxCycleTime_KeyDown" x:Name="TextBoxCycleTime"
+                 Margin="4" Width="40" HorizontalAlignment="Left"/>
+        <Label Content="ms" Height="25" Width="26"/>
+      </WrapPanel>
+      <WrapPanel Name="PanalButtons3" Width="160" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Right">
+        <CheckBox x:Name="CheckBoxHaltOnFirst" Content="Halt on first error" Margin="4"/>
+        <CheckBox x:Name="CheckBoxRunCyle" Content="Run Cycle" Margin="4"/>
+        <CheckBox x:Name="CheckBoxInterruptConnection" Content="Interrupt connection" Margin="4"/>
+      </WrapPanel>
+      <StackPanel Name="StackPanalButtons2" Grid.Row="2" Margin="0,0,0,0" Grid.Column="1" VerticalAlignment="Bottom"/>
+      <StackPanel Name="StackPanalButton3" Grid.Row="3" Margin="0,0,0,0" Grid.Column="1" VerticalAlignment="Top">
+        <Button Click="ButtonRunCommand_Click" x:Name="ButtonRunCommand" Content="Run command" Margin="2"/>
+        <Button Click="ButtonBreak_Click" x:Name="ButtonBreak" Content="Break" Height="21" Margin="2"
+                IsEnabled="true"/>
+      </StackPanel>
+    </Grid>
+  </Grid>
+</Window>

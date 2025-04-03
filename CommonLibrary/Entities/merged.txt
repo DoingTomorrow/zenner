@@ -1,0 +1,1978 @@
+
+--- AdditionalInfoKey.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.AdditionalInfoKey
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public enum AdditionalInfoKey
+  {
+    Manufacturer,
+    Medium,
+    Version,
+    PrimaryAddress,
+    MainDeviceSecondaryAddress,
+    InputNumber,
+    ZDF,
+    IpAddress,
+    Name,
+    IsOnline,
+    LastSeen,
+    HardwareID,
+    Traffic,
+    HardwareType,
+    BluetoothAddress,
+  }
+}
+
+
+--- ChangeableParameter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ChangeableParameter
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public class ChangeableParameter
+  {
+    public string Key { get; set; }
+
+    public string Value { get; set; }
+
+    public Type Type { get; set; }
+
+    public string KeyTranslated { get; set; }
+
+    public string KeyTranslatedDescription { get; set; }
+
+    public List<ValueItem> AvailableValues { get; set; }
+
+    public object ValueMin { get; set; }
+
+    public object ValueMax { get; set; }
+
+    public ChangeableParameterUsings ParameterUsing { get; set; }
+
+    public HashSet<ConfigurationParameterEnvironment> ParameterEnvironment { get; set; }
+
+    public bool UpdateAvailableValues()
+    {
+      if (this.UpdateAvailableValuesHandler == null)
+        return false;
+      this.AvailableValues = this.UpdateAvailableValuesHandler();
+      return true;
+    }
+
+    public ChangeableParameter.UpdateAvailableValuesDelegate UpdateAvailableValuesHandler { get; set; }
+
+    public ChangeableParameter DeepCopy()
+    {
+      return new ChangeableParameter()
+      {
+        Key = this.Key,
+        Value = this.Value,
+        Type = this.Type,
+        KeyTranslated = this.KeyTranslated,
+        KeyTranslatedDescription = this.KeyTranslatedDescription,
+        ValueMin = this.ValueMin,
+        ValueMax = this.ValueMax,
+        AvailableValues = this.AvailableValues,
+        ParameterUsing = this.ParameterUsing,
+        ParameterEnvironment = this.ParameterEnvironment,
+        UpdateAvailableValuesHandler = this.UpdateAvailableValuesHandler
+      };
+    }
+
+    public override string ToString()
+    {
+      if (string.IsNullOrEmpty(this.Key))
+        return base.ToString();
+      StringBuilder stringBuilder = new StringBuilder();
+      stringBuilder.Append(this.Key).Append(" ");
+      if (this.Value != null)
+        stringBuilder.Append("= ").Append(this.Value).Append(", ");
+      if (!string.IsNullOrEmpty(this.KeyTranslated))
+        stringBuilder.Append("'").Append(this.KeyTranslated).Append("', ");
+      if (this.Type != (Type) null)
+        stringBuilder.Append(this.Type.ToString()).Append(", ");
+      if (this.ValueMin != null)
+        stringBuilder.Append("Min: ").Append(this.ValueMin.ToString()).Append(", ");
+      if (this.ValueMax != null)
+        stringBuilder.Append("Max: ").Append(this.ValueMax.ToString()).Append(", ");
+      if (this.AvailableValues != null)
+      {
+        stringBuilder.Append("Possible values {");
+        foreach (ValueItem availableValue in this.AvailableValues)
+          stringBuilder.Append((object) availableValue).Append(" ");
+        stringBuilder.Append("}");
+      }
+      return stringBuilder.ToString();
+    }
+
+    public static bool TryGet<T>(List<ChangeableParameter> list, string name, out T result)
+    {
+      if (list == null || list.Count == 0)
+        throw new Exception(nameof (list));
+      if (string.IsNullOrEmpty(name))
+        throw new Exception(nameof (name));
+      result = default (T);
+      ChangeableParameter changeableParameter = list.Find((Predicate<ChangeableParameter>) (x => x.Key == name));
+      if (changeableParameter == null || string.IsNullOrEmpty(changeableParameter.Value))
+        return false;
+      result = (T) Convert.ChangeType((object) changeableParameter.Value, typeof (T));
+      return true;
+    }
+
+    public static void Set(List<ChangeableParameter> list, string name, object value)
+    {
+      if (list == null || list.Count == 0)
+        throw new Exception(nameof (list));
+      if (string.IsNullOrEmpty(name))
+        throw new Exception(nameof (name));
+      ChangeableParameter changeableParameter = list.Find((Predicate<ChangeableParameter>) (x => x.Key == name));
+      if (changeableParameter == null)
+        throw new Exception("The changeable parameter '" + name + "' does not exist!");
+      if (value == null)
+        changeableParameter.Value = string.Empty;
+      else
+        changeableParameter.Value = value.ToString();
+    }
+
+    public delegate List<ValueItem> UpdateAvailableValuesDelegate();
+  }
+}
+
+
+--- ChangeableParameterComparer.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ChangeableParameterComparer
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System.Collections.Generic;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  public class ChangeableParameterComparer : IComparer<ChangeableParameter>
+  {
+    public int Compare(ChangeableParameter x, ChangeableParameter y) => x.Key.CompareTo(y.Key);
+  }
+}
+
+
+--- ChangeableParameterUsings.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ChangeableParameterUsings
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  public enum ChangeableParameterUsings
+  {
+    standard,
+    changableByEquipment,
+    changableByDevice,
+    changableByProfileType,
+  }
+}
+
+
+--- ConnectionAdjuster.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ConnectionAdjuster
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  public class ConnectionAdjuster
+  {
+    public int ConnectionProfileID { get; private set; }
+
+    public string Name { get; private set; }
+
+    public List<ChangeableParameter> SetupParameters { get; private set; }
+
+    public ConnectionAdjuster(
+      int connectionProfileID,
+      string name,
+      List<ChangeableParameter> setupParameters)
+    {
+      setupParameters.Sort((IComparer<ChangeableParameter>) new ChangeableParameterComparer());
+      this.ConnectionProfileID = connectionProfileID;
+      this.Name = name;
+      this.SetupParameters = setupParameters;
+    }
+
+    public ConfigList GetMergedConfiguration(ConnectionProfile theProfile)
+    {
+      SortedList<string, string> configList = new SortedList<string, string>();
+      configList.Add(ParameterKey.ConnectionProfileID.ToString(), this.ConnectionProfileID.ToString());
+      foreach (KeyValuePair<string, string> setupParameter in theProfile.ConnectionSettings.SetupParameterList)
+      {
+        KeyValuePair<string, string> defaultParam = setupParameter;
+        ChangeableParameter changeableParameter = this.SetupParameters.FirstOrDefault<ChangeableParameter>((Func<ChangeableParameter, bool>) (x => x.Key == defaultParam.Key));
+        if (changeableParameter != null)
+          configList.Add(changeableParameter.Key, changeableParameter.Value);
+        else
+          configList.Add(defaultParam.Key, defaultParam.Value);
+      }
+      return new ConfigList(configList);
+    }
+  }
+}
+
+
+--- ConnectionItemComparer.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ConnectionItemComparer
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System.Collections.Generic;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  public class ConnectionItemComparer : IComparer<IConnectionItem>
+  {
+    public int Compare(IConnectionItem x, IConnectionItem y) => x.Name.CompareTo(y.Name);
+  }
+}
+
+
+--- ConnectionParameterGroup.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ConnectionParameterGroup
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  public class ConnectionParameterGroup
+  {
+    public int GroupNumber;
+    public ConnectionProfileFilterGroupFunctions GroupFunction;
+    public List<ConnectionProfileParameterPair> Parameters = new List<ConnectionProfileParameterPair>();
+    public List<ConnectionParameterGroup> SubGroups;
+
+    public ConnectionParameterGroup(int groupNumber) => this.GroupNumber = groupNumber;
+
+    internal bool GetGroupResult(
+      SortedList<ConnectionProfileParameter, string> combindeProfileParameters,
+      SortedList<string, string> SetupParameterList)
+    {
+      switch (this.GroupFunction)
+      {
+        case ConnectionProfileFilterGroupFunctions.OR:
+          foreach (ConnectionProfileParameterPair parameter in this.Parameters)
+          {
+            if (parameter.ParameterName == ConnectionProfileParameter.ConfigParam)
+            {
+              if (parameter.ParameterValue != null)
+              {
+                string[] strArray = parameter.ParameterValue.Split('=');
+                if (strArray.Length == 2 && SetupParameterList.Keys.Contains(strArray[0]))
+                {
+                  if (!(strArray[1] == "*"))
+                  {
+                    if (SetupParameterList[strArray[0]] == strArray[1])
+                      goto label_58;
+                  }
+                  else
+                    goto label_58;
+                }
+              }
+            }
+            else if (combindeProfileParameters.ContainsKey(parameter.ParameterName))
+            {
+              if (parameter.ParameterValue == null || !(parameter.ParameterValue == "*"))
+              {
+                if (combindeProfileParameters[parameter.ParameterName] == parameter.ParameterValue)
+                  goto label_58;
+              }
+              else
+                goto label_58;
+            }
+          }
+          if (this.SubGroups != null)
+          {
+            using (List<ConnectionParameterGroup>.Enumerator enumerator = this.SubGroups.GetEnumerator())
+            {
+              while (enumerator.MoveNext())
+              {
+                if (enumerator.Current.GetGroupResult(combindeProfileParameters, SetupParameterList))
+                  goto label_58;
+              }
+              break;
+            }
+          }
+          else
+            break;
+        case ConnectionProfileFilterGroupFunctions.AND:
+          foreach (ConnectionProfileParameterPair parameter in this.Parameters)
+          {
+            if (parameter.ParameterName == ConnectionProfileParameter.ConfigParam)
+            {
+              if (parameter.ParameterValue != null)
+              {
+                string[] strArray = parameter.ParameterValue.Split('=');
+                if (strArray.Length == 2)
+                {
+                  if (SetupParameterList.Keys.Contains(strArray[0]))
+                  {
+                    if (strArray[1] != "*" && strArray[1] != SetupParameterList[strArray[0]])
+                      goto label_57;
+                  }
+                  else
+                    goto label_57;
+                }
+              }
+            }
+            else if (combindeProfileParameters.ContainsKey(parameter.ParameterName))
+            {
+              string profileParameter = combindeProfileParameters[parameter.ParameterName];
+              if (parameter.ParameterValue == null || !(parameter.ParameterValue == "*"))
+              {
+                if (profileParameter != parameter.ParameterValue)
+                  goto label_57;
+              }
+            }
+            else
+              goto label_57;
+          }
+          if (this.SubGroups != null)
+          {
+            using (List<ConnectionParameterGroup>.Enumerator enumerator = this.SubGroups.GetEnumerator())
+            {
+              while (enumerator.MoveNext())
+              {
+                if (!enumerator.Current.GetGroupResult(combindeProfileParameters, SetupParameterList))
+                  goto label_57;
+              }
+              goto label_58;
+            }
+          }
+          else
+            goto label_58;
+        case ConnectionProfileFilterGroupFunctions.NOT:
+          foreach (ConnectionProfileParameterPair parameter in this.Parameters)
+          {
+            if (parameter.ParameterName == ConnectionProfileParameter.ConfigParam)
+            {
+              if (parameter.ParameterValue != null)
+              {
+                string[] strArray = parameter.ParameterValue.Split('=');
+                if (strArray.Length == 2 && SetupParameterList.Keys.Contains(strArray[0]))
+                {
+                  if (!(strArray[1] == "*"))
+                  {
+                    if (SetupParameterList[strArray[0]] == strArray[1])
+                      goto label_57;
+                  }
+                  else
+                    goto label_57;
+                }
+              }
+            }
+            else if (combindeProfileParameters.ContainsKey(parameter.ParameterName))
+            {
+              if (parameter.ParameterValue == null || !(parameter.ParameterValue == "*"))
+              {
+                if (combindeProfileParameters[parameter.ParameterName] == parameter.ParameterValue)
+                  goto label_57;
+              }
+              else
+                goto label_57;
+            }
+          }
+          if (this.SubGroups != null)
+          {
+            using (List<ConnectionParameterGroup>.Enumerator enumerator = this.SubGroups.GetEnumerator())
+            {
+              while (enumerator.MoveNext())
+              {
+                if (enumerator.Current.GetGroupResult(combindeProfileParameters, SetupParameterList))
+                  goto label_57;
+              }
+              goto label_58;
+            }
+          }
+          else
+            goto label_58;
+        default:
+          throw new Exception("Illegal filter function");
+      }
+label_57:
+      return false;
+label_58:
+      return true;
+    }
+
+    internal bool GetGroupEnabledResult(
+      SortedList<ConnectionProfileParameter, string> checkParameters)
+    {
+      switch (this.GroupFunction)
+      {
+        case ConnectionProfileFilterGroupFunctions.OR:
+        case ConnectionProfileFilterGroupFunctions.AND:
+          if (this.SubGroups != null)
+          {
+            using (List<ConnectionParameterGroup>.Enumerator enumerator = this.SubGroups.GetEnumerator())
+            {
+              while (enumerator.MoveNext())
+              {
+                if (enumerator.Current.GetGroupEnabledResult(checkParameters))
+                  goto label_22;
+              }
+              break;
+            }
+          }
+          else
+            break;
+        case ConnectionProfileFilterGroupFunctions.NOT:
+          foreach (ConnectionProfileParameterPair parameter in this.Parameters)
+          {
+            if (checkParameters.ContainsKey(parameter.ParameterName))
+            {
+              if (parameter.ParameterValue == null || !(parameter.ParameterValue == "*"))
+              {
+                if (checkParameters[parameter.ParameterName] == parameter.ParameterValue)
+                  goto label_21;
+              }
+              else
+                goto label_21;
+            }
+          }
+          if (this.SubGroups != null)
+          {
+            using (List<ConnectionParameterGroup>.Enumerator enumerator = this.SubGroups.GetEnumerator())
+            {
+              while (enumerator.MoveNext())
+              {
+                if (enumerator.Current.GetGroupEnabledResult(checkParameters))
+                  goto label_21;
+              }
+              goto label_22;
+            }
+          }
+          else
+            goto label_22;
+        default:
+          throw new Exception("Illegal filter function");
+      }
+label_21:
+      return false;
+label_22:
+      return true;
+    }
+
+    public override string ToString()
+    {
+      int num = 0;
+      if (this.SubGroups != null)
+        num = this.SubGroups.Count;
+      return this.GroupNumber.ToString() + ";" + this.GroupFunction.ToString() + "; Params:" + this.Parameters.Count.ToString() + "; SGroups:" + num.ToString();
+    }
+  }
+}
+
+
+--- ConnectionProfile.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ConnectionProfile
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public sealed class ConnectionProfile
+  {
+    private SortedList<ConnectionProfileParameter, string> combinedParameters = (SortedList<ConnectionProfileParameter, string>) null;
+
+    public int ConnectionProfileID { get; set; }
+
+    public EquipmentModel EquipmentModel { get; set; }
+
+    public DeviceModel DeviceModel { get; set; }
+
+    public ProfileType ProfileType { get; set; }
+
+    public SortedList<ConnectionProfileParameter, string> Parameters { get; set; }
+
+    public SortedList<ConnectionProfileParameter, string> CombinedParameters
+    {
+      get
+      {
+        if (this.combinedParameters != null)
+          return this.combinedParameters;
+        SortedList<ConnectionProfileParameter, string> combinedParameters = new SortedList<ConnectionProfileParameter, string>();
+        if (this.Parameters != null)
+        {
+          foreach (KeyValuePair<ConnectionProfileParameter, string> parameter in this.Parameters)
+            combinedParameters.Add(parameter.Key, parameter.Value);
+        }
+        if (this.DeviceModel.Parameters != null)
+        {
+          foreach (KeyValuePair<ConnectionProfileParameter, string> parameter in this.DeviceModel.Parameters)
+          {
+            if (!combinedParameters.ContainsKey(parameter.Key))
+              combinedParameters.Add(parameter.Key, parameter.Value);
+          }
+        }
+        if (this.EquipmentModel.Parameters != null)
+        {
+          foreach (KeyValuePair<ConnectionProfileParameter, string> parameter in this.EquipmentModel.Parameters)
+          {
+            if (!combinedParameters.ContainsKey(parameter.Key))
+              combinedParameters.Add(parameter.Key, parameter.Value);
+          }
+        }
+        if (this.ProfileType.Parameters != null)
+        {
+          foreach (KeyValuePair<ConnectionProfileParameter, string> parameter in this.ProfileType.Parameters)
+          {
+            if (!combinedParameters.ContainsKey(parameter.Key))
+              combinedParameters.Add(parameter.Key, parameter.Value);
+          }
+        }
+        this.combinedParameters = combinedParameters;
+        return combinedParameters;
+      }
+    }
+
+    public ConnectionSettings ConnectionSettings { get; set; }
+
+    public string Name
+    {
+      get
+      {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.Append("#").Append(this.ConnectionProfileID.ToString()).Append(" ");
+        if (this.DeviceModel != null)
+          stringBuilder.Append(this.DeviceModel.Name).Append(" ");
+        if (this.EquipmentModel != null)
+          stringBuilder.Append(this.EquipmentModel.Name).Append(" ");
+        if (this.ConnectionSettings != null)
+          stringBuilder.Append((object) this.ProfileType);
+        return stringBuilder.ToString();
+      }
+    }
+
+    public override string ToString() => this.Name;
+
+    public List<ChangeableParameter> ChangeableParameters
+    {
+      get
+      {
+        List<ChangeableParameter> changeableParameters = new List<ChangeableParameter>();
+        if (this.DeviceModel != null && this.DeviceModel.ChangeableParameters != null)
+          changeableParameters.AddRange((IEnumerable<ChangeableParameter>) this.DeviceModel.ChangeableParameters);
+        if (this.EquipmentModel != null && this.EquipmentModel.ChangeableParameters != null)
+          changeableParameters.AddRange((IEnumerable<ChangeableParameter>) this.EquipmentModel.ChangeableParameters);
+        if (this.ProfileType != null && this.ProfileType.ChangeableParameters != null)
+          changeableParameters.AddRange((IEnumerable<ChangeableParameter>) this.ProfileType.ChangeableParameters);
+        return changeableParameters;
+      }
+    }
+
+    public SortedList<string, string> GetSettingsList()
+    {
+      if (this.ConnectionSettings == null || this.ConnectionSettings.SetupParameterList == null)
+        return (SortedList<string, string>) null;
+      SortedList<string, string> settingsList = new SortedList<string, string>((IDictionary<string, string>) this.ConnectionSettings.SetupParameterList);
+      List<ChangeableParameter> changeableParameters = this.ChangeableParameters;
+      if (changeableParameters != null)
+      {
+        foreach (ChangeableParameter changeableParameter in changeableParameters)
+        {
+          if (settingsList.ContainsKey(changeableParameter.Key))
+            settingsList[changeableParameter.Key] = changeableParameter.Value;
+        }
+      }
+      return settingsList;
+    }
+
+    public ConfigList GetConfigListObject()
+    {
+      return new ConfigList(this.GetSettingsList())
+      {
+        ConnectionProfileID = this.ConnectionProfileID
+      };
+    }
+
+    public string GetValue(string key)
+    {
+      SortedList<string, string> settingsList = this.GetSettingsList();
+      return settingsList == null || !settingsList.ContainsKey(key) ? (string) null : settingsList[key];
+    }
+
+    public void SetValue(string key, string value)
+    {
+      List<ChangeableParameter> changeableParameters = this.ChangeableParameters;
+      if (changeableParameters == null)
+        return;
+      ChangeableParameter changeableParameter = changeableParameters.Find((Predicate<ChangeableParameter>) (x => x.Key == key));
+      if (changeableParameter == null)
+        throw new KeyNotFoundException(key);
+      changeableParameter.Value = value;
+    }
+
+    public ConnectionProfile DeepCopy()
+    {
+      return new ConnectionProfile()
+      {
+        ConnectionProfileID = this.ConnectionProfileID,
+        EquipmentModel = this.EquipmentModel.DeepCopy(),
+        DeviceModel = this.DeviceModel.DeepCopy(),
+        ProfileType = this.ProfileType.DeepCopy(),
+        Parameters = this.Parameters,
+        ConnectionSettings = this.ConnectionSettings
+      };
+    }
+  }
+}
+
+
+--- ConnectionProfileFilter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ConnectionProfileFilter
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System.Collections.Generic;
+using System.Text;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  public class ConnectionProfileFilter
+  {
+    public int FilterID { get; set; }
+
+    public string Name { get; set; }
+
+    public List<ConnectionParameterGroup> FilterGroups { get; set; }
+
+    public SortedList<int, ConnectionParameterGroup> SubGroups { get; set; }
+
+    public ConnectionProfileFilter(int filterID, string name)
+    {
+      this.FilterID = filterID;
+      this.Name = name;
+      this.FilterGroups = new List<ConnectionParameterGroup>();
+    }
+
+    public bool IsSelectedByFilter(
+      SortedList<ConnectionProfileParameter, string> combindeProfileParameters,
+      SortedList<string, string> SetupParameterList)
+    {
+      if (this.FilterGroups.Count == 0)
+        return true;
+      foreach (ConnectionParameterGroup filterGroup in this.FilterGroups)
+      {
+        if (!filterGroup.GetGroupResult(combindeProfileParameters, SetupParameterList))
+          return false;
+      }
+      return true;
+    }
+
+    public bool IsFilterExpliciteDesignedFor(
+      SortedList<ConnectionProfileParameter, string> checkParameters)
+    {
+      if (this.FilterGroups.Count == 0)
+        return false;
+      bool flag1 = false;
+      foreach (ConnectionParameterGroup filterGroup in this.FilterGroups)
+      {
+        if (filterGroup.GroupFunction == ConnectionProfileFilterGroupFunctions.AND)
+        {
+          flag1 = true;
+          foreach (KeyValuePair<ConnectionProfileParameter, string> checkParameter in checkParameters)
+          {
+            bool flag2 = false;
+            foreach (ConnectionProfileParameterPair parameter in filterGroup.Parameters)
+            {
+              if (checkParameter.Key == parameter.ParameterName && checkParameter.Value == parameter.ParameterValue)
+              {
+                flag2 = true;
+                break;
+              }
+            }
+            if (!flag2)
+              return false;
+          }
+        }
+      }
+      return flag1;
+    }
+
+    public override string ToString()
+    {
+      StringBuilder r = new StringBuilder();
+      this.AddGroupData((IList<ConnectionParameterGroup>) this.FilterGroups, r);
+      if (this.SubGroups != null && this.SubGroups.Count > 0)
+      {
+        r.AppendLine();
+        r.AppendLine(" --- Sub groups --- ");
+        this.AddGroupData(this.SubGroups.Values, r);
+      }
+      return r.ToString();
+    }
+
+    private void AddGroupData(IList<ConnectionParameterGroup> filterGroups, StringBuilder r)
+    {
+      foreach (ConnectionParameterGroup filterGroup in (IEnumerable<ConnectionParameterGroup>) filterGroups)
+      {
+        if (r.Length > 0)
+          r.AppendLine();
+        r.AppendLine("FilterGroup[" + filterGroup.GroupNumber.ToString() + "]: " + filterGroup.GroupFunction.ToString());
+        foreach (ConnectionProfileParameterPair parameter in filterGroup.Parameters)
+        {
+          r.Append("   " + parameter.ParameterName.ToString());
+          if (parameter.ParameterValue == null)
+            r.AppendLine();
+          else
+            r.AppendLine(" = " + parameter.ParameterValue);
+        }
+      }
+    }
+
+    public static ConnectionProfileFilter CreateHandlerFilter(string handlerName)
+    {
+      ConnectionProfileFilter handlerFilter = new ConnectionProfileFilter(-1, handlerName + "_Filter");
+      ConnectionParameterGroup connectionParameterGroup = new ConnectionParameterGroup(1);
+      handlerFilter.FilterGroups.Add(connectionParameterGroup);
+      connectionParameterGroup.GroupFunction = ConnectionProfileFilterGroupFunctions.AND;
+      ConnectionProfileParameterPair profileParameterPair = new ConnectionProfileParameterPair(ConnectionProfileParameter.Handler, handlerName);
+      connectionParameterGroup.Parameters.Add(profileParameterPair);
+      return handlerFilter;
+    }
+  }
+}
+
+
+--- ConnectionProfileFilterGroupFunctions.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ConnectionProfileFilterGroupFunctions
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  public enum ConnectionProfileFilterGroupFunctions
+  {
+    OR,
+    AND,
+    NOT,
+  }
+}
+
+
+--- ConnectionProfileParameter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ConnectionProfileParameter
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  public enum ConnectionProfileParameter
+  {
+    None = 0,
+    NotForConfiguration = 1,
+    NotForReading = 2,
+    InDevelopement = 3,
+    OnlyForProduction = 4,
+    OnlyForProfessionals = 5,
+    ConfigParam = 10000, // 0x00002710
+    Handler = 20000, // 0x00004E20
+    Radio2 = 20001, // 0x00004E21
+    Radio3 = 20002, // 0x00004E22
+    SystemDevice = 20003, // 0x00004E23
+    MBus = 20004, // 0x00004E24
+    wMBus = 20005, // 0x00004E25
+    LoRa = 20006, // 0x00004E26
+    Manufacturer = 20007, // 0x00004E27
+    Medium = 20008, // 0x00004E28
+    Generation = 20009, // 0x00004E29
+    UpdateFirmwarePossible = 20010, // 0x00004E2A
+    LoggerReadingPossible = 20011, // 0x00004E2B
+    Scanning = 40000, // 0x00009C40
+    JobManager = 40001, // 0x00009C41
+    SystemType = 40002, // 0x00009C42
+    TransceiverType = 40003, // 0x00009C43
+  }
+}
+
+
+--- ConnectionProfileParameterPair.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ConnectionProfileParameterPair
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  public class ConnectionProfileParameterPair
+  {
+    public ConnectionProfileParameter ParameterName;
+    public string ParameterValue;
+
+    public ConnectionProfileParameterPair(
+      ConnectionProfileParameter parameterName,
+      string parameterValue)
+    {
+      this.ParameterName = parameterName;
+      this.ParameterValue = parameterValue;
+    }
+
+    public override string ToString()
+    {
+      return this.ParameterValue == null ? this.ParameterName.ToString() : this.ParameterName.ToString() + "=" + this.ParameterValue;
+    }
+  }
+}
+
+
+--- ConnectionSettings.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ConnectionSettings
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public sealed class ConnectionSettings
+  {
+    public int ConnectionSettingsID { get; set; }
+
+    public string Name { get; set; }
+
+    public SortedList<string, string> SetupParameterList { get; set; }
+
+    public List<string> ChangableDeviceParameters { get; set; }
+
+    public List<string> ChangableEquipmentParameters { get; set; }
+
+    public List<string> ChangableProfileTypeParameters { get; set; }
+
+    public TransceiverType TransceiverType { get; set; }
+
+    public SortedList<string, string> AllChangableParameters
+    {
+      get
+      {
+        if (this.SetupParameterList == null)
+          throw new Exception("ConnectionSettings object not initialised");
+        SortedList<string, string> changableParameters = new SortedList<string, string>();
+        if (this.ChangableDeviceParameters != null)
+        {
+          foreach (string changableDeviceParameter in this.ChangableDeviceParameters)
+          {
+            if (!this.SetupParameterList.ContainsKey(changableDeviceParameter))
+              throw new Exception("No setup for ChangableDeviceParameter: " + changableDeviceParameter);
+            changableParameters.Add(changableDeviceParameter, this.SetupParameterList[changableDeviceParameter]);
+          }
+        }
+        if (this.ChangableEquipmentParameters != null)
+        {
+          foreach (string equipmentParameter in this.ChangableEquipmentParameters)
+          {
+            if (!this.SetupParameterList.ContainsKey(equipmentParameter))
+              throw new Exception("No setup for ChangableEquipmentParameters: " + equipmentParameter);
+            if (changableParameters.ContainsKey(equipmentParameter))
+              throw new Exception("Illegal initialising of ConnectionSettings object. Double changable parameter: " + equipmentParameter);
+            changableParameters.Add(equipmentParameter, this.SetupParameterList[equipmentParameter]);
+          }
+        }
+        if (this.ChangableProfileTypeParameters != null)
+        {
+          foreach (string profileTypeParameter in this.ChangableProfileTypeParameters)
+          {
+            if (!this.SetupParameterList.ContainsKey(profileTypeParameter))
+              throw new Exception("No setup for ChangableProfileTypeParameters: " + profileTypeParameter);
+            if (changableParameters.ContainsKey(profileTypeParameter))
+              throw new Exception("Illegal initialising of ConnectionSettings object. Double changable parameter: " + profileTypeParameter);
+            changableParameters.Add(profileTypeParameter, this.SetupParameterList[profileTypeParameter]);
+          }
+        }
+        return changableParameters;
+      }
+    }
+
+    public override string ToString()
+    {
+      return string.IsNullOrEmpty(this.Name) ? base.ToString() : this.Name;
+    }
+
+    public ConnectionSettings Clone()
+    {
+      ConnectionSettings connectionSettings = new ConnectionSettings();
+      connectionSettings.ConnectionSettingsID = this.ConnectionSettingsID;
+      connectionSettings.Name = this.Name;
+      connectionSettings.SetupParameterList = new SortedList<string, string>();
+      foreach (KeyValuePair<string, string> setupParameter in this.SetupParameterList)
+        connectionSettings.SetupParameterList.Add(setupParameter.Key, setupParameter.Value);
+      connectionSettings.ChangableDeviceParameters = this.ChangableDeviceParameters;
+      connectionSettings.ChangableEquipmentParameters = this.ChangableEquipmentParameters;
+      connectionSettings.ChangableProfileTypeParameters = this.ChangableProfileTypeParameters;
+      connectionSettings.TransceiverType = this.TransceiverType;
+      return connectionSettings;
+    }
+  }
+}
+
+
+--- ConnectionSettingsParameter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ConnectionSettingsParameter
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public sealed class ConnectionSettingsParameter
+  {
+    public int ParameterID { get; set; }
+
+    public string ParameterValue { get; set; }
+
+    public ParameterUsings ParameterUsing { get; set; }
+  }
+}
+
+
+--- DeviceGroup.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.DeviceGroup
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Windows.Media.Imaging;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public sealed class DeviceGroup : IConnectionItem
+  {
+    public Func<int, BitmapImage> PreLoadImage;
+
+    public int DeviceGroupID { get; set; }
+
+    public int ID => this.DeviceGroupID;
+
+    public int GroupID => this.DeviceGroupID;
+
+    public BitmapImage Image500x500
+    {
+      get => this.PreLoadImage == null ? (BitmapImage) null : this.PreLoadImage(this.ImageID);
+    }
+
+    public int ImageID { get; set; }
+
+    public string Name { get; set; }
+
+    public string Description { get; set; }
+
+    public override string ToString()
+    {
+      return string.IsNullOrEmpty(this.Name) ? base.ToString() : this.Name;
+    }
+  }
+}
+
+
+--- DeviceModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.DeviceModel
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Windows.Media.Imaging;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public sealed class DeviceModel : IConnectionDeviceItem, IConnectionItem
+  {
+    public Func<int, BitmapImage> PreLoadImage;
+
+    public int DeviceModelID { get; set; }
+
+    public int ID => this.DeviceModelID;
+
+    public int GroupID => this.DeviceGroup.DeviceGroupID;
+
+    public string Name { get; set; }
+
+    public string Description { get; set; }
+
+    public string ProfileTypeName { get; set; }
+
+    public BitmapImage Image500x500
+    {
+      get => this.PreLoadImage == null ? (BitmapImage) null : this.PreLoadImage(this.ImageID);
+    }
+
+    public int ImageID { get; set; }
+
+    public DeviceGroup DeviceGroup { get; set; }
+
+    public SortedList<ConnectionProfileParameter, string> Parameters { get; set; }
+
+    public List<ChangeableParameter> ChangeableParameters { get; set; }
+
+    public string Manufacturer { get; set; }
+
+    public string Medium { get; set; }
+
+    public string Generation { get; set; }
+
+    public override string ToString()
+    {
+      if (string.IsNullOrEmpty(this.Name))
+        return base.ToString();
+      if (this.ChangeableParameters == null || this.ChangeableParameters.Count == 0)
+        return this.Name;
+      StringBuilder stringBuilder = new StringBuilder();
+      stringBuilder.Append(this.Name).Append(" {");
+      foreach (ChangeableParameter changeableParameter in this.ChangeableParameters)
+        stringBuilder.Append(changeableParameter.Key).Append("=").Append(changeableParameter.Value).Append(", ");
+      stringBuilder.Remove(stringBuilder.Length - 2, 2);
+      stringBuilder.Append("}");
+      return stringBuilder.ToString();
+    }
+
+    public DeviceModel DeepCopy()
+    {
+      List<ChangeableParameter> changeableParameterList = (List<ChangeableParameter>) null;
+      if (this.ChangeableParameters != null && this.ChangeableParameters.Count > 0)
+      {
+        changeableParameterList = new List<ChangeableParameter>(this.ChangeableParameters.Count);
+        foreach (ChangeableParameter changeableParameter in this.ChangeableParameters)
+          changeableParameterList.Add(changeableParameter.DeepCopy());
+      }
+      return new DeviceModel()
+      {
+        ChangeableParameters = changeableParameterList,
+        Description = this.Description,
+        DeviceGroup = this.DeviceGroup,
+        DeviceModelID = this.DeviceModelID,
+        Generation = this.Generation,
+        ImageID = this.ImageID,
+        PreLoadImage = this.PreLoadImage,
+        Manufacturer = this.Manufacturer,
+        Medium = this.Medium,
+        Name = this.Name,
+        Parameters = this.Parameters,
+        ProfileTypeName = this.ProfileTypeName
+      };
+    }
+  }
+}
+
+
+--- DeviceModelTags.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.DeviceModelTags
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Flags]
+  public enum DeviceModelTags : ulong
+  {
+    None = 0,
+    Undefined = 1,
+    Radio2 = 2,
+    Radio3 = 4,
+    SystemDevice = 8,
+    MBus = 16, // 0x0000000000000010
+    wMBus = 32, // 0x0000000000000020
+    LoRa = 64, // 0x0000000000000040
+    All = LoRa | wMBus | MBus | SystemDevice | Radio3 | Radio2 | Undefined, // 0x000000000000007F
+  }
+}
+
+
+--- EquipmentGroup.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.EquipmentGroup
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Windows.Media.Imaging;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public sealed class EquipmentGroup : IConnectionItem
+  {
+    public Func<int, BitmapImage> PreLoadImage;
+
+    public int EquipmentGroupID { get; set; }
+
+    public int ID => this.EquipmentGroupID;
+
+    public int GroupID => this.EquipmentGroupID;
+
+    public string Name { get; set; }
+
+    public string Description { get; set; }
+
+    public BitmapImage Image500x500
+    {
+      get => this.PreLoadImage == null ? (BitmapImage) null : this.PreLoadImage(this.ImageID);
+    }
+
+    public int ImageID { get; set; }
+
+    public override string ToString()
+    {
+      return string.IsNullOrEmpty(this.Name) ? base.ToString() : this.Name;
+    }
+  }
+}
+
+
+--- EquipmentModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.EquipmentModel
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Windows.Media.Imaging;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public sealed class EquipmentModel : IConnectionDeviceItem, IConnectionItem
+  {
+    public Func<int, BitmapImage> PreLoadImage;
+
+    public int EquipmentModelID { get; set; }
+
+    public int ID => this.EquipmentModelID;
+
+    public int GroupID => this.EquipmentGroup.EquipmentGroupID;
+
+    public BitmapImage Image500x500
+    {
+      get => this.PreLoadImage == null ? (BitmapImage) null : this.PreLoadImage(this.ImageID);
+    }
+
+    public int ImageID { get; set; }
+
+    public string Name { get; set; }
+
+    public string Description { get; set; }
+
+    public EquipmentGroup EquipmentGroup { get; set; }
+
+    public SortedList<ConnectionProfileParameter, string> Parameters { get; set; }
+
+    public List<ChangeableParameter> ChangeableParameters { get; set; }
+
+    public override string ToString()
+    {
+      if (string.IsNullOrEmpty(this.Name))
+        return base.ToString();
+      if (this.ChangeableParameters == null || this.ChangeableParameters.Count == 0)
+        return this.Name;
+      StringBuilder stringBuilder = new StringBuilder();
+      stringBuilder.Append(this.Name).Append(" {");
+      foreach (ChangeableParameter changeableParameter in this.ChangeableParameters)
+        stringBuilder.Append(changeableParameter.Key).Append("=").Append(changeableParameter.Value).Append(", ");
+      stringBuilder.Remove(stringBuilder.Length - 2, 2);
+      stringBuilder.Append("}");
+      return stringBuilder.ToString();
+    }
+
+    public EquipmentModel DeepCopy()
+    {
+      List<ChangeableParameter> changeableParameterList = (List<ChangeableParameter>) null;
+      if (this.ChangeableParameters != null && this.ChangeableParameters.Count > 0)
+      {
+        changeableParameterList = new List<ChangeableParameter>(this.ChangeableParameters.Count);
+        foreach (ChangeableParameter changeableParameter in this.ChangeableParameters)
+          changeableParameterList.Add(changeableParameter.DeepCopy());
+      }
+      return new EquipmentModel()
+      {
+        ChangeableParameters = changeableParameterList,
+        Description = this.Description,
+        EquipmentGroup = this.EquipmentGroup,
+        EquipmentModelID = this.EquipmentModelID,
+        ImageID = this.ImageID,
+        PreLoadImage = this.PreLoadImage,
+        Name = this.Name,
+        Parameters = this.Parameters
+      };
+    }
+
+    public EquipmentModel Create(string port)
+    {
+      EquipmentModel equipmentModel = new EquipmentModel()
+      {
+        ChangeableParameters = new List<ChangeableParameter>()
+      };
+      equipmentModel.ChangeableParameters.Add(new ChangeableParameter()
+      {
+        Key = "Port",
+        Value = port
+      });
+      equipmentModel.EquipmentModelID = 28;
+      return equipmentModel;
+    }
+  }
+}
+
+
+--- EquipmentTags.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.EquipmentTags
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Flags]
+  public enum EquipmentTags : ulong
+  {
+    None = 0,
+    Undefined = 1,
+    All = Undefined, // 0x0000000000000001
+  }
+}
+
+
+--- IConnectionDeviceItem.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.IConnectionDeviceItem
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System.Collections.Generic;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  public interface IConnectionDeviceItem : IConnectionItem
+  {
+    SortedList<ConnectionProfileParameter, string> Parameters { get; set; }
+  }
+}
+
+
+--- IConnectionItem.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.IConnectionItem
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System.Windows.Media.Imaging;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  public interface IConnectionItem
+  {
+    int ID { get; }
+
+    int GroupID { get; }
+
+    string Name { get; }
+
+    string Description { get; }
+
+    int ImageID { get; }
+
+    BitmapImage Image500x500 { get; }
+  }
+}
+
+
+--- Job.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.Job
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public class Job
+  {
+    public Guid JobID { get; set; }
+
+    public List<long> Filter { get; set; }
+
+    public Scheduler.TriggerItem Interval { get; set; }
+
+    public List<Meter> Meters { get; set; }
+
+    public DeviceModel System { get; set; }
+
+    public ServiceTask ServiceTask { get; set; }
+
+    public EquipmentModel Equipment { get; set; }
+
+    public ProfileType ProfileType { get; set; }
+
+    public bool IsInProcess { get; set; }
+
+    public bool StoreResultsToDatabase { get; set; }
+
+    public bool LoggingToFileEnabled { get; set; }
+
+    public Job()
+      : this(Guid.NewGuid())
+    {
+    }
+
+    public Job(Guid jobID)
+    {
+      this.JobID = jobID;
+      this.Meters = new List<Meter>();
+      this.StoreResultsToDatabase = false;
+      this.LoggingToFileEnabled = false;
+    }
+
+    public override string ToString() => this.JobID.ToString();
+  }
+}
+
+
+--- Location.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.Location
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public class Location
+  {
+    public int ID { get; set; }
+
+    public string Country { get; set; }
+
+    public string Region { get; set; }
+
+    public string City { get; set; }
+
+    public string Zip { get; set; }
+
+    public string Street { get; set; }
+
+    public string Floor { get; set; }
+
+    public string HouseNumber { get; set; }
+
+    public string RoomNumber { get; set; }
+
+    public double Latitude { get; set; }
+
+    public double Longitude { get; set; }
+
+    public string Description { get; set; }
+
+    public string Name
+    {
+      get
+      {
+        return string.Format("{0} {1} {2} {3} {4} {5} {6}", (object) this.Country, (object) this.Region, (object) this.City, (object) this.Zip, (object) this.Street, (object) this.Floor, (object) this.HouseNumber);
+      }
+    }
+  }
+}
+
+
+--- Meter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.Meter
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public sealed class Meter
+  {
+    public Guid ID { get; set; }
+
+    public string SerialNumber { get; set; }
+
+    public DeviceModel DeviceModel { get; set; }
+
+    public ConnectionAdjuster ConnectionAdjuster { get; set; }
+
+    public Scheduler.TriggerItem Interval { get; set; }
+
+    public List<long> Filter { get; set; }
+
+    public Dictionary<AdditionalInfoKey, string> AdditionalInfo { get; set; }
+
+    public string AdditionalInfoString
+    {
+      get
+      {
+        if (this.AdditionalInfo == null)
+          return string.Empty;
+        StringBuilder stringBuilder = new StringBuilder();
+        foreach (KeyValuePair<AdditionalInfoKey, string> keyValuePair in this.AdditionalInfo)
+          stringBuilder.Append(keyValuePair.Key.ToString()).Append(": ").AppendLine(keyValuePair.Value);
+        return stringBuilder.ToString();
+      }
+    }
+
+    public override string ToString()
+    {
+      if (string.IsNullOrEmpty(this.SerialNumber) && this.DeviceModel == null)
+        return base.ToString();
+      if (!string.IsNullOrEmpty(this.SerialNumber) && this.DeviceModel == null)
+        return this.SerialNumber;
+      return string.IsNullOrEmpty(this.SerialNumber) && this.DeviceModel != null ? this.DeviceModel.Name : this.SerialNumber + " " + this.DeviceModel.Name;
+    }
+
+    public Meter Create(string type)
+    {
+      if (!(type == "M8"))
+        return (Meter) null;
+      return new Meter()
+      {
+        DeviceModel = new DeviceModel()
+        {
+          DeviceModelID = 76
+        }
+      };
+    }
+  }
+}
+
+
+--- MinomatConnectionLog.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.MinomatConnectionLog
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  public sealed class MinomatConnectionLog
+  {
+    public Guid ConnectionID { get; set; }
+
+    public DateTime TimePoint { get; set; }
+
+    public string ClientIP { get; set; }
+
+    public uint? GsmID { get; set; }
+
+    public List<MinomatDataLog> MinomatDataLogs { get; set; }
+  }
+}
+
+
+--- MinomatDataLog.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.MinomatDataLog
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  public sealed class MinomatDataLog
+  {
+    public DateTime TimePoint { get; set; }
+
+    public string RawData { get; set; }
+
+    public string ChallengeKey { get; set; }
+
+    public string SessionKey { get; set; }
+
+    public bool IsIncoming { get; set; }
+
+    public string PackageType { get; set; }
+
+    public string SCGiCommand { get; set; }
+  }
+}
+
+
+--- MinomatDevice.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.MinomatDevice
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  public sealed class MinomatDevice
+  {
+    public uint? MinolID { get; set; }
+
+    public uint? GsmID { get; set; }
+
+    public bool IsKnown { get; set; }
+
+    public bool IsTestConnection { get; set; }
+
+    public uint? ScenarioNumber { get; set; }
+
+    public uint? ChallengeKey { get; set; }
+
+    public ulong? SessionKey { get; set; }
+
+    public uint? ChallengeKeyOld { get; set; }
+
+    public ulong? SessionKeyOld { get; set; }
+
+    public uint? ConfigNo { get; set; }
+
+    public uint? GsmIDEncoded { get; set; }
+
+    public uint? ChallengeKeyEncoded { get; set; }
+
+    public uint? ChallengeKeyEncodedOld { get; set; }
+
+    public uint? GsmIDEncodedOld { get; set; }
+
+    public ushort? MasterFirmwareVersion { get; set; }
+
+    public ushort? MasterModemFirmwareVersion { get; set; }
+
+    public string FirstHttpPacketType { get; set; }
+
+    public override string ToString()
+    {
+      return string.Format("GsmID:{0}, MinolID:{1}, ConfigNo:{2}, IsKnown:{3} {4}", (object) this.GsmID, (object) this.MinolID, (object) this.ConfigNo, (object) this.IsKnown, (object) this.FirstHttpPacketType);
+    }
+  }
+}
+
+
+--- ParameterUsings.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ParameterUsings
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public enum ParameterUsings
+  {
+    Equipment,
+    DeviceModel,
+    EquipmentChangable,
+    DeviceModelChangable,
+  }
+}
+
+
+--- ProfileType.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ProfileType
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Collections.Generic;
+using System.Windows.Media.Imaging;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public sealed class ProfileType : IConnectionDeviceItem, IConnectionItem
+  {
+    public Func<int, BitmapImage> PreLoadImage;
+
+    public int ProfileTypeID { get; set; }
+
+    public int ID => this.ProfileTypeID;
+
+    public int GroupID => this.ProfileTypeGroup.ProfileTypeGroupID;
+
+    public BitmapImage Image500x500
+    {
+      get => this.PreLoadImage == null ? (BitmapImage) null : this.PreLoadImage(this.ImageID);
+    }
+
+    public int ImageID { get; set; }
+
+    public string Name { get; set; }
+
+    public string Description { get; set; }
+
+    public ProfileTypeGroup ProfileTypeGroup { get; set; }
+
+    public SortedList<ConnectionProfileParameter, string> Parameters { get; set; }
+
+    public List<ChangeableParameter> ChangeableParameters { get; set; }
+
+    public override string ToString()
+    {
+      return string.IsNullOrEmpty(this.Name) ? base.ToString() : this.Name;
+    }
+
+    public ProfileType DeepCopy()
+    {
+      List<ChangeableParameter> changeableParameterList = (List<ChangeableParameter>) null;
+      if (this.ChangeableParameters != null && this.ChangeableParameters.Count > 0)
+      {
+        changeableParameterList = new List<ChangeableParameter>(this.ChangeableParameters.Count);
+        foreach (ChangeableParameter changeableParameter in this.ChangeableParameters)
+          changeableParameterList.Add(changeableParameter.DeepCopy());
+      }
+      return new ProfileType()
+      {
+        ChangeableParameters = changeableParameterList,
+        Description = this.Description,
+        ProfileTypeGroup = this.ProfileTypeGroup,
+        ProfileTypeID = this.ProfileTypeID,
+        ImageID = this.ImageID,
+        PreLoadImage = this.PreLoadImage,
+        Name = this.Name,
+        Parameters = this.Parameters
+      };
+    }
+
+    public ProfileType Create(string name)
+    {
+      return new ProfileType() { Name = name };
+    }
+  }
+}
+
+
+--- ProfileTypeGroup.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ProfileTypeGroup
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Windows.Media.Imaging;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public sealed class ProfileTypeGroup : IConnectionItem
+  {
+    public Func<int, BitmapImage> PreLoadImage;
+
+    public int ProfileTypeGroupID { get; set; }
+
+    public int ID => this.ProfileTypeGroupID;
+
+    public int GroupID => this.ProfileTypeGroupID;
+
+    public BitmapImage Image500x500
+    {
+      get => this.PreLoadImage == null ? (BitmapImage) null : this.PreLoadImage(this.ImageID);
+    }
+
+    public int ImageID { get; set; }
+
+    public string Name { get; set; }
+
+    public string Description { get; set; }
+
+    public override string ToString()
+    {
+      return string.IsNullOrEmpty(this.Name) ? base.ToString() : this.Name;
+    }
+  }
+}
+
+
+--- ProfileTypeTags.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ProfileTypeTags
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Flags]
+  public enum ProfileTypeTags : ulong
+  {
+    None = 0,
+    Undefined = 1,
+    Scanning = 2,
+    JobManager = 4,
+    All = JobManager | Scanning | Undefined, // 0x0000000000000007
+  }
+}
+
+
+--- ServiceTask.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ServiceTask
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System.Reflection;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  public sealed class ServiceTask
+  {
+    public string Description { get; set; }
+
+    public MethodInfo Method { get; set; }
+
+    public override string ToString()
+    {
+      return this.Method == (MethodInfo) null ? base.ToString() : this.Method.Name;
+    }
+  }
+}
+
+
+--- TransceiverType.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.TransceiverType
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public enum TransceiverType
+  {
+    None,
+    Listener,
+    Reader,
+    Receiver,
+  }
+}
+
+
+--- ValueItem.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Entities.ValueItem
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Entities
+{
+  [Serializable]
+  public sealed class ValueItem
+  {
+    public string Value { get; private set; }
+
+    public Dictionary<AdditionalInfoKey, string> AdditionalInfo { get; set; }
+
+    public string Info
+    {
+      get
+      {
+        if (this.AdditionalInfo == null || this.AdditionalInfo.Count == 0)
+          return string.Empty;
+        StringBuilder stringBuilder = new StringBuilder();
+        foreach (KeyValuePair<AdditionalInfoKey, string> keyValuePair in this.AdditionalInfo)
+          stringBuilder.Append((object) keyValuePair.Key).Append(": ").Append(keyValuePair.Value).Append(", ");
+        return stringBuilder.ToString().TrimEnd(',', ' ');
+      }
+    }
+
+    public ValueItem(string value) => this.Value = value;
+
+    public void AddAdditionalInfo(AdditionalInfoKey key, string value)
+    {
+      if (this.AdditionalInfo == null)
+        this.AdditionalInfo = new Dictionary<AdditionalInfoKey, string>();
+      this.AdditionalInfo.Add(key, value);
+    }
+
+    public override string ToString()
+    {
+      if (string.IsNullOrEmpty(this.Value))
+        return base.ToString();
+      if (this.AdditionalInfo == null || this.AdditionalInfo.Count == 0)
+        return this.Value;
+      StringBuilder stringBuilder1 = new StringBuilder();
+      stringBuilder1.Append(this.Value).Append(" {");
+      foreach (KeyValuePair<AdditionalInfoKey, string> keyValuePair in this.AdditionalInfo)
+        stringBuilder1.Append(keyValuePair.Value).Append(", ");
+      StringBuilder stringBuilder2 = stringBuilder1.Remove(stringBuilder1.Length - 2, 2);
+      stringBuilder2.Append("}");
+      return stringBuilder2.ToString();
+    }
+  }
+}
+

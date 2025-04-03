@@ -1,0 +1,1423 @@
+
+--- CreateRoleViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Users.CreateRoleViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Modules.UsersManagement;
+using MSS.Core.Utils;
+using MSS.DTO.Users;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using Ninject;
+using Ninject.Infrastructure.Language;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Users
+{
+  public class CreateRoleViewModel : ValidationViewModelBase
+  {
+    private Visibility _roleNameErrorImageVisibility = Visibility.Hidden;
+    private string _roleName = string.Empty;
+    private Brush _roleNameBrushValue = (Brush) Brushes.LightGray;
+    private readonly IRepositoryFactory _repositoryFactory;
+    private ObservableCollection<OperationDTO> _roleOperationList;
+    private OperationDTO _roleOperation;
+
+    [Inject]
+    public CreateRoleViewModel(IRepositoryFactory repositoryFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this.RoleOperationList = new ObservableCollection<OperationDTO>();
+    }
+
+    [RequiredCollection("MSS_Client_UserControl_RoleOperationValidation")]
+    public ObservableCollection<OperationDTO> RoleOperationList
+    {
+      get => this._roleOperationList;
+      set
+      {
+        this._roleOperationList = value;
+        this.OnPropertyChanged(nameof (RoleOperationList));
+      }
+    }
+
+    public OperationDTO RoleOperation
+    {
+      set
+      {
+        this._roleOperation = value;
+        this.OnPropertyChanged("RoleOperationList");
+      }
+    }
+
+    public ObservableCollection<OperationDTO> GetOperations
+    {
+      get
+      {
+        IEnumerable<OperationDTO> operationsDto = this.GetRoleManagerInstance().GetOperationsDTO();
+        ObservableCollection<OperationDTO> getOperations = new ObservableCollection<OperationDTO>();
+        foreach (OperationDTO operationDto in operationsDto)
+          getOperations.Add(operationDto);
+        return getOperations;
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_Client_UserControl_RoleNameValidation")]
+    public string RoleName
+    {
+      get => this._roleName;
+      set
+      {
+        this._roleName = value;
+        this.OnPropertyChanged(nameof (RoleName));
+      }
+    }
+
+    public Visibility RoleNameErrorImageVisibility
+    {
+      get => this._roleNameErrorImageVisibility;
+      set
+      {
+        this._roleNameErrorImageVisibility = value;
+        this.OnPropertyChanged(nameof (RoleNameErrorImageVisibility));
+      }
+    }
+
+    public Brush RoleNameBrushValue
+    {
+      get => this._roleNameBrushValue;
+      set
+      {
+        this._roleNameBrushValue = value;
+        this.OnPropertyChanged(nameof (RoleNameBrushValue));
+      }
+    }
+
+    public ICommand AddRoleCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) delegate
+        {
+          this.ValidateProperty("RoleName");
+          if (!this.IsValid)
+            return;
+          this.GetRoleManagerInstance().CreateRole(new RoleDTO()
+          {
+            IsStandard = false,
+            Name = this.RoleName
+          }, this.RoleOperationList.ToEnumerable<OperationDTO>());
+          this.OnRequestClose(true);
+        });
+      }
+    }
+
+    private RoleManager GetRoleManagerInstance() => new RoleManager(this._repositoryFactory);
+
+    public bool ValidateRoleName(string rolename, out ICollection<string> validationErrors)
+    {
+      validationErrors = (ICollection<string>) new List<string>();
+      if (rolename.StartsWith("default", StringComparison.CurrentCulture))
+        validationErrors.Add(Resources.MSS_Client_UserControl_Dialog_Username_Default);
+      return validationErrors.Count == 0;
+    }
+
+    public override List<string> ValidateProperty(string propertyName)
+    {
+      string propertyName1 = this.GetPropertyName<string>((Expression<Func<string>>) (() => this.RoleName));
+      if (!(propertyName == propertyName1))
+        return new List<string>();
+      ICollection<string> validationErrors;
+      this.ValidateRoleName(this.RoleName, out validationErrors);
+      this.IsValid &= !validationErrors.Any<string>();
+      return validationErrors.ToList<string>();
+    }
+  }
+}
+
+
+--- CreateUserViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Users.CreateUserViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Languages;
+using MSS.Business.Modules.UsersManagement;
+using MSS.Core.Model.UsersManagement;
+using MSS.Core.Utils;
+using MSS.DTO.Users;
+using MSS.Interfaces;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using Ninject;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Windows.Controls;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Users
+{
+  internal class CreateUserViewModel : ValidationViewModelBase
+  {
+    private string _firstNameTextValue = string.Empty;
+    private string _lastNameTextValue = string.Empty;
+    private string _usernameTextValue = string.Empty;
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly IRepository<Country> _countryRepository;
+    private ObservableCollection<Language> _languages;
+    private string _officeTextValue;
+    private Language _selectedLanguage;
+
+    [Inject]
+    public CreateUserViewModel(IRepositoryFactory repositoryFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._countryRepository = repositoryFactory.GetRepository<Country>();
+      this.RoleList = new ObservableCollection<RoleDTO>();
+      User loggedUser = MSS.Business.Utils.AppContext.Current.LoggedUser;
+      Country country = loggedUser.Country;
+      this.SelectedCountryId = country != null ? country.Id : Guid.Empty;
+      this.SelectedLanguage = this.LanguageList.FirstOrDefault<Language>();
+      this.OfficeTextValue = loggedUser.Office;
+      this.InvalidPassword = true;
+    }
+
+    [RequiredCollection("MSS_Client_UserControl_Dialog_RoleErrorToolTip")]
+    public ObservableCollection<RoleDTO> RoleList { get; set; }
+
+    public RoleDTO Role
+    {
+      set => this.OnPropertyChanged("RoleList");
+    }
+
+    public ObservableCollection<RoleDTO> GetRoles
+    {
+      get
+      {
+        ObservableCollection<RoleDTO> getRoles = new ObservableCollection<RoleDTO>();
+        foreach (RoleDTO roleDto in this.GetRoleManagerInstance().GetRolesDTO().Where<RoleDTO>((Func<RoleDTO, bool>) (x => !x.Name.StartsWith("default"))))
+          getRoles.Add(roleDto);
+        return getRoles;
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_Client_UserControl_Dialog_FirstNameValidationMessage")]
+    public string FirstNameTextValue
+    {
+      get => this._firstNameTextValue;
+      set
+      {
+        this._firstNameTextValue = value;
+        this.OnPropertyChanged(nameof (FirstNameTextValue));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_Client_UserControl_Dialog_LastNameValidationMessage")]
+    public string LastNameTextValue
+    {
+      get => this._lastNameTextValue;
+      set
+      {
+        this._lastNameTextValue = value;
+        this.OnPropertyChanged(nameof (LastNameTextValue));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_Client_UserControl_Dialog_UsernameValidationMessage")]
+    public string UsernameTextValue
+    {
+      get => this._usernameTextValue;
+      set
+      {
+        this._usernameTextValue = value;
+        this.OnPropertyChanged(nameof (UsernameTextValue));
+      }
+    }
+
+    public IEnumerable<Country> CountryCollection
+    {
+      get
+      {
+        return (IEnumerable<Country>) this._countryRepository.GetAll().OrderBy<Country, string>((Func<Country, string>) (x => x.Name)).ToList<Country>();
+      }
+    }
+
+    public Guid SelectedCountryId { get; set; }
+
+    public bool InvalidPassword { get; set; }
+
+    public string OfficeTextValue
+    {
+      get => this._officeTextValue;
+      set
+      {
+        this._officeTextValue = value;
+        this.OnPropertyChanged(nameof (OfficeTextValue));
+      }
+    }
+
+    public Guid RoleId { get; set; }
+
+    public Language SelectedLanguage
+    {
+      get => this._selectedLanguage;
+      set
+      {
+        if (value != null)
+          this._selectedLanguage = value;
+        this.OnPropertyChanged(nameof (SelectedLanguage));
+      }
+    }
+
+    public ObservableCollection<Language> LanguageList
+    {
+      get
+      {
+        if (this._languages != null)
+          return this._languages;
+        ObservableCollection<Language> observableCollection = new ObservableCollection<Language>();
+        observableCollection.Add(new Language(LangEnum.English, "pack://application:,,,/Styles;component/Images/Universal/english.png"));
+        observableCollection.Add(new Language(LangEnum.German, "pack://application:,,,/Styles;component/Images/Universal/german.png"));
+        this._languages = observableCollection;
+        return this._languages;
+      }
+    }
+
+    public ICommand AddUserCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (_ =>
+        {
+          if (this.InvalidPassword)
+            return;
+          PasswordBox passwordBox = _ as PasswordBox;
+          UsersManager userManagerInstance = this.GetUserManagerInstance();
+          this.ValidateProperty("UsernameTextValue");
+          if (!this.IsValid)
+            return;
+          userManagerInstance.CreateUser(new UserEditDTO()
+          {
+            FirstName = this._firstNameTextValue,
+            LastName = this._lastNameTextValue,
+            Username = this._usernameTextValue,
+            Office = this._officeTextValue,
+            CountryId = this.SelectedCountryId,
+            Language = this.SelectedLanguage.Name.ToString()
+          }, this.RoleList, passwordBox?.Password);
+          this.OnRequestClose(true);
+        }));
+      }
+    }
+
+    private UsersManager GetUserManagerInstance() => new UsersManager(this._repositoryFactory);
+
+    private RoleManager GetRoleManagerInstance() => new RoleManager(this._repositoryFactory);
+
+    public override List<string> ValidateProperty(string propertyName)
+    {
+      string propertyName1 = this.GetPropertyName<string>((Expression<Func<string>>) (() => this.UsernameTextValue));
+      if (propertyName != propertyName1)
+        return new List<string>();
+      ICollection<string> validationErrors;
+      this.GetUserManagerInstance().ValidateUsername(this.UsernameTextValue, out validationErrors);
+      return validationErrors.ToList<string>();
+    }
+
+    public new string GetPropertyName<T>(Expression<Func<T>> propertyExpression)
+    {
+      return propertyExpression.Body is MemberExpression body ? body.Member.Name : (string) null;
+    }
+  }
+}
+
+
+--- DeleteRoleViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Users.DeleteRoleViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Events;
+using MSS.Business.Modules.UsersManagement;
+using MSS.Core.Model.UsersManagement;
+using MSS.DTO.Users;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using Ninject;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Users
+{
+  internal class DeleteRoleViewModel : ViewModelBase
+  {
+    private readonly Guid _roleId;
+    private string _roleName = string.Empty;
+    private ObservableCollection<OperationDTO> _roleOperationList = new ObservableCollection<OperationDTO>();
+    private readonly IRepositoryFactory _repositoryFactory;
+    private RoleDTO _role;
+
+    [Inject]
+    public DeleteRoleViewModel(RoleDTO role, IRepositoryFactory repositoryFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._role = role;
+      this._roleId = role.Id;
+      this.RoleName = role.Name;
+      this.ConfirmRoleDeleteDialog = string.Format(Resources.MSS_Client_UserControl_Dialog_DeleteRoleDialogConfirmation, (object) this.RoleName);
+      foreach (OperationDTO operationDto in this.GetRoleManagerInstance().GetRoleOperations().Where<RoleOperation>((Func<RoleOperation, bool>) (roleOperation => roleOperation.Role.Id == role.Id)).Select<RoleOperation, OperationDTO>((Func<RoleOperation, OperationDTO>) (roleOperation => new OperationDTO()
+      {
+        Id = roleOperation.Operation.Id,
+        Name = roleOperation.Operation.Name
+      })))
+        this.RoleOperationList.Add(operationDto);
+    }
+
+    public string RoleName
+    {
+      get => this._roleName;
+      set => this._roleName = value;
+    }
+
+    public string ConfirmRoleDeleteDialog { get; set; }
+
+    public ObservableCollection<OperationDTO> RoleOperationList
+    {
+      get => this._roleOperationList;
+      set
+      {
+        this._roleOperationList = value;
+        this.OnPropertyChanged(nameof (RoleOperationList));
+      }
+    }
+
+    public ICommand DeleteRoleCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (_ =>
+        {
+          bool flag = this.GetRoleManagerInstance().DeleteRole(this._roleId);
+          EventPublisher.Publish<DeleteEntityEvent>(new DeleteEntityEvent()
+          {
+            WasEntityDeleted = flag,
+            ObjectToDelete = (object) this._role,
+            Type = typeof (Role)
+          }, (IViewModel) this);
+          this.OnRequestClose(true);
+        }));
+      }
+    }
+
+    private RoleManager GetRoleManagerInstance() => new RoleManager(this._repositoryFactory);
+  }
+}
+
+
+--- DeleteUserViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Users.DeleteUserViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Modules.UsersManagement;
+using MSS.DTO.Users;
+using MSS.Interfaces;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using Ninject;
+using System;
+using System.Collections.Generic;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Users
+{
+  internal class DeleteUserViewModel : ViewModelBase, IViewModel
+  {
+    private readonly Guid _userId;
+    private string _firstNameTextValue = string.Empty;
+    private string _lastNameTextValue = string.Empty;
+    private string _usernameTextValue = string.Empty;
+    private readonly IRepositoryFactory _repositoryFactory;
+
+    [Inject]
+    public DeleteUserViewModel(UserDTO um, IRepositoryFactory repositoryFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._userId = um.Id;
+      this.FirstNameTextValue = um.FirstName;
+      this.LastNameTextValue = um.LastName;
+      this.UsernameTextValue = um.Username;
+    }
+
+    public IEnumerable<RoleDTO> GetRoles => this.GetRoleManagerInstance().GetRolesDTO();
+
+    public string FirstNameTextValue
+    {
+      get => this._firstNameTextValue;
+      set => this._firstNameTextValue = value;
+    }
+
+    public string LastNameTextValue
+    {
+      get => this._lastNameTextValue;
+      set => this._lastNameTextValue = value;
+    }
+
+    public string UsernameTextValue
+    {
+      get => this._usernameTextValue;
+      set => this._usernameTextValue = value;
+    }
+
+    public string RoleName => this.GetUserManagerInstance().GetUserRoles(this._userId);
+
+    public ICommand DeleteUserCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          this.GetUserManagerInstance().DeleteUser(this._userId);
+          this.OnRequestClose(true);
+        }));
+      }
+    }
+
+    private UsersManager GetUserManagerInstance() => new UsersManager(this._repositoryFactory);
+
+    private RoleManager GetRoleManagerInstance() => new RoleManager(this._repositoryFactory);
+  }
+}
+
+
+--- EditRoleViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Users.EditRoleViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Events;
+using MSS.Business.Modules.UsersManagement;
+using MSS.Core.Utils;
+using MSS.DTO.Users;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using Ninject;
+using Ninject.Infrastructure.Language;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Users
+{
+  internal class EditRoleViewModel : ValidationViewModelBase
+  {
+    private readonly Guid _roleId;
+    private ObservableCollection<OperationDTO> _operationsList;
+    private ObservableCollection<OperationDTO> _roleOperationList = new ObservableCollection<OperationDTO>();
+    private readonly IRepositoryFactory _repositoryFactory;
+    private string _roleName;
+    private OperationDTO _roleOperation;
+
+    [Inject]
+    public EditRoleViewModel(RoleDTO role, IRepositoryFactory repositoryFactory)
+    {
+      this._roleId = role.Id;
+      this._repositoryFactory = repositoryFactory;
+      this.RoleName = role.Name;
+      IEnumerable<MSS.Core.Model.UsersManagement.RoleOperation> roleOperations = this.GetRoleManagerInstance().GetRoleOperations();
+      this._operationsList = this.OpCollection();
+      foreach (MSS.Core.Model.UsersManagement.RoleOperation roleOperation1 in roleOperations)
+      {
+        MSS.Core.Model.UsersManagement.RoleOperation roleOperation = roleOperation1;
+        if (!(roleOperation.Role.Id != role.Id))
+        {
+          OperationDTO operationDto = this.OperationsList.FirstOrDefault<OperationDTO>((Func<OperationDTO, bool>) (op => op.Id == roleOperation.Operation.Id));
+          this.RoleOperationList.Add(operationDto);
+          this.OperationsList.Remove(operationDto);
+        }
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_Client_UserControl_RoleNameValidation")]
+    public string RoleName
+    {
+      get => this._roleName;
+      set
+      {
+        this._roleName = value;
+        this.OnPropertyChanged(nameof (RoleName));
+      }
+    }
+
+    [RequiredCollection("MSS_Client_UserControl_RoleOperationValidation")]
+    public ObservableCollection<OperationDTO> RoleOperationList
+    {
+      get => this._roleOperationList;
+      set
+      {
+        this._roleOperationList = value;
+        this.OnPropertyChanged(nameof (RoleOperationList));
+      }
+    }
+
+    public ObservableCollection<OperationDTO> OperationsList
+    {
+      get => this._operationsList;
+      set
+      {
+        this._operationsList = value;
+        this.OnPropertyChanged(nameof (OperationsList));
+      }
+    }
+
+    public OperationDTO RoleOperation
+    {
+      get => this._roleOperation;
+      set
+      {
+        this._roleOperation = value;
+        this.OnPropertyChanged("RoleOperationList");
+      }
+    }
+
+    public ICommand EditRoleCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (_ =>
+        {
+          if (!this.IsValid)
+            return;
+          this.GetRoleManagerInstance().EditRole(new RoleDTO()
+          {
+            Id = this._roleId,
+            IsStandard = false,
+            Name = this.RoleName
+          }, this.RoleOperationList.ToEnumerable<OperationDTO>());
+          EventPublisher.Publish<GridShouldBeUpdated>(new GridShouldBeUpdated(), (IViewModel) this);
+          this.OnRequestClose(true);
+        }));
+      }
+    }
+
+    private RoleManager GetRoleManagerInstance() => new RoleManager(this._repositoryFactory);
+
+    private ObservableCollection<OperationDTO> OpCollection()
+    {
+      IEnumerable<OperationDTO> operationsDto = this.GetRoleManagerInstance().GetOperationsDTO();
+      ObservableCollection<OperationDTO> observableCollection = new ObservableCollection<OperationDTO>();
+      foreach (OperationDTO operationDto in operationsDto)
+        observableCollection.Add(operationDto);
+      return observableCollection;
+    }
+
+    public bool ValidateRoleName(string rolename, out ICollection<string> validationErrors)
+    {
+      validationErrors = (ICollection<string>) new List<string>();
+      if (rolename.StartsWith("default", StringComparison.CurrentCulture))
+        validationErrors.Add(Resources.MSS_Client_UserControl_Dialog_Username_Default);
+      return validationErrors.Count == 0;
+    }
+
+    public override List<string> ValidateProperty(string propertyName)
+    {
+      string propertyName1 = this.GetPropertyName<string>((Expression<Func<string>>) (() => this.RoleName));
+      if (!(propertyName == propertyName1))
+        return new List<string>();
+      ICollection<string> validationErrors;
+      this.ValidateRoleName(this.RoleName, out validationErrors);
+      this.IsValid &= !validationErrors.Any<string>();
+      return validationErrors.ToList<string>();
+    }
+  }
+}
+
+
+--- EditUserViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Users.EditUserViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using AutoMapper;
+using MSS.Business.Events;
+using MSS.Business.Languages;
+using MSS.Business.Modules.UsersManagement;
+using MSS.Core.Model.UsersManagement;
+using MSS.Core.Utils;
+using MSS.DTO.Users;
+using MSS.Interfaces;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using NHibernate.Linq;
+using Ninject;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Windows.Controls;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Users
+{
+  internal class EditUserViewModel : ValidationViewModelBase
+  {
+    private readonly Guid _userId;
+    private string _firstNameTextValue = string.Empty;
+    private string _lastNameTextValue = string.Empty;
+    private string _usernameTextValue = string.Empty;
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly IRepository<Country> _countryRepository;
+    private ObservableCollection<RoleDTO> _roleCollection;
+    private string _officeTextValue;
+    private ObservableCollection<Language> _languages;
+
+    [Inject]
+    public EditUserViewModel(UserDTO um, IRepositoryFactory repositoryFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._countryRepository = repositoryFactory.GetRepository<Country>();
+      this._userId = um.Id;
+      this.FirstNameTextValue = um.FirstName;
+      this.LastNameTextValue = um.LastName;
+      this.UsernameTextValue = um.Username;
+      this.OfficeTextValue = um.Office;
+      this.SelectedCountryId = um.CountryId;
+      this.SelectedLanguage = this.LanguageList.FirstOrDefault<Language>((Func<Language, bool>) (l => l.Name.ToString() == um.Language));
+      this.InvalidPassword = false;
+      IList<UserRole> userRoleList = repositoryFactory.GetRepository<UserRole>().SearchFor((Expression<Func<UserRole, bool>>) (ur => ur.User.Id == um.Id));
+      ObservableCollection<MSS.Core.Model.UsersManagement.Role> rolsList = new ObservableCollection<MSS.Core.Model.UsersManagement.Role>();
+      TypeHelperExtensionMethods.ForEach<UserRole>((IEnumerable<UserRole>) userRoleList, (Action<UserRole>) (ur => rolsList.Add(ur.Role)));
+      Mapper.CreateMap<MSS.Core.Model.UsersManagement.Role, RoleDTO>();
+      this.RoleList = new ObservableCollection<RoleDTO>();
+      this.RoleList = Mapper.Map<ObservableCollection<MSS.Core.Model.UsersManagement.Role>, ObservableCollection<RoleDTO>>(rolsList);
+      this.RoleCollection = this.RolesCollection();
+    }
+
+    private ObservableCollection<RoleDTO> RolesCollection()
+    {
+      IEnumerable<RoleDTO> roleDtos = this.GetRoles.Where<RoleDTO>((Func<RoleDTO, bool>) (x => !x.Name.StartsWith("default", StringComparison.CurrentCulture)));
+      ObservableCollection<RoleDTO> observableCollection = new ObservableCollection<RoleDTO>();
+      foreach (RoleDTO roleDto in roleDtos)
+        observableCollection.Add(roleDto);
+      return observableCollection;
+    }
+
+    [RequiredCollection("MSS_Client_UserControl_Dialog_RoleErrorToolTip")]
+    public ObservableCollection<RoleDTO> RoleList { get; set; }
+
+    public RoleDTO Role
+    {
+      set => this.OnPropertyChanged("RoleList");
+    }
+
+    public ObservableCollection<RoleDTO> RoleCollection
+    {
+      get => this._roleCollection;
+      set
+      {
+        this._roleCollection = this.RolesCollection();
+        this.OnPropertyChanged(nameof (RoleCollection));
+      }
+    }
+
+    public IEnumerable<RoleDTO> GetRoles
+    {
+      get
+      {
+        return (IEnumerable<RoleDTO>) this.GetRoleManagerInsance().GetRolesDTO().Where<RoleDTO>((Func<RoleDTO, bool>) (x => !this.RoleList.Select<RoleDTO, Guid>((Func<RoleDTO, Guid>) (y => y.Id)).ToList<Guid>().Contains(x.Id))).ToList<RoleDTO>();
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_Client_UserControl_Dialog_FirstNameValidationMessage")]
+    public string FirstNameTextValue
+    {
+      get => this._firstNameTextValue;
+      set
+      {
+        this._firstNameTextValue = value;
+        this.OnPropertyChanged(nameof (FirstNameTextValue));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_Client_UserControl_Dialog_LastNameValidationMessage")]
+    public string LastNameTextValue
+    {
+      get => this._lastNameTextValue;
+      set
+      {
+        this._lastNameTextValue = value;
+        this.OnPropertyChanged(nameof (LastNameTextValue));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_Client_UserControl_Dialog_UsernameValidationMessage")]
+    public string UsernameTextValue
+    {
+      get => this._usernameTextValue;
+      set
+      {
+        this._usernameTextValue = value;
+        this.OnPropertyChanged(nameof (UsernameTextValue));
+      }
+    }
+
+    public IEnumerable<Country> CountryCollection
+    {
+      get
+      {
+        return (IEnumerable<Country>) this._countryRepository.GetAll().OrderBy<Country, string>((Func<Country, string>) (x => x.Name)).ToList<Country>();
+      }
+    }
+
+    public Guid SelectedCountryId { get; set; }
+
+    public string OfficeTextValue
+    {
+      get => this._officeTextValue;
+      set
+      {
+        this._officeTextValue = value;
+        this.OnPropertyChanged(nameof (OfficeTextValue));
+      }
+    }
+
+    public Language SelectedLanguage { get; set; }
+
+    public bool InvalidPassword { get; set; }
+
+    public ObservableCollection<Language> LanguageList
+    {
+      get
+      {
+        if (this._languages != null)
+          return this._languages;
+        ObservableCollection<Language> observableCollection = new ObservableCollection<Language>();
+        observableCollection.Add(new Language(LangEnum.English, "pack://application:,,,/Styles;component/Images/Universal/english.png"));
+        observableCollection.Add(new Language(LangEnum.German, "pack://application:,,,/Styles;component/Images/Universal/german.png"));
+        this._languages = observableCollection;
+        return this._languages;
+      }
+    }
+
+    public ICommand EditUserInfoCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          if (this.InvalidPassword || !this.RoleList.Any<RoleDTO>())
+            return;
+          PasswordBox passwordBox = parameter as PasswordBox;
+          UsersManager userManagerInstance = this.GetUserManagerInstance();
+          if (!this.IsValid)
+            return;
+          userManagerInstance.EditUser(new UserEditDTO()
+          {
+            Id = this._userId,
+            FirstName = this._firstNameTextValue,
+            LastName = this._lastNameTextValue,
+            Username = this._usernameTextValue,
+            Office = this._officeTextValue,
+            CountryId = this.SelectedCountryId,
+            Language = this.SelectedLanguage.Name.ToString()
+          }, this.RoleList, passwordBox?.Password);
+          EventPublisher.Publish<GridShouldBeUpdated>(new GridShouldBeUpdated(), (IViewModel) this);
+          this.OnRequestClose(true);
+        }));
+      }
+    }
+
+    private UsersManager GetUserManagerInstance() => new UsersManager(this._repositoryFactory);
+
+    private RoleManager GetRoleManagerInsance() => new RoleManager(this._repositoryFactory);
+  }
+}
+
+
+--- UsersViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Users.UsersViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Events;
+using MSS.Business.Modules.UsersManagement;
+using MSS.Business.Utils;
+using MSS.Core.Model.UsersManagement;
+using MSS.DIConfiguration;
+using MSS.DTO.MessageHandler;
+using MSS.DTO.Users;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MSS_Client.Utils;
+using MSS_Client.Utils.Virtualization;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using Ninject;
+using Ninject.Parameters;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Users
+{
+  public class UsersViewModel : ValidationViewModelBase
+  {
+    private int _pageSize;
+    private readonly IWindowFactory _windowFactory;
+    private readonly IRepositoryFactory _repositoryFactory;
+    private int _selectedIndex;
+    private IEnumerable<UserDTO> _getUsers;
+    private bool _isUserTabSelected;
+    private IEnumerable<RoleDTO> _getRoles;
+    private bool _isUserRolesTabSelected;
+    private bool _createRoleVisibility;
+    private bool _editRoleVisibility;
+    private bool _deleteRoleVisibility;
+    private bool _createUserVisibility;
+    private bool _editUserVisibility;
+    private bool _deleteUserVisibility;
+    private ViewModelBase _messageUserControlUsers;
+    private ViewModelBase _messageUserControlRoles;
+
+    [Inject]
+    public UsersViewModel(IRepositoryFactory repositoryFactory, IWindowFactory windowFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._windowFactory = windowFactory;
+      this._pageSize = Convert.ToInt32(MSS.Business.Utils.AppContext.Current.GetParameterValue<string>(nameof (PageSize)));
+      EventPublisher.Register<ActionSyncFinished>(new Action<ActionSyncFinished>(this.CreateMessage));
+      EventPublisher.Register<ActionSearch<UserDTO>>(new Action<ActionSearch<UserDTO>>(this.RefreshUsersAfterSearch));
+      EventPublisher.Register<ActionSearch<RoleDTO>>(new Action<ActionSearch<RoleDTO>>(this.RefreshRolesAfterSearch));
+      EventPublisher.Register<GridShouldBeUpdated>(new Action<GridShouldBeUpdated>(this.RefreshUsersAndRolesAfterSync));
+      EventPublisher.Register<SelectedTabValue>(new Action<SelectedTabValue>(this.SetTab));
+      EventPublisher.Register<DeleteEntityEvent>(new Action<DeleteEntityEvent>(this.DeleteEntityEventHandler));
+      this._getUsers = this.GetUserManagerInstance().GetUsersDTO().Where<UserDTO>((Func<UserDTO, bool>) (x => !x.Username.StartsWith("default")));
+      this._getRoles = this.GetRoleManagerInstance().GetRolesDTO().Where<RoleDTO>((Func<RoleDTO, bool>) (x => !x.Name.StartsWith("default")));
+      UsersManager usersManager1 = new UsersManager(this._repositoryFactory);
+      this.CreateRoleVisibility = usersManager1.HasRight(OperationEnum.UserRoleCreate.ToString());
+      UsersManager usersManager2 = usersManager1;
+      OperationEnum operationEnum = OperationEnum.UserRoleEdit;
+      string operation1 = operationEnum.ToString();
+      this.EditRoleVisibility = usersManager2.HasRight(operation1);
+      UsersManager usersManager3 = usersManager1;
+      operationEnum = OperationEnum.UserRoleDelete;
+      string operation2 = operationEnum.ToString();
+      this.DeleteRoleVisibility = usersManager3.HasRight(operation2);
+      UsersManager usersManager4 = usersManager1;
+      operationEnum = OperationEnum.UserCreate;
+      string operation3 = operationEnum.ToString();
+      this.CreateUserVisibility = usersManager4.HasRight(operation3);
+      UsersManager usersManager5 = usersManager1;
+      operationEnum = OperationEnum.UserEdit;
+      string operation4 = operationEnum.ToString();
+      this.EditUserVisibility = usersManager5.HasRight(operation4);
+      UsersManager usersManager6 = usersManager1;
+      operationEnum = OperationEnum.UserDelete;
+      string operation5 = operationEnum.ToString();
+      this.DeleteUserVisibility = usersManager6.HasRight(operation5);
+    }
+
+    public int SelectedIndex
+    {
+      get => this._selectedIndex;
+      set
+      {
+        this._selectedIndex = value;
+        this.OnPropertyChanged(nameof (SelectedIndex));
+      }
+    }
+
+    public int PageSize
+    {
+      get => this._pageSize;
+      set
+      {
+        this._pageSize = value;
+        this.OnPropertyChanged(nameof (PageSize));
+      }
+    }
+
+    private void SetTab(SelectedTabValue selectedTabValue)
+    {
+      switch (selectedTabValue.Tab)
+      {
+        case ApplicationTabsEnum.UsersUsers:
+          this.SelectedIndex = 0;
+          break;
+        case ApplicationTabsEnum.UsersRoles:
+          this.SelectedIndex = 1;
+          break;
+      }
+    }
+
+    private void CreateMessage(ActionSyncFinished messageFinished)
+    {
+      ViewModelBase viewModelBase = (ViewModelBase) null;
+      switch (messageFinished.Message.MessageType)
+      {
+        case MessageTypeEnum.Success:
+          viewModelBase = MessageHandlingManager.ShowSuccessMessage(messageFinished.Message.MessageText);
+          break;
+        case MessageTypeEnum.Warning:
+          viewModelBase = MessageHandlingManager.ShowWarningMessage(messageFinished.Message.MessageText);
+          break;
+      }
+      if (this.IsUserTabSelected)
+        this.MessageUserControlUsers = viewModelBase;
+      if (!this.IsUserRolesTabSelected)
+        return;
+      this.MessageUserControlUsers = viewModelBase;
+    }
+
+    private void RefreshUsersAfterSearch(ActionSearch<UserDTO> update)
+    {
+      bool flag = update.Message == null;
+      this._getUsers = update.ObservableCollection == null || update.ObservableCollection.Count != 0 ? (IEnumerable<UserDTO>) update.ObservableCollection : this.GetUsers;
+      this.OnPropertyChanged("GetUsers");
+      if (flag)
+        return;
+      if (this.IsUserTabSelected)
+        this.MessageUserControlUsers = MessageHandlingManager.ShowWarningMessage(update.Message.MessageText);
+      if (!this.IsUserRolesTabSelected)
+        return;
+      this.MessageUserControlUsers = MessageHandlingManager.ShowWarningMessage(update.Message.MessageText);
+    }
+
+    private void RefreshRolesAfterSearch(ActionSearch<RoleDTO> update)
+    {
+      bool flag = update.Message == null;
+      this._getRoles = update.ObservableCollection.Count == 0 ? this.GetRoles : (IEnumerable<RoleDTO>) update.ObservableCollection;
+      this.OnPropertyChanged("GetRoles");
+      if (flag)
+        return;
+      if (this.IsUserTabSelected)
+        this.MessageUserControlUsers = MessageHandlingManager.ShowWarningMessage(update.Message.MessageText);
+      if (!this.IsUserRolesTabSelected)
+        return;
+      this.MessageUserControlUsers = MessageHandlingManager.ShowWarningMessage(update.Message.MessageText);
+    }
+
+    private void RefreshUsersAndRolesAfterSync(GridShouldBeUpdated args)
+    {
+      this._repositoryFactory.GetSession().Clear();
+      this._getUsers = this.GetUserManagerInstance().GetUsersDTO().Where<UserDTO>((Func<UserDTO, bool>) (x => !x.Username.StartsWith("default")));
+      this._getRoles = this.GetRoleManagerInstance().GetRolesDTO();
+      this.OnPropertyChanged("GetUsers");
+      this.OnPropertyChanged("GetRoles");
+    }
+
+    private void DeleteEntityEventHandler(DeleteEntityEvent args)
+    {
+      if (!args.WasEntityDeleted || !(args.Type == typeof (Role)))
+        return;
+      IRepository<Role> repository = this._repositoryFactory.GetRepository<Role>();
+      if (args.ObjectToDelete is RoleDTO objectToDelete)
+        repository.Refresh((object) objectToDelete.Id);
+      this.MessageUserControlRoles = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+    }
+
+    public IEnumerable<UserDTO> GetUsers
+    {
+      get => this._getUsers;
+      set
+      {
+        this._getUsers = value;
+        this.OnPropertyChanged(nameof (GetUsers));
+      }
+    }
+
+    public ICommand CreateUserCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<CreateUserViewModel>());
+          if (newModalDialog.HasValue && newModalDialog.Value)
+          {
+            this.MessageUserControlUsers = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+            this._getUsers = this.GetUserManagerInstance().GetUsersDTO().Where<UserDTO>((Func<UserDTO, bool>) (x => !x.Username.StartsWith("default")));
+            this.OnPropertyChanged("GetUsers");
+          }
+          else
+            this.MessageUserControlUsers = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    public ICommand EditUserCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          UserDTO userDto = parameter as UserDTO;
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<EditUserViewModel>((IParameter) new ConstructorArgument("um", (object) userDto)));
+          if (newModalDialog.HasValue && newModalDialog.Value)
+          {
+            this._repositoryFactory.GetUserRepository().Refresh((object) userDto.Id);
+            this.MessageUserControlUsers = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          }
+          else
+            this.MessageUserControlUsers = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    public ICommand DeleteUserCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (param =>
+        {
+          if (!(param is UserDTO user2))
+            return;
+          if (user2.Id == MSS.Business.Utils.AppContext.Current.LoggedUser.Id)
+            this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<GenericMessageViewModel>((IParameter) new ConstructorArgument("title", (object) Resources.MSS_Warning_Title), (IParameter) new ConstructorArgument("message", (object) Resources.MSS_Client_Users_CannotDeleteCurrentlyLoggedInUser), (IParameter) new ConstructorArgument("isCancelButtonVisible", (object) false)));
+          else if (new UsersManager(this._repositoryFactory).IsLastSuperuser(user2))
+          {
+            this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<GenericMessageViewModel>((IParameter) new ConstructorArgument("title", (object) Resources.MSS_Warning_Title), (IParameter) new ConstructorArgument("message", (object) Resources.MSS_Client_Users_CannotDeleteLastAdmin), (IParameter) new ConstructorArgument("isCancelButtonVisible", (object) false)));
+          }
+          else
+          {
+            bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<DeleteUserViewModel>((IParameter) new ConstructorArgument("um", (object) user2)));
+            if (newModalDialog.HasValue && newModalDialog.Value)
+            {
+              this._repositoryFactory.GetUserRepository().Refresh((object) user2.Id);
+              this.MessageUserControlUsers = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+              this._getUsers = this.GetUserManagerInstance().GetUsersDTO().Where<UserDTO>((Func<UserDTO, bool>) (x => !x.Username.StartsWith("default", StringComparison.CurrentCulture)));
+              this.OnPropertyChanged("GetUsers");
+            }
+            else
+              this.MessageUserControlUsers = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+          }
+        }));
+      }
+    }
+
+    private UsersManager GetUserManagerInstance() => new UsersManager(this._repositoryFactory);
+
+    private VirtualizationHelper GetVirtualizationHelperInstance()
+    {
+      return new VirtualizationHelper(this._repositoryFactory);
+    }
+
+    public bool IsUserTabSelected
+    {
+      get => this._isUserTabSelected;
+      set
+      {
+        this._isUserTabSelected = value;
+        if (!this._isUserTabSelected)
+          return;
+        EventPublisher.Publish<SelectedTabChanged>(new SelectedTabChanged()
+        {
+          SelectedTab = ApplicationTabsEnum.UsersUsers
+        }, (IViewModel) this);
+      }
+    }
+
+    public IEnumerable<RoleDTO> GetRoles
+    {
+      get => this._getRoles;
+      set
+      {
+        this._getRoles = value;
+        this.OnPropertyChanged(nameof (GetRoles));
+      }
+    }
+
+    private RoleManager GetRoleManagerInstance() => new RoleManager(this._repositoryFactory);
+
+    public ICommand CreateRoleCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (_ =>
+        {
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<CreateRoleViewModel>());
+          this.MessageUserControlRoles = !newModalDialog.HasValue || !newModalDialog.Value ? MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage) : MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          this._getRoles = this.GetRoleManagerInstance().GetRolesDTO().Where<RoleDTO>((Func<RoleDTO, bool>) (x => !x.Name.StartsWith("default", StringComparison.CurrentCulture)));
+          this.OnPropertyChanged("GetRoles");
+        }));
+      }
+    }
+
+    public ICommand EditRoleCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          RoleDTO roleDto = parameter as RoleDTO;
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<EditRoleViewModel>((IParameter) new ConstructorArgument("role", (object) roleDto)));
+          if (newModalDialog.HasValue && newModalDialog.Value)
+          {
+            IRepository<Role> repository = this._repositoryFactory.GetRepository<Role>();
+            if (roleDto != null)
+              repository.Refresh((object) roleDto.Id);
+            this.MessageUserControlRoles = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          }
+          else
+            this.MessageUserControlRoles = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+          this._getRoles = this.GetRoleManagerInstance().GetRolesDTO().Where<RoleDTO>((Func<RoleDTO, bool>) (x => !x.Name.StartsWith("default", StringComparison.CurrentCulture)));
+          this.OnPropertyChanged("GetRoles");
+        }));
+      }
+    }
+
+    public ICommand DeleteRoleCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          RoleDTO roleDto = parameter as RoleDTO;
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<DeleteRoleViewModel>((IParameter) new ConstructorArgument("role", (object) roleDto)));
+          if (!newModalDialog.HasValue || !newModalDialog.Value)
+            this.MessageUserControlRoles = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+          this._getRoles = this.GetRoleManagerInstance().GetRolesDTO().Where<RoleDTO>((Func<RoleDTO, bool>) (x => !x.Name.StartsWith("default", StringComparison.CurrentCulture)));
+          this.OnPropertyChanged("GetRoles");
+        }));
+      }
+    }
+
+    public ICommand SeeRolePermissionsCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          RoleDTO roleDto = parameter as RoleDTO;
+          this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<ViewRolePermissionsViewModel>((IParameter) new ConstructorArgument("role", (object) roleDto)));
+        }));
+      }
+    }
+
+    public bool IsUserRolesTabSelected
+    {
+      get => this._isUserRolesTabSelected;
+      set
+      {
+        this._isUserRolesTabSelected = value;
+        if (!this._isUserRolesTabSelected)
+          return;
+        EventPublisher.Publish<SelectedTabChanged>(new SelectedTabChanged()
+        {
+          SelectedTab = ApplicationTabsEnum.UsersRoles
+        }, (IViewModel) this);
+      }
+    }
+
+    public bool CreateRoleVisibility
+    {
+      get => this._createRoleVisibility;
+      set
+      {
+        this._createRoleVisibility = value;
+        this.OnPropertyChanged(nameof (CreateRoleVisibility));
+      }
+    }
+
+    public bool EditRoleVisibility
+    {
+      get => this._editRoleVisibility;
+      set
+      {
+        this._editRoleVisibility = value;
+        this.OnPropertyChanged(nameof (EditRoleVisibility));
+      }
+    }
+
+    public bool DeleteRoleVisibility
+    {
+      get => this._deleteRoleVisibility;
+      set
+      {
+        this._deleteRoleVisibility = value;
+        this.OnPropertyChanged(nameof (DeleteRoleVisibility));
+      }
+    }
+
+    public bool CreateUserVisibility
+    {
+      get => this._createUserVisibility;
+      set
+      {
+        this._createUserVisibility = value;
+        this.OnPropertyChanged(nameof (CreateUserVisibility));
+      }
+    }
+
+    public bool EditUserVisibility
+    {
+      get => this._editUserVisibility;
+      set
+      {
+        this._editUserVisibility = value;
+        this.OnPropertyChanged(nameof (EditUserVisibility));
+      }
+    }
+
+    public bool DeleteUserVisibility
+    {
+      get => this._deleteUserVisibility;
+      set
+      {
+        this._deleteUserVisibility = value;
+        this.OnPropertyChanged(nameof (DeleteUserVisibility));
+      }
+    }
+
+    public ViewModelBase MessageUserControlUsers
+    {
+      get => this._messageUserControlUsers;
+      set
+      {
+        this._messageUserControlUsers = value;
+        this.OnPropertyChanged(nameof (MessageUserControlUsers));
+      }
+    }
+
+    public ViewModelBase MessageUserControlRoles
+    {
+      get => this._messageUserControlRoles;
+      set
+      {
+        this._messageUserControlRoles = value;
+        this.OnPropertyChanged(nameof (MessageUserControlRoles));
+      }
+    }
+  }
+}
+
+
+--- ViewRolePermissionsViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Users.ViewRolePermissionsViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Modules.UsersManagement;
+using MSS.Core.Model.UsersManagement;
+using MSS.DTO.Users;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MVVM.ViewModel;
+using Ninject;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Users
+{
+  public class ViewRolePermissionsViewModel : ViewModelBase
+  {
+    private readonly IRepositoryFactory _repositoryFactory;
+    private List<OperationDTO> _operations;
+    private int _pageSize;
+
+    [Inject]
+    public ViewRolePermissionsViewModel(RoleDTO role, IRepositoryFactory repositoryFactory)
+    {
+      this.Title = Resources.MSS_Client_Permissions + " " + role.Name;
+      this._pageSize = Convert.ToInt32(MSS.Business.Utils.AppContext.Current.GetParameterValue<string>(nameof (PageSize)));
+      this._repositoryFactory = repositoryFactory;
+      this.Operations = this.GetOperationsForRole(role.Id).Select<Operation, OperationDTO>((Func<Operation, OperationDTO>) (o => new OperationDTO()
+      {
+        Id = o.Id,
+        Name = o.Name,
+        Description = Resources.ResourceManager.GetString(o.Name)
+      })).ToList<OperationDTO>();
+    }
+
+    public List<OperationDTO> Operations
+    {
+      get => this._operations;
+      set
+      {
+        this._operations = value;
+        this.OnPropertyChanged(nameof (Operations));
+      }
+    }
+
+    public int PageSize
+    {
+      get => this._pageSize;
+      set
+      {
+        this._pageSize = value;
+        this.OnPropertyChanged(nameof (PageSize));
+      }
+    }
+
+    public string Title { get; set; }
+
+    private RoleManager GetRoleManagerInstance() => new RoleManager(this._repositoryFactory);
+
+    private List<Operation> GetOperationsForRole(Guid roleId)
+    {
+      return this.GetRoleManagerInstance().GetRoleOperations().Where<RoleOperation>((Func<RoleOperation, bool>) (ro => ro.Role.Id == roleId)).Select<RoleOperation, Operation>((Func<RoleOperation, Operation>) (ro => ro.Operation)).ToList<Operation>();
+    }
+  }
+}
+

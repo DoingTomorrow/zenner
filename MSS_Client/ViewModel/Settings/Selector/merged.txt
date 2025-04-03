@@ -1,0 +1,289 @@
+
+--- EquipmentSelector.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Settings.Selector.EquipmentSelector
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Modules.AppParametersManagement;
+using MSS.Business.Modules.Configuration;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using Ninject;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Settings.Selector
+{
+  public class EquipmentSelector : ValidationViewModelBase
+  {
+    private EquipmentGroup _selectedEquipmentGroup;
+    private EquipmentModel _selectedEquipmentModel;
+    private bool _isBusy;
+    private bool _isTextBoxRowVisible;
+    private string _minoConnectPowerOffTimeLabel;
+    private string _minoConnectPowerOffTimeTextBox;
+    private ChangeableParameter _minoConnectPowerOffTimeParam;
+    private bool _isComboBoxRowVisible;
+    private string _portLabel;
+    private List<ConfigurationPropertyDTO> _portComboBoxItems;
+    private ConfigurationPropertyDTO _portComboBoxSelectedItem;
+    private ChangeableParameter _portChangeableParam;
+    private List<Config> _tagConfigValues;
+
+    private void InitCollections()
+    {
+      this.EquipmentGroupCollection = new ObservableCollection<EquipmentGroup>((IEnumerable<EquipmentGroup>) GmmInterface.DeviceManager.GetEquipmentGroups().OrderBy<EquipmentGroup, string>((Func<EquipmentGroup, string>) (eg => eg.Name)));
+      this.EquipmentCollection = new ObservableCollection<EquipmentModel>((IEnumerable<EquipmentModel>) GmmInterface.DeviceManager.GetEquipmentModels(this.SelectedEquipmentGroup).OrderBy<EquipmentModel, string>((Func<EquipmentModel, string>) (e => e.Name)));
+    }
+
+    [Inject]
+    public EquipmentSelector(EquipmentModel equipmentModel)
+    {
+      this.InitCollections();
+      this.InitSelected(equipmentModel);
+    }
+
+    private void InitSelected(EquipmentModel equipmentModel)
+    {
+      if (equipmentModel == null || equipmentModel.Name == null)
+        return;
+      this.SelectedEquipmentGroup = equipmentModel.EquipmentGroup;
+      EquipmentModel equipmentModel1 = this.EquipmentCollection.FirstOrDefault<EquipmentModel>((Func<EquipmentModel, bool>) (e => e.Name == equipmentModel.Name));
+      if (equipmentModel1.ChangeableParameters != null)
+        equipmentModel1.ChangeableParameters.ForEach((Action<ChangeableParameter>) (p =>
+        {
+          ChangeableParameter changeableParameter = equipmentModel.ChangeableParameters.FirstOrDefault<ChangeableParameter>((Func<ChangeableParameter, bool>) (x => x.Key == p.Key));
+          if (changeableParameter == null)
+            return;
+          p.Value = changeableParameter.Value;
+        }));
+      this.SelectedEquipmentModel = equipmentModel1;
+    }
+
+    [Inject]
+    public EquipmentSelector(string equipmentName, string equipmentParams)
+    {
+      this.InitCollections();
+      this.InitSelected(equipmentName, equipmentParams);
+    }
+
+    private void InitSelected(string equipmentName, string equipmentParams)
+    {
+      if (equipmentName == null)
+        return;
+      EquipmentModel equipmentModel = this.EquipmentCollection.FirstOrDefault<EquipmentModel>((Func<EquipmentModel, bool>) (e => e.Name == equipmentName));
+      if (equipmentModel != null)
+        this.SelectedEquipmentGroup = equipmentModel.EquipmentGroup;
+      EquipmentModel equipment = this.EquipmentCollection.FirstOrDefault<EquipmentModel>((Func<EquipmentModel, bool>) (e => e.Name == equipmentName));
+      if (equipment != null)
+      {
+        this.EquipmentConfigsList = MSS.Business.Modules.AppParametersManagement.AppParametersManagement.DeserializeChangeableParams(equipmentParams);
+        MSS.Business.Modules.AppParametersManagement.AppParametersManagement.UpdateEquipmentWithSavedParams(equipment, equipmentParams);
+        this.SelectedEquipmentModel = equipment;
+      }
+    }
+
+    public List<Config> EquipmentConfigsList { get; set; }
+
+    public ObservableCollection<EquipmentGroup> EquipmentGroupCollection { get; set; }
+
+    public ObservableCollection<EquipmentModel> EquipmentCollection { get; set; }
+
+    [Required(ErrorMessage = "EQUIPMENT_GROUP_SELECTION_REQUIRED")]
+    public EquipmentGroup SelectedEquipmentGroup
+    {
+      get => this._selectedEquipmentGroup;
+      set
+      {
+        this._selectedEquipmentGroup = value;
+        this.EquipmentCollection = new ObservableCollection<EquipmentModel>((IEnumerable<EquipmentModel>) GmmInterface.DeviceManager.GetEquipmentModels(this.SelectedEquipmentGroup).OrderBy<EquipmentModel, string>((Func<EquipmentModel, string>) (e => e.Name)));
+        this.OnPropertyChanged("EquipmentCollection");
+      }
+    }
+
+    [Required(ErrorMessage = "EQUIPMENT_MODEL_SELECTION_REQUIRED")]
+    public EquipmentModel SelectedEquipmentModel
+    {
+      get => this._selectedEquipmentModel;
+      set
+      {
+        this.IsBusy = true;
+        this._selectedEquipmentModel = value;
+        Task.Run((Action) (() => this.SetTextAndDropDownGrids())).ContinueWith((Action<Task>) (t =>
+        {
+          this.OnPropertyChanged(nameof (SelectedEquipmentModel));
+          this.IsBusy = false;
+        }), TaskScheduler.FromCurrentSynchronizationContext());
+      }
+    }
+
+    public bool IsBusy
+    {
+      get => this._isBusy;
+      set
+      {
+        if (this._isBusy == value)
+          return;
+        this._isBusy = value;
+        this.OnPropertyChanged(nameof (IsBusy));
+      }
+    }
+
+    public bool IsTextBoxRowVisible
+    {
+      get => this._isTextBoxRowVisible;
+      set
+      {
+        this._isTextBoxRowVisible = value;
+        this.OnPropertyChanged(nameof (IsTextBoxRowVisible));
+      }
+    }
+
+    public string MinoConnectPowerOffTimeLabel
+    {
+      get => this._minoConnectPowerOffTimeLabel;
+      set
+      {
+        this._minoConnectPowerOffTimeLabel = value;
+        this.OnPropertyChanged(nameof (MinoConnectPowerOffTimeLabel));
+      }
+    }
+
+    public string MinoConnectPowerOffTimeTextBox
+    {
+      get => this._minoConnectPowerOffTimeTextBox;
+      set
+      {
+        this._minoConnectPowerOffTimeTextBox = value;
+        if (this._minoConnectPowerOffTimeParam != null)
+          this._minoConnectPowerOffTimeParam.Value = value;
+        this.OnPropertyChanged(nameof (MinoConnectPowerOffTimeTextBox));
+      }
+    }
+
+    public bool IsComboBoxRowVisible
+    {
+      get => this._isComboBoxRowVisible;
+      set
+      {
+        this._isComboBoxRowVisible = value;
+        this.OnPropertyChanged(nameof (IsComboBoxRowVisible));
+      }
+    }
+
+    public string PortLabel
+    {
+      get => this._portLabel;
+      set
+      {
+        this._portLabel = value;
+        this.OnPropertyChanged(nameof (PortLabel));
+      }
+    }
+
+    public List<ConfigurationPropertyDTO> PortComboBoxItems
+    {
+      get => this._portComboBoxItems;
+      set
+      {
+        this._portComboBoxItems = value;
+        this.OnPropertyChanged(nameof (PortComboBoxItems));
+      }
+    }
+
+    public ConfigurationPropertyDTO PortComboBoxSelectedItem
+    {
+      get => this._portComboBoxSelectedItem;
+      set
+      {
+        this._portComboBoxSelectedItem = value;
+        if (this._portChangeableParam != null)
+          this._portChangeableParam.Value = value?.Value;
+        this.OnPropertyChanged(nameof (PortComboBoxSelectedItem));
+      }
+    }
+
+    public List<Config> TagConfigValues
+    {
+      get => this._tagConfigValues;
+      set
+      {
+        this._tagConfigValues = value;
+        this.OnPropertyChanged(nameof (TagConfigValues));
+      }
+    }
+
+    public System.Windows.Input.ICommand RefreshPortsCommand
+    {
+      get
+      {
+        return (System.Windows.Input.ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          this.IsBusy = true;
+          Task.Run((Action) (() => this.SetTextAndDropDownGrids())).ContinueWith((Action<Task>) (t =>
+          {
+            this.OnPropertyChanged("SelectedEquipmentModel");
+            this.IsBusy = false;
+          }), TaskScheduler.FromCurrentSynchronizationContext());
+        }));
+      }
+    }
+
+    private void SetTextAndDropDownGrids()
+    {
+      int num;
+      if (this.SelectedEquipmentModel != null && this.SelectedEquipmentModel.ChangeableParameters != null)
+      {
+        List<ChangeableParameter> changeableParameters = this.SelectedEquipmentModel.ChangeableParameters;
+        // ISSUE: explicit non-virtual call
+        num = changeableParameters != null ? (__nonvirtual (changeableParameters.Count) == 0 ? 1 : 0) : 0;
+      }
+      else
+        num = 1;
+      if (num != 0)
+      {
+        this.IsTextBoxRowVisible = false;
+        this.IsComboBoxRowVisible = false;
+      }
+      else
+      {
+        List<ChangeableParameter> changeableParameters = this.SelectedEquipmentModel.ChangeableParameters;
+        this.IsTextBoxRowVisible = this.SelectedEquipmentModel.ChangeableParameters.Any<ChangeableParameter>((Func<ChangeableParameter, bool>) (c => c.Type == typeof (string)));
+        this.IsComboBoxRowVisible = true;
+        this.MinoConnectPowerOffTimeLabel = "";
+        this.PortLabel = "";
+        this._portChangeableParam = new ChangeableParameter();
+        if (changeableParameters == null)
+          return;
+        foreach (ChangeableParameter changeableParameter in changeableParameters)
+        {
+          ChangeableParameter item = changeableParameter;
+          if (item.Type.IsEnum || item.Type.IsGenericType && item.Type.GetGenericTypeDefinition() == typeof (List<>))
+          {
+            this.PortLabel = item.Key;
+            this.PortComboBoxItems = EquipmentHelper.PrepareDataSourceListForParam(item, this.SelectedEquipmentModel);
+            this.PortComboBoxSelectedItem = this.SelectedEquipmentModel.Name == null ? this.PortComboBoxItems.FirstOrDefault<ConfigurationPropertyDTO>() : this.PortComboBoxItems.FirstOrDefault<ConfigurationPropertyDTO>((Func<ConfigurationPropertyDTO, bool>) (x => x.Value == item.Value));
+            this._portChangeableParam = item;
+          }
+          else
+          {
+            this.MinoConnectPowerOffTimeLabel = item.Key;
+            this.MinoConnectPowerOffTimeTextBox = item.Value;
+            this._minoConnectPowerOffTimeParam = item;
+          }
+        }
+      }
+    }
+  }
+}
+

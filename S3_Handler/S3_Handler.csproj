@@ -1,0 +1,333 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\S3_Handler.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{594004E4-0B96-43FC-B389-0E0929D4DAC9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>S3_Handler</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>S3_Handler</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AsyncCom">
+      <HintPath>lib\AsyncCom.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonWPF">
+      <HintPath>lib\CommonWPF.dll</HintPath>
+    </Reference>
+    <Reference Include="CommunicationPort">
+      <HintPath>lib\CommunicationPort.dll</HintPath>
+    </Reference>
+    <Reference Include="CorporateDesign">
+      <HintPath>lib\CorporateDesign.dll</HintPath>
+    </Reference>
+    <Reference Include="DeviceCollector">
+      <HintPath>lib\DeviceCollector.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="HandlerLib">
+      <HintPath>lib\HandlerLib.dll</HintPath>
+    </Reference>
+    <Reference Include="MBusLib">
+      <HintPath>lib\MBusLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationFramework" />
+    <Reference Include="ReadoutConfiguration">
+      <HintPath>lib\ReadoutConfiguration.dll</HintPath>
+    </Reference>
+    <Reference Include="StartupLib">
+      <HintPath>lib\StartupLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ADC_CalibrationSteps.cs" />
+    <Compile Include="ADC_Calibration.cs" />
+    <Compile Include="ADC_Values.cs" />
+    <Compile Include="FirmwareUpdateSettings.cs" />
+    <Compile Include="C5_FirmwareUpdate.cs" />
+    <Compile Include="C5_FwUpdate.cs" />
+    <Compile Include="CalibrationValues.cs" />
+    <Compile Include="CalibrationWindow.cs" />
+    <Compile Include="S3_CommandsCHANGED.cs" />
+    <Compile Include="S3_CommandsDCAC.cs" />
+    <Compile Include="S3_CommandsBase.cs" />
+    <Compile Include="CommonCommandWindowsName.cs" />
+    <Compile Include="S3_CommandsCOMPATIBLE.cs" />
+    <Compile Include="FlyingTestDiagnostic.cs" />
+    <Compile Include="FlyingTestData.cs" />
+    <Compile Include="TdcStatusData.cs" />
+    <Compile Include="HandlerInfo.cs" />
+    <Compile Include="MapDefClass05025005.cs" />
+    <Compile Include="MapDefClass05026005.cs" />
+    <Compile Include="MapDefClass05031005.cs" />
+    <Compile Include="MapDefClass05032005.cs" />
+    <Compile Include="MapDefClass05033005.cs" />
+    <Compile Include="MapDefClass05034005.cs" />
+    <Compile Include="MapDefClass06011009.cs" />
+    <Compile Include="MapDefClass06012009.cs" />
+    <Compile Include="MapDefClass06013009.cs" />
+    <Compile Include="MapDefClass06014009.cs" />
+    <Compile Include="MapDefClass07001005.cs" />
+    <Compile Include="MapDefClass07001009.cs" />
+    <Compile Include="MapDefClass07001023.cs" />
+    <Compile Include="MapDefClass07001024.cs" />
+    <Compile Include="MapDefClass07011023.cs" />
+    <Compile Include="MapDefClass07011024.cs" />
+    <Compile Include="MapDefClass07012023.cs" />
+    <Compile Include="MapDefClass07013023.cs" />
+    <Compile Include="MapDefClass07014023.cs" />
+    <Compile Include="MapDefClass07015023.cs" />
+    <Compile Include="MapDefClass07016023.cs" />
+    <Compile Include="MapDefClass07017023.cs" />
+    <Compile Include="MapDefClass07018023.cs" />
+    <Compile Include="MapDefClass07019023.cs" />
+    <Compile Include="MapDefClass0701A023.cs" />
+    <Compile Include="MapDefClass0701B023.cs" />
+    <Compile Include="MapDefClass0701C023.cs" />
+    <Compile Include="MapDefClass07021023.cs" />
+    <Compile Include="MapDefClass07021024.cs" />
+    <Compile Include="MapDefClass07022023.cs" />
+    <Compile Include="MapDefClass07023023.cs" />
+    <Compile Include="MapDefClass07025023.cs" />
+    <Compile Include="MapDefClass34.cs" />
+    <Compile Include="MapDefClass39.cs" />
+    <Compile Include="MapDefClass40.cs" />
+    <Compile Include="MapDefClass41.cs" />
+    <Compile Include="MapDefClass42.cs" />
+    <Compile Include="MapDefClass43.cs" />
+    <Compile Include="MapDefClass44.cs" />
+    <Compile Include="MapDefClass45.cs" />
+    <Compile Include="MapDefClass46.cs" />
+    <Compile Include="MapDefClass48.cs" />
+    <Compile Include="MapDefClass49.cs" />
+    <Compile Include="MapDefClass50.cs" />
+    <Compile Include="MapDefClass51.cs" />
+    <Compile Include="MapDefClass52.cs" />
+    <Compile Include="MapDefClass54.cs" />
+    <Compile Include="MapDefClass57.cs" />
+    <Compile Include="MapDefClass58.cs" />
+    <Compile Include="MapDefClass59.cs" />
+    <Compile Include="MapDefClass60.cs" />
+    <Compile Include="MapDefClass61.cs" />
+    <Compile Include="MapDefClass62.cs" />
+    <Compile Include="MapDefClass64.cs" />
+    <Compile Include="MapDefClass65.cs" />
+    <Compile Include="MapDefClass66.cs" />
+    <Compile Include="MapDefClassBase.cs" />
+    <Compile Include="BackupRuntimeVarsManager.cs" />
+    <Compile Include="S3_DisplayFunction.cs" />
+    <Compile Include="S3_DisplayMenu.cs" />
+    <Compile Include="S3_DisplayMenuBrunches.cs" />
+    <Compile Include="S3_RuntimeCode.cs" />
+    <Compile Include="HeapManager.cs" />
+    <Compile Include="MapSelector.cs" />
+    <Compile Include="MeterObjectComparer.cs" />
+    <Compile Include="CompareInfo.cs" />
+    <Compile Include="MeterSampling.cs" />
+    <Compile Include="MeterSamplingData.cs" />
+    <Compile Include="PlugInAnchor.cs" />
+    <Compile Include="Print.cs" />
+    <Compile Include="S3_BatteryEnergyManagement.cs" />
+    <Compile Include="S3_CommonDeviceIdentification.cs" />
+    <Compile Include="S3_DataBlock.cs" />
+    <Compile Include="S3_DeviceDescriptor.cs" />
+    <Compile Include="S3_DeviceId.cs" />
+    <Compile Include="S3_Meter.cs" />
+    <Compile Include="S3VolMeterPositions.cs" />
+    <Compile Include="LoRa_TransmissionScenario.cs" />
+    <Compile Include="S3_DeviceIdentification.cs" />
+    <Compile Include="FunctionManager.cs" />
+    <Compile Include="LcdUnitsC2FrameType.cs" />
+    <Compile Include="LcdUnitsC2.cs" />
+    <Compile Include="S3_FunctionLayer.cs" />
+    <Compile Include="S3_FunctionTable.cs" />
+    <Compile Include="S3_Function.cs" />
+    <Compile Include="LCD_Checker.cs" />
+    <Compile Include="LCD_Display.cs" />
+    <Compile Include="LoggerChanalFunctions.cs" />
+    <Compile Include="LoggerChanal.cs" />
+    <Compile Include="LoggerChanalData.cs" />
+    <Compile Include="LoggerChanalDataBase.cs" />
+    <Compile Include="LoggerConfiguration.cs" />
+    <Compile Include="LoggerActualData.cs" />
+    <Compile Include="LoggerMaxBlockChanalData.cs" />
+    <Compile Include="S3_MeterResources.cs" />
+    <Compile Include="MeterResources.cs" />
+    <Compile Include="MoreTests.cs" />
+    <Compile Include="OverwriteSelections.cs" />
+    <Compile Include="OverwriteListTypes.cs" />
+    <Compile Include="OverwriteOptions.cs" />
+    <Compile Include="OverwriteWorkMeter.cs" />
+    <Compile Include="OverwriteRequirementsList.cs" />
+    <Compile Include="OverwriteRequirements.cs" />
+    <Compile Include="OverwriteProperties.cs" />
+    <Compile Include="OverwriteHistoryItem.cs" />
+    <Compile Include="OverwriteFromTypeSelection.cs" />
+    <Compile Include="S3_Linker.cs" />
+    <Compile Include="S3_ParameterDefineClass.cs" />
+    <Compile Include="S3_ParameterLoader.cs" />
+    <Compile Include="S3_ParameterNames.cs" />
+    <Compile Include="S3_Pointer.cs" />
+    <Compile Include="SaveType.cs" />
+    <Compile Include="DeviceMemory.cs" />
+    <Compile Include="DiagnoseWindow.cs" />
+    <Compile Include="ADC_Measurement.cs" />
+    <Compile Include="LoggerManager.cs" />
+    <Compile Include="LoggerView.cs" />
+    <Compile Include="MeterSamplingMonitor.cs" />
+    <Compile Include="MeterScaling.cs" />
+    <Compile Include="InputData.cs" />
+    <Compile Include="OpenDevice.cs" />
+    <Compile Include="OpenType.cs" />
+    <Compile Include="ParameterList.cs" />
+    <Compile Include="DynamicParameterRange.cs" />
+    <Compile Include="ParameterViewWindow1.cs" />
+    <Compile Include="SapNumberRequestValues.cs" />
+    <Compile Include="S3_AllMeters.cs" />
+    <Compile Include="MeterJob.cs" />
+    <Compile Include="S3_DatabaseAccess.cs" />
+    <Compile Include="Function.cs" />
+    <Compile Include="S3_LCD_Menu.cs" />
+    <Compile Include="S3_MemoryBlock.cs" />
+    <Compile Include="MeterDisplayValues.cs" />
+    <Compile Include="DeviceState.cs" />
+    <Compile Include="MBusParameterConverter.cs" />
+    <Compile Include="S3_Parameter.cs" />
+    <Compile Include="S3_ParameterUnits.cs" />
+    <Compile Include="S3_ParameterStatics.cs" />
+    <Compile Include="S3P_Device_Setup.cs" />
+    <Compile Include="S3P_Device_Setup_2.cs" />
+    <Compile Include="S3P_Sta_Status.cs" />
+    <Compile Include="UltrasonicStateEnum.cs" />
+    <Compile Include="S3_HandlerFunctions.cs" />
+    <Compile Include="DeviceTestMode.cs" />
+    <Compile Include="OpticalInterfaceMode.cs" />
+    <Compile Include="MeterObjects.cs" />
+    <Compile Include="SaveOptions.cs" />
+    <Compile Include="S3_handlerLoadResult.cs" />
+    <Compile Include="WR4_VOL_INPUT_SETUP.cs" />
+    <Compile Include="S3_HandlerWindow.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="TdcMatrixEditor.cs" />
+    <Compile Include="TDC_Calibration.cs" />
+    <Compile Include="CalibrationMathematik.cs" />
+    <Compile Include="IufCheckResults.cs" />
+    <Compile Include="TDC_Internals.cs" />
+    <Compile Include="ParameterData.cs" />
+    <Compile Include="TDC_Map.cs" />
+    <Compile Include="TDC_Measurement.cs" />
+    <Compile Include="TDC_ZeroCalibrationCheck.cs" />
+    <Compile Include="TestScript.cs" />
+    <Compile Include="RandomX.cs" />
+    <Compile Include="TestWindow.cs" />
+    <Compile Include="TestWindowCommunication.cs" />
+    <Compile Include="TimeSettings.cs" />
+    <Compile Include="ParamCode.cs" />
+    <Compile Include="ControlLogger.cs" />
+    <Compile Include="DecodeCommand.cs" />
+    <Compile Include="ControlWord0.cs" />
+    <Compile Include="ControlWord1.cs" />
+    <Compile Include="ControlWord2.cs" />
+    <Compile Include="DataTransmitter.cs" />
+    <Compile Include="RadioTransmitter.cs" />
+    <Compile Include="RadioListHeader.cs" />
+    <Compile Include="RadioListHeaderItem.cs" />
+    <Compile Include="RadioList.cs" />
+    <Compile Include="MBusTransmitter.cs" />
+    <Compile Include="ListLink.cs" />
+    <Compile Include="MBusList.cs" />
+    <Compile Include="MBusParameter.cs" />
+    <Compile Include="MBusParameterGroup.cs" />
+    <Compile Include="RadioSetup.cs" />
+    <Compile Include="EditRadioScenarioNameView.cs" />
+    <Compile Include="TransmitParameterManager.cs" />
+    <Compile Include="TransmitParameterView.cs" />
+    <Compile Include="TypeChecker.cs" />
+    <Compile Include="VolumeGraphCalibration.cs" />
+    <Compile Include="WR4_VMCP_Diagnostic.cs" />
+    <Compile Include="VMCP_State.cs" />
+    <Compile Include="VMCP_Diagnostic.cs" />
+    <Compile Include="DeviceProtection.cs" />
+    <Compile Include="NotProtectedRange.cs" />
+    <Compile Include="WriteProtTable.cs" />
+    <Compile Include="WriteProtTableManager.cs" />
+    <Compile Include="Properties\Resources.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ADC_Measurement.resx" />
+    <EmbeddedResource Include="C5_FwUpdate.resx" />
+    <EmbeddedResource Include="CalibrationWindow.resx" />
+    <EmbeddedResource Include="DeviceProtection.resx" />
+    <EmbeddedResource Include="DiagnoseWindow.resx" />
+    <EmbeddedResource Include="EditRadioScenarioNameView.resx" />
+    <EmbeddedResource Include="LoggerView.resx" />
+    <EmbeddedResource Include="MeterObjectComparer.resx" />
+    <EmbeddedResource Include="MeterSamplingMonitor.resx" />
+    <EmbeddedResource Include="MoreTests.resx" />
+    <EmbeddedResource Include="OpenDevice.resx" />
+    <EmbeddedResource Include="OpenType.resx" />
+    <EmbeddedResource Include="OverwriteFromTypeSelection.resx" />
+    <EmbeddedResource Include="ParameterViewWindow1.resx" />
+    <EmbeddedResource Include="Print.resx" />
+    <EmbeddedResource Include="Properties\Resources.resx" />
+    <EmbeddedResource Include="S3_HandlerWindow.resx" />
+    <EmbeddedResource Include="S3_LCD_Menu.resx" />
+    <EmbeddedResource Include="SaveType.resx" />
+    <EmbeddedResource Include="Settings.resx" />
+    <EmbeddedResource Include="TDC_Internals.resx" />
+    <EmbeddedResource Include="TDC_Map.resx" />
+    <EmbeddedResource Include="TDC_Measurement.resx" />
+    <EmbeddedResource Include="TDC_ZeroCalibrationCheck.resx" />
+    <EmbeddedResource Include="TdcMatrixEditor.resx" />
+    <EmbeddedResource Include="TestWindow.resx" />
+    <EmbeddedResource Include="TimeSettings.resx" />
+    <EmbeddedResource Include="TransmitParameterView.resx" />
+    <EmbeddedResource Include="TypeChecker.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

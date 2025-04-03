@@ -1,0 +1,10 @@
+<Window x:Class="HandlerLib.ConfiguratorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:HandlerLib"
+        Title="Configurator" Height="600" Width="800" WindowStartupLocation="CenterOwner"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico">
+  <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <controls:ConfiguratorControl x:Name="ConfiguratorCtrl"/>
+  </Grid>
+</Window>

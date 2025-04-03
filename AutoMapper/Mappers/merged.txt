@@ -1,0 +1,1276 @@
+
+--- ArrayMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.ArrayMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using AutoMapper.Internal;
+using System;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class ArrayMapper : EnumerableMapperBase<Array>
+  {
+    public override bool IsMatch(ResolutionContext context)
+    {
+      return context.DestinationType.IsArray && context.SourceType.IsEnumerableType();
+    }
+
+    protected override void ClearEnumerable(Array enumerable)
+    {
+    }
+
+    protected override void SetElementValue(Array destination, object mappedValue, int index)
+    {
+      destination.SetValue(mappedValue, index);
+    }
+
+    protected override Array CreateDestinationObjectBase(Type destElementType, int sourceLength)
+    {
+      throw new NotImplementedException();
+    }
+
+    protected override object GetOrCreateDestinationObject(
+      ResolutionContext context,
+      IMappingEngineRunner mapper,
+      Type destElementType,
+      int sourceLength)
+    {
+      return (object) ObjectCreator.CreateArray(destElementType, sourceLength);
+    }
+  }
+}
+
+
+--- AssignableArrayMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.AssignableArrayMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class AssignableArrayMapper : IObjectMapper
+  {
+    public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+    {
+      return context.SourceValue == null && !mapper.ShouldMapSourceValueAsNull(context) ? mapper.CreateObject(context) : context.SourceValue;
+    }
+
+    public bool IsMatch(ResolutionContext context)
+    {
+      return context.DestinationType.IsAssignableFrom(context.SourceType) && context.DestinationType.IsArray && context.SourceType.IsArray;
+    }
+  }
+}
+
+
+--- AssignableMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.AssignableMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class AssignableMapper : IObjectMapper
+  {
+    public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+    {
+      return context.SourceValue == null && !mapper.ShouldMapSourceValueAsNull(context) ? mapper.CreateObject(context) : context.SourceValue;
+    }
+
+    public bool IsMatch(ResolutionContext context)
+    {
+      return context.DestinationType.IsAssignableFrom(context.SourceType);
+    }
+  }
+}
+
+
+--- CollectionMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.CollectionMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using AutoMapper.Internal;
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class CollectionMapper : IObjectMapper
+  {
+    public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+    {
+      return ((IObjectMapper) Activator.CreateInstance(typeof (CollectionMapper.EnumerableMapper<,>).MakeGenericType(context.DestinationType, TypeHelper.GetElementType(context.DestinationType)))).Map(context, mapper);
+    }
+
+    public bool IsMatch(ResolutionContext context)
+    {
+      return context.SourceType.IsEnumerableType() && context.DestinationType.IsCollectionType();
+    }
+
+    private class EnumerableMapper<TCollection, TElement> : EnumerableMapperBase<TCollection> where TCollection : ICollection<TElement>
+    {
+      public override bool IsMatch(ResolutionContext context)
+      {
+        throw new NotImplementedException();
+      }
+
+      protected override void SetElementValue(
+        TCollection destination,
+        object mappedValue,
+        int index)
+      {
+        destination.Add((TElement) mappedValue);
+      }
+
+      protected override void ClearEnumerable(TCollection enumerable) => enumerable.Clear();
+
+      protected override TCollection CreateDestinationObjectBase(
+        Type destElementType,
+        int sourceLength)
+      {
+        return (TCollection) (!typeof (TCollection).IsInterface ? ObjectCreator.CreateDefaultValue(typeof (TCollection)) : (object) new List<TElement>());
+      }
+    }
+  }
+}
+
+
+--- DictionaryMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.DictionaryMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using AutoMapper.Internal;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class DictionaryMapper : IObjectMapper
+  {
+    private static readonly Type KvpType = typeof (KeyValuePair<,>);
+
+    public bool IsMatch(ResolutionContext context)
+    {
+      return context.SourceType.IsDictionaryType() && context.DestinationType.IsDictionaryType();
+    }
+
+    public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+    {
+      if (context.IsSourceValueNull && mapper.ShouldMapSourceCollectionAsNull(context))
+        return (object) null;
+      IEnumerable<object> source1 = ((IEnumerable) context.SourceValue ?? (IEnumerable) new object[0]).Cast<object>();
+      Type dictionaryType1 = context.SourceType.GetDictionaryType();
+      Type genericArgument1 = dictionaryType1.GetGenericArguments()[0];
+      Type genericArgument2 = dictionaryType1.GetGenericArguments()[1];
+      Type sourceKvpType = DictionaryMapper.KvpType.MakeGenericType(genericArgument1, genericArgument2);
+      Type dictionaryType2 = context.DestinationType.GetDictionaryType();
+      Type genericArgument3 = dictionaryType2.GetGenericArguments()[0];
+      Type genericArgument4 = dictionaryType2.GetGenericArguments()[1];
+      IEnumerable<DictionaryEntry> source2 = source1.OfType<DictionaryEntry>();
+      if (source2.Any<DictionaryEntry>())
+        source1 = source2.Select<DictionaryEntry, object>((Func<DictionaryEntry, object>) (e => Activator.CreateInstance(sourceKvpType, e.Key, e.Value)));
+      object dictionary = ObjectCreator.CreateDictionary(context.DestinationType, genericArgument3, genericArgument4);
+      int arrayIndex = 0;
+      foreach (object obj1 in source1)
+      {
+        object source3 = sourceKvpType.GetProperty("Key").GetValue(obj1, new object[0]);
+        object source4 = sourceKvpType.GetProperty("Value").GetValue(obj1, new object[0]);
+        TypeMap typeMapFor1 = mapper.ConfigurationProvider.FindTypeMapFor(source3, (object) null, genericArgument1, genericArgument3);
+        TypeMap typeMapFor2 = mapper.ConfigurationProvider.FindTypeMapFor(source4, (object) null, genericArgument2, genericArgument4);
+        ResolutionContext elementContext1 = context.CreateElementContext(typeMapFor1, source3, genericArgument1, genericArgument3, arrayIndex);
+        ResolutionContext elementContext2 = context.CreateElementContext(typeMapFor2, source4, genericArgument2, genericArgument4, arrayIndex);
+        object obj2 = mapper.Map(elementContext1);
+        object obj3 = mapper.Map(elementContext2);
+        dictionaryType2.GetMethod("Add").Invoke(dictionary, new object[2]
+        {
+          obj2,
+          obj3
+        });
+        ++arrayIndex;
+      }
+      return dictionary;
+    }
+  }
+}
+
+
+--- EnumerableMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.EnumerableMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using AutoMapper.Internal;
+using System;
+using System.Collections;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class EnumerableMapper : EnumerableMapperBase<IList>
+  {
+    public override bool IsMatch(ResolutionContext context)
+    {
+      return context.DestinationType.IsEnumerableType() && context.SourceType.IsEnumerableType();
+    }
+
+    protected override void SetElementValue(IList destination, object mappedValue, int index)
+    {
+      destination.Add(mappedValue);
+    }
+
+    protected override void ClearEnumerable(IList enumerable) => enumerable.Clear();
+
+    protected override IList CreateDestinationObjectBase(Type destElementType, int sourceLength)
+    {
+      return ObjectCreator.CreateList(destElementType);
+    }
+  }
+}
+
+
+--- EnumerableMapperBase`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.EnumerableMapperBase`1
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public abstract class EnumerableMapperBase<TEnumerable> : IObjectMapper where TEnumerable : IEnumerable
+  {
+    public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+    {
+      if (context.IsSourceValueNull && mapper.ShouldMapSourceCollectionAsNull(context))
+        return (object) null;
+      ICollection<object> list = (ICollection<object>) ((IEnumerable) context.SourceValue ?? (IEnumerable) new object[0]).Cast<object>().ToList<object>();
+      Type elementType1 = TypeHelper.GetElementType(context.SourceType, (IEnumerable) list);
+      Type elementType2 = TypeHelper.GetElementType(context.DestinationType);
+      int count = list.Count;
+      object destinationObject = this.GetOrCreateDestinationObject(context, mapper, elementType2, count);
+      TEnumerable enumerableFor = this.GetEnumerableFor(destinationObject);
+      this.ClearEnumerable(enumerableFor);
+      int num = 0;
+      foreach (object obj in (IEnumerable<object>) list)
+      {
+        ResolutionResult resolutionResult = new ResolutionResult(context.CreateElementContext((TypeMap) null, obj, elementType1, elementType2, num));
+        TypeMap typeMapFor = mapper.ConfigurationProvider.FindTypeMapFor(resolutionResult, elementType2);
+        Type sourceElementType = typeMapFor != null ? typeMapFor.SourceType : elementType1;
+        Type destinationElementType = typeMapFor != null ? typeMapFor.DestinationType : elementType2;
+        ResolutionContext elementContext = context.CreateElementContext(typeMapFor, obj, sourceElementType, destinationElementType, num);
+        object mappedValue = mapper.Map(elementContext);
+        this.SetElementValue(enumerableFor, mappedValue, num);
+        ++num;
+      }
+      return destinationObject;
+    }
+
+    protected virtual object GetOrCreateDestinationObject(
+      ResolutionContext context,
+      IMappingEngineRunner mapper,
+      Type destElementType,
+      int sourceLength)
+    {
+      return context.DestinationValue ?? this.CreateDestinationObject(context, destElementType, sourceLength, mapper);
+    }
+
+    protected virtual TEnumerable GetEnumerableFor(object destination) => (TEnumerable) destination;
+
+    protected virtual void ClearEnumerable(TEnumerable enumerable)
+    {
+    }
+
+    protected virtual object CreateDestinationObject(
+      ResolutionContext context,
+      Type destinationElementType,
+      int count,
+      IMappingEngineRunner mapper)
+    {
+      Type destinationType = context.DestinationType;
+      return !destinationType.IsInterface && !destinationType.IsArray ? mapper.CreateObject(context) : (object) this.CreateDestinationObjectBase(destinationElementType, count);
+    }
+
+    public abstract bool IsMatch(ResolutionContext context);
+
+    protected abstract void SetElementValue(TEnumerable destination, object mappedValue, int index);
+
+    protected abstract TEnumerable CreateDestinationObjectBase(
+      Type destElementType,
+      int sourceLength);
+  }
+}
+
+
+--- EnumerableToDictionaryMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.EnumerableToDictionaryMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using AutoMapper.Internal;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class EnumerableToDictionaryMapper : IObjectMapper
+  {
+    private static readonly Type KvpType = typeof (KeyValuePair<,>);
+
+    public bool IsMatch(ResolutionContext context)
+    {
+      return context.DestinationType.IsDictionaryType() && context.SourceType.IsEnumerableType() && !context.SourceType.IsDictionaryType();
+    }
+
+    public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+    {
+      IEnumerable enumerable = (IEnumerable) context.SourceValue ?? (IEnumerable) new object[0];
+      IEnumerable<object> objects = enumerable.Cast<object>();
+      Type elementType = TypeHelper.GetElementType(context.SourceType, enumerable);
+      Type dictionaryType = context.DestinationType.GetDictionaryType();
+      Type genericArgument1 = dictionaryType.GetGenericArguments()[0];
+      Type genericArgument2 = dictionaryType.GetGenericArguments()[1];
+      Type destinationType = EnumerableToDictionaryMapper.KvpType.MakeGenericType(genericArgument1, genericArgument2);
+      object dictionary = ObjectCreator.CreateDictionary(context.DestinationType, genericArgument1, genericArgument2);
+      int arrayIndex = 0;
+      foreach (object source in objects)
+      {
+        TypeMap typeMapFor = mapper.ConfigurationProvider.FindTypeMapFor(source, (object) null, elementType, destinationType);
+        Type sourceElementType = typeMapFor != null ? typeMapFor.SourceType : elementType;
+        Type destinationElementType = typeMapFor != null ? typeMapFor.DestinationType : destinationType;
+        ResolutionContext elementContext = context.CreateElementContext(typeMapFor, source, sourceElementType, destinationElementType, arrayIndex);
+        object obj1 = mapper.Map(elementContext);
+        object obj2 = obj1.GetType().GetProperty("Key").GetValue(obj1, (object[]) null);
+        object obj3 = obj1.GetType().GetProperty("Value").GetValue(obj1, (object[]) null);
+        dictionaryType.GetMethod("Add").Invoke(dictionary, new object[2]
+        {
+          obj2,
+          obj3
+        });
+        ++arrayIndex;
+      }
+      return dictionary;
+    }
+  }
+}
+
+
+--- EnumMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.EnumMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using AutoMapper.Internal;
+using System;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class EnumMapper : IObjectMapper
+  {
+    private static readonly INullableConverterFactory NullableConverterFactory = PlatformAdapter.Resolve<INullableConverterFactory>();
+    private static readonly IEnumNameValueMapperFactory EnumNameValueMapperFactory = PlatformAdapter.Resolve<IEnumNameValueMapperFactory>(false);
+
+    public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+    {
+      bool toEnum = false;
+      Type enumerationType1 = TypeHelper.GetEnumerationType(context.SourceType);
+      Type enumerationType2 = TypeHelper.GetEnumerationType(context.DestinationType);
+      if (EnumMapper.EnumToStringMapping(context, ref toEnum))
+      {
+        if (context.SourceValue == null)
+          return mapper.CreateObject(context);
+        if (!toEnum)
+          return (object) Enum.GetName(enumerationType1, context.SourceValue);
+        string str = context.SourceValue.ToString();
+        return string.IsNullOrEmpty(str) ? mapper.CreateObject(context) : Enum.Parse(enumerationType2, str, true);
+      }
+      if (EnumMapper.EnumToEnumMapping(context))
+      {
+        if (context.SourceValue == null)
+          return mapper.ShouldMapSourceValueAsNull(context) && context.DestinationType.IsNullableType() ? (object) null : mapper.CreateObject(context);
+        if (!Enum.IsDefined(enumerationType1, context.SourceValue))
+          return Enum.ToObject(enumerationType2, context.SourceValue);
+        if (FeatureDetector.IsEnumGetNamesSupported)
+        {
+          IEnumNameValueMapper enumNameValueMapper = EnumMapper.EnumNameValueMapperFactory.Create();
+          if (enumNameValueMapper.IsMatch(enumerationType2, context.SourceValue.ToString()))
+            return enumNameValueMapper.Convert(enumerationType1, enumerationType2, context);
+        }
+        return Enum.Parse(enumerationType2, Enum.GetName(enumerationType1, context.SourceValue), true);
+      }
+      if (!EnumMapper.EnumToUnderlyingTypeMapping(context, ref toEnum))
+        return (object) null;
+      if (toEnum)
+        return Enum.Parse(enumerationType2, context.SourceValue.ToString(), true);
+      return EnumMapper.EnumToNullableTypeMapping(context) ? EnumMapper.ConvertEnumToNullableType(context) : Convert.ChangeType(context.SourceValue, context.DestinationType, (IFormatProvider) null);
+    }
+
+    public bool IsMatch(ResolutionContext context)
+    {
+      bool toEnum = false;
+      return EnumMapper.EnumToStringMapping(context, ref toEnum) || EnumMapper.EnumToEnumMapping(context) || EnumMapper.EnumToUnderlyingTypeMapping(context, ref toEnum);
+    }
+
+    private static bool EnumToEnumMapping(ResolutionContext context)
+    {
+      Type enumerationType1 = TypeHelper.GetEnumerationType(context.SourceType);
+      Type enumerationType2 = TypeHelper.GetEnumerationType(context.DestinationType);
+      return (object) enumerationType1 != null && (object) enumerationType2 != null;
+    }
+
+    private static bool EnumToUnderlyingTypeMapping(ResolutionContext context, ref bool toEnum)
+    {
+      Type enumerationType1 = TypeHelper.GetEnumerationType(context.SourceType);
+      Type enumerationType2 = TypeHelper.GetEnumerationType(context.DestinationType);
+      if ((object) enumerationType1 != null)
+        return context.DestinationType.IsAssignableFrom(Enum.GetUnderlyingType(enumerationType1));
+      if ((object) enumerationType2 == null)
+        return false;
+      toEnum = true;
+      return context.SourceType.IsAssignableFrom(Enum.GetUnderlyingType(enumerationType2));
+    }
+
+    private static bool EnumToStringMapping(ResolutionContext context, ref bool toEnum)
+    {
+      Type enumerationType1 = TypeHelper.GetEnumerationType(context.SourceType);
+      Type enumerationType2 = TypeHelper.GetEnumerationType(context.DestinationType);
+      if ((object) enumerationType1 != null)
+        return context.DestinationType.IsAssignableFrom(typeof (string));
+      if ((object) enumerationType2 == null)
+        return false;
+      toEnum = true;
+      return context.SourceType.IsAssignableFrom(typeof (string));
+    }
+
+    private static bool EnumToNullableTypeMapping(ResolutionContext context)
+    {
+      return context.DestinationType.IsGenericType && context.DestinationType.GetGenericTypeDefinition().Equals(typeof (Nullable<>));
+    }
+
+    private static object ConvertEnumToNullableType(ResolutionContext context)
+    {
+      INullableConverter nullableConverter = EnumMapper.NullableConverterFactory.Create(context.DestinationType);
+      if (context.IsSourceValueNull)
+        return nullableConverter.ConvertFrom(context.SourceValue);
+      Type underlyingType = nullableConverter.UnderlyingType;
+      return Convert.ChangeType(context.SourceValue, underlyingType, (IFormatProvider) null);
+    }
+  }
+}
+
+
+--- ExplicitConversionOperatorMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.ExplicitConversionOperatorMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class ExplicitConversionOperatorMapper : IObjectMapper
+  {
+    public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+    {
+      return ExplicitConversionOperatorMapper.GetExplicitConversionOperator(context).Invoke((object) null, new object[1]
+      {
+        context.SourceValue
+      });
+    }
+
+    public bool IsMatch(ResolutionContext context)
+    {
+      return (object) ExplicitConversionOperatorMapper.GetExplicitConversionOperator(context) != null;
+    }
+
+    private static MethodInfo GetExplicitConversionOperator(ResolutionContext context)
+    {
+      MethodInfo methodInfo1 = ((IEnumerable<MethodInfo>) context.SourceType.GetMethods(BindingFlags.Static | BindingFlags.Public)).Where<MethodInfo>((Func<MethodInfo, bool>) (mi => mi.Name == "op_Explicit")).Where<MethodInfo>((Func<MethodInfo, bool>) (mi => (object) mi.ReturnType == (object) context.DestinationType)).FirstOrDefault<MethodInfo>();
+      MethodInfo method = context.DestinationType.GetMethod("op_Explicit", new Type[1]
+      {
+        context.SourceType
+      });
+      MethodInfo methodInfo2 = methodInfo1;
+      return (object) methodInfo2 != null ? methodInfo2 : method;
+    }
+  }
+}
+
+
+--- FlagsEnumMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.FlagsEnumMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class FlagsEnumMapper : IObjectMapper
+  {
+    public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+    {
+      Type enumerationType = TypeHelper.GetEnumerationType(context.DestinationType);
+      return context.SourceValue == null ? mapper.CreateObject(context) : Enum.Parse(enumerationType, context.SourceValue.ToString(), true);
+    }
+
+    public bool IsMatch(ResolutionContext context)
+    {
+      Type enumerationType1 = TypeHelper.GetEnumerationType(context.SourceType);
+      Type enumerationType2 = TypeHelper.GetEnumerationType(context.DestinationType);
+      return (object) enumerationType1 != null && (object) enumerationType2 != null && ((IEnumerable<object>) enumerationType1.GetCustomAttributes(typeof (FlagsAttribute), false)).Any<object>() && ((IEnumerable<object>) enumerationType2.GetCustomAttributes(typeof (FlagsAttribute), false)).Any<object>();
+    }
+  }
+}
+
+
+--- ImplicitConversionOperatorMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.ImplicitConversionOperatorMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class ImplicitConversionOperatorMapper : IObjectMapper
+  {
+    public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+    {
+      return ImplicitConversionOperatorMapper.GetImplicitConversionOperator(context).Invoke((object) null, new object[1]
+      {
+        context.SourceValue
+      });
+    }
+
+    public bool IsMatch(ResolutionContext context)
+    {
+      return (object) ImplicitConversionOperatorMapper.GetImplicitConversionOperator(context) != null;
+    }
+
+    private static MethodInfo GetImplicitConversionOperator(ResolutionContext context)
+    {
+      MethodInfo methodInfo1 = ((IEnumerable<MethodInfo>) context.SourceType.GetMethods(BindingFlags.Static | BindingFlags.Public)).Where<MethodInfo>((Func<MethodInfo, bool>) (mi => mi.Name == "op_Implicit")).Where<MethodInfo>((Func<MethodInfo, bool>) (mi => (object) mi.ReturnType == (object) context.DestinationType)).FirstOrDefault<MethodInfo>();
+      MethodInfo method = context.DestinationType.GetMethod("op_Implicit", new Type[1]
+      {
+        context.SourceType
+      });
+      MethodInfo methodInfo2 = methodInfo1;
+      return (object) methodInfo2 != null ? methodInfo2 : method;
+    }
+  }
+}
+
+
+--- IPlatformSpecificMapperRegistry.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.IPlatformSpecificMapperRegistry
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public interface IPlatformSpecificMapperRegistry
+  {
+    void Initialize();
+  }
+}
+
+
+--- ITypeMapObjectMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.ITypeMapObjectMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public interface ITypeMapObjectMapper
+  {
+    object Map(ResolutionContext context, IMappingEngineRunner mapper);
+
+    bool IsMatch(ResolutionContext context, IMappingEngineRunner mapper);
+  }
+}
+
+
+--- MapperRegistry.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.MapperRegistry
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System.Collections.Generic;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public static class MapperRegistry
+  {
+    private static readonly IObjectMapper[] _initialMappers = new IObjectMapper[17]
+    {
+      (IObjectMapper) new TypeMapMapper((IEnumerable<ITypeMapObjectMapper>) TypeMapObjectMapperRegistry.Mappers),
+      (IObjectMapper) new StringMapper(),
+      (IObjectMapper) new AssignableArrayMapper(),
+      (IObjectMapper) new FlagsEnumMapper(),
+      (IObjectMapper) new EnumMapper(),
+      (IObjectMapper) new PrimitiveArrayMapper(),
+      (IObjectMapper) new ArrayMapper(),
+      (IObjectMapper) new EnumerableToDictionaryMapper(),
+      (IObjectMapper) new DictionaryMapper(),
+      (IObjectMapper) new ReadOnlyCollectionMapper(),
+      (IObjectMapper) new CollectionMapper(),
+      (IObjectMapper) new EnumerableMapper(),
+      (IObjectMapper) new AssignableMapper(),
+      (IObjectMapper) new NullableSourceMapper(),
+      (IObjectMapper) new NullableMapper(),
+      (IObjectMapper) new ImplicitConversionOperatorMapper(),
+      (IObjectMapper) new ExplicitConversionOperatorMapper()
+    };
+    private static readonly List<IObjectMapper> _mappers = new List<IObjectMapper>((IEnumerable<IObjectMapper>) MapperRegistry._initialMappers);
+
+    public static IList<IObjectMapper> Mappers => (IList<IObjectMapper>) MapperRegistry._mappers;
+
+    public static void Reset()
+    {
+      MapperRegistry._mappers.Clear();
+      MapperRegistry._mappers.AddRange((IEnumerable<IObjectMapper>) MapperRegistry._initialMappers);
+    }
+  }
+}
+
+
+--- NullableMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.NullableMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using AutoMapper.Internal;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class NullableMapper : IObjectMapper
+  {
+    public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+    {
+      return context.SourceValue;
+    }
+
+    public bool IsMatch(ResolutionContext context) => context.DestinationType.IsNullableType();
+  }
+}
+
+
+--- NullableSourceMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.NullableSourceMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using AutoMapper.Internal;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class NullableSourceMapper : IObjectMapper
+  {
+    public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+    {
+      return context.SourceValue ?? mapper.CreateObject(context);
+    }
+
+    public bool IsMatch(ResolutionContext context)
+    {
+      return context.SourceType.IsNullableType() && !context.DestinationType.IsNullableType();
+    }
+  }
+}
+
+
+--- ObjectCreator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.ObjectCreator
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using AutoMapper.Internal;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public static class ObjectCreator
+  {
+    private static readonly IDelegateFactory DelegateFactory = PlatformAdapter.Resolve<IDelegateFactory>();
+
+    public static Array CreateArray(Type elementType, int length)
+    {
+      return Array.CreateInstance(elementType, length);
+    }
+
+    public static IList CreateList(Type elementType)
+    {
+      return (IList) ObjectCreator.CreateObject(typeof (List<>).MakeGenericType(elementType));
+    }
+
+    public static object CreateDictionary(Type dictionaryType, Type keyType, Type valueType)
+    {
+      Type type;
+      if (!dictionaryType.IsInterface)
+        type = dictionaryType;
+      else
+        type = typeof (Dictionary<,>).MakeGenericType(keyType, valueType);
+      return ObjectCreator.CreateObject(type);
+    }
+
+    public static object CreateDefaultValue(Type type)
+    {
+      return !type.IsValueType ? (object) null : ObjectCreator.CreateObject(type);
+    }
+
+    public static object CreateNonNullValue(Type type)
+    {
+      if (type.IsValueType)
+        return ObjectCreator.CreateObject(type);
+      return (object) type == (object) typeof (string) ? (object) string.Empty : Activator.CreateInstance(type);
+    }
+
+    public static object CreateObject(Type type)
+    {
+      return !type.IsArray ? ObjectCreator.DelegateFactory.CreateCtor(type)() : (object) ObjectCreator.CreateArray(type.GetElementType(), 0);
+    }
+  }
+}
+
+
+--- PlatformSpecificMapperRegistry.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.PlatformSpecificMapperRegistry
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class PlatformSpecificMapperRegistry : IPlatformSpecificMapperRegistry
+  {
+    public void Initialize()
+    {
+    }
+  }
+}
+
+
+--- PrimitiveArrayMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.PrimitiveArrayMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class PrimitiveArrayMapper : IObjectMapper
+  {
+    public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+    {
+      if (context.IsSourceValueNull && mapper.ShouldMapSourceCollectionAsNull(context))
+        return (object) null;
+      Type elementType1 = TypeHelper.GetElementType(context.SourceType);
+      Type elementType2 = TypeHelper.GetElementType(context.DestinationType);
+      Array sourceArray = (Array) context.SourceValue ?? ObjectCreator.CreateArray(elementType1, 0);
+      int length = sourceArray.Length;
+      Array array = ObjectCreator.CreateArray(elementType2, length);
+      Array.Copy(sourceArray, array, length);
+      return (object) array;
+    }
+
+    private bool IsPrimitiveArrayType(Type type)
+    {
+      if (!type.IsArray)
+        return false;
+      Type elementType = TypeHelper.GetElementType(type);
+      return elementType.IsPrimitive || elementType.Equals(typeof (string));
+    }
+
+    public bool IsMatch(ResolutionContext context)
+    {
+      return this.IsPrimitiveArrayType(context.DestinationType) && this.IsPrimitiveArrayType(context.SourceType) && TypeHelper.GetElementType(context.DestinationType).Equals(TypeHelper.GetElementType(context.SourceType));
+    }
+  }
+}
+
+
+--- ReadOnlyCollectionMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.ReadOnlyCollectionMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using AutoMapper.Internal;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class ReadOnlyCollectionMapper : IObjectMapper
+  {
+    public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+    {
+      return ((IObjectMapper) Activator.CreateInstance(typeof (ReadOnlyCollectionMapper.EnumerableMapper<>).MakeGenericType(TypeHelper.GetElementType(context.DestinationType)))).Map(context.CreateMemberContext(context.TypeMap, context.SourceValue, (object) null, context.SourceType, context.PropertyMap), mapper);
+    }
+
+    public bool IsMatch(ResolutionContext context)
+    {
+      return context.SourceType.IsEnumerableType() && context.DestinationType.IsGenericType && (object) context.DestinationType.GetGenericTypeDefinition() == (object) typeof (ReadOnlyCollection<>);
+    }
+
+    private class EnumerableMapper<TElement> : EnumerableMapperBase<IList<TElement>>
+    {
+      private readonly IList<TElement> inner = (IList<TElement>) new List<TElement>();
+
+      public override bool IsMatch(ResolutionContext context)
+      {
+        throw new NotImplementedException();
+      }
+
+      protected override void SetElementValue(
+        IList<TElement> elements,
+        object mappedValue,
+        int index)
+      {
+        this.inner.Add((TElement) mappedValue);
+      }
+
+      protected override IList<TElement> GetEnumerableFor(object destination) => this.inner;
+
+      protected override IList<TElement> CreateDestinationObjectBase(
+        Type destElementType,
+        int sourceLength)
+      {
+        throw new NotImplementedException();
+      }
+
+      protected override object CreateDestinationObject(
+        ResolutionContext context,
+        Type destinationElementType,
+        int count,
+        IMappingEngineRunner mapper)
+      {
+        return (object) new ReadOnlyCollection<TElement>(this.inner);
+      }
+    }
+  }
+}
+
+
+--- StringMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.StringMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class StringMapper : IObjectMapper
+  {
+    public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+    {
+      return context.SourceValue == null ? (object) mapper.FormatValue(context.CreateValueContext((object) null)) : (object) mapper.FormatValue(context);
+    }
+
+    public bool IsMatch(ResolutionContext context)
+    {
+      return context.DestinationType.Equals(typeof (string));
+    }
+  }
+}
+
+
+--- TypeHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.TypeHelper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using AutoMapper.Internal;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public static class TypeHelper
+  {
+    public static Type GetElementType(Type enumerableType)
+    {
+      return TypeHelper.GetElementType(enumerableType, (IEnumerable) null);
+    }
+
+    public static Type GetElementType(Type enumerableType, IEnumerable enumerable)
+    {
+      if (enumerableType.HasElementType)
+        return enumerableType.GetElementType();
+      if (enumerableType.IsGenericType && enumerableType.GetGenericTypeDefinition().Equals(typeof (IEnumerable<>)))
+        return enumerableType.GetGenericArguments()[0];
+      Type ienumerableType = TypeHelper.GetIEnumerableType(enumerableType);
+      if ((object) ienumerableType != null)
+        return ienumerableType.GetGenericArguments()[0];
+      if (typeof (IEnumerable).IsAssignableFrom(enumerableType))
+      {
+        if (enumerable != null)
+        {
+          object obj = enumerable.Cast<object>().FirstOrDefault<object>();
+          if (obj != null)
+            return obj.GetType();
+        }
+        return typeof (object);
+      }
+      throw new ArgumentException(string.Format("Unable to find the element type for type '{0}'.", new object[1]
+      {
+        (object) enumerableType
+      }), nameof (enumerableType));
+    }
+
+    public static Type GetEnumerationType(Type enumType)
+    {
+      if (enumType.IsNullableType())
+        enumType = enumType.GetGenericArguments()[0];
+      return !enumType.IsEnum ? (Type) null : enumType;
+    }
+
+    private static Type GetIEnumerableType(Type enumerableType)
+    {
+      try
+      {
+        return ((IEnumerable<Type>) enumerableType.GetInterfaces()).FirstOrDefault<Type>((Func<Type, bool>) (t => t.Name == "IEnumerable`1"));
+      }
+      catch (AmbiguousMatchException ex)
+      {
+        return (object) enumerableType.BaseType != (object) typeof (object) ? TypeHelper.GetIEnumerableType(enumerableType.BaseType) : (Type) null;
+      }
+    }
+  }
+}
+
+
+--- TypeMapMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.TypeMapMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public class TypeMapMapper : IObjectMapper
+  {
+    private readonly IEnumerable<ITypeMapObjectMapper> _mappers;
+
+    public TypeMapMapper(IEnumerable<ITypeMapObjectMapper> mappers) => this._mappers = mappers;
+
+    public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+    {
+      context.TypeMap.Seal();
+      ITypeMapObjectMapper typeMapObjectMapper = this._mappers.First<ITypeMapObjectMapper>((Func<ITypeMapObjectMapper, bool>) (objectMapper => objectMapper.IsMatch(context, mapper)));
+      return !context.TypeMap.ShouldAssignValue(context) ? (object) null : typeMapObjectMapper.Map(context, mapper);
+    }
+
+    public bool IsMatch(ResolutionContext context) => context.TypeMap != null;
+  }
+}
+
+
+--- TypeMapObjectMapperRegistry.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Mappers.TypeMapObjectMapperRegistry
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace AutoMapper.Mappers
+{
+  public static class TypeMapObjectMapperRegistry
+  {
+    private static readonly IList<ITypeMapObjectMapper> _mappers = (IList<ITypeMapObjectMapper>) new List<ITypeMapObjectMapper>()
+    {
+      (ITypeMapObjectMapper) new TypeMapObjectMapperRegistry.CustomMapperStrategy(),
+      (ITypeMapObjectMapper) new TypeMapObjectMapperRegistry.NullMappingStrategy(),
+      (ITypeMapObjectMapper) new TypeMapObjectMapperRegistry.CacheMappingStrategy(),
+      (ITypeMapObjectMapper) new TypeMapObjectMapperRegistry.NewObjectPropertyMapMappingStrategy(),
+      (ITypeMapObjectMapper) new TypeMapObjectMapperRegistry.ExistingObjectMappingStrategy()
+    };
+
+    public static IList<ITypeMapObjectMapper> Mappers => TypeMapObjectMapperRegistry._mappers;
+
+    private class CustomMapperStrategy : ITypeMapObjectMapper
+    {
+      public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+      {
+        return context.TypeMap.CustomMapper(context);
+      }
+
+      public bool IsMatch(ResolutionContext context, IMappingEngineRunner mapper)
+      {
+        return context.TypeMap.CustomMapper != null;
+      }
+    }
+
+    private class NullMappingStrategy : ITypeMapObjectMapper
+    {
+      public object Map(ResolutionContext context, IMappingEngineRunner mapper) => (object) null;
+
+      public bool IsMatch(ResolutionContext context, IMappingEngineRunner mapper)
+      {
+        IFormatterConfiguration profileConfiguration = mapper.ConfigurationProvider.GetProfileConfiguration(context.TypeMap.Profile);
+        return context.SourceValue == null && profileConfiguration.MapNullSourceValuesAsNull;
+      }
+    }
+
+    private class CacheMappingStrategy : ITypeMapObjectMapper
+    {
+      public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+      {
+        return context.InstanceCache[context];
+      }
+
+      public bool IsMatch(ResolutionContext context, IMappingEngineRunner mapper)
+      {
+        return context.DestinationValue == null && context.InstanceCache.ContainsKey(context);
+      }
+    }
+
+    private abstract class PropertyMapMappingStrategy : ITypeMapObjectMapper
+    {
+      public object Map(ResolutionContext context, IMappingEngineRunner mapper)
+      {
+        object mappedObject = this.GetMappedObject(context, mapper);
+        if (context.SourceValue != null)
+          context.InstanceCache[context] = mappedObject;
+        context.TypeMap.BeforeMap(context.SourceValue, mappedObject);
+        foreach (PropertyMap propertyMap in context.TypeMap.GetPropertyMaps())
+          this.MapPropertyValue(context.CreatePropertyMapContext(propertyMap), mapper, mappedObject, propertyMap);
+        object obj = this.ReassignValue(context, mappedObject);
+        context.TypeMap.AfterMap(context.SourceValue, obj);
+        return obj;
+      }
+
+      protected virtual object ReassignValue(ResolutionContext context, object o) => o;
+
+      public abstract bool IsMatch(ResolutionContext context, IMappingEngineRunner mapper);
+
+      protected abstract object GetMappedObject(
+        ResolutionContext context,
+        IMappingEngineRunner mapper);
+
+      private void MapPropertyValue(
+        ResolutionContext context,
+        IMappingEngineRunner mapper,
+        object mappedObject,
+        PropertyMap propertyMap)
+      {
+        if (!propertyMap.CanResolveValue())
+          return;
+        Exception exception = (Exception) null;
+        ResolutionResult resolutionResult;
+        try
+        {
+          resolutionResult = propertyMap.ResolveValue(context);
+        }
+        catch (AutoMapperMappingException ex)
+        {
+          throw;
+        }
+        catch (Exception ex)
+        {
+          exception = (Exception) new AutoMapperMappingException(this.CreateErrorContext(context, propertyMap, (object) null), ex);
+          resolutionResult = new ResolutionResult(context);
+        }
+        if (resolutionResult.ShouldIgnore)
+          return;
+        object destinationValue = propertyMap.GetDestinationValue(mappedObject);
+        Type type = resolutionResult.Type;
+        Type memberType = propertyMap.DestinationProperty.MemberType;
+        TypeMap typeMapFor = mapper.ConfigurationProvider.FindTypeMapFor(resolutionResult, memberType);
+        Type sourceMemberType = typeMapFor != null ? typeMapFor.SourceType : type;
+        ResolutionContext memberContext = context.CreateMemberContext(typeMapFor, resolutionResult.Value, destinationValue, sourceMemberType, propertyMap);
+        if (!propertyMap.ShouldAssignValue(memberContext))
+          return;
+        if (exception != null)
+          throw exception;
+        try
+        {
+          object propertyValueToAssign = mapper.Map(memberContext);
+          this.AssignValue(propertyMap, mappedObject, propertyValueToAssign);
+        }
+        catch (AutoMapperMappingException ex)
+        {
+          throw;
+        }
+        catch (Exception ex)
+        {
+          throw new AutoMapperMappingException(memberContext, ex);
+        }
+      }
+
+      protected virtual void AssignValue(
+        PropertyMap propertyMap,
+        object mappedObject,
+        object propertyValueToAssign)
+      {
+        if (!propertyMap.CanBeSet)
+          return;
+        propertyMap.DestinationProperty.SetValue(mappedObject, propertyValueToAssign);
+      }
+
+      private ResolutionContext CreateErrorContext(
+        ResolutionContext context,
+        PropertyMap propertyMap,
+        object destinationValue)
+      {
+        return context.CreateMemberContext((TypeMap) null, context.SourceValue, destinationValue, context.SourceValue == null ? typeof (object) : context.SourceValue.GetType(), propertyMap);
+      }
+    }
+
+    private class NewObjectPropertyMapMappingStrategy : 
+      TypeMapObjectMapperRegistry.PropertyMapMappingStrategy
+    {
+      public override bool IsMatch(ResolutionContext context, IMappingEngineRunner mapper)
+      {
+        return context.DestinationValue == null;
+      }
+
+      protected override object GetMappedObject(
+        ResolutionContext context,
+        IMappingEngineRunner mapper)
+      {
+        return mapper.CreateObject(context);
+      }
+    }
+
+    private class ExistingObjectMappingStrategy : 
+      TypeMapObjectMapperRegistry.PropertyMapMappingStrategy
+    {
+      public override bool IsMatch(ResolutionContext context, IMappingEngineRunner mapper) => true;
+
+      protected override object GetMappedObject(
+        ResolutionContext context,
+        IMappingEngineRunner mapper)
+      {
+        return context.DestinationValue;
+      }
+    }
+  }
+}
+

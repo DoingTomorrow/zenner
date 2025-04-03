@@ -1,0 +1,357 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\ZR_ClassLibrary.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DEF740EB-7C91-4EC8-B0BF-EFF4D16AA3BC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>ZR_ClassLibrary</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>6.16.22.24524</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CorporateDesign">
+      <HintPath>lib\CorporateDesign.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>lib\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Microsoft\Office\Interop\Excel\AppEvents.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\AppEvents_Event.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\Application.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\DocEvents.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\DocEvents_Event.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\Font.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\Interior.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\Range.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\Sheets.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\Workbook.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\WorkbookEvents.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\WorkbookEvents_Event.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\Workbooks.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\Worksheet.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\XlBorderWeight.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\XlColorIndex.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\XlRangeValueDataType.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\XlWBATemplate.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\_Application.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\_Workbook.cs" />
+    <Compile Include="Microsoft\Office\Interop\Excel\_Worksheet.cs" />
+    <Compile Include="Messir\Windows\Forms\SelectedTabChangedEventArgs.cs" />
+    <Compile Include="Messir\Windows\Forms\TabStrip.cs" />
+    <Compile Include="Messir\Windows\Forms\TabStripRenderer.cs" />
+    <Compile Include="Messir\Windows\Forms\TabStripButton.cs" />
+    <Compile Include="ZR_ClassLibrary\AccessDeniedException.cs" />
+    <Compile Include="ZR_ClassLibrary\AES.cs" />
+    <Compile Include="ZR_ClassLibrary\UpgradeAction.cs" />
+    <Compile Include="ZR_ClassLibrary\UpgradeActionEventArgs.cs" />
+    <Compile Include="ZR_ClassLibrary\DatabaseUpgradeManager.cs" />
+    <Compile Include="ZR_ClassLibrary\DatabaseUpgradeWindow.cs" />
+    <Compile Include="ZR_ClassLibrary\API_Access.cs" />
+    <Compile Include="ZR_ClassLibrary\BaseTypeCheck.cs" />
+    <Compile Include="ZR_ClassLibrary\ByteField.cs" />
+    <Compile Include="ZR_ClassLibrary\ConfigurationParameter.cs" />
+    <Compile Include="ZR_ClassLibrary\AbstractDeviceIOConfiguratorFactory.cs" />
+    <Compile Include="ZR_ClassLibrary\AbstractWaveFlowIOConfigurator.cs" />
+    <Compile Include="ZR_ClassLibrary\DeviceIOSettings.cs" />
+    <Compile Include="ZR_ClassLibrary\AbstractDeviceLoggerConfiguratorFactory.cs" />
+    <Compile Include="ZR_ClassLibrary\AbstractWaveFlowLoggerConfigurator.cs" />
+    <Compile Include="ZR_ClassLibrary\COpenMeter.cs" />
+    <Compile Include="ZR_ClassLibrary\COpenTypeDlg.cs" />
+    <Compile Include="ZR_ClassLibrary\CRC.cs" />
+    <Compile Include="ZR_ClassLibrary\CsvStyle.cs" />
+    <Compile Include="ZR_ClassLibrary\DataGridViewColumnSelector.cs" />
+    <Compile Include="ZR_ClassLibrary\DatenbankverbindungForm.cs" />
+    <Compile Include="ZR_ClassLibrary\Datenbankverbindung.cs" />
+    <Compile Include="ZR_ClassLibrary\OldDbConfigInfo.cs" />
+    <Compile Include="ZR_ClassLibrary\DbCloner.cs" />
+    <Compile Include="ZR_ClassLibrary\DeviceParameter.cs" />
+    <Compile Include="ZR_ClassLibrary\GMM_EventArgs.cs" />
+    <Compile Include="ZR_ClassLibrary\DeviceListStatus.cs" />
+    <Compile Include="ZR_ClassLibrary\EventHandlerEx`1.cs" />
+    <Compile Include="ZR_ClassLibrary\EventLogger.cs" />
+    <Compile Include="ZR_ClassLibrary\EventTime.cs" />
+    <Compile Include="ZR_ClassLibrary\ExcelConnect.cs" />
+    <Compile Include="ZR_ClassLibrary\FixedFormates.cs" />
+    <Compile Include="ZR_ClassLibrary\FullFormates.cs" />
+    <Compile Include="ZR_ClassLibrary\GlobalDeviceId.cs" />
+    <Compile Include="ZR_ClassLibrary\DHI_VolumeMeterType.cs" />
+    <Compile Include="ZR_ClassLibrary\DHI_TempSensorType.cs" />
+    <Compile Include="ZR_ClassLibrary\DHI_DeviceType.cs" />
+    <Compile Include="ZR_ClassLibrary\DHI_VolumeMeterBounding.cs" />
+    <Compile Include="ZR_ClassLibrary\DHI_CommunicationInterface.cs" />
+    <Compile Include="ZR_ClassLibrary\DeviceHardwareIdentification.cs" />
+    <Compile Include="ZR_ClassLibrary\BATTERIE_TYP_PDC.cs" />
+    <Compile Include="ZR_ClassLibrary\KOMMUNIKATION_SCHNITTSTELLE_PDC.cs" />
+    <Compile Include="ZR_ClassLibrary\InputSettings_PDC.cs" />
+    <Compile Include="ZR_ClassLibrary\PDC_HardwareIdentification.cs" />
+    <Compile Include="ZR_ClassLibrary\KOMMUNIKATION_SCHNITTSTELLE.cs" />
+    <Compile Include="ZR_ClassLibrary\MONTAGE_AM_ZAEHLER.cs" />
+    <Compile Include="ZR_ClassLibrary\BATTERIE_TYP.cs" />
+    <Compile Include="ZR_ClassLibrary\COMPLETION.cs" />
+    <Compile Include="ZR_ClassLibrary\EDC_HardwareIdentification.cs" />
+    <Compile Include="ZR_ClassLibrary\Micro_HardwareIdentification.cs" />
+    <Compile Include="ZR_ClassLibrary\GMM_Help.cs" />
+    <Compile Include="ZR_ClassLibrary\GMM_InputBox.cs" />
+    <Compile Include="ZR_ClassLibrary\GMM_MessageBox.cs" />
+    <Compile Include="ZR_ClassLibrary\HS_Funkt.cs" />
+    <Compile Include="ZR_ClassLibrary\ILockable.cs" />
+    <Compile Include="ZR_ClassLibrary\Images.cs" />
+    <Compile Include="ZR_ClassLibrary\_LeapIndicator.cs" />
+    <Compile Include="ZR_ClassLibrary\_Mode.cs" />
+    <Compile Include="ZR_ClassLibrary\_Stratum.cs" />
+    <Compile Include="ZR_ClassLibrary\InternetTime.cs" />
+    <Compile Include="ZR_ClassLibrary\Kodierung.cs" />
+    <Compile Include="ZR_ClassLibrary\GMMConfig.cs" />
+    <Compile Include="ZR_ClassLibrary\LicenseManagement.cs" />
+    <Compile Include="ZR_ClassLibrary\DataGridViewDoubleBuffered.cs" />
+    <Compile Include="ZR_ClassLibrary\ListViewDoubledBuffered.cs" />
+    <Compile Include="ZR_ClassLibrary\AddImagesForm.cs" />
+    <Compile Include="ZR_ClassLibrary\AddReadoutSettingsForm.cs" />
+    <Compile Include="ZR_ClassLibrary\AddReadoutTypeForm.cs" />
+    <Compile Include="ZR_ClassLibrary\NodeLayer.cs" />
+    <Compile Include="ZR_ClassLibrary\ReadInterval.cs" />
+    <Compile Include="ZR_ClassLibrary\MeterValueRow.cs" />
+    <Compile Include="ZR_ClassLibrary\ValueFilter.cs" />
+    <Compile Include="ZR_ClassLibrary\MeterDatabase.cs" />
+    <Compile Include="ZR_ClassLibrary\HardwareType.cs" />
+    <Compile Include="ZR_ClassLibrary\ProgFiles.cs" />
+    <Compile Include="ZR_ClassLibrary\MeterTypeData.cs" />
+    <Compile Include="ZR_ClassLibrary\MeterData.cs" />
+    <Compile Include="ZR_ClassLibrary\FunctionRecordType.cs" />
+    <Compile Include="ZR_ClassLibrary\FunctionFlags.cs" />
+    <Compile Include="ZR_ClassLibrary\TelegramParameter.cs" />
+    <Compile Include="ZR_ClassLibrary\FunctionPrecompiled.cs" />
+    <Compile Include="ZR_ClassLibrary\GMMImage.cs" />
+    <Compile Include="ZR_ClassLibrary\ReadoutGmmSettings.cs" />
+    <Compile Include="ZR_ClassLibrary\ReadoutType.cs" />
+    <Compile Include="ZR_ClassLibrary\Filter.cs" />
+    <Compile Include="ZR_ClassLibrary\GMM_User.cs" />
+    <Compile Include="ZR_ClassLibrary\MeterInfo.cs" />
+    <Compile Include="ZR_ClassLibrary\MeterType.cs" />
+    <Compile Include="ZR_ClassLibrary\MTypeZelsius.cs" />
+    <Compile Include="ZR_ClassLibrary\Meter.cs" />
+    <Compile Include="ZR_ClassLibrary\OnlineTranslationRow.cs" />
+    <Compile Include="ZR_ClassLibrary\NodeReferences.cs" />
+    <Compile Include="ZR_ClassLibrary\NodeList.cs" />
+    <Compile Include="ZR_ClassLibrary\ReadoutSettingsEditorForm.cs" />
+    <Compile Include="ZR_ClassLibrary\ReadoutSettingsManager.cs" />
+    <Compile Include="ZR_ClassLibrary\SelectImagesForm.cs" />
+    <Compile Include="ZR_ClassLibrary\SelectReadoutSettingsForm.cs" />
+    <Compile Include="ZR_ClassLibrary\ISortable.cs" />
+    <Compile Include="ZR_ClassLibrary\StructureSortOrder.cs" />
+    <Compile Include="ZR_ClassLibrary\StructureSortMode.cs" />
+    <Compile Include="ZR_ClassLibrary\StructureNodeSorter.cs" />
+    <Compile Include="ZR_ClassLibrary\StructureNodeType.cs" />
+    <Compile Include="ZR_ClassLibrary\UniqueIdentification.cs" />
+    <Compile Include="ZR_ClassLibrary\UniqueIdentificationCollection.cs" />
+    <Compile Include="ZR_ClassLibrary\InputUnitsIndex.cs" />
+    <Compile Include="ZR_ClassLibrary\MeterMath.cs" />
+    <Compile Include="ZR_ClassLibrary\MemoryDump.cs" />
+    <Compile Include="ZR_ClassLibrary\MeterDBAccess.cs" />
+    <Compile Include="ZR_ClassLibrary\CachedIDAtom.cs" />
+    <Compile Include="ZR_ClassLibrary\MeterMathRes.cs" />
+    <Compile Include="ZR_ClassLibrary\MeterUnits.cs" />
+    <Compile Include="ZR_ClassLibrary\ResolutionData.cs" />
+    <Compile Include="ZR_ClassLibrary\MetrologicalCore.cs" />
+    <Compile Include="ZR_ClassLibrary\NumberRanges.cs" />
+    <Compile Include="ZR_ClassLibrary\OverrideIDExtensions.cs" />
+    <Compile Include="ZR_ClassLibrary\PrintDataGridView.cs" />
+    <Compile Include="ZR_ClassLibrary\PrintDataGridViewOptions.cs" />
+    <Compile Include="ZR_ClassLibrary\GMMSettingsName.cs" />
+    <Compile Include="ZR_ClassLibrary\GMMSettings.cs" />
+    <Compile Include="ZR_ClassLibrary\GMMSettingsCollection.cs" />
+    <Compile Include="ZR_ClassLibrary\RangeSet`1.cs" />
+    <Compile Include="ZR_ClassLibrary\Range`1.cs" />
+    <Compile Include="ZR_ClassLibrary\Resourcen.cs" />
+    <Compile Include="ZR_ClassLibrary\DigitalInputOutput.cs" />
+    <Compile Include="ZR_ClassLibrary\ErrorNumber.cs" />
+    <Compile Include="ZR_ClassLibrary\StatusNumber.cs" />
+    <Compile Include="ZR_ClassLibrary\TranslationRule.cs" />
+    <Compile Include="ZR_ClassLibrary\TranslationRuleCollection.cs" />
+    <Compile Include="ZR_ClassLibrary\SpecialTranslation.cs" />
+    <Compile Include="ZR_ClassLibrary\SpecialStorageTimeTranslation.cs" />
+    <Compile Include="ZR_ClassLibrary\TranslationRulesManager.cs" />
+    <Compile Include="ZR_ClassLibrary\ProgFileTools.cs" />
+    <Compile Include="ZR_ClassLibrary\TransceiverDevice.cs" />
+    <Compile Include="ZR_ClassLibrary\MinoConnectBaseStates.cs" />
+    <Compile Include="ZR_ClassLibrary\BusMode.cs" />
+    <Compile Include="ZR_ClassLibrary\Region.cs" />
+    <Compile Include="ZR_ClassLibrary\DeviceTypes.cs" />
+    <Compile Include="ZR_ClassLibrary\PointToPointDevices.cs" />
+    <Compile Include="ZR_ClassLibrary\ReadoutSettings.cs" />
+    <Compile Include="ZR_ClassLibrary\AsyncComSettings.cs" />
+    <Compile Include="ZR_ClassLibrary\DeviceCollectorSettings.cs" />
+    <Compile Include="ZR_ClassLibrary\RadioProtocol.cs" />
+    <Compile Include="ZR_ClassLibrary\RadioFrequence.cs" />
+    <Compile Include="ZR_ClassLibrary\RadioMode.cs" />
+    <Compile Include="ZR_ClassLibrary\MBusDeviceType.cs" />
+    <Compile Include="ZR_ClassLibrary\VolumeInputModes.cs" />
+    <Compile Include="ZR_ClassLibrary\ConfigurationGroup.cs" />
+    <Compile Include="ZR_ClassLibrary\RadioTechnology.cs" />
+    <Compile Include="ZR_ClassLibrary\ConfigurationLevel.cs" />
+    <Compile Include="ZR_ClassLibrary\OverrideID.cs" />
+    <Compile Include="ZR_ClassLibrary\InputOutputFunctions.cs" />
+    <Compile Include="ZR_ClassLibrary\BaseConfigID.cs" />
+    <Compile Include="ZR_ClassLibrary\FixedTempSetup.cs" />
+    <Compile Include="ZR_ClassLibrary\MinimalTempDiffSetup.cs" />
+    <Compile Include="ZR_ClassLibrary\CycleTimeChangeMethode.cs" />
+    <Compile Include="ZR_ClassLibrary\HCA_SensorMode.cs" />
+    <Compile Include="ZR_ClassLibrary\TemperaturUnit.cs" />
+    <Compile Include="ZR_ClassLibrary\HCA_Scale.cs" />
+    <Compile Include="ZR_ClassLibrary\TarifSetup.cs" />
+    <Compile Include="ZR_ClassLibrary\WF_OverrideID.cs" />
+    <Compile Include="ZR_ClassLibrary\WFC_LoggerTypes.cs" />
+    <Compile Include="ZR_ClassLibrary\WFC_ManipulationTypes.cs" />
+    <Compile Include="ZR_ClassLibrary\ModuleTypeValues.cs" />
+    <Compile Include="ZR_ClassLibrary\InOutFunctions.cs" />
+    <Compile Include="ZR_ClassLibrary\RadioScenario.cs" />
+    <Compile Include="ZR_ClassLibrary\MeterResources.cs" />
+    <Compile Include="ZR_ClassLibrary\S3_MemorySegment.cs" />
+    <Compile Include="ZR_ClassLibrary\S3_VariableTypes.cs" />
+    <Compile Include="ZR_ClassLibrary\EquipmentTypes.cs" />
+    <Compile Include="ZR_ClassLibrary\EquipmentDestinationFlags.cs" />
+    <Compile Include="ZR_ClassLibrary\TestClasses.cs" />
+    <Compile Include="ZR_ClassLibrary\PPS_SourceParmNames.cs" />
+    <Compile Include="ZR_ClassLibrary\TypeLabelsDevice.cs" />
+    <Compile Include="ZR_ClassLibrary\TypeLabelsCarton.cs" />
+    <Compile Include="ZR_ClassLibrary\TypeLabelsDeviceWR3.cs" />
+    <Compile Include="ZR_ClassLibrary\TypeLabelsCartonWR3.cs" />
+    <Compile Include="ZR_ClassLibrary\PPS_CacheClassNames.cs" />
+    <Compile Include="ZR_ClassLibrary\PPS_CacheParmNames.cs" />
+    <Compile Include="ZR_ClassLibrary\PPS_Lists.cs" />
+    <Compile Include="ZR_ClassLibrary\ChoiceDeviceList.cs" />
+    <Compile Include="ZR_ClassLibrary\EDC_Hardware.cs" />
+    <Compile Include="ZR_ClassLibrary\PDC_DeviceIdentity.cs" />
+    <Compile Include="ZR_ClassLibrary\OpenNETRAPI.cs" />
+    <Compile Include="ZR_ClassLibrary\ParameterService.cs" />
+    <Compile Include="ZR_ClassLibrary\ZR_PlaySound.cs" />
+    <Compile Include="ZR_ClassLibrary\Portal.cs" />
+    <Compile Include="ZR_ClassLibrary\SystemValues.cs" />
+    <Compile Include="ZR_ClassLibrary\SerialDeviceSystemData.cs" />
+    <Compile Include="ZR_ClassLibrary\TranslatorData.cs" />
+    <Compile Include="ZR_ClassLibrary\TranslatorRecources.cs" />
+    <Compile Include="ZR_ClassLibrary\StructureTreeNode.cs" />
+    <Compile Include="ZR_ClassLibrary\StructureTreeNodeList.cs" />
+    <Compile Include="ZR_ClassLibrary\UserRights.cs" />
+    <Compile Include="ZR_ClassLibrary\UserRightsForm.cs" />
+    <Compile Include="ZR_ClassLibrary\UserRightsMessages.cs" />
+    <Compile Include="ZR_ClassLibrary\ValueEventHandler`1.cs" />
+    <Compile Include="ZR_ClassLibrary\ICancelable.cs" />
+    <Compile Include="ZR_ClassLibrary\Util.cs" />
+    <Compile Include="ZR_ClassLibrary\NativeMethods.cs" />
+    <Compile Include="ZR_ClassLibrary\DeviceDB_Data.cs" />
+    <Compile Include="ZR_ClassLibrary\ValueIdent.cs" />
+    <Compile Include="ZR_ClassLibrary\ReadingValueState.cs" />
+    <Compile Include="ZR_ClassLibrary\ReadingValue.cs" />
+    <Compile Include="ZR_ClassLibrary\MeterValue.cs" />
+    <Compile Include="ZR_ClassLibrary\ValueIdentTimeListItem.cs" />
+    <Compile Include="ZR_ClassLibrary\ValueIdentForm.cs" />
+    <Compile Include="ZR_ClassLibrary\ValueIdentSet.cs" />
+    <Compile Include="ZR_ClassLibrary\ValueIdentTranslation.cs" />
+    <Compile Include="ZR_ClassLibrary\WaitWindow.cs" />
+    <Compile Include="ZR_ClassLibrary\ZR_About.cs" />
+    <Compile Include="ZR_ClassLibrary\CalTime.cs" />
+    <Compile Include="ZR_ClassLibrary\CalDate.cs" />
+    <Compile Include="ZR_ClassLibrary\CalStruct.cs" />
+    <Compile Include="ZR_ClassLibrary\ZR_Calendar.cs" />
+    <Compile Include="ZR_ClassLibrary\ZR_ClassLibMessages.cs" />
+    <Compile Include="ZR_ClassLibrary\GMM_Components.cs" />
+    <Compile Include="ZR_ClassLibrary\I_ZR_Component.cs" />
+    <Compile Include="ZR_ClassLibrary\IWindow.cs" />
+    <Compile Include="ZR_ClassLibrary\ZR_Component.cs" />
+    <Compile Include="ZR_ClassLibrary\WaveFlowProfiles.cs" />
+    <Compile Include="ZR_ClassLibrary\ParameterGroups.cs" />
+    <Compile Include="ZR_ClassLibrary\MemoryLocation.cs" />
+    <Compile Include="ZR_ClassLibrary\1Metertype.cs" />
+    <Compile Include="ZR_ClassLibrary\FrameTypes.cs" />
+    <Compile Include="ZR_ClassLibrary\ZR_Constants.cs" />
+    <Compile Include="ZR_ClassLibrary\ZR_ProgMessage.cs" />
+    <Compile Include="ZR_ClassLibrary\ZR_ReadMessage.cs" />
+    <Compile Include="ZR_ClassLibrary\Schema_Old\Schema.cs" />
+    <Compile Include="ZR_ClassLibrary\Schema_Mulda\Schema.cs" />
+    <Compile Include="ZR_ClassLibrary\Properties\Settings.cs" />
+    <Compile Include="ZR_ClassLibrary\Properties\Resources.cs" />
+    <Compile Include="ZR_ClassLibrary\Schema_Access\Schema.cs" />
+    <Compile Include="ZR_ClassLibrary\Schema_Access\SchemaTableAdapters\EnumTranslationTableAdapter.cs" />
+    <Compile Include="ZR_ClassLibrary\Schema_Access\SchemaTableAdapters\MTypeElectronicTableAdapter.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ZR_ClassLibrary\AddImagesForm.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\AddReadoutSettingsForm.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\AddReadoutTypeForm.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\BaseTypeCheck.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\COpenMeter.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\COpenTypeDlg.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\DatabaseUpgradeWindow.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\DataGridViewColumnSelector.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\Datenbankverbindung.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\DatenbankverbindungForm.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\DbCloner.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\GMM_InputBox.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\GMM_MessageBox.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\Images.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\MemoryDump.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\MeterDBAccess.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\MeterMathRes.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\Portal.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\PrintDataGridViewOptions.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\Properties\Resources.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\ReadoutSettingsEditorForm.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\Resourcen.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\SelectImagesForm.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\SelectReadoutSettingsForm.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\TranslatorData.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\UserRightsForm.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\UserRightsMessages.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\ValueIdentForm.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\ValueIdentTranslation.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\WaitWindow.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\ZR_About.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\ZR_ClassLibMessages.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\ZR_ProgMessage.resx" />
+    <EmbeddedResource Include="ZR_ClassLibrary\ZR_ReadMessage.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

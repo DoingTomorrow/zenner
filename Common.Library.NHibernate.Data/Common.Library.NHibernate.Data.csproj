@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Common.Library.NHibernate.Data.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{50A4E9E9-E9AF-4127-B755-28DF49B57241}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>Common.Library.NHibernate.Data</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>Common.Library.NHibernate.Data</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Common.Library.Core.Business">
+      <HintPath>lib\Common.Library.Core.Business.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentNHibernate">
+      <HintPath>lib\FluentNHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>lib\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CompositeIdentifierAttribute.cs" />
+    <Compile Include="CompositeKeyPropertyReferenceAttribute.cs" />
+    <Compile Include="HibernateManager.cs" />
+    <Compile Include="HibernateMultipleDatabasesManager.cs" />
+    <Compile Include="Configuration\HibernateMappingsAssembly.cs" />
+    <Compile Include="Configuration\HibernateMappingsAssemblyCollection.cs" />
+    <Compile Include="Configuration\HibernateMappingsAssemblySection.cs" />
+    <Compile Include="Extensions\ConfigurationExtensions.cs" />
+    <Compile Include="Extensions\CriteriaAliasesInfo.cs" />
+    <Compile Include="Extensions\DataPagingInfo.cs" />
+    <Compile Include="Extensions\ExtendedCriteria.cs" />
+    <Compile Include="Extensions\ExtendedQuery.cs" />
+    <Compile Include="Extensions\HQLOperator.cs" />
+    <Compile Include="Extensions\OrderClauseInfo.cs" />
+    <Compile Include="Extensions\OrderDirection.cs" />
+    <Compile Include="Extensions\QueryExtensions.cs" />
+    <Compile Include="Extensions\QueryProcessor.cs" />
+    <Compile Include="Extensions\QueryPropertyAlias.cs" />
+    <Compile Include="Extensions\QueryPropertyAliasesList.cs" />
+    <Compile Include="Extensions\ReplaceProcessedString.cs" />
+    <Compile Include="Extensions\StringsProcessor.cs" />
+    <Compile Include="Extensions\IWhereClauseInfo.cs" />
+    <Compile Include="Extensions\SimpleWhereClauseInfo.cs" />
+    <Compile Include="Extensions\CompositeWhereClauseInfo.cs" />
+    <Compile Include="Extensions\Dialects\ExtendedMsSql2008Dialect.cs" />
+    <Compile Include="Extensions\Dialects\ExtendedOracle10gDialect.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

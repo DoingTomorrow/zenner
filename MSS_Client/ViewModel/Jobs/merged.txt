@@ -1,0 +1,3437 @@
+
+--- AddJobDefinitionViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Jobs.AddJobDefinitionViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Events;
+using MSS.Business.Modules.Configuration;
+using MSS.Business.Modules.UsersManagement;
+using MSS.Core.Model.DataFilters;
+using MSS.Core.Model.Jobs;
+using MSS.DIConfiguration;
+using MSS.DTO.Jobs;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MSS_Client.Utils;
+using MSS_Client.ViewModel.DataFilters;
+using MSS_Client.ViewModel.Settings;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using Ninject;
+using Ninject.Parameters;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using Telerik.Windows.Data;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Jobs
+{
+  public class AddJobDefinitionViewModel : ValidationViewModelBase
+  {
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly IWindowFactory _windowFactory;
+    private readonly bool _isUpdate;
+    private bool _isSameConfig;
+    private readonly JobDefinitionDto _jdDto = new JobDefinitionDto();
+    private ServiceTask _selectedServiceJob;
+    private IEnumerable<ServiceTask> _serviceJobs = (IEnumerable<ServiceTask>) new RadObservableCollection<ServiceTask>();
+    private DeviceModel _selectedSystem;
+    private IEnumerable<DeviceModel> _systemList;
+    private string _selectedEquipmentstring;
+    private bool _isVisible;
+    private string _equipmentParams;
+    private ViewModelBase _messageUserControl;
+    private ProfileType _profileType;
+    private IEnumerable<ProfileType> _profileTypes;
+    private RadObservableCollection<Rules> _rules;
+    private MSS.Core.Model.DataFilters.Filter _selectedFilter;
+    private string _name;
+    private string _title;
+    private IEnumerable<MSS.Core.Model.DataFilters.Filter> _filterCollection;
+    private bool _serviceJobVisibility;
+
+    public AddJobDefinitionViewModel(
+      IRepositoryFactory repositoryFactory,
+      IWindowFactory windowFactory)
+    {
+      this._isUpdate = false;
+      this._isSameConfig = this._isUpdate;
+      this.IsReadingJob = true;
+      this._repositoryFactory = repositoryFactory;
+      this._windowFactory = windowFactory;
+      EventPublisher.Register<RefreshFilters>(new Action<RefreshFilters>(this.RefreshFilter));
+      EventPublisher.Register<SendSerializedDataEvent>(new Action<SendSerializedDataEvent>(this.RegisterToSerializedEvent));
+      EventPublisher.Register<UpdateDefaultEquipment>(new Action<UpdateDefaultEquipment>(this.UpdateDefaultEquipmentEvent));
+      EventPublisher.Register<SetSystemChangeableParamsEvent>(new Action<SetSystemChangeableParamsEvent>(this.SetSystemChangeableParams));
+      this.FilterCollection = (IEnumerable<MSS.Core.Model.DataFilters.Filter>) this._repositoryFactory.GetRepository<MSS.Core.Model.DataFilters.Filter>().GetAll().OrderBy<MSS.Core.Model.DataFilters.Filter, string>((Func<MSS.Core.Model.DataFilters.Filter, string>) (f => f.Name));
+      this.Title = Resources.MSS_Client_Jobs_CreateJobDefinition_Title;
+      if (MSS.Business.Utils.AppContext.Current.DefaultEquipment != null)
+      {
+        Task<List<Config>> equipmentConfigsList = MSS.Business.Modules.AppParametersManagement.AppParametersManagement.CreateEquipmentConfigsList(MSS.Business.Utils.AppContext.Current.DefaultEquipment);
+        this.SelectedEquipmentName = MSS.Business.Utils.AppContext.Current.DefaultEquipment.Name;
+        this.EquipmentParams = MSS.Business.Modules.AppParametersManagement.AppParametersManagement.SerializedConfigList(equipmentConfigsList.Result, MSS.Business.Utils.AppContext.Current.DefaultEquipment.ChangeableParameters);
+      }
+      else
+        this.SelectedEquipmentName = string.Empty;
+      this.ServiceJobVisibility = new UsersManager(this._repositoryFactory).HasRight(OperationEnum.ServiceJobCreate.ToString());
+    }
+
+    public AddJobDefinitionViewModel(
+      IRepositoryFactory repositoryFactory,
+      IWindowFactory windowFactory,
+      JobDefinitionDto jdDto)
+    {
+      this._jdDto = jdDto;
+      this._isUpdate = true;
+      this._isSameConfig = this._isUpdate;
+      this._repositoryFactory = repositoryFactory;
+      this._windowFactory = windowFactory;
+      this.IsReadingJob = true;
+      EventPublisher.Register<RefreshFilters>(new Action<RefreshFilters>(this.RefreshFilter));
+      EventPublisher.Register<SendSerializedDataEvent>(new Action<SendSerializedDataEvent>(this.RegisterToSerializedEvent));
+      EventPublisher.Register<UpdateDefaultEquipment>(new Action<UpdateDefaultEquipment>(this.UpdateDefaultEquipmentEvent));
+      EventPublisher.Register<SetSystemChangeableParamsEvent>(new Action<SetSystemChangeableParamsEvent>(this.SetSystemChangeableParams));
+      this.FilterCollection = (IEnumerable<MSS.Core.Model.DataFilters.Filter>) this._repositoryFactory.GetRepository<MSS.Core.Model.DataFilters.Filter>().GetAll().OrderBy<MSS.Core.Model.DataFilters.Filter, string>((Func<MSS.Core.Model.DataFilters.Filter, string>) (f => f.Name));
+      this.Title = Resources.MSS_Client_Jobs_EditJobDefinition_Title;
+      JobDefinition jd = this._repositoryFactory.GetRepository<JobDefinition>().FirstOrDefault((Expression<Func<JobDefinition, bool>>) (x => x.Id == jdDto.Id));
+      if (jd != null)
+      {
+        this.Name = jdDto.Name;
+        EquipmentModel equipmentModel = GmmInterface.DeviceManager.GetEquipmentModels().FirstOrDefault<EquipmentModel>((Func<EquipmentModel, bool>) (x => x.Name == jd.EquipmentModel));
+        if (equipmentModel != null)
+          this.SelectedEquipmentName = equipmentModel.Name;
+        if (jd.Filter != null)
+          this.SelectedFilter = this.FilterCollection.FirstOrDefault<MSS.Core.Model.DataFilters.Filter>((Func<MSS.Core.Model.DataFilters.Filter, bool>) (x => x.Id == jd.Filter.Id));
+        else
+          this.IsServiceJob = true;
+        this.SelectedSystem = this.SystemList.FirstOrDefault<DeviceModel>((Func<DeviceModel, bool>) (x => x.Name == jd.System));
+        this.IntervalBytes = jdDto.Interval;
+        this.EquipmentParams = jdDto.EquipmentParams;
+        if (!string.IsNullOrEmpty(this.SelectedEquipmentName) && this.SelectedSystem != null)
+        {
+          this.ProfileTypes = (IEnumerable<ProfileType>) GmmInterface.DeviceManager.GetProfileTypes(this.SelectedSystem, GmmInterface.DeviceManager.GetEquipmentModels().FirstOrDefault<EquipmentModel>((Func<EquipmentModel, bool>) (x => x.Name == this.SelectedEquipmentName)), new ProfileTypeTags?(ProfileTypeTags.JobManager));
+          if (this.ProfileTypes.Count<ProfileType>() != 0)
+          {
+            this.ProfileType = this.ProfileTypes.FirstOrDefault<ProfileType>((Func<ProfileType, bool>) (x => x.Name == jdDto.ProfileType));
+            if (this.ProfileType != null && !string.IsNullOrEmpty(jdDto.ProfileTypeParams))
+              MSS.Business.Modules.AppParametersManagement.AppParametersManagement.UpdateProfileTypeWithSavedParams(this.ProfileType, jdDto.ProfileTypeParams);
+          }
+        }
+        if (!string.IsNullOrEmpty(jdDto.ServiceJob))
+        {
+          this.ServiceJobs = (IEnumerable<ServiceTask>) ServiceTaskManager.GetServices(GmmInterface.DeviceManager.GetDeviceModels(DeviceModelTags.SystemDevice).FirstOrDefault<DeviceModel>((Func<DeviceModel, bool>) (x => x.Name == this.SelectedSystem.Description))).OrderBy<ServiceTask, string>((Func<ServiceTask, string>) (s => s.Description));
+          this.SelectedServiceJob = this.ServiceJobs.FirstOrDefault<ServiceTask>((Func<ServiceTask, bool>) (x => x.Description == jdDto.ServiceJob));
+        }
+        this.DueDate = jd.DueDate;
+        this.Month = jd.Month;
+        this.Day = jd.Day;
+        this.QuarterHour = jd.QuarterHour;
+      }
+      this.ServiceJobVisibility = new UsersManager(this._repositoryFactory).HasRight(OperationEnum.ServiceJobCreate.ToString());
+    }
+
+    private void SetSystemChangeableParams(SetSystemChangeableParamsEvent ev)
+    {
+      this.DueDate = ev.DueDate;
+      this.Month = ev.Month;
+      this.Day = ev.Day;
+      this.QuarterHour = ev.QuarterHour;
+      this._isSameConfig = true;
+    }
+
+    private void UpdateDefaultEquipmentEvent(UpdateDefaultEquipment ev)
+    {
+      this.SelectedEquipmentName = ev.SelectedEquipmentModel.Name;
+      this.EquipmentParams = MSS.Business.Modules.AppParametersManagement.AppParametersManagement.SerializedConfigList(ev.ChangeableParameters, ev.SelectedEquipmentModel.ChangeableParameters);
+    }
+
+    private void RegisterToSerializedEvent(SendSerializedDataEvent ev)
+    {
+      this.IntervalBytes = ev.SerializedObject;
+    }
+
+    private void RefreshFilter(RefreshFilters obj)
+    {
+      this.FilterCollection = (IEnumerable<MSS.Core.Model.DataFilters.Filter>) this._repositoryFactory.GetRepository<MSS.Core.Model.DataFilters.Filter>().GetAll().OrderBy<MSS.Core.Model.DataFilters.Filter, string>((Func<MSS.Core.Model.DataFilters.Filter, string>) (f => f.Name));
+    }
+
+    public byte[] IntervalBytes { get; set; }
+
+    public IEnumerable<EquipmentModel> EquipmentList
+    {
+      get => (IEnumerable<EquipmentModel>) GmmInterface.DeviceManager.GetEquipmentModels();
+    }
+
+    public bool IsReadingJob { get; set; }
+
+    public bool IsServiceJob { get; set; }
+
+    public ServiceTask SelectedServiceJob
+    {
+      get => this._selectedServiceJob;
+      set
+      {
+        this._selectedServiceJob = value;
+        this.OnPropertyChanged(nameof (SelectedServiceJob));
+      }
+    }
+
+    public IEnumerable<ServiceTask> ServiceJobs
+    {
+      get => this._serviceJobs;
+      set
+      {
+        this._serviceJobs = value;
+        this.OnPropertyChanged(nameof (ServiceJobs));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_CLIENT_CREATE_JOB_SYSTEM")]
+    public DeviceModel SelectedSystem
+    {
+      get => this._selectedSystem;
+      set
+      {
+        this._selectedSystem = value;
+        if (!string.IsNullOrEmpty(this.SelectedEquipmentName))
+        {
+          this.ProfileTypes = (IEnumerable<ProfileType>) GmmInterface.DeviceManager.GetProfileTypes(this.SelectedSystem, GmmInterface.DeviceManager.GetEquipmentModels().FirstOrDefault<EquipmentModel>((Func<EquipmentModel, bool>) (x => x.Name == this.SelectedEquipmentName)), new ProfileTypeTags?(ProfileTypeTags.JobManager));
+          if (this.SelectedSystem != null)
+          {
+            DeviceModel model = GmmInterface.DeviceManager.GetDeviceModels(DeviceModelTags.SystemDevice).FirstOrDefault<DeviceModel>((Func<DeviceModel, bool>) (x => x.Name == this.SelectedSystem.Description));
+            if (model != null)
+              this.ServiceJobs = (IEnumerable<ServiceTask>) ServiceTaskManager.GetServices(model).OrderBy<ServiceTask, string>((Func<ServiceTask, string>) (s => s.Description));
+          }
+        }
+        this.IsVisible = this.SelectedSystem != null && (this.SelectedSystem.Description == "Minomat V4 Master" || this.SelectedSystem.Description == "Minomat V4 Slave");
+        if (this.SelectedSystem != null && this._isUpdate && this.SelectedSystem.Description != this._repositoryFactory.GetRepository<JobDefinition>().GetById((object) this._jdDto.Id).System)
+        {
+          this.DueDate = new TimeSpan?();
+          this.Month = new TimeSpan?();
+          this.Day = new TimeSpan?();
+          this.QuarterHour = new TimeSpan?();
+          this._isSameConfig = false;
+        }
+        else if (this._isUpdate && this.SelectedSystem != null && this.SelectedSystem.Description == this._repositoryFactory.GetRepository<JobDefinition>().GetById((object) this._jdDto.Id).System)
+        {
+          JobDefinition jobDefinition = this._repositoryFactory.GetRepository<JobDefinition>().FirstOrDefault((Expression<Func<JobDefinition, bool>>) (x => x.Id == this._jdDto.Id));
+          this.DueDate = jobDefinition.DueDate;
+          this.Month = jobDefinition.Month;
+          this.Day = jobDefinition.Day;
+          this.QuarterHour = jobDefinition.QuarterHour;
+          this._isSameConfig = true;
+        }
+        this.OnPropertyChanged(nameof (SelectedSystem));
+      }
+    }
+
+    public IEnumerable<DeviceModel> SystemList
+    {
+      get => this._systemList;
+      set
+      {
+        this._systemList = value;
+        this.OnPropertyChanged(nameof (SystemList));
+      }
+    }
+
+    public System.Windows.Input.ICommand OpenFilterCommand
+    {
+      get
+      {
+        return (System.Windows.Input.ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<FilterViewModel>());
+          if (newModalDialog.HasValue && newModalDialog.Value)
+            this.MessageUserControl = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          else
+            this.MessageUserControl = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    public System.Windows.Input.ICommand OpenEquipmentSelection
+    {
+      get
+      {
+        return (System.Windows.Input.ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          EquipmentModel equipment = GmmInterface.DeviceManager.GetEquipmentModels().FirstOrDefault<EquipmentModel>((Func<EquipmentModel, bool>) (x => x.Name == this.SelectedEquipmentName));
+          ConfigChangeableParamsViewModel changeableParamsViewModel;
+          if (equipment != null)
+          {
+            MSS.Business.Modules.AppParametersManagement.AppParametersManagement.UpdateEquipmentWithSavedParams(equipment, this.EquipmentParams);
+            changeableParamsViewModel = DIConfigurator.GetConfigurator().Get<ConfigChangeableParamsViewModel>((IParameter) new ConstructorArgument("equipmentModel", (object) equipment));
+          }
+          else
+            changeableParamsViewModel = DIConfigurator.GetConfigurator().Get<ConfigChangeableParamsViewModel>();
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) changeableParamsViewModel);
+          if (newModalDialog.HasValue && newModalDialog.Value)
+            this.MessageUserControl = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_DefaultEquipment_Update_Message);
+          if (newModalDialog.HasValue && newModalDialog.Value)
+            this.MessageUserControl = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          else
+            this.MessageUserControl = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    public System.Windows.Input.ICommand OpenSystemSelection
+    {
+      get
+      {
+        return (System.Windows.Input.ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<SystemSelectionViewModel>((IParameter) new ConstructorArgument("selectedSystem", (object) this.SelectedSystem), (IParameter) new ConstructorArgument("isUpdate", (object) this._isSameConfig), (IParameter) new ConstructorArgument("jobDto", (object) this._jdDto), (IParameter) new ConstructorArgument("currentParams", (object) new ChangeableParametersSystem()
+          {
+            Day = this.Day,
+            DueDate = this.DueDate,
+            Month = this.Month,
+            QuarterHour = this.QuarterHour
+          })));
+          if (newModalDialog.HasValue && newModalDialog.Value)
+            this.MessageUserControl = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_DefaultEquipment_Update_Message);
+          if (newModalDialog.HasValue && newModalDialog.Value)
+            this.MessageUserControl = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          else
+            this.MessageUserControl = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    public System.Windows.Input.ICommand OpenIntervalCommand
+    {
+      get
+      {
+        return (System.Windows.Input.ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<IntervalsViewModel>((IParameter) new ConstructorArgument("interval", (object) this.IntervalBytes)));
+          if (newModalDialog.HasValue && newModalDialog.Value)
+            this.MessageUserControl = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          else
+            this.MessageUserControl = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    public System.Windows.Input.ICommand ChangeProfileTypeCommand
+    {
+      get
+      {
+        return (System.Windows.Input.ICommand) new RelayCommand((Action<object>) (_ =>
+        {
+          if (this.ProfileType == null)
+            this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<GenericMessageViewModel>((IParameter) new ConstructorArgument("title", (object) Resources.MSS_DeleteStructure_Warning_Title), (IParameter) new ConstructorArgument("message", (object) Resources.MSS_Client_NoProfileSelected), (IParameter) new ConstructorArgument("isCancelButtonVisible", (object) false)));
+          else if (this.ProfileTypes != null && this.ProfileType.ChangeableParameters != null)
+          {
+            ProfileTypeViewModel profileTypeViewModel = DIConfigurator.GetConfigurator().Get<ProfileTypeViewModel>((IParameter) new ConstructorArgument("profileTypeCollection", (object) this.ProfileTypes), (IParameter) new ConstructorArgument("selectedProfileType", (object) this.ProfileType));
+            bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) profileTypeViewModel);
+            if (!(newModalDialog.HasValue & newModalDialog.Value))
+              return;
+            this.ProfileType = profileTypeViewModel.SelectedProfileType;
+          }
+          else
+            this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<GenericMessageViewModel>((IParameter) new ConstructorArgument("title", (object) Resources.MSS_DeleteStructure_Warning_Title), (IParameter) new ConstructorArgument("message", (object) Resources.MSS_Client_CannotModifyChangeableParamsDueToLicense), (IParameter) new ConstructorArgument("isCancelButtonVisible", (object) false)));
+        }));
+      }
+    }
+
+    public System.Windows.Input.ICommand SaveJobDefinition
+    {
+      get
+      {
+        return (System.Windows.Input.ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          if (!this.IsValid)
+            return;
+          if (string.IsNullOrEmpty(this.SelectedEquipmentName))
+            this.MessageUserControl = MessageHandlingManager.ShowValidationMessage(Resources.MSS_CLIENT_CREATE_JOB_REQUIRED_EQUIPMENT);
+          else if (this.IntervalBytes == null)
+            this.MessageUserControl = MessageHandlingManager.ShowValidationMessage(Resources.MSS_CLIENT_CREATE_JOB_REQUIRED_INTERVAL);
+          else if (this.IsReadingJob && this.SelectedFilter == null)
+            this.MessageUserControl = MessageHandlingManager.ShowValidationMessage(Resources.MSS_CLIENT_CREATE_JOB_REQUIRED_FILTER);
+          else if (this.IsServiceJob && this.SelectedServiceJob == null)
+          {
+            this.MessageUserControl = MessageHandlingManager.ShowValidationMessage(Resources.MSS_CLIENT_CREATE_JOB_REQUIRED_SERVICE);
+          }
+          else
+          {
+            JobDefinition jobDefinition = new JobDefinition();
+            if (this._isUpdate)
+              jobDefinition = this._repositoryFactory.GetRepository<JobDefinition>().FirstOrDefault((Expression<Func<JobDefinition, bool>>) (x => x.Id == this._jdDto.Id)) ?? new JobDefinition();
+            jobDefinition.EquipmentModel = this.SelectedEquipmentName;
+            jobDefinition.System = this.SelectedSystem.Name;
+            if (this.IsReadingJob)
+            {
+              jobDefinition.Filter = this.SelectedFilter;
+              jobDefinition.ServiceJob = (string) null;
+            }
+            else
+            {
+              jobDefinition.ServiceJob = this.SelectedServiceJob.Method.Name;
+              jobDefinition.Filter = (MSS.Core.Model.DataFilters.Filter) null;
+            }
+            jobDefinition.Name = this.Name;
+            jobDefinition.StartDate = new DateTime?(DateTime.Now);
+            jobDefinition.IsDeactivated = false;
+            jobDefinition.EndDate = new DateTime?(DateTime.Now);
+            jobDefinition.Interval = this.IntervalBytes;
+            jobDefinition.EquipmentParams = this.EquipmentParams ?? "";
+            jobDefinition.ProfileType = this.ProfileType.Name;
+            if (this.ProfileType?.ChangeableParameters != null)
+            {
+              List<Config> changeableParameters = MSS.Business.Modules.AppParametersManagement.AppParametersManagement.GetConfigListFromChangeableParameters(this.ProfileType.ChangeableParameters);
+              jobDefinition.ProfileTypeParams = MSS.Business.Modules.AppParametersManagement.AppParametersManagement.SerializedConfigList(changeableParameters, this.ProfileType.ChangeableParameters);
+            }
+            TimeSpan? nullable = this.QuarterHour;
+            int num;
+            if (nullable.HasValue)
+            {
+              nullable = this.Day;
+              if (nullable.HasValue)
+              {
+                nullable = this.Month;
+                if (nullable.HasValue)
+                {
+                  nullable = this.DueDate;
+                  num = nullable.HasValue ? 1 : 0;
+                  goto label_21;
+                }
+              }
+            }
+            num = 0;
+label_21:
+            if (num != 0)
+            {
+              jobDefinition.QuarterHour = this.QuarterHour;
+              jobDefinition.Day = this.Day;
+              jobDefinition.Month = this.Month;
+              jobDefinition.DueDate = this.DueDate;
+            }
+            else if (this.SelectedSystem.ChangeableParameters != null)
+            {
+              ChangeableParameter dueDateTimeSpan1 = this.SelectedSystem.ChangeableParameters.FirstOrDefault<ChangeableParameter>((Func<ChangeableParameter, bool>) (x => x.Key == "MinomatV4_DurationDueDate"));
+              ChangeableParameter dueDateTimeSpan2 = this.SelectedSystem.ChangeableParameters.FirstOrDefault<ChangeableParameter>((Func<ChangeableParameter, bool>) (x => x.Key == "MinomatV4_DurationMonth"));
+              ChangeableParameter dueDateTimeSpan3 = this.SelectedSystem.ChangeableParameters.FirstOrDefault<ChangeableParameter>((Func<ChangeableParameter, bool>) (x => x.Key == "MinomatV4_DurationDay"));
+              ChangeableParameter dueDateTimeSpan4 = this.SelectedSystem.ChangeableParameters.FirstOrDefault<ChangeableParameter>((Func<ChangeableParameter, bool>) (x => x.Key == "MinomatV4_DurationQuarterHour"));
+              jobDefinition.DueDate = this.GetTimeSpan(dueDateTimeSpan1);
+              jobDefinition.Month = this.GetTimeSpan(dueDateTimeSpan2);
+              jobDefinition.Day = this.GetTimeSpan(dueDateTimeSpan3);
+              jobDefinition.QuarterHour = this.GetTimeSpan(dueDateTimeSpan4);
+            }
+            EventPublisher.Publish<SaveJobDefinitionEvent>(new SaveJobDefinitionEvent()
+            {
+              JobDefinition = jobDefinition
+            }, (IViewModel) this);
+            this.OnRequestClose(true);
+          }
+        }));
+      }
+    }
+
+    private TimeSpan? GetTimeSpan(ChangeableParameter dueDateTimeSpan)
+    {
+      TimeSpan? timeSpan = new TimeSpan?();
+      if (dueDateTimeSpan != null)
+      {
+        string[] strArray = dueDateTimeSpan.Value.Split(':');
+        timeSpan = strArray.Length != 4 ? new TimeSpan?(new TimeSpan(0, int.Parse(strArray[0]), int.Parse(strArray[1]), int.Parse(strArray[2]))) : (int.Parse(strArray[0]) >= 0 ? new TimeSpan?(new TimeSpan(int.Parse(strArray[0]), int.Parse(strArray[1]), int.Parse(strArray[2]), int.Parse(strArray[3]))) : new TimeSpan?(new TimeSpan(int.Parse(strArray[0]), -int.Parse(strArray[1]), -int.Parse(strArray[2]), -int.Parse(strArray[3]))));
+      }
+      return timeSpan;
+    }
+
+    public TimeSpan? DueDate { get; set; }
+
+    public TimeSpan? Month { get; set; }
+
+    public TimeSpan? Day { get; set; }
+
+    public TimeSpan? QuarterHour { get; set; }
+
+    [Required(ErrorMessage = "MSS_CLIENT_CREATE_JOB_REQUIRED_EQUIPMENT_NAME")]
+    public string SelectedEquipmentName
+    {
+      get => this._selectedEquipmentstring;
+      set
+      {
+        this._selectedEquipmentstring = value;
+        EquipmentModel equipmentModel = GmmInterface.DeviceManager.GetEquipmentModels().FirstOrDefault<EquipmentModel>((Func<EquipmentModel, bool>) (x => x.Name == this.SelectedEquipmentName));
+        this.SystemList = (IEnumerable<DeviceModel>) GmmInterface.DeviceManager.GetDeviceModels(equipmentModel, new DeviceModelTags?(DeviceModelTags.SystemDevice));
+        if (this.SelectedSystem != null)
+        {
+          this.ProfileTypes = (IEnumerable<ProfileType>) GmmInterface.DeviceManager.GetProfileTypes(this.SelectedSystem, equipmentModel, new ProfileTypeTags?(ProfileTypeTags.JobManager));
+          this.SelectedSystem = (DeviceModel) null;
+        }
+        this.OnPropertyChanged(nameof (SelectedEquipmentName));
+      }
+    }
+
+    public bool IsVisible
+    {
+      get => this._isVisible;
+      set
+      {
+        this._isVisible = value;
+        this.OnPropertyChanged(nameof (IsVisible));
+      }
+    }
+
+    public string EquipmentParams
+    {
+      get => this._equipmentParams;
+      set
+      {
+        this._equipmentParams = value;
+        this.OnPropertyChanged(nameof (EquipmentParams));
+      }
+    }
+
+    public ViewModelBase MessageUserControl
+    {
+      get => this._messageUserControl;
+      set
+      {
+        this._messageUserControl = value;
+        this.OnPropertyChanged(nameof (MessageUserControl));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_CLIENT_CREATE_JOB_PROFILE_TYPE_REQUIRED")]
+    public ProfileType ProfileType
+    {
+      get => this._profileType;
+      set
+      {
+        this._profileType = value;
+        this.OnPropertyChanged(nameof (ProfileType));
+      }
+    }
+
+    public IEnumerable<ProfileType> ProfileTypes
+    {
+      get => this._profileTypes;
+      set
+      {
+        this._profileTypes = value;
+        this.OnPropertyChanged(nameof (ProfileTypes));
+      }
+    }
+
+    public RadObservableCollection<Rules> FilterRules
+    {
+      get => this._rules;
+      set
+      {
+        this._rules = value;
+        this.OnPropertyChanged(nameof (FilterRules));
+      }
+    }
+
+    public MSS.Core.Model.DataFilters.Filter SelectedFilter
+    {
+      get => this._selectedFilter;
+      set
+      {
+        this._selectedFilter = value;
+        this.OnPropertyChanged(nameof (SelectedFilter));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_CLIENT_CREATE_JOB_REQUIRED_NAME")]
+    public string Name
+    {
+      get => this._name;
+      set
+      {
+        this._name = value;
+        this.OnPropertyChanged(nameof (Name));
+      }
+    }
+
+    public string Title
+    {
+      get => this._title;
+      set
+      {
+        this._title = value;
+        this.OnPropertyChanged(nameof (Title));
+      }
+    }
+
+    public IEnumerable<MSS.Core.Model.DataFilters.Filter> FilterCollection
+    {
+      get => this._filterCollection;
+      set
+      {
+        this._filterCollection = value;
+        this.OnPropertyChanged(nameof (FilterCollection));
+      }
+    }
+
+    public bool ServiceJobVisibility
+    {
+      get => this._serviceJobVisibility;
+      set
+      {
+        this._serviceJobVisibility = value;
+        this.OnPropertyChanged(nameof (ServiceJobVisibility));
+      }
+    }
+  }
+}
+
+
+--- AddMssReadingJobViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Jobs.AddMssReadingJobViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Events;
+using MSS.Business.Modules.JobsManagement;
+using MSS.Business.Utils;
+using MSS.Core.Model.DataCollectors;
+using MSS.Core.Model.Jobs;
+using MSS.Core.Model.Structures;
+using MSS.DIConfiguration;
+using MSS.DTO.Jobs;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MSS_Client.Utils;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using Ninject;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Windows.Input;
+using Telerik.Windows.Data;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Jobs
+{
+  public class AddMssReadingJobViewModel : ValidationViewModelBase
+  {
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly IWindowFactory _windowFactory;
+    private readonly bool _isUpdate;
+    private readonly MssReadingJobDto _job = new MssReadingJobDto();
+    private ViewModelBase _messageUserControl;
+    private bool _isMBusJob;
+    private bool _isMinomatJob;
+    private string _title;
+    private string _structureRootInfo;
+    private Guid _structureRootId;
+    private IEnumerable<ServiceTask> _serviceJobs = (IEnumerable<ServiceTask>) new RadObservableCollection<ServiceTask>();
+    private RadObservableCollection<JobDefinitionDto> _jobList = new RadObservableCollection<JobDefinitionDto>();
+    private JobDefinitionDto _selectedJobDefinition;
+    private JobDefinitionDto _selectedMinomatJobDefinition;
+    private IEnumerable<string> _serialNumberList;
+    private string _serialNumber;
+
+    public AddMssReadingJobViewModel(
+      IRepositoryFactory repositoryFactory,
+      IWindowFactory windowFactory)
+    {
+      this._isUpdate = false;
+      this._repositoryFactory = repositoryFactory;
+      this._windowFactory = windowFactory;
+      this._jobList = new JobsManager(this._repositoryFactory).GetJobDefinitionDto();
+      this.Title = Resources.MSS_CLIENT_CREATE_JOB_TITLE;
+      EventPublisher.Register<AssignMinomatEvent>(new Action<AssignMinomatEvent>(this.WriteRadioId));
+      EventPublisher.Register<AssignStructureEvent>(new Action<AssignStructureEvent>(this.AssignStructure));
+      this.CurrentMinomats = (IEnumerable<Minomat>) this._repositoryFactory.GetRepository<Minomat>().Where((Expression<Func<Minomat, bool>>) (x => x.IsDeactivated == false && x.IsMaster));
+      this.IsMBusJob = true;
+      this.SerialNumberList = (IEnumerable<string>) this._repositoryFactory.GetRepository<Minomat>().Where((Expression<Func<Minomat, bool>>) (x => x.EndDate == new DateTime?() && x.IsMaster)).OrderBy<Minomat, string>((Expression<Func<Minomat, string>>) (x => x.RadioId)).Select<Minomat, string>((Expression<Func<Minomat, string>>) (x => x.RadioId));
+    }
+
+    private void AssignStructure(AssignStructureEvent ev)
+    {
+      this.StructureRootInfo = ev.StructureNode.Name + "\n" + ev.StructureNode.Description;
+      this.StructureRootId = ev.StructureNode.Id;
+    }
+
+    private void WriteRadioId(AssignMinomatEvent ev) => this.SerialNumber = ev.Minomat.RadioId;
+
+    public AddMssReadingJobViewModel(
+      IRepositoryFactory repositoryFactory,
+      IWindowFactory windowFactory,
+      MssReadingJobDto jobDto)
+    {
+      this._job = jobDto;
+      this._repositoryFactory = repositoryFactory;
+      this._windowFactory = windowFactory;
+      this._jobList = new JobsManager(this._repositoryFactory).GetJobDefinitionDto();
+      this.CurrentMinomats = (IEnumerable<Minomat>) this._repositoryFactory.GetRepository<Minomat>().Where((Expression<Func<Minomat, bool>>) (x => x.IsDeactivated == false && x.IsMaster));
+      EventPublisher.Register<AssignMinomatEvent>(new Action<AssignMinomatEvent>(this.WriteRadioId));
+      EventPublisher.Register<AssignStructureEvent>(new Action<AssignStructureEvent>(this.AssignStructure));
+      this.Title = Resources.MSS_CLIENT_UPDATE_JOB_TITLE;
+      this.SerialNumberList = (IEnumerable<string>) this._repositoryFactory.GetRepository<Minomat>().Where((Expression<Func<Minomat, bool>>) (x => x.EndDate == new DateTime?() && x.IsMaster)).OrderBy<Minomat, string>((Expression<Func<Minomat, string>>) (x => x.RadioId)).Select<Minomat, string>((Expression<Func<Minomat, string>>) (x => x.RadioId));
+      this._isUpdate = true;
+      if (jobDto.MinomatId == Guid.Empty)
+      {
+        this.IsMBusJob = true;
+        this.IsMinomatJob = false;
+      }
+      else
+      {
+        this.IsMBusJob = false;
+        this.IsMinomatJob = true;
+      }
+      MssReadingJob job = this._repositoryFactory.GetRepository<MssReadingJob>().FirstOrDefault((Expression<Func<MssReadingJob, bool>>) (x => x.Id == jobDto.Id));
+      if (job == null)
+        return;
+      if (this.IsMBusJob)
+      {
+        this.SelectedJobDefinition = this._jobList.FirstOrDefault<JobDefinitionDto>((Func<JobDefinitionDto, bool>) (x => x.Id == job.JobDefinition.Id));
+        StructureNode byId = this._repositoryFactory.GetRepository<StructureNode>().GetById((object) jobDto.StructureNodeId);
+        if (byId != null)
+        {
+          this.StructureRootInfo = byId.Name + "\n" + byId.Description;
+          this.StructureRootId = byId.Id;
+        }
+      }
+      else
+      {
+        this.SerialNumber = this._repositoryFactory.GetRepository<Minomat>().GetById((object) jobDto.MinomatId).RadioId;
+        this.SelectedMinomatJobDefinition = this._jobList.FirstOrDefault<JobDefinitionDto>((Func<JobDefinitionDto, bool>) (x => x.Id == job.JobDefinition.Id));
+      }
+    }
+
+    public bool IsMBusJob
+    {
+      get => this._isMBusJob;
+      set
+      {
+        this._isMBusJob = value;
+        this.OnPropertyChanged(nameof (IsMBusJob));
+      }
+    }
+
+    public bool IsMinomatJob
+    {
+      get => this._isMinomatJob;
+      set
+      {
+        this._isMinomatJob = value;
+        this.OnPropertyChanged(nameof (IsMinomatJob));
+      }
+    }
+
+    public string Title
+    {
+      get => this._title;
+      set
+      {
+        this._title = value;
+        this.OnPropertyChanged(nameof (Title));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_JOBS_STRUCTURE_NAME_REQUIRED")]
+    public string StructureRootInfo
+    {
+      get => this._structureRootInfo;
+      set
+      {
+        this._structureRootInfo = value;
+        this.OnPropertyChanged(nameof (StructureRootInfo));
+      }
+    }
+
+    public Guid StructureRootId
+    {
+      get => this._structureRootId;
+      set
+      {
+        this._structureRootId = value;
+        this.OnPropertyChanged(nameof (StructureRootId));
+      }
+    }
+
+    public IEnumerable<Minomat> CurrentMinomats { get; set; }
+
+    [Required(ErrorMessage = "MSS_JOB_JOBDEFINITION_REQUIRED")]
+    public IEnumerable<ServiceTask> ServiceJobs
+    {
+      get => this._serviceJobs;
+      set
+      {
+        this._serviceJobs = value;
+        this.OnPropertyChanged(nameof (ServiceJobs));
+      }
+    }
+
+    public RadObservableCollection<JobDefinitionDto> JobDefinitions
+    {
+      get => this._jobList;
+      set
+      {
+        this._jobList = value;
+        this.OnPropertyChanged("SelectedJobDefinition");
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_JOB_JOBDEFINITION_REQUIRED")]
+    public JobDefinitionDto SelectedJobDefinition
+    {
+      get => this._selectedJobDefinition;
+      set
+      {
+        this._selectedJobDefinition = value;
+        this.OnPropertyChanged(nameof (SelectedJobDefinition));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_JOB_JOBDEFINITION_REQUIRED")]
+    public JobDefinitionDto SelectedMinomatJobDefinition
+    {
+      get => this._selectedMinomatJobDefinition;
+      set
+      {
+        this._selectedMinomatJobDefinition = value;
+        this.OnPropertyChanged(nameof (SelectedMinomatJobDefinition));
+      }
+    }
+
+    public IEnumerable<string> SerialNumberList
+    {
+      get => this._serialNumberList;
+      set
+      {
+        this._serialNumberList = value;
+        this.OnPropertyChanged(nameof (SerialNumberList));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_JOB_SERIAL_NUMBER_REQUIRED")]
+    public string SerialNumber
+    {
+      get => this._serialNumber;
+      set
+      {
+        this._serialNumber = value;
+        this.OnPropertyChanged(nameof (SerialNumber));
+      }
+    }
+
+    public ViewModelBase MessageUserControl
+    {
+      get => this._messageUserControl;
+      set
+      {
+        this._messageUserControl = value;
+        this.OnPropertyChanged(nameof (MessageUserControl));
+      }
+    }
+
+    public ICommand UpdateJobCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) delegate
+        {
+          this.RefreshIsValid();
+          if (!this.IsValid)
+            return;
+          if (!this._isUpdate)
+          {
+            if (this.IsMBusJob)
+            {
+              JobDefinition jobDefinition = this._repositoryFactory.GetRepository<JobDefinition>().GetById((object) this.SelectedJobDefinition.Id);
+              if (jobDefinition != null)
+              {
+                Scenario scenario = this._repositoryFactory.GetRepository<ScenarioJobDefinition>().SearchFor((Expression<Func<ScenarioJobDefinition, bool>>) (x => x.JobDefinition.Id == jobDefinition.Id)).Select<ScenarioJobDefinition, Scenario>((Func<ScenarioJobDefinition, Scenario>) (x => x.Scenario)).FirstOrDefault<Scenario>();
+                MssReadingJob entity = new MssReadingJob()
+                {
+                  RootNode = this._repositoryFactory.GetRepository<StructureNode>().GetById((object) this.StructureRootId),
+                  StartDate = new DateTime?(DateTime.Now),
+                  IsDeactivated = false,
+                  JobDefinition = jobDefinition,
+                  Scenario = scenario,
+                  IsUpdate = true,
+                  LastExecutionDate = new DateTime?(),
+                  Status = JobStatusEnum.Isnew,
+                  CreatedOn = DateTime.Today,
+                  LastUpdatedOn = new DateTime?(DateTime.Today)
+                };
+                this._repositoryFactory.GetRepository<MssReadingJob>().Update(entity);
+                EventPublisher.Publish<RefreshGridEvent>(new RefreshGridEvent(), (IViewModel) this);
+              }
+            }
+            if (this.IsMinomatJob)
+            {
+              JobDefinition jobDefinition = this._repositoryFactory.GetRepository<JobDefinition>().GetById((object) this.SelectedMinomatJobDefinition.Id);
+              if (jobDefinition != null)
+              {
+                Scenario scenario = this._repositoryFactory.GetRepository<ScenarioJobDefinition>().SearchFor((Expression<Func<ScenarioJobDefinition, bool>>) (x => x.JobDefinition.Id == jobDefinition.Id)).Select<ScenarioJobDefinition, Scenario>((Func<ScenarioJobDefinition, Scenario>) (x => x.Scenario)).FirstOrDefault<Scenario>();
+                MssReadingJob entity = new MssReadingJob()
+                {
+                  Minomat = this._repositoryFactory.GetRepository<Minomat>().FirstOrDefault((Expression<Func<Minomat, bool>>) (x => x.RadioId == this.SerialNumber)),
+                  StartDate = new DateTime?(DateTime.Now),
+                  IsDeactivated = false,
+                  JobDefinition = jobDefinition,
+                  Scenario = scenario,
+                  IsUpdate = true,
+                  Status = JobStatusEnum.Isnew,
+                  CreatedOn = DateTime.Today,
+                  LastUpdatedOn = new DateTime?(DateTime.Today)
+                };
+                this._repositoryFactory.GetRepository<MssReadingJob>().Update(entity);
+                EventPublisher.Publish<RefreshGridEvent>(new RefreshGridEvent(), (IViewModel) this);
+              }
+            }
+            this.OnRequestClose(true);
+          }
+          else
+          {
+            if (this.IsMBusJob)
+            {
+              JobDefinition jobDefinition = this._repositoryFactory.GetRepository<JobDefinition>().GetById((object) this.SelectedJobDefinition.Id);
+              Scenario scenario = this._repositoryFactory.GetRepository<ScenarioJobDefinition>().SearchFor((Expression<Func<ScenarioJobDefinition, bool>>) (x => x.JobDefinition.Id == jobDefinition.Id)).Select<ScenarioJobDefinition, Scenario>((Func<ScenarioJobDefinition, Scenario>) (x => x.Scenario)).FirstOrDefault<Scenario>();
+              if (jobDefinition != null)
+              {
+                MssReadingJob byId = this._repositoryFactory.GetRepository<MssReadingJob>().GetById((object) this._job.Id);
+                byId.StartDate = new DateTime?(DateTime.Now);
+                byId.IsDeactivated = false;
+                byId.JobDefinition = jobDefinition;
+                byId.RootNode = this._repositoryFactory.GetRepository<StructureNode>().GetById((object) this.StructureRootId);
+                byId.Scenario = scenario;
+                byId.Minomat = (Minomat) null;
+                this._repositoryFactory.GetRepository<MssReadingJob>().Update(byId);
+                EventPublisher.Publish<RefreshJobGrid>(new RefreshJobGrid()
+                {
+                  Job = byId
+                }, (IViewModel) this);
+              }
+            }
+            if (this.IsMinomatJob)
+            {
+              JobDefinition jobDefinition = this._repositoryFactory.GetRepository<JobDefinition>().GetById((object) this.SelectedMinomatJobDefinition.Id);
+              if (jobDefinition != null)
+              {
+                Scenario scenario = this._repositoryFactory.GetRepository<ScenarioJobDefinition>().SearchFor((Expression<Func<ScenarioJobDefinition, bool>>) (x => x.JobDefinition.Id == jobDefinition.Id)).Select<ScenarioJobDefinition, Scenario>((Func<ScenarioJobDefinition, Scenario>) (x => x.Scenario)).FirstOrDefault<Scenario>();
+                MssReadingJob byId = this._repositoryFactory.GetRepository<MssReadingJob>().GetById((object) this._job.Id);
+                byId.StartDate = new DateTime?(DateTime.Now);
+                byId.IsDeactivated = false;
+                byId.JobDefinition = jobDefinition;
+                byId.Scenario = scenario;
+                byId.RootNode = (StructureNode) null;
+                byId.Minomat = this._repositoryFactory.GetRepository<Minomat>().FirstOrDefault((Expression<Func<Minomat, bool>>) (x => x.RadioId == this.SerialNumber));
+                byId.IsUpdate = true;
+                this._repositoryFactory.GetRepository<MssReadingJob>().Update(byId);
+                EventPublisher.Publish<RefreshJobGrid>(new RefreshJobGrid()
+                {
+                  Job = byId
+                }, (IViewModel) this);
+              }
+            }
+            this.OnRequestClose(true);
+          }
+        });
+      }
+    }
+
+    public ICommand OpenStructuresCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<AssignStructureViewModel>());
+          if (newModalDialog.HasValue && newModalDialog.Value)
+            this.MessageUserControl = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          else
+            this.MessageUserControl = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    public ICommand OpenStructureSelection
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<AssignStructureMbusViewModel>());
+          if (newModalDialog.HasValue && newModalDialog.Value)
+            this.MessageUserControl = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          else
+            this.MessageUserControl = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    public void RefreshIsValid()
+    {
+      this.IsValid = ((this.IsValid ? 1 : 0) | (!this.IsMBusJob || this.SelectedJobDefinition == null ? 0 : (!string.IsNullOrEmpty(this.StructureRootInfo) ? 1 : 0))) != 0;
+      this.IsValid = ((this.IsValid ? 1 : 0) | (!this.IsMinomatJob || this.SelectedMinomatJobDefinition == null ? 0 : (this.SerialNumberList.Contains<string>(this.SerialNumber) ? 1 : 0))) != 0;
+    }
+  }
+}
+
+
+--- AssignStructureMbusViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Jobs.AssignStructureMbusViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.DTO;
+using MSS.Business.Errors;
+using MSS.Business.Events;
+using MSS.Business.Modules.StructuresManagement;
+using MSS.Business.Utils;
+using MSS.Core.Model.Structures;
+using MSS.Interfaces;
+using MSS_Client.Utils;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Input;
+using System.Windows.Threading;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Jobs
+{
+  public class AssignStructureMbusViewModel : ViewModelBase
+  {
+    private IRepositoryFactory _repositoryFactory;
+    private readonly IWindowFactory _windowFactory;
+    private readonly StructuresManager _structuresManager;
+    private StructureNodeDTO _selectedStructureNodeDto;
+    private bool _isLocation;
+    private IEnumerable<StructureNodeDTO> _structureNodeCollection;
+    private bool _isExpanded;
+    private bool _isBusy;
+
+    public AssignStructureMbusViewModel(
+      IRepositoryFactory repositoryFactory,
+      IWindowFactory windowFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._windowFactory = windowFactory;
+      this._structuresManager = new StructuresManager(this._repositoryFactory);
+      this.IsLocation = false;
+      this.StructureNodeCollection = (IEnumerable<StructureNodeDTO>) this._structuresManager.GetStructureNodesCollection(StructureTypeEnum.Physical, true);
+      EventPublisher.Register<LoadSubNodesForRoot>(new Action<LoadSubNodesForRoot>(this.LoadSubNodesForRootNodeEvent));
+    }
+
+    private StructuresManager GetStructuresManagerInstance()
+    {
+      return new StructuresManager(this._repositoryFactory);
+    }
+
+    private void LoadSubNodesForRootNodeEvent(LoadSubNodesForRoot rootNodeEv)
+    {
+      this.IsBusy = true;
+      BackgroundWorker backgroundWorker = new BackgroundWorker()
+      {
+        WorkerReportsProgress = true,
+        WorkerSupportsCancellation = true
+      };
+      backgroundWorker.DoWork += (DoWorkEventHandler) ((sender, args) => StructuresHelper.LoadSubNodesForRootNode(this._repositoryFactory, rootNodeEv.RootNode, this.GetStructuresManagerInstance()));
+      backgroundWorker.RunWorkerCompleted += (RunWorkerCompletedEventHandler) ((sender, args) =>
+      {
+        if (!args.Cancelled && args.Error != null)
+        {
+          MessageHandler.LogException(args.Error);
+          MessageHandlingManager.ShowExceptionMessageDialog(MSSHelper.GetErrorMessage(args.Error), this._windowFactory);
+        }
+        Dispatcher.CurrentDispatcher.Invoke((Action) (() => this.IsBusy = false));
+      });
+      backgroundWorker.RunWorkerAsync((object) this._repositoryFactory);
+    }
+
+    public StructureNodeDTO SelectedStructureNodeItem
+    {
+      get => this._selectedStructureNodeDto;
+      set
+      {
+        this._selectedStructureNodeDto = value;
+        this.IsLocation = this._selectedStructureNodeDto != null && this._selectedStructureNodeDto.RootNode.Id == this._selectedStructureNodeDto.Id && this._selectedStructureNodeDto.ParentNode == null;
+        this.OnPropertyChanged(nameof (SelectedStructureNodeItem));
+      }
+    }
+
+    public ICommand AssignStructureCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          EventPublisher.Publish<AssignStructureEvent>(new AssignStructureEvent()
+          {
+            StructureNode = this.SelectedStructureNodeItem
+          }, (IViewModel) this);
+          this.OnRequestClose(true);
+        }));
+      }
+    }
+
+    public ICommand SearchCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          string searchText = parameter as string;
+          ObservableCollection<StructureNodeDTO> observableCollection = new ObservableCollection<StructureNodeDTO>();
+          if (searchText != string.Empty)
+            observableCollection = this._structuresManager.GetStructures(searchText, StructureTypeEnum.Physical);
+          else
+            this.StructureNodeCollection = (IEnumerable<StructureNodeDTO>) this._structuresManager.GetStructureNodesCollection(StructureTypeEnum.Physical, true);
+          this.StructureNodeCollection = (IEnumerable<StructureNodeDTO>) observableCollection;
+        }));
+      }
+    }
+
+    public bool IsLocation
+    {
+      get => this._isLocation;
+      set
+      {
+        this._isLocation = value;
+        this.OnPropertyChanged(nameof (IsLocation));
+      }
+    }
+
+    public IEnumerable<StructureNodeDTO> StructureNodeCollection
+    {
+      get => this._structureNodeCollection;
+      set
+      {
+        this._structureNodeCollection = value;
+        this.OnPropertyChanged(nameof (StructureNodeCollection));
+      }
+    }
+
+    public bool IsExpanded
+    {
+      get => this._isExpanded;
+      set
+      {
+        this._isExpanded = value;
+        this.OnPropertyChanged(nameof (IsExpanded));
+      }
+    }
+
+    public bool IsBusy
+    {
+      get => this._isBusy;
+      set
+      {
+        if (this._isBusy == value)
+          return;
+        this._isBusy = value;
+        this.OnPropertyChanged(nameof (IsBusy));
+      }
+    }
+  }
+}
+
+
+--- AssignStructureViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Jobs.AssignStructureViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.DTO;
+using MSS.Business.Errors;
+using MSS.Business.Events;
+using MSS.Business.Modules.StructuresManagement;
+using MSS.Business.Utils;
+using MSS.Core.Model.Structures;
+using MSS.DTO.Structures;
+using MSS.Interfaces;
+using MSS_Client.Utils;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Input;
+using System.Windows.Threading;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Jobs
+{
+  public class AssignStructureViewModel : ViewModelBase
+  {
+    private IRepositoryFactory _repositoryFactory;
+    private readonly IWindowFactory _windowFactory;
+    private readonly StructuresManager _structuresManager;
+    private StructureNodeDTO _selectedStructureNodeDto;
+    private bool _isExpanded;
+    private bool _isMinomat;
+    private IEnumerable<StructureNodeDTO> _structureNodeCollection;
+    private bool _isBusy;
+
+    public AssignStructureViewModel(
+      IRepositoryFactory repositoryFactory,
+      IWindowFactory windowFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._windowFactory = windowFactory;
+      this._structuresManager = new StructuresManager(this._repositoryFactory);
+      this.IsMinomat = false;
+      this.StructureNodeCollection = (IEnumerable<StructureNodeDTO>) this._structuresManager.GetStructureNodesCollection(StructureTypeEnum.Fixed, true);
+      EventPublisher.Register<LoadSubNodesForRoot>(new Action<LoadSubNodesForRoot>(this.LoadSubNodesForRootNodeEvent));
+    }
+
+    private StructuresManager GetStructuresManagerInstance()
+    {
+      return new StructuresManager(this._repositoryFactory);
+    }
+
+    private void LoadSubNodesForRootNodeEvent(LoadSubNodesForRoot rootNodeEv)
+    {
+      this.IsBusy = true;
+      BackgroundWorker backgroundWorker = new BackgroundWorker()
+      {
+        WorkerReportsProgress = true,
+        WorkerSupportsCancellation = true
+      };
+      backgroundWorker.DoWork += (DoWorkEventHandler) ((sender, args) => StructuresHelper.LoadSubNodesForRootNode(this._repositoryFactory, rootNodeEv.RootNode, this.GetStructuresManagerInstance()));
+      backgroundWorker.RunWorkerCompleted += (RunWorkerCompletedEventHandler) ((sender, args) =>
+      {
+        if (!args.Cancelled && args.Error != null)
+        {
+          MessageHandler.LogException(args.Error);
+          MessageHandlingManager.ShowExceptionMessageDialog(MSSHelper.GetErrorMessage(args.Error), this._windowFactory);
+        }
+        Dispatcher.CurrentDispatcher.Invoke((Action) (() => this.IsBusy = false));
+      });
+      backgroundWorker.RunWorkerAsync((object) this._repositoryFactory);
+    }
+
+    public ICommand SearchCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          string searchText = parameter as string;
+          ObservableCollection<StructureNodeDTO> observableCollection = new ObservableCollection<StructureNodeDTO>();
+          if (searchText != string.Empty)
+            observableCollection = this._structuresManager.GetStructures(searchText, StructureTypeEnum.Fixed);
+          else
+            this.StructureNodeCollection = (IEnumerable<StructureNodeDTO>) this._structuresManager.GetStructureNodesCollection(StructureTypeEnum.Fixed);
+          this.StructureNodeCollection = (IEnumerable<StructureNodeDTO>) observableCollection;
+        }));
+      }
+    }
+
+    public ICommand AssignMinomatCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (_ =>
+        {
+          EventPublisher.Publish<AssignMinomatEvent>(new AssignMinomatEvent()
+          {
+            Minomat = this._selectedStructureNodeDto.Entity as MinomatSerializableDTO
+          }, (IViewModel) this);
+          this.OnRequestClose(true);
+        }));
+      }
+    }
+
+    public StructureNodeDTO SelectedStructureNodeItem
+    {
+      get => this._selectedStructureNodeDto;
+      set
+      {
+        this._selectedStructureNodeDto = value;
+        this.IsMinomat = this._selectedStructureNodeDto != null && this._selectedStructureNodeDto.Entity is MinomatSerializableDTO;
+        this.OnPropertyChanged(nameof (SelectedStructureNodeItem));
+      }
+    }
+
+    public bool IsExpanded
+    {
+      get => this._isExpanded;
+      set
+      {
+        this._isExpanded = value;
+        this.OnPropertyChanged(nameof (IsExpanded));
+      }
+    }
+
+    public bool IsMinomat
+    {
+      get => this._isMinomat;
+      set
+      {
+        this._isMinomat = value;
+        this.OnPropertyChanged(nameof (IsMinomat));
+      }
+    }
+
+    public IEnumerable<StructureNodeDTO> StructureNodeCollection
+    {
+      get => this._structureNodeCollection;
+      set
+      {
+        this._structureNodeCollection = value;
+        this.OnPropertyChanged(nameof (StructureNodeCollection));
+      }
+    }
+
+    public bool IsBusy
+    {
+      get => this._isBusy;
+      set
+      {
+        if (this._isBusy == value)
+          return;
+        this._isBusy = value;
+        this.OnPropertyChanged(nameof (IsBusy));
+      }
+    }
+  }
+}
+
+
+--- EditScenarioViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Jobs.EditScenarioViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Modules.GMM;
+using MSS.Business.Modules.JobsManagement;
+using MSS.Core.Model.DataCollectors;
+using MSS.Core.Model.Jobs;
+using MSS.DIConfiguration;
+using MSS.DTO.Jobs;
+using MSS.DTO.Structures;
+using MSS.Interfaces;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using NHibernate.Linq;
+using Ninject;
+using Ninject.Infrastructure.Language;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Windows.Input;
+using Telerik.Windows.Data;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Jobs
+{
+  public class EditScenarioViewModel : ViewModelBase
+  {
+    private readonly Guid _scenarioId;
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly ISessionManager _sessionManager;
+    private readonly string _scenarioName = string.Empty;
+    private RadObservableCollection<JobDefinitionDto> _jobDefinitionList;
+    private RadObservableCollection<JobDefinitionDto> _scenarioJobDefinitionList = new RadObservableCollection<JobDefinitionDto>();
+
+    public string ScenarioName => this._scenarioName;
+
+    [Inject]
+    public EditScenarioViewModel(
+      ScenarioDTO sm,
+      IRepositoryFactory repositoryFactory,
+      ISessionManager sessionManager)
+    {
+      this._scenarioId = sm.Id;
+      this._repositoryFactory = repositoryFactory;
+      this._sessionManager = sessionManager;
+      this._scenarioName = sm.Name;
+      IEnumerable<ScenarioJobDefinition> scenarioJobDefinitions = this.GetJobsManagerInstance().GetScenarioJobDefinitions();
+      this._jobDefinitionList = this.GetJobsManagerInstance().GetJobDefinitionDto();
+      foreach (ScenarioJobDefinition scenarioJobDefinition1 in scenarioJobDefinitions)
+      {
+        ScenarioJobDefinition scenarioJobDefinition = scenarioJobDefinition1;
+        if (!(scenarioJobDefinition.Scenario.Id != sm.Id))
+        {
+          JobDefinitionDto jobDefinitionDto = this.JobDefinitionList.FirstOrDefault<JobDefinitionDto>((Func<JobDefinitionDto, bool>) (op => op.Id == scenarioJobDefinition.JobDefinition.Id));
+          this.ScenarioJobDefinitionList.Add(jobDefinitionDto);
+          this.JobDefinitionList.Remove(jobDefinitionDto);
+        }
+      }
+    }
+
+    public RadObservableCollection<JobDefinitionDto> JobDefinitionList
+    {
+      get => this._jobDefinitionList;
+      set
+      {
+        this._jobDefinitionList = value;
+        this.OnPropertyChanged(nameof (JobDefinitionList));
+      }
+    }
+
+    public RadObservableCollection<JobDefinitionDto> ScenarioJobDefinitionList
+    {
+      get => this._scenarioJobDefinitionList;
+      set
+      {
+        this._scenarioJobDefinitionList = value;
+        this.OnPropertyChanged(nameof (ScenarioJobDefinitionList));
+      }
+    }
+
+    public ICommand EditScenarioCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (_ =>
+        {
+          JobsManager jobsManagerInstance = this.GetJobsManagerInstance();
+          List<Guid> currentJobDefinitions = this._repositoryFactory.GetRepository<ScenarioJobDefinition>().SearchFor((Expression<Func<ScenarioJobDefinition, bool>>) (sc => sc.Scenario.Id == this._scenarioId)).Select<ScenarioJobDefinition, Guid>((Func<ScenarioJobDefinition, Guid>) (x => x.JobDefinition.Id)).ToList<Guid>();
+          jobsManagerInstance.UpdateScenario(this._scenarioId, this.ScenarioJobDefinitionList.ToEnumerable<JobDefinitionDto>());
+          List<Guid> scenarioJobDefinitionIds = this.ScenarioJobDefinitionList.Select<JobDefinitionDto, Guid>((Func<JobDefinitionDto, Guid>) (x => x.Id)).ToList<Guid>();
+          List<MssReadingJob> jobs = new List<MssReadingJob>();
+          List<MssReadingJob> list1 = this._repositoryFactory.GetRepository<MssReadingJob>().SearchFor((Expression<Func<MssReadingJob, bool>>) (j => j.Scenario.Id == this._scenarioId && j.EndDate == new DateTime?() && !scenarioJobDefinitionIds.Contains(j.JobDefinition.Id))).ToList<MssReadingJob>();
+          if (list1.Any<MssReadingJob>())
+            jobs.AddRange((IEnumerable<MssReadingJob>) list1);
+          List<Guid> jobDefinitionForCreateNew = new List<Guid>();
+          TypeHelperExtensionMethods.ForEach<JobDefinitionDto>((IEnumerable<JobDefinitionDto>) this.ScenarioJobDefinitionList, (Action<JobDefinitionDto>) (x =>
+          {
+            if (currentJobDefinitions.Contains(x.Id))
+              return;
+            jobDefinitionForCreateNew.Add(x.Id);
+          }));
+          List<Minomat> list2 = this._repositoryFactory.GetRepository<Minomat>().SearchFor((Expression<Func<Minomat, bool>>) (x => x.Scenario.Id == this._scenarioId)).ToList<Minomat>();
+          GMMJobsManager.Instance(DIConfigurator.GetConfigurator().Get<IRepositoryFactoryCreator>(), false).FinalizeJobs((IEnumerable<MssReadingJob>) jobs, true);
+          new ManageMSSReadingJobs(this._repositoryFactory).CreateJobs(list2, jobDefinitionForCreateNew, this._scenarioId);
+          this.OnRequestClose(true);
+        }));
+      }
+    }
+
+    private JobsManager GetJobsManagerInstance() => new JobsManager(this._repositoryFactory);
+  }
+}
+
+
+--- IntervalsViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Jobs.IntervalsViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Events;
+using MSS.Business.Modules.JobsManagement;
+using MSS.Business.Utils;
+using MSS.Core.Model.Jobs;
+using MSS.Core.Utils;
+using MSS.DTO.Jobs;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MSS.Utils.Utils;
+using MSS_Client.Utils;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using System.Linq;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Jobs
+{
+  public class IntervalsViewModel : ValidationViewModelBase
+  {
+    private string _timeHours;
+    private int _minuteHour;
+    private int _secondHour;
+    private List<CardinalDayObject> _selectedMonthDaysIntValues = new List<CardinalDayObject>();
+    private List<DayObject> _selectedMonthlyWeekDays = new List<DayObject>();
+    private List<OrdinalDayObject> _selectedOrdinalDays = new List<OrdinalDayObject>();
+    private List<MonthObject> _selectedMonths = new List<MonthObject>();
+    private bool _isOneTime;
+    private bool _isFixedInterval;
+    private bool _isDaily;
+    private bool _isWeekly;
+    private bool _isMonthly;
+    private bool _isDayOfTheMonth;
+    private bool _isWeekDay;
+    private List<DayObject> _weekDaysList = new List<DayObject>();
+    private int _repeatIn;
+    private DateTime? _oneTimeDate;
+    private DateTime? _startDateTime;
+    private DateTime? _endDateTime;
+    private DateTime? _selectedTime;
+    private string _repeatInterval;
+    private List<DayObject> _weekdays;
+    private List<MonthObject> _months;
+    private List<DayObject> _monthlyWeekDays;
+    private List<OrdinalDayObject> _ordinalDay;
+    private List<CardinalDayObject> _monthDaysIntValues;
+    private ViewModelBase _messageUserControl;
+
+    public IntervalsViewModel(byte[] interval)
+    {
+      this.WeekDays = new List<DayObject>();
+      this.Months = new List<MonthObject>();
+      this.MonthlyWeekDays = new List<DayObject>();
+      this.OrdinalDay = new List<OrdinalDayObject>();
+      this.MonthDaysIntValues = new List<CardinalDayObject>();
+      if (DateTimeFormatInfo.CurrentInfo != null)
+      {
+        string[] monthNames = DateTimeFormatInfo.CurrentInfo.MonthNames;
+        string[] dayNames = DateTimeFormatInfo.CurrentInfo.DayNames;
+        Array values = Enum.GetValues(typeof (TaskScheduler.DayOccurrence));
+        for (int index = 0; index < monthNames.Length; ++index)
+          this.Months.Add(new MonthObject()
+          {
+            Id = index,
+            NameOfTheMonth = monthNames[index]
+          });
+        for (int index = 0; index < dayNames.Length; ++index)
+          this.WeekDays.Add(new DayObject()
+          {
+            Id = index,
+            NameOfTheDay = dayNames[index]
+          });
+        for (int index = 1; index < dayNames.Length; ++index)
+          this.MonthlyWeekDays.Add(new DayObject()
+          {
+            Id = index,
+            NameOfTheDay = dayNames[index]
+          });
+        for (int index = 0; index < values.Length; ++index)
+          this.OrdinalDay.Add(new OrdinalDayObject()
+          {
+            Id = index,
+            OrdinalValue = ((TaskScheduler.DayOccurrence) values.GetValue(index)).GetStringValue()
+          });
+      }
+      int num;
+      for (int index = 0; index < 31; num = index++)
+      {
+        List<CardinalDayObject> monthDaysIntValues = this.MonthDaysIntValues;
+        CardinalDayObject cardinalDayObject1 = new CardinalDayObject();
+        cardinalDayObject1.Id = index;
+        CardinalDayObject cardinalDayObject2 = cardinalDayObject1;
+        num = index + 1;
+        string str = num.ToString((IFormatProvider) CultureInfo.InvariantCulture);
+        cardinalDayObject2.CardinalValue = str;
+        CardinalDayObject cardinalDayObject3 = cardinalDayObject1;
+        monthDaysIntValues.Add(cardinalDayObject3);
+      }
+      this.MonthDaysIntValues.Add(new CardinalDayObject()
+      {
+        Id = 31,
+        CardinalValue = "Last"
+      });
+      if (interval == null)
+      {
+        this.IsOneTimeOnly = true;
+        this.IsDayOfTheMonth = true;
+        this.TimeHours = "00";
+        this.TimeMinutes = 0;
+        this.TimeSeconds = 0;
+        this.RepeatInterval = "000000";
+        this.StartDateTime = new DateTime?(DateTime.Now);
+        this.EndDateTime = new DateTime?(new DateTime(2040, 1, 1));
+        this.SelectedTime = new DateTime?(DateTime.Now);
+      }
+      else
+      {
+        IntervalDto deserializedInterval = JobsManager.DeserializeIntervals(interval);
+        this.IsOneTimeOnly = deserializedInterval.IntervalType[IntervalTypeEnum.OnlyOneTime];
+        this.IsDaily = deserializedInterval.IntervalType[IntervalTypeEnum.Daily];
+        this.IsMonthly = deserializedInterval.IntervalType[IntervalTypeEnum.Monthly];
+        this.IsWeekly = deserializedInterval.IntervalType[IntervalTypeEnum.Weekly];
+        this.IsFixedInterval = deserializedInterval.IntervalType[IntervalTypeEnum.FixedInterval];
+        this.IsWeekDay = deserializedInterval.MonthlyType[MonthlyTypeEnum.IsWeekDay];
+        this.IsDayOfTheMonth = deserializedInterval.MonthlyType[MonthlyTypeEnum.IsDayOfTheMonth];
+        this.SelectedMonths = this.Months.Where<MonthObject>((Func<MonthObject, bool>) (x => deserializedInterval.MonthlyMonth.Contains(x.Id))).ToList<MonthObject>();
+        this.SelectedWeekDaysList = this.WeekDays.Where<DayObject>((Func<DayObject, bool>) (x => deserializedInterval.WeeklyDays.Contains(x.Id))).ToList<DayObject>();
+        this.SelectedMonthlyWeekDays = this.MonthlyWeekDays.Where<DayObject>((Func<DayObject, bool>) (x => deserializedInterval.MonthlyWeekDay.Contains(x.Id))).ToList<DayObject>();
+        this.SelectedOrdinalDays = this.OrdinalDay.Where<OrdinalDayObject>((Func<OrdinalDayObject, bool>) (x => deserializedInterval.MonthlyOrdinalDay.Contains(x.Id))).ToList<OrdinalDayObject>();
+        this.SelectedMonthDaysIntValues = this.MonthDaysIntValues.Where<CardinalDayObject>((Func<CardinalDayObject, bool>) (x => deserializedInterval.MonthlyCardinalDay.Contains(x.Id))).ToList<CardinalDayObject>();
+        this.EndDateTime = deserializedInterval.EndDate;
+        this.StartDateTime = deserializedInterval.StartDate;
+        this.SelectedTime = deserializedInterval.Time;
+        this.RepeatIn = deserializedInterval.RepeatIn;
+        this.OneTimeDate = deserializedInterval.OneTimeDate;
+        this.RepeatInterval = deserializedInterval.FixedInterval.HasValue ? string.Format("{0:HHmmss}", (object) deserializedInterval.FixedInterval) : "000000";
+      }
+    }
+
+    public string TimeHours
+    {
+      get => this._timeHours;
+      set
+      {
+        this._timeHours = value;
+        this.OnPropertyChanged(nameof (TimeHours));
+      }
+    }
+
+    public int TimeMinutes
+    {
+      get => this._minuteHour;
+      set
+      {
+        this._minuteHour = value;
+        this.OnPropertyChanged(nameof (TimeMinutes));
+      }
+    }
+
+    public int TimeSeconds
+    {
+      get => this._secondHour;
+      set
+      {
+        this._secondHour = value;
+        this.OnPropertyChanged(nameof (TimeSeconds));
+      }
+    }
+
+    public List<CardinalDayObject> SelectedMonthDaysIntValues
+    {
+      get => this._selectedMonthDaysIntValues;
+      set
+      {
+        this._selectedMonthDaysIntValues = value;
+        this.OnPropertyChanged(nameof (SelectedMonthDaysIntValues));
+      }
+    }
+
+    public List<DayObject> SelectedMonthlyWeekDays
+    {
+      get => this._selectedMonthlyWeekDays;
+      set
+      {
+        this._selectedMonthlyWeekDays = value;
+        this.OnPropertyChanged(nameof (SelectedMonthlyWeekDays));
+      }
+    }
+
+    public List<OrdinalDayObject> SelectedOrdinalDays
+    {
+      get => this._selectedOrdinalDays;
+      set
+      {
+        this._selectedOrdinalDays = value;
+        this.OnPropertyChanged(nameof (SelectedOrdinalDays));
+      }
+    }
+
+    public List<MonthObject> SelectedMonths
+    {
+      get => this._selectedMonths;
+      set
+      {
+        this._selectedMonths = value;
+        this.OnPropertyChanged(nameof (SelectedMonths));
+      }
+    }
+
+    public bool IsOneTimeOnly
+    {
+      get => this._isOneTime;
+      set
+      {
+        this._isOneTime = value;
+        this.OnPropertyChanged(nameof (IsOneTimeOnly));
+      }
+    }
+
+    public bool IsFixedInterval
+    {
+      get => this._isFixedInterval;
+      set
+      {
+        this._isFixedInterval = value;
+        this.OnPropertyChanged(nameof (IsFixedInterval));
+      }
+    }
+
+    public bool IsDaily
+    {
+      get => this._isDaily;
+      set
+      {
+        this._isDaily = value;
+        this.OnPropertyChanged(nameof (IsDaily));
+      }
+    }
+
+    public bool IsWeekly
+    {
+      get => this._isWeekly;
+      set
+      {
+        this._isWeekly = value;
+        this.OnPropertyChanged(nameof (IsWeekly));
+      }
+    }
+
+    public bool IsMonthly
+    {
+      get => this._isMonthly;
+      set
+      {
+        this._isMonthly = value;
+        this.OnPropertyChanged(nameof (IsMonthly));
+      }
+    }
+
+    public bool IsDayOfTheMonth
+    {
+      get => this._isDayOfTheMonth;
+      set
+      {
+        this._isDayOfTheMonth = value;
+        this.OnPropertyChanged(nameof (IsDayOfTheMonth));
+      }
+    }
+
+    public bool IsWeekDay
+    {
+      get => this._isWeekDay;
+      set
+      {
+        this._isWeekDay = value;
+        this.OnPropertyChanged(nameof (IsWeekDay));
+      }
+    }
+
+    public List<DayObject> SelectedWeekDaysList
+    {
+      get => this._weekDaysList;
+      set
+      {
+        this._weekDaysList = value;
+        this.OnPropertyChanged(nameof (SelectedWeekDaysList));
+      }
+    }
+
+    public int RepeatIn
+    {
+      get => this._repeatIn;
+      set
+      {
+        this._repeatIn = value;
+        this.OnPropertyChanged(nameof (RepeatIn));
+      }
+    }
+
+    public DateTime? OneTimeDate
+    {
+      get => this._oneTimeDate;
+      set
+      {
+        this._oneTimeDate = value;
+        this.OnPropertyChanged(nameof (OneTimeDate));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_INTERVALS_REQUIRED_START_DATE")]
+    public DateTime? StartDateTime
+    {
+      get => this._startDateTime;
+      set
+      {
+        this._startDateTime = value;
+        this.OnPropertyChanged(nameof (StartDateTime));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_INTERVALS_REQUIRED_END_DATE")]
+    public DateTime? EndDateTime
+    {
+      get => this._endDateTime;
+      set
+      {
+        this._endDateTime = value;
+        this.OnPropertyChanged(nameof (EndDateTime));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_INTERVALS_REQUIRED_TIME")]
+    public DateTime? SelectedTime
+    {
+      get => this._selectedTime;
+      set
+      {
+        this._selectedTime = value;
+        this.OnPropertyChanged(nameof (SelectedTime));
+      }
+    }
+
+    public string RepeatInterval
+    {
+      get => this._repeatInterval;
+      set
+      {
+        this._repeatInterval = value;
+        this.OnPropertyChanged(nameof (RepeatInterval));
+      }
+    }
+
+    public List<DayObject> WeekDays
+    {
+      get => this._weekdays;
+      set
+      {
+        this._weekdays = value;
+        this.OnPropertyChanged(nameof (WeekDays));
+      }
+    }
+
+    public List<MonthObject> Months
+    {
+      get => this._months;
+      set
+      {
+        this._months = value;
+        this.OnPropertyChanged(nameof (Months));
+      }
+    }
+
+    public List<DayObject> MonthlyWeekDays
+    {
+      get => this._monthlyWeekDays;
+      set
+      {
+        this._monthlyWeekDays = value;
+        this.OnPropertyChanged(nameof (MonthlyWeekDays));
+      }
+    }
+
+    public List<OrdinalDayObject> OrdinalDay
+    {
+      get => this._ordinalDay;
+      set
+      {
+        this._ordinalDay = value;
+        this.OnPropertyChanged(nameof (OrdinalDay));
+      }
+    }
+
+    public List<CardinalDayObject> MonthDaysIntValues
+    {
+      get => this._monthDaysIntValues;
+      set
+      {
+        this._monthDaysIntValues = value;
+        this.OnPropertyChanged(nameof (MonthDaysIntValues));
+      }
+    }
+
+    public ViewModelBase MessageUserControl
+    {
+      get => this._messageUserControl;
+      set
+      {
+        this._messageUserControl = value;
+        this.OnPropertyChanged(nameof (MessageUserControl));
+      }
+    }
+
+    public ICommand SaveInterval
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) delegate
+        {
+          if (!this.IsValid)
+            return;
+          IntervalDto intervalDto1 = new IntervalDto();
+          intervalDto1.StartDate = this.StartDateTime;
+          intervalDto1.EndDate = this.EndDateTime;
+          intervalDto1.Time = this.SelectedTime;
+          intervalDto1.OneTimeDate = this.IsOneTimeOnly ? this.OneTimeDate : new DateTime?();
+          intervalDto1.RepeatIn = this.IsDaily ? this.RepeatIn : 0;
+          intervalDto1.WeeklyDays = this.IsWeekly ? this.SelectedWeekDaysList.Select<DayObject, int>((Func<DayObject, int>) (x => x.Id)).ToList<int>() : (List<int>) null;
+          IntervalDto intervalDto2 = intervalDto1;
+          SerializableDictionary<IntervalTypeEnum, bool> serializableDictionary1 = new SerializableDictionary<IntervalTypeEnum, bool>()
+          {
+            {
+              IntervalTypeEnum.OnlyOneTime,
+              this.IsOneTimeOnly
+            },
+            {
+              IntervalTypeEnum.Daily,
+              this.IsDaily
+            },
+            {
+              IntervalTypeEnum.Weekly,
+              this.IsWeekly
+            },
+            {
+              IntervalTypeEnum.Monthly,
+              this.IsMonthly
+            },
+            {
+              IntervalTypeEnum.FixedInterval,
+              this.IsFixedInterval
+            }
+          };
+          intervalDto2.IntervalType = serializableDictionary1;
+          intervalDto1.MonthlyMonth = this.IsMonthly ? this.SelectedMonths.Select<MonthObject, int>((Func<MonthObject, int>) (x => x.Id)).ToList<int>() : (List<int>) null;
+          intervalDto1.MonthlyOrdinalDay = !this.IsMonthly || !this.IsWeekDay ? (List<int>) null : this.SelectedOrdinalDays.Select<OrdinalDayObject, int>((Func<OrdinalDayObject, int>) (x => x.Id)).ToList<int>();
+          intervalDto1.MonthlyWeekDay = !this.IsMonthly || !this.IsWeekDay ? (List<int>) null : this.SelectedMonthlyWeekDays.Select<DayObject, int>((Func<DayObject, int>) (x => x.Id)).ToList<int>();
+          intervalDto1.MonthlyCardinalDay = !this.IsMonthly || !this.IsDayOfTheMonth ? (List<int>) null : this.SelectedMonthDaysIntValues.Select<CardinalDayObject, int>((Func<CardinalDayObject, int>) (x => x.Id)).ToList<int>();
+          IntervalDto intervalDto3 = intervalDto1;
+          SerializableDictionary<MonthlyTypeEnum, bool> serializableDictionary2 = new SerializableDictionary<MonthlyTypeEnum, bool>()
+          {
+            {
+              MonthlyTypeEnum.IsDayOfTheMonth,
+              this.IsDayOfTheMonth
+            },
+            {
+              MonthlyTypeEnum.IsWeekDay,
+              this.IsWeekDay
+            }
+          };
+          intervalDto3.MonthlyType = serializableDictionary2;
+          IntervalDto interval = intervalDto1;
+          if (this.IsOneTimeOnly && !this.OneTimeDate.HasValue)
+          {
+            this.MessageUserControl = MessageHandlingManager.ShowValidationMessage(Resources.MSS_CLIENT_INTERVALS_REQUIRED_DATE);
+          }
+          else
+          {
+            int hour1;
+            int minute1;
+            int second1;
+            if (this.IsFixedInterval)
+            {
+              if (string.IsNullOrEmpty(this.RepeatInterval) || this.RepeatInterval.Length != 6)
+              {
+                this.MessageUserControl = MessageHandlingManager.ShowValidationMessage(Resources.MSS_CLIENT_INTERVALS_REQUIRED_FIXED_INTERVAL);
+                return;
+              }
+              this.Hour(out hour1, out minute1, out second1);
+              if (hour1 > 23 || minute1 > 59 || second1 > 59)
+              {
+                this.MessageUserControl = MessageHandlingManager.ShowValidationMessage(Resources.MSS_CLIENT_INTERVALS_REQUIRED_FIXED_INTERVAL);
+                return;
+              }
+              if ("000000".Equals(this.RepeatInterval))
+              {
+                this.MessageUserControl = MessageHandlingManager.ShowValidationMessage(Resources.MSS_CLIENT_INTERVALS_INVALID_INTERVAL);
+                return;
+              }
+            }
+            if (this.IsDaily && this.RepeatIn == 0)
+              this.MessageUserControl = MessageHandlingManager.ShowValidationMessage(Resources.MSS_CLIENT_INTERVALS_REQUIRED_DAILY);
+            else if (this.IsWeekly && !this.SelectedWeekDaysList.Any<DayObject>())
+            {
+              this.MessageUserControl = MessageHandlingManager.ShowValidationMessage(Resources.MSS_CLIENT_INTERVALS_REQUIRED_WEEKLY);
+            }
+            else
+            {
+              if (this.IsMonthly)
+              {
+                if (!this.SelectedMonths.Any<MonthObject>())
+                {
+                  this.MessageUserControl = MessageHandlingManager.ShowValidationMessage(Resources.MSS_CLIENT_INTERVALS_REQUIRED_MONTHLY);
+                  return;
+                }
+                if (this.IsWeekDay)
+                {
+                  if (!this.SelectedOrdinalDays.Any<OrdinalDayObject>())
+                  {
+                    this.MessageUserControl = MessageHandlingManager.ShowValidationMessage(Resources.MSS_CLIENT_INTERVALS_REQUIRED_DATE);
+                    return;
+                  }
+                  if (!this.SelectedMonthlyWeekDays.Any<DayObject>())
+                  {
+                    this.MessageUserControl = MessageHandlingManager.ShowValidationMessage(Resources.MSS_CLIENT_INTERVALS_REQUIRED_DATE);
+                    return;
+                  }
+                }
+                if (this.IsDayOfTheMonth && !this.SelectedMonthDaysIntValues.Any<CardinalDayObject>())
+                {
+                  this.MessageUserControl = MessageHandlingManager.ShowValidationMessage(Resources.MSS_CLIENT_INTERVALS_REQUIRED_DATE);
+                  return;
+                }
+              }
+              this.Hour(out hour1, out minute1, out second1);
+              DateTime dateTime;
+              ref DateTime local = ref dateTime;
+              DateTime now = DateTime.Now;
+              int year = now.Year;
+              now = DateTime.Now;
+              int month = now.Month;
+              now = DateTime.Now;
+              int day = now.Day;
+              int hour2 = hour1;
+              int minute2 = minute1;
+              int second2 = second1;
+              local = new DateTime(year, month, day, hour2, minute2, second2);
+              interval.FixedInterval = this.IsFixedInterval ? new DateTime?(dateTime) : new DateTime?();
+              EventPublisher.Publish<SendSerializedDataEvent>(new SendSerializedDataEvent()
+              {
+                SerializedObject = JobsManager.SerializeIntervals(interval)
+              }, (IViewModel) this);
+              this.OnRequestClose(true);
+            }
+          }
+        });
+      }
+    }
+
+    private void Hour(out int hour, out int minute, out int second)
+    {
+      hour = int.Parse(this.RepeatInterval.Substring(0, 2));
+      minute = int.Parse(this.RepeatInterval.Substring(2, 2));
+      second = int.Parse(this.RepeatInterval.Substring(4, 2));
+    }
+  }
+}
+
+
+--- JobLogsForJobViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Jobs.JobLogsForJobViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Events;
+using MSS.Business.Modules.JobsManagement;
+using MSS.DTO.Jobs;
+using MSS.DTO.Reporting;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MVVM.ViewModel;
+using NHibernate.Linq;
+using Ninject;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Jobs
+{
+  public class JobLogsForJobViewModel : ValidationViewModelBase
+  {
+    private IRepositoryFactory _repositoryFactory;
+    private MssReadingJobDto _jobDto;
+    private ObservableCollection<JobLogsDTO> _jobLogDTO;
+    private string _title;
+    private string _pageSize;
+
+    [Inject]
+    public JobLogsForJobViewModel(IRepositoryFactory repositoryFactory, MssReadingJobDto jobDto)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._jobDto = jobDto;
+      EventPublisher.Register<JobStateModified>(new Action<JobStateModified>(this.OnJobStartedOrEnded));
+      this._pageSize = MSS.Business.Utils.AppContext.Current.GetParameterValue<string>(nameof (PageSize));
+      this.InitJobLogsList();
+      this.Title = Resources.MSS_Client_JobLogsTitle + "   " + jobDto?.JobDefinitionName + " / " + jobDto?.StructureNodeName;
+    }
+
+    private void OnJobStartedOrEnded(JobStateModified jobStateModified)
+    {
+      Guid jobId = jobStateModified.JobId;
+      Guid? id = this._jobDto?.Id;
+      if (!id.HasValue || !(jobId == id.GetValueOrDefault()))
+        return;
+      this.InitJobLogsList();
+    }
+
+    private void InitJobLogsList()
+    {
+      JobLogsManager jobLogsManager = new JobLogsManager(this._repositoryFactory);
+      IOrderedEnumerable<JobLogsDTO> orderedEnumerable = this._jobDto != null ? jobLogsManager.LoadJobLogs(this._jobDto.Id, new DateTime?(DateTime.MinValue), new DateTime?(DateTime.MaxValue)).OrderByDescending<JobLogsDTO, DateTime?>((Func<JobLogsDTO, DateTime?>) (item => item.StartDate)) : (IOrderedEnumerable<JobLogsDTO>) null;
+      this._jobLogDTO = new ObservableCollection<JobLogsDTO>();
+      if (orderedEnumerable != null)
+        TypeHelperExtensionMethods.ForEach<JobLogsDTO>((IEnumerable<JobLogsDTO>) orderedEnumerable, (Action<JobLogsDTO>) (item => this.JobLogDTOs.Add(item)));
+      this.OnPropertyChanged("JobLogDTOs");
+    }
+
+    public ObservableCollection<JobLogsDTO> JobLogDTOs
+    {
+      get => this._jobLogDTO;
+      set
+      {
+        this._jobLogDTO = value;
+        this.OnPropertyChanged(nameof (JobLogDTOs));
+      }
+    }
+
+    public string Title
+    {
+      get => this._title;
+      set
+      {
+        this._title = value;
+        this.OnPropertyChanged(nameof (Title));
+      }
+    }
+
+    public string PageSize
+    {
+      get => this._pageSize;
+      set
+      {
+        this._pageSize = value;
+        this.OnPropertyChanged(nameof (PageSize));
+      }
+    }
+  }
+}
+
+
+--- JobsViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Jobs.JobsViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using AutoMapper;
+using Common.Library.NHibernate.Data;
+using MSS.Business.Errors;
+using MSS.Business.Events;
+using MSS.Business.Modules.GMM;
+using MSS.Business.Modules.JobsManagement;
+using MSS.Business.Modules.StructuresManagement;
+using MSS.Business.Modules.UsersManagement;
+using MSS.Business.Utils;
+using MSS.Core.Model.Jobs;
+using MSS.Core.Model.Meters;
+using MSS.DIConfiguration;
+using MSS.DTO.Jobs;
+using MSS.DTO.MessageHandler;
+using MSS.DTO.Reporting;
+using MSS.DTO.Structures;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MSS.Utils.Utils;
+using MSS_Client.Utils;
+using MSS_Client.ViewModel.GenericProgressDialog;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using NHibernate;
+using NHibernate.Linq;
+using Ninject;
+using Ninject.Parameters;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Windows.Input;
+using Telerik.Windows.Data;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Jobs
+{
+  public class JobsViewModel : ValidationViewModelBase
+  {
+    private readonly IWindowFactory _windowFactory;
+    private bool _canViewDefinitionJobs;
+    private bool _canViewServiceJobs;
+    private bool _canDeleteJobDefinitions;
+    private bool _canDeleteServiceJobs;
+    private ViewModelBase _messageUserControlScenarios;
+    private ViewModelBase _messageUserControlJobDefinitions;
+    private ViewModelBase _messageUserControlJobs;
+    private string _jobEntityNumberValue = string.Empty;
+    private IEnumerable<JobLogsDTO> _jobLogs = (IEnumerable<JobLogsDTO>) new RadObservableCollection<JobLogsDTO>();
+    private DateTime? _endDateLogValue;
+    private DateTime? _startDateJobLogValue;
+    private readonly IRepositoryFactory _repositoryFactory;
+    private IEnumerable<ScenarioDTO> _getScenarios;
+    private DateTime? _startDateLogValue;
+    private DateTime? _endDateJobLogValue;
+    private bool _canAddServiceJobs;
+    public RadObservableCollection<MssReadingJobDto> _jobCollection;
+    public RadObservableCollection<JobDefinitionDto> _jobDefinitions;
+    private JobDefinitionDto _selectedJobDefinition;
+    private string _pageSize;
+    private bool _isJobsTabSelected;
+    private bool _isJobLogsTabSelected;
+    private bool _isJobDefinitionsTabSelected;
+    private bool _isScenariosTabSelected;
+    private int _selectedIndex;
+    private ApplicationTabsEnum _selectedTab;
+    private bool _createJobDefinitionVisibility;
+    private bool _editJobDefinitionVisibility;
+    private bool _deleteJobDefinitionVisibility;
+    private bool _isDeleteJobDefinitionEnabled;
+    private bool _createJobVisibility;
+    private bool _deleteJobVisibility;
+    private bool _editScenarioVisibility;
+
+    [Inject]
+    public JobsViewModel(IRepositoryFactory repositoryFactory, IWindowFactory windowFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._repositoryFactory.GetRepository<MSS.Core.Model.Reporting.JobLogs>();
+      this._windowFactory = windowFactory;
+      this._getScenarios = this.GetJobsManagerInstance().GetScenarioDTOs();
+      this._pageSize = MSS.Business.Utils.AppContext.Current.GetParameterValue<string>(nameof (PageSize));
+      this.StartDateJobLogValue = new DateTime?(DateTime.Now.Subtract(new TimeSpan(3, 0, 0, 0, 0)));
+      this.EndDateJobLogValue = new DateTime?(DateTime.Now.AddDays(3.0));
+      Mapper.CreateMap<MSS.Core.Model.Reporting.JobLogs, JobLogsDTO>().ForMember((Expression<Func<JobLogsDTO, object>>) (j => j.JobName), (Action<IMemberConfigurationExpression<MSS.Core.Model.Reporting.JobLogs>>) (j => j.ResolveUsing((Func<MSS.Core.Model.Reporting.JobLogs, object>) (jl => (object) jl.Job.JobDefinition.Name))));
+      EventPublisher.Register<SaveJobDefinitionEvent>(new Action<SaveJobDefinitionEvent>(this.SaveJobDefinition));
+      EventPublisher.Register<RemoveJobDefinitionEvent>(new Action<RemoveJobDefinitionEvent>(this.RefreshJobDefinitionGrid));
+      EventPublisher.Register<RefreshGridEvent>(new Action<RefreshGridEvent>(this.RefreshJobsGrid));
+      EventPublisher.Register<RefreshJobGrid>(new Action<RefreshJobGrid>(this.UpdateRow));
+      EventPublisher.Register<RemoveJobEvent>(new Action<RemoveJobEvent>(this.RemoveJobEv));
+      EventPublisher.Register<SelectedTabChanged>((Action<SelectedTabChanged>) (changed => this.SelectedTab = changed.SelectedTab));
+      EventPublisher.Register<SelectedTabValue>(new Action<SelectedTabValue>(this.SetTab));
+      UsersManager usersManager1 = new UsersManager(this._repositoryFactory);
+      this.IsJobsTabVisible = usersManager1.HasRight(OperationEnum.JobView.ToString());
+      this.IsJobLogsTabVisible = usersManager1.HasRight(OperationEnum.JobLogsView.ToString());
+      this._canViewDefinitionJobs = usersManager1.HasRight(OperationEnum.JobDefinitionView.ToString());
+      this._canViewServiceJobs = usersManager1.HasRight(OperationEnum.ServiceJobView.ToString());
+      this.IsJobDefinitionsTabVisible = this._canViewDefinitionJobs || this._canViewServiceJobs;
+      this.IsScenariosTabVisible = usersManager1.HasRight(OperationEnum.ScenarioView.ToString());
+      if (this.IsJobsTabVisible)
+        this.SelectedIndex = 0;
+      else if (this.IsJobLogsTabVisible)
+        this.SelectedIndex = 1;
+      else if (this.IsJobDefinitionsTabVisible)
+        this.SelectedIndex = 2;
+      else if (this.IsScenariosTabVisible)
+        this.SelectedIndex = 3;
+      this.CreateJobDefinitionVisibility = usersManager1.HasRight(OperationEnum.JobDefinitionCreate.ToString()) || usersManager1.HasRight(OperationEnum.ServiceJobCreate.ToString());
+      this.EditJobDefinitionVisibility = usersManager1.HasRight(OperationEnum.JobDefinitionEdit.ToString());
+      UsersManager usersManager2 = usersManager1;
+      OperationEnum operationEnum = OperationEnum.JobDelete;
+      string operation1 = operationEnum.ToString();
+      this._canDeleteServiceJobs = usersManager2.HasRight(operation1);
+      UsersManager usersManager3 = usersManager1;
+      operationEnum = OperationEnum.JobDefinitionDelete;
+      string operation2 = operationEnum.ToString();
+      this._canDeleteJobDefinitions = usersManager3.HasRight(operation2);
+      this.DeleteJobDefinitionVisibility = this._canDeleteServiceJobs || this._canDeleteJobDefinitions;
+      UsersManager usersManager4 = usersManager1;
+      operationEnum = OperationEnum.JobCreate;
+      string operation3 = operationEnum.ToString();
+      this.CreateJobVisibility = usersManager4.HasRight(operation3);
+      UsersManager usersManager5 = usersManager1;
+      operationEnum = OperationEnum.ServiceJobDelete;
+      string operation4 = operationEnum.ToString();
+      this.DeleteJobVisibility = usersManager5.HasRight(operation4);
+      UsersManager usersManager6 = usersManager1;
+      operationEnum = OperationEnum.ScenarioEdit;
+      string operation5 = operationEnum.ToString();
+      this.EditScenarioVisibility = usersManager6.HasRight(operation5);
+    }
+
+    public ViewModelBase MessageUserControlScenarios
+    {
+      get => this._messageUserControlScenarios;
+      set
+      {
+        this._messageUserControlScenarios = value;
+        this.OnPropertyChanged(nameof (MessageUserControlScenarios));
+      }
+    }
+
+    public ViewModelBase MessageUserControlJobDefinitions
+    {
+      get => this._messageUserControlJobDefinitions;
+      set
+      {
+        this._messageUserControlJobDefinitions = value;
+        this.OnPropertyChanged(nameof (MessageUserControlJobDefinitions));
+      }
+    }
+
+    public ViewModelBase MessageUserControlJobs
+    {
+      get => this._messageUserControlJobs;
+      set
+      {
+        this._messageUserControlJobs = value;
+        this.OnPropertyChanged(nameof (MessageUserControlJobs));
+      }
+    }
+
+    public string JobEntityNumberValue
+    {
+      get => this._jobEntityNumberValue;
+      set
+      {
+        this._jobEntityNumberValue = value;
+        this.OnPropertyChanged(nameof (JobEntityNumberValue));
+      }
+    }
+
+    public IEnumerable<JobLogsDTO> JobLogs
+    {
+      get => this._jobLogs;
+      set
+      {
+        this._jobLogs = value;
+        this.OnPropertyChanged(nameof (JobLogs));
+      }
+    }
+
+    public DateTime? EndDateLogValue
+    {
+      get => this._endDateLogValue;
+      set
+      {
+        this._endDateLogValue = value;
+        this.ValidateProperty("MasterNumberValue");
+        this.OnPropertyChanged(nameof (EndDateLogValue));
+      }
+    }
+
+    public DateTime? StartDateJobLogValue
+    {
+      get => this._startDateJobLogValue;
+      set
+      {
+        this._startDateJobLogValue = value;
+        this.ValidateProperty("JobEntityNumberValue");
+        this.OnPropertyChanged(nameof (StartDateJobLogValue));
+      }
+    }
+
+    public IEnumerable<ScenarioDTO> GetScenarios => this._getScenarios;
+
+    public DateTime? StartDateLogValue
+    {
+      get => this._startDateLogValue;
+      set
+      {
+        this._startDateLogValue = value;
+        this.ValidateProperty("MasterNumberValue");
+        this.OnPropertyChanged(nameof (StartDateLogValue));
+      }
+    }
+
+    public DateTime? EndDateJobLogValue
+    {
+      get => this._endDateJobLogValue;
+      set
+      {
+        this._endDateJobLogValue = value;
+        this.ValidateProperty("JobEntityNumberValue");
+        this.OnPropertyChanged(nameof (EndDateJobLogValue));
+      }
+    }
+
+    public bool CanAddServiceJobs
+    {
+      get => this._canAddServiceJobs;
+      set
+      {
+        this._canAddServiceJobs = value;
+        this.OnPropertyChanged(nameof (CanAddServiceJobs));
+      }
+    }
+
+    private void RemoveJobEv(RemoveJobEvent ev)
+    {
+      MssReadingJob byId = this._repositoryFactory.GetRepository<MssReadingJob>().GetById((object) ev.Job.Id);
+      byId.IsDeactivated = true;
+      byId.EndDate = new DateTime?(DateTime.Now);
+      this._repositoryFactory.GetRepository<MssReadingJob>().Update(byId);
+      this.OnPropertyChanged("JobCollection");
+    }
+
+    private void UpdateRow(RefreshJobGrid ev)
+    {
+      this._repositoryFactory.GetRepository<MssReadingJob>().Refresh((object) ev.Job.Id);
+      this.OnPropertyChanged("JobCollection");
+    }
+
+    private void RefreshJobsGrid(RefreshGridEvent ev)
+    {
+      this._repositoryFactory.GetSession().Clear();
+      this.OnPropertyChanged("JobCollection");
+    }
+
+    private void RefreshJobDefinitionGrid(RemoveJobDefinitionEvent removeJobDefinitionEvent)
+    {
+      ISession session = this._repositoryFactory.GetSession();
+      try
+      {
+        session.BeginTransaction();
+        JobDefinition jobDefinition = this._repositoryFactory.GetRepository<JobDefinition>().GetById((object) removeJobDefinitionEvent.JobDefinition.Id);
+        jobDefinition.IsDeactivated = true;
+        jobDefinition.EndDate = new DateTime?(DateTime.Now);
+        this._repositoryFactory.GetRepository<JobDefinition>().TransactionalUpdate(jobDefinition);
+        if (jobDefinition.ScenarioJobDefinitions != null && jobDefinition.ScenarioJobDefinitions.Count > 0)
+        {
+          IRepository<ScenarioJobDefinition> repository = this._repositoryFactory.GetRepository<ScenarioJobDefinition>();
+          TypeHelperExtensionMethods.ForEach<ScenarioJobDefinition>((IEnumerable<ScenarioJobDefinition>) jobDefinition.ScenarioJobDefinitions, new Action<ScenarioJobDefinition>(repository.TransactionalDelete));
+        }
+        IRepository<MssReadingJob> jobsRepository = this._repositoryFactory.GetRepository<MssReadingJob>();
+        IList<MssReadingJob> mssReadingJobList = jobsRepository.SearchFor((Expression<Func<MssReadingJob, bool>>) (j => j.JobDefinition.Id == jobDefinition.Id && !j.IsDeactivated));
+        if (mssReadingJobList != null && mssReadingJobList.Count > 0)
+          TypeHelperExtensionMethods.ForEach<MssReadingJob>((IEnumerable<MssReadingJob>) mssReadingJobList, (Action<MssReadingJob>) (j =>
+          {
+            j.IsDeactivated = true;
+            jobsRepository.TransactionalUpdate(j);
+          }));
+        session.Transaction.Commit();
+        session.Clear();
+        this.OnPropertyChanged("JobCollection");
+        this.OnPropertyChanged("JobDefinitions");
+      }
+      catch (Exception ex)
+      {
+        if (session.IsOpen && session.Transaction.IsActive)
+          session.Transaction.Rollback();
+        throw;
+      }
+    }
+
+    private void SaveJobDefinition(SaveJobDefinitionEvent jobDefinitionObject)
+    {
+      bool flag = false;
+      IRepository<JobDefinition> repository = this._repositoryFactory.GetRepository<JobDefinition>();
+      JobDefinition entity = repository.FirstOrDefault((Expression<Func<JobDefinition, bool>>) (x => x.Id == jobDefinitionObject.JobDefinition.Id));
+      if (entity != null)
+        flag = true;
+      else
+        entity = new JobDefinition();
+      entity.EquipmentModel = jobDefinitionObject.JobDefinition.EquipmentModel;
+      entity.System = jobDefinitionObject.JobDefinition.System;
+      entity.Filter = jobDefinitionObject.JobDefinition.Filter;
+      entity.Name = jobDefinitionObject.JobDefinition.Name;
+      entity.StartDate = new DateTime?(DateTime.Now);
+      entity.IsDeactivated = false;
+      entity.Interval = jobDefinitionObject.JobDefinition.Interval;
+      entity.EquipmentParams = jobDefinitionObject.JobDefinition.EquipmentParams;
+      entity.ProfileType = jobDefinitionObject.JobDefinition.ProfileType;
+      entity.ServiceJob = jobDefinitionObject.JobDefinition.ServiceJob;
+      entity.QuarterHour = jobDefinitionObject.JobDefinition.QuarterHour;
+      entity.Day = jobDefinitionObject.JobDefinition.Day;
+      entity.Month = jobDefinitionObject.JobDefinition.Month;
+      entity.DueDate = jobDefinitionObject.JobDefinition.DueDate;
+      entity.ProfileTypeParams = jobDefinitionObject.JobDefinition.ProfileTypeParams;
+      repository.Update(entity);
+      if (flag)
+        GMMJobsManager.Instance(DIConfigurator.GetConfigurator().Get<IRepositoryFactoryCreator>(), false).UpdateJobsRelatedToJobDefinition(entity.Id);
+      this.OnPropertyChanged("JobDefinitions");
+    }
+
+    private JobsManager GetJobsManagerInstance() => new JobsManager(this._repositoryFactory);
+
+    public ICommand SearchJobLogs
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) delegate
+        {
+          if (!this.IsValid)
+            return;
+          GenericProgressDialogViewModel pd = DIConfigurator.GetConfigurator().Get<GenericProgressDialogViewModel>((IParameter) new ConstructorArgument("progressDialogTitle", (object) Resources.JOBS_LOAD_LOGS), (IParameter) new ConstructorArgument("progressDialogMessage", (object) Resources.MSS_CLIENT_ARCHIVE_MESSAGE));
+          BackgroundWorker backgroundWorker = new BackgroundWorker()
+          {
+            WorkerReportsProgress = true,
+            WorkerSupportsCancellation = true
+          };
+          backgroundWorker.DoWork += (DoWorkEventHandler) delegate
+          {
+            this.JobLogs = (IEnumerable<JobLogsDTO>) new JobLogsManager(this._repositoryFactory).LoadJobLogs(this.JobEntityNumberValue, this.StartDateJobLogValue, this.EndDateJobLogValue);
+          };
+          backgroundWorker.RunWorkerCompleted += (RunWorkerCompletedEventHandler) ((sender, args) =>
+          {
+            pd.OnRequestClose(false);
+            MSS.DTO.Message.Message message = (MSS.DTO.Message.Message) null;
+            if (args.Cancelled)
+              message = new MSS.DTO.Message.Message()
+              {
+                MessageType = MessageTypeEnum.Warning,
+                MessageText = Resources.MSS_Client_Archivation_Cancelled
+              };
+            else if (args.Error != null)
+            {
+              MSS.Business.Errors.MessageHandler.LogException(args.Error);
+              MessageHandlingManager.ShowExceptionMessageDialog(MSSHelper.GetErrorMessage(args.Error), this._windowFactory);
+            }
+            else
+            {
+              if (!this.JobLogs.Any<JobLogsDTO>())
+                MSSUIHelper.ShowWarningDialog(this._windowFactory, MessageCodes.Warning.GetStringValue(), Resources.LOGS_NOVALUES_FOUND, false);
+              message = new MSS.DTO.Message.Message()
+              {
+                MessageType = MessageTypeEnum.Success,
+                MessageText = Resources.MSS_Client_Archivation_Succedded
+              };
+            }
+            if (message == null)
+              return;
+            EventPublisher.Publish<ActionFinished>(new ActionFinished()
+            {
+              Message = message
+            }, (IViewModel) this);
+          });
+          backgroundWorker.RunWorkerAsync();
+          this._windowFactory.CreateNewProgressDialog((IViewModel) pd, backgroundWorker);
+        });
+      }
+    }
+
+    public ICommand EditScenarioCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          ScenarioDTO scenarioDto = parameter as ScenarioDTO;
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<EditScenarioViewModel>((IParameter) new ConstructorArgument("sm", (object) scenarioDto)));
+          this.MessageUserControlScenarios = !newModalDialog.HasValue || !newModalDialog.Value ? MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage) : MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          this._getScenarios = this.GetJobsManagerInstance().GetScenarioDTOs();
+          this.OnPropertyChanged("GetScenarios");
+        }));
+      }
+    }
+
+    public ICommand StartJob
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (selectedJob =>
+        {
+          GMMJobsManager gmmJobsManager = GMMJobsManager.Instance(DIConfigurator.GetConfigurator().Get<IRepositoryFactoryCreator>(), false);
+          List<Meter> meters = (List<Meter>) null;
+          if (selectedJob != null)
+          {
+            MssReadingJobDto mssReadingJobDto = (MssReadingJobDto) selectedJob;
+            mssReadingJobDto.Status = JobStatusEnum.Active.ToString();
+            MssReadingJob byId = this._repositoryFactory.GetRepository<MssReadingJob>().GetById((object) mssReadingJobDto.Id);
+            byId.Status = JobStatusEnum.Active;
+            HibernateMultipleDatabasesManager.Update((object) byId, this._repositoryFactory.GetSession());
+            Guid rootNodeId = new Guid();
+            if (byId.RootNode != null)
+            {
+              Structure structure = new StructuresManager(this._repositoryFactory).LoadStructure(byId.RootNode.Id);
+              meters = structure.Meters;
+              rootNodeId = structure.RootNodeId;
+            }
+            try
+            {
+              gmmJobsManager.AddJob(byId, meters, rootNodeId);
+            }
+            catch (Exception ex)
+            {
+              GMMJobsLogger.LogJobError(ex);
+              MSSUIHelper.ShowWarningDialog(this._windowFactory, MessageCodes.Warning.ToString(), ex.Message, false);
+            }
+          }
+          this.OnPropertyChanged("JobCollection");
+        }));
+      }
+    }
+
+    public ICommand StopJob
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (selectedJob =>
+        {
+          GMMJobsManager gmmJobsManager = GMMJobsManager.Instance(DIConfigurator.GetConfigurator().Get<IRepositoryFactoryCreator>(), false);
+          if (selectedJob != null)
+          {
+            MssReadingJobDto mssReadingJobDto = (MssReadingJobDto) selectedJob;
+            mssReadingJobDto.Status = JobStatusEnum.Inactive.ToString();
+            MssReadingJob byId = this._repositoryFactory.GetRepository<MssReadingJob>().GetById((object) mssReadingJobDto.Id);
+            byId.Status = JobStatusEnum.Inactive;
+            HibernateMultipleDatabasesManager.Update((object) byId, this._repositoryFactory.GetSession());
+            gmmJobsManager.RemoveJob(byId);
+          }
+          this.OnPropertyChanged("JobCollection");
+        }));
+      }
+    }
+
+    public ICommand ViewJobStructure
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter => this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<ViewJobStructureViewModel>((IParameter) new ConstructorArgument("selectedJob", (object) (parameter as MssReadingJobDto))))));
+      }
+    }
+
+    public ICommand ShowJobLogsCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (selectedJob => this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<JobLogsForJobViewModel>((IParameter) new ConstructorArgument("jobDto", (object) (selectedJob as MssReadingJobDto))))));
+      }
+    }
+
+    public ICommand AddJob
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<AddMssReadingJobViewModel>());
+          if (newModalDialog.HasValue && newModalDialog.Value)
+            this.MessageUserControlJobs = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          else
+            this.MessageUserControlJobs = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    public ICommand EditJob
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<AddMssReadingJobViewModel>((IParameter) new ConstructorArgument("jobDto", parameter)));
+          if (newModalDialog.HasValue && newModalDialog.Value)
+            this.MessageUserControlJobs = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          else
+            this.MessageUserControlJobs = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    public ICommand RemoveJob
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<MSS_Client.ViewModel.Jobs.RemoveJob>((IParameter) new ConstructorArgument("job", parameter)));
+          if (newModalDialog.HasValue && newModalDialog.Value)
+            this.MessageUserControlJobs = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          else
+            this.MessageUserControlJobs = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    public ICommand AddJobDefinition
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<AddJobDefinitionViewModel>());
+          if (newModalDialog.HasValue && newModalDialog.Value)
+            this.MessageUserControlJobDefinitions = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          else
+            this.MessageUserControlJobDefinitions = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    public ICommand EditJobDefinition
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<AddJobDefinitionViewModel>((IParameter) new ConstructorArgument("jdDto", parameter)));
+          if (newModalDialog.HasValue && newModalDialog.Value)
+            this.MessageUserControlJobDefinitions = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          else
+            this.MessageUserControlJobDefinitions = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    public ICommand RemoveJobDefinition
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<MSS_Client.ViewModel.Jobs.RemoveJobDefinition>((IParameter) new ConstructorArgument("jobDefinition", parameter)));
+          if (newModalDialog.HasValue && newModalDialog.Value)
+            this.MessageUserControlJobDefinitions = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+          else
+            this.MessageUserControlJobDefinitions = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    public RadObservableCollection<MssReadingJobDto> JobCollection
+    {
+      get => new JobsManager(this._repositoryFactory).GetMssReadingJobsDto();
+      set => this._jobCollection = value;
+    }
+
+    public RadObservableCollection<JobDefinitionDto> JobDefinitions
+    {
+      get
+      {
+        return new JobsManager(this._repositoryFactory).GetJobDefinitionDto(this._canViewServiceJobs, this._canViewDefinitionJobs);
+      }
+      set => this._jobDefinitions = value;
+    }
+
+    public JobDefinitionDto SelectedJobDefinition
+    {
+      get => this._selectedJobDefinition;
+      set
+      {
+        this._selectedJobDefinition = value;
+        this.OnPropertyChanged(nameof (SelectedJobDefinition));
+        this.IsDeleteJobDefinitionEnabled = !string.IsNullOrWhiteSpace(this._selectedJobDefinition?.FilterName) ? this._canDeleteJobDefinitions : this._canDeleteServiceJobs;
+      }
+    }
+
+    public string PageSize
+    {
+      get => this._pageSize;
+      set
+      {
+        this._pageSize = value;
+        this.OnPropertyChanged(nameof (PageSize));
+      }
+    }
+
+    public bool IsJobsTabSelected
+    {
+      get => this._isJobsTabSelected;
+      set
+      {
+        this._isJobsTabSelected = value;
+        if (!this._isJobsTabSelected)
+          return;
+        EventPublisher.Publish<SelectedTabChanged>(new SelectedTabChanged()
+        {
+          SelectedTab = ApplicationTabsEnum.Job
+        }, (IViewModel) this);
+      }
+    }
+
+    public bool IsJobLogsTabSelected
+    {
+      get => this._isJobLogsTabSelected;
+      set
+      {
+        this._isJobLogsTabSelected = value;
+        if (!this._isJobLogsTabSelected)
+          return;
+        EventPublisher.Publish<SelectedTabChanged>(new SelectedTabChanged()
+        {
+          SelectedTab = ApplicationTabsEnum.JobLogs
+        }, (IViewModel) this);
+      }
+    }
+
+    public bool IsJobDefinitionsTabSelected
+    {
+      get => this._isJobDefinitionsTabSelected;
+      set
+      {
+        this._isJobDefinitionsTabSelected = value;
+        if (!this._isJobDefinitionsTabSelected)
+          return;
+        EventPublisher.Publish<SelectedTabChanged>(new SelectedTabChanged()
+        {
+          SelectedTab = ApplicationTabsEnum.JobDefinitions
+        }, (IViewModel) this);
+      }
+    }
+
+    public bool IsScenariosTabSelected
+    {
+      get => this._isScenariosTabSelected;
+      set
+      {
+        this._isScenariosTabSelected = value;
+        if (!this._isScenariosTabSelected)
+          return;
+        EventPublisher.Publish<SelectedTabChanged>(new SelectedTabChanged()
+        {
+          SelectedTab = ApplicationTabsEnum.Scenarios
+        }, (IViewModel) this);
+      }
+    }
+
+    public bool IsJobsTabVisible { get; set; }
+
+    public bool IsJobLogsTabVisible { get; set; }
+
+    public bool IsJobDefinitionsTabVisible { get; set; }
+
+    public bool IsScenariosTabVisible { get; set; }
+
+    public int SelectedIndex
+    {
+      get => this._selectedIndex;
+      set
+      {
+        this._selectedIndex = value;
+        this.OnPropertyChanged(nameof (SelectedIndex));
+      }
+    }
+
+    private void SetTab(SelectedTabValue selectedTabValue)
+    {
+      switch (selectedTabValue.Tab)
+      {
+        case ApplicationTabsEnum.Job:
+          this.SelectedIndex = 0;
+          break;
+        case ApplicationTabsEnum.JobLogs:
+          this.SelectedIndex = 1;
+          break;
+        case ApplicationTabsEnum.JobDefinitions:
+          this.SelectedIndex = 2;
+          break;
+        case ApplicationTabsEnum.Scenarios:
+          this.SelectedIndex = 3;
+          break;
+      }
+    }
+
+    public ApplicationTabsEnum SelectedTab
+    {
+      get => this._selectedTab;
+      set
+      {
+        this._selectedTab = value;
+        this.SetSelectedTab();
+      }
+    }
+
+    private void SetSelectedTab()
+    {
+      switch (this.SelectedTab)
+      {
+        case ApplicationTabsEnum.Job:
+          this._isJobsTabSelected = true;
+          break;
+        case ApplicationTabsEnum.JobLogs:
+          this._isJobLogsTabSelected = true;
+          break;
+        case ApplicationTabsEnum.JobDefinitions:
+          this._isJobDefinitionsTabSelected = true;
+          break;
+        case ApplicationTabsEnum.Scenarios:
+          this._isScenariosTabSelected = true;
+          break;
+      }
+    }
+
+    public bool CreateJobDefinitionVisibility
+    {
+      get => this._createJobDefinitionVisibility;
+      set
+      {
+        this._createJobDefinitionVisibility = value;
+        this.OnPropertyChanged(nameof (CreateJobDefinitionVisibility));
+      }
+    }
+
+    public bool EditJobDefinitionVisibility
+    {
+      get => this._editJobDefinitionVisibility;
+      set
+      {
+        this._editJobDefinitionVisibility = value;
+        this.OnPropertyChanged(nameof (EditJobDefinitionVisibility));
+      }
+    }
+
+    public bool DeleteJobDefinitionVisibility
+    {
+      get => this._deleteJobDefinitionVisibility;
+      set
+      {
+        this._deleteJobDefinitionVisibility = value;
+        this.OnPropertyChanged(nameof (DeleteJobDefinitionVisibility));
+      }
+    }
+
+    public bool IsDeleteJobDefinitionEnabled
+    {
+      get => this._isDeleteJobDefinitionEnabled;
+      set
+      {
+        this._isDeleteJobDefinitionEnabled = value;
+        this.OnPropertyChanged(nameof (IsDeleteJobDefinitionEnabled));
+      }
+    }
+
+    public bool CreateJobVisibility
+    {
+      get => this._createJobVisibility;
+      set
+      {
+        this._createJobVisibility = value;
+        this.OnPropertyChanged(nameof (CreateJobVisibility));
+      }
+    }
+
+    public bool DeleteJobVisibility
+    {
+      get => this._deleteJobVisibility;
+      set
+      {
+        this._deleteJobVisibility = value;
+        this.OnPropertyChanged(nameof (DeleteJobVisibility));
+      }
+    }
+
+    public bool EditScenarioVisibility
+    {
+      get => this._editScenarioVisibility;
+      set
+      {
+        this._editScenarioVisibility = value;
+        this.OnPropertyChanged(nameof (EditScenarioVisibility));
+      }
+    }
+  }
+}
+
+
+--- RemoveJob.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Jobs.RemoveJob
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Events;
+using MSS.Core.Model.Jobs;
+using MSS.DTO.Jobs;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using System;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Jobs
+{
+  public class RemoveJob : ViewModelBase
+  {
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly IWindowFactory _windowFactory;
+    private readonly MssReadingJobDto _job;
+
+    public RemoveJob(
+      IRepositoryFactory repositoryFactory,
+      IWindowFactory windowFactory,
+      MssReadingJobDto job)
+    {
+      this._job = job;
+      this._repositoryFactory = repositoryFactory;
+      this._windowFactory = windowFactory;
+      this.ConfirmJobDescriptionDeleteDialog = string.Format(Resources.MSS_Client_Job_Remove_Confirmation);
+    }
+
+    public string ConfirmJobDescriptionDeleteDialog { get; set; }
+
+    public ICommand RemoveFilterCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (jobDefinition =>
+        {
+          MssReadingJob byId = this._repositoryFactory.GetRepository<MssReadingJob>().GetById((object) this._job.Id);
+          this.OnRequestClose(true);
+          EventPublisher.Publish<RemoveJobEvent>(new RemoveJobEvent()
+          {
+            Job = byId
+          }, (IViewModel) this);
+        }));
+      }
+    }
+  }
+}
+
+
+--- RemoveJobDefinition.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Jobs.RemoveJobDefinition
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Events;
+using MSS.Core.Model.Jobs;
+using MSS.DTO.Jobs;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using System;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Jobs
+{
+  public class RemoveJobDefinition : ViewModelBase
+  {
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly IWindowFactory _windowFactory;
+    private readonly JobDefinitionDto _jobDefinition;
+
+    public RemoveJobDefinition(
+      IRepositoryFactory repositoryFactory,
+      IWindowFactory windowFactory,
+      JobDefinitionDto jobDefinition)
+    {
+      this._jobDefinition = jobDefinition;
+      this._repositoryFactory = repositoryFactory;
+      this._windowFactory = windowFactory;
+      this.ConfirmJobDescriptionDeleteDialog = string.Format(Resources.MSS_Client_JobDefinition_RemoveFilterDialogConfirmation, (object) jobDefinition.Name);
+    }
+
+    public string ConfirmJobDescriptionDeleteDialog { get; set; }
+
+    public ICommand RemoveFilterCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (jobDefinition =>
+        {
+          JobDefinition byId = this._repositoryFactory.GetRepository<JobDefinition>().GetById((object) this._jobDefinition.Id);
+          this.OnRequestClose(true);
+          EventPublisher.Publish<RemoveJobDefinitionEvent>(new RemoveJobDefinitionEvent()
+          {
+            JobDefinition = byId
+          }, (IViewModel) this);
+        }));
+      }
+    }
+  }
+}
+
+
+--- SystemSelectionViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Jobs.SystemSelectionViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Events;
+using MSS.DTO.Jobs;
+using MSS.Interfaces;
+using MSS_Client.Utils;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using System;
+using System.Linq;
+using System.Windows.Input;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Jobs
+{
+  public class SystemSelectionViewModel : ViewModelBase
+  {
+    private readonly IRepositoryFactory _repositoryFactory;
+    private int _dueDateDays;
+    private int _dueDateHours;
+    private int _dueDateMinutes;
+    private int _dueDateSeconds;
+    private int _monthDays;
+    private int _monthHours;
+    private int _monthMinutes;
+    private int _monthSeconds;
+    private int _dayDays;
+    private int _dayHours;
+    private int _dayMinutes;
+    private int _daySeconds;
+    private int _quarterHourDays;
+    private int _quarterHourHours;
+    private int _quarterHourMinutes;
+    private int _quarterHourSeconds;
+
+    public SystemSelectionViewModel(
+      IRepositoryFactory repositoryFactory,
+      DeviceModel selectedSystem,
+      bool isUpdate,
+      JobDefinitionDto jobDto,
+      ChangeableParametersSystem currentParams)
+    {
+      this._repositoryFactory = repositoryFactory;
+      if (!isUpdate)
+      {
+        ChangeableParameter changeableParameter1 = selectedSystem.ChangeableParameters.FirstOrDefault<ChangeableParameter>((Func<ChangeableParameter, bool>) (x => x.Key == "MinomatV4_DurationDueDate"));
+        ChangeableParameter changeableParameter2 = selectedSystem.ChangeableParameters.FirstOrDefault<ChangeableParameter>((Func<ChangeableParameter, bool>) (x => x.Key == "MinomatV4_DurationMonth"));
+        ChangeableParameter changeableParameter3 = selectedSystem.ChangeableParameters.FirstOrDefault<ChangeableParameter>((Func<ChangeableParameter, bool>) (x => x.Key == "MinomatV4_DurationDay"));
+        ChangeableParameter changeableParameter4 = selectedSystem.ChangeableParameters.FirstOrDefault<ChangeableParameter>((Func<ChangeableParameter, bool>) (x => x.Key == "MinomatV4_DurationQuarterHour"));
+        if (changeableParameter1 == null || changeableParameter2 == null || changeableParameter3 == null || changeableParameter4 == null)
+          return;
+        this.SetValues(changeableParameter1.Value, changeableParameter2.Value, changeableParameter3.Value, changeableParameter4.Value);
+      }
+      else
+        this.SetValues(currentParams.DueDate.ToString(), currentParams.Month.ToString(), currentParams.Day.ToString(), currentParams.QuarterHour.ToString());
+    }
+
+    private void SetValues(
+      string dueDateTimeSpan,
+      string monthTimeSpan,
+      string dayTimeSpan,
+      string quarterHourTimeSpan)
+    {
+      if (dueDateTimeSpan != null)
+      {
+        string[] strArray = dueDateTimeSpan.Split(':', '.');
+        if (strArray.Length == 4)
+        {
+          this.DueDateDay = int.Parse(strArray[0]);
+          this.DueDateHours = int.Parse(strArray[1]);
+          this.DueDateMinutes = int.Parse(strArray[2]);
+          this.DueDateSeconds = int.Parse(strArray[3]);
+        }
+        else
+        {
+          this.DueDateDay = 0;
+          this.DueDateHours = int.Parse(strArray[0]);
+          this.DueDateMinutes = int.Parse(strArray[1]);
+          this.DueDateSeconds = int.Parse(strArray[2]);
+        }
+      }
+      if (monthTimeSpan != null)
+      {
+        string[] strArray = monthTimeSpan.Split(':', '.');
+        if (strArray.Length == 4)
+        {
+          this.MonthDay = int.Parse(strArray[0]);
+          this.MonthHours = int.Parse(strArray[1]);
+          this.MonthMinutes = int.Parse(strArray[2]);
+          this.MonthSeconds = int.Parse(strArray[3]);
+        }
+        else
+        {
+          this.MonthDay = 0;
+          this.MonthHours = int.Parse(strArray[0]);
+          this.MonthMinutes = int.Parse(strArray[1]);
+          this.MonthSeconds = int.Parse(strArray[2]);
+        }
+      }
+      if (dayTimeSpan != null)
+      {
+        string[] strArray = dayTimeSpan.Split(':', '.');
+        if (strArray.Length == 4)
+        {
+          this.DayDay = int.Parse(strArray[0]);
+          this.DayHours = int.Parse(strArray[1]);
+          this.DayMinutes = int.Parse(strArray[2]);
+          this.DaySeconds = int.Parse(strArray[3]);
+        }
+        else
+        {
+          this.DayDay = 0;
+          this.DayHours = int.Parse(strArray[0]);
+          this.DayMinutes = int.Parse(strArray[1]);
+          this.DaySeconds = int.Parse(strArray[2]);
+        }
+      }
+      if (quarterHourTimeSpan == null)
+        return;
+      string[] strArray1 = quarterHourTimeSpan.Split(':', '.');
+      if (strArray1.Length == 4)
+      {
+        this.QuarterHourDay = int.Parse(strArray1[0]);
+        this.QuarterHourHours = int.Parse(strArray1[1]);
+        this.QuarterHourMinutes = int.Parse(strArray1[2]);
+        this.QuarterHourSeconds = int.Parse(strArray1[3]);
+      }
+      else
+      {
+        this.QuarterHourDay = 0;
+        this.QuarterHourHours = int.Parse(strArray1[0]);
+        this.QuarterHourMinutes = int.Parse(strArray1[1]);
+        this.QuarterHourSeconds = int.Parse(strArray1[2]);
+      }
+    }
+
+    public ICommand SaveSelectedSystemParametersCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          if (this.DueDateDay < 0)
+          {
+            this.DueDateHours = -this.DueDateHours;
+            this.DueDateMinutes = -this.DueDateMinutes;
+            this.DueDateSeconds = -this.DueDateSeconds;
+          }
+          if (this.DayDay < 0)
+          {
+            this.DayHours = -this.DayHours;
+            this.DayMinutes = -this.DayMinutes;
+            this.DaySeconds = -this.DaySeconds;
+          }
+          if (this.MonthDay < 0)
+          {
+            this.MonthHours = -this.MonthHours;
+            this.MonthMinutes = -this.MonthMinutes;
+            this.MonthSeconds = -this.MonthSeconds;
+          }
+          if (this.QuarterHourDay < 0)
+          {
+            this.QuarterHourHours = -this.QuarterHourHours;
+            this.QuarterHourMinutes = -this.QuarterHourMinutes;
+            this.QuarterHourSeconds = -this.QuarterHourSeconds;
+          }
+          ChangeableParametersSystem parametersSystem = new ChangeableParametersSystem()
+          {
+            DueDate = new TimeSpan?(new TimeSpan(this.DueDateDay, this.DueDateHours, this.MonthMinutes, this.DueDateSeconds)),
+            Day = new TimeSpan?(new TimeSpan(this.DayDay, this.DayHours, this.DayMinutes, this.DaySeconds)),
+            Month = new TimeSpan?(new TimeSpan(this.MonthDay, this.MonthHours, this.MonthMinutes, this.MonthSeconds)),
+            QuarterHour = new TimeSpan?(new TimeSpan(this.QuarterHourDay, this.QuarterHourHours, this.QuarterHourMinutes, this.QuarterHourSeconds))
+          };
+          EventPublisher.Publish<SetSystemChangeableParamsEvent>(new SetSystemChangeableParamsEvent()
+          {
+            DueDate = parametersSystem.DueDate,
+            Day = parametersSystem.Day,
+            Month = parametersSystem.Month,
+            QuarterHour = parametersSystem.QuarterHour
+          }, (IViewModel) this);
+          this.OnRequestClose(true);
+        }));
+      }
+    }
+
+    public int DueDateDay
+    {
+      get => this._dueDateDays;
+      set
+      {
+        this._dueDateDays = value;
+        this.OnPropertyChanged(nameof (DueDateDay));
+      }
+    }
+
+    public int DueDateHours
+    {
+      get => this._dueDateHours;
+      set
+      {
+        this._dueDateHours = value;
+        this.OnPropertyChanged(nameof (DueDateHours));
+      }
+    }
+
+    public int DueDateMinutes
+    {
+      get => this._dueDateMinutes;
+      set
+      {
+        this._dueDateMinutes = value;
+        this.OnPropertyChanged(nameof (DueDateMinutes));
+      }
+    }
+
+    public int DueDateSeconds
+    {
+      get => this._dueDateSeconds;
+      set
+      {
+        this._dueDateSeconds = value;
+        this.OnPropertyChanged(nameof (DueDateSeconds));
+      }
+    }
+
+    public int MonthDay
+    {
+      get => this._monthDays;
+      set
+      {
+        this._monthDays = value;
+        this.OnPropertyChanged(nameof (MonthDay));
+      }
+    }
+
+    public int MonthHours
+    {
+      get => this._monthHours;
+      set
+      {
+        this._monthHours = value;
+        this.OnPropertyChanged(nameof (MonthHours));
+      }
+    }
+
+    public int MonthMinutes
+    {
+      get => this._monthMinutes;
+      set
+      {
+        this._monthMinutes = value;
+        this.OnPropertyChanged(nameof (MonthMinutes));
+      }
+    }
+
+    public int MonthSeconds
+    {
+      get => this._monthSeconds;
+      set
+      {
+        this._monthSeconds = value;
+        this.OnPropertyChanged(nameof (MonthSeconds));
+      }
+    }
+
+    public int DayDay
+    {
+      get => this._dayDays;
+      set
+      {
+        this._dayDays = value;
+        this.OnPropertyChanged(nameof (DayDay));
+      }
+    }
+
+    public int DayHours
+    {
+      get => this._dayHours;
+      set
+      {
+        this._dayHours = value;
+        this.OnPropertyChanged(nameof (DayHours));
+      }
+    }
+
+    public int DayMinutes
+    {
+      get => this._dayMinutes;
+      set
+      {
+        this._dayMinutes = value;
+        this.OnPropertyChanged(nameof (DayMinutes));
+      }
+    }
+
+    public int DaySeconds
+    {
+      get => this._daySeconds;
+      set
+      {
+        this._daySeconds = value;
+        this.OnPropertyChanged(nameof (DaySeconds));
+      }
+    }
+
+    public int QuarterHourDay
+    {
+      get => this._quarterHourDays;
+      set
+      {
+        this._quarterHourDays = value;
+        this.OnPropertyChanged(nameof (QuarterHourDay));
+      }
+    }
+
+    public int QuarterHourHours
+    {
+      get => this._quarterHourHours;
+      set
+      {
+        this._quarterHourHours = value;
+        this.OnPropertyChanged(nameof (QuarterHourHours));
+      }
+    }
+
+    public int QuarterHourMinutes
+    {
+      get => this._quarterHourMinutes;
+      set
+      {
+        this._quarterHourMinutes = value;
+        this.OnPropertyChanged(nameof (QuarterHourMinutes));
+      }
+    }
+
+    public int QuarterHourSeconds
+    {
+      get => this._quarterHourSeconds;
+      set
+      {
+        this._quarterHourSeconds = value;
+        this.OnPropertyChanged(nameof (QuarterHourSeconds));
+      }
+    }
+  }
+}
+
+
+--- ViewJobStructureViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Jobs.ViewJobStructureViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.DTO;
+using MSS.Business.Modules.StructuresManagement;
+using MSS.Business.Utils;
+using MSS.DTO.Jobs;
+using MSS.Interfaces;
+using MVVM.ViewModel;
+using System.Collections.ObjectModel;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Jobs
+{
+  public class ViewJobStructureViewModel : ViewModelBase
+  {
+    private ObservableCollection<StructureNodeDTO> _structureForJob;
+
+    public ViewJobStructureViewModel(
+      IRepositoryFactory repositoryFactory,
+      MssReadingJobDto selectedJob)
+    {
+      StructureNodeDTO structureNodeDto = !(selectedJob.Status == JobStatusEnum.Active.ToString()) ? StructuresHelper.LoadStructureFromRootNodeId(repositoryFactory, selectedJob.StructureNodeId) : JobCyclesCache.Instance.GetJobStructureByJobId(selectedJob.Id) ?? StructuresHelper.LoadStructureFromRootNodeId(repositoryFactory, selectedJob.StructureNodeId);
+      this._structureForJob = new ObservableCollection<StructureNodeDTO>();
+      this._structureForJob.Add(structureNodeDto);
+    }
+
+    public ObservableCollection<StructureNodeDTO> StructureForJob
+    {
+      get => this._structureForJob;
+      set
+      {
+        this._structureForJob = value;
+        this.OnPropertyChanged(nameof (StructureForJob));
+      }
+    }
+  }
+}
+

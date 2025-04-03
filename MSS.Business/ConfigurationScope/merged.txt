@@ -1,0 +1,1344 @@
+
+--- ConfigurationOfflineContext.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.ConfigurationOfflineContext
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.Common;
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class ConfigurationOfflineContext(string cachePath, Uri serviceUri) : SQLiteContext(ConfigurationOfflineContext.GetSchema(), "Configuration", cachePath, serviceUri)
+  {
+    private const string SyncScopeName = "Configuration";
+
+    private static OfflineSchema GetSchema()
+    {
+      OfflineSchema schema = new OfflineSchema();
+      schema.AddCollection<t_Country>();
+      schema.AddCollection<t_StructureNodeType>();
+      schema.AddCollection<t_Scenario>();
+      schema.AddCollection<t_CelestaReadingDeviceTypes>();
+      schema.AddCollection<t_RoomType>();
+      schema.AddCollection<t_MeasureUnit>();
+      schema.AddCollection<t_ConnectedDeviceType>();
+      schema.AddCollection<t_Channel>();
+      schema.AddCollection<t_Filters>();
+      schema.AddCollection<t_Rules>();
+      schema.AddCollection<t_JobDefinitions>();
+      schema.AddCollection<t_ScenarioJobDefinitions>();
+      schema.AddCollection<t_Provider>();
+      schema.AddCollection<t_COMServer>();
+      schema.AddCollection<t_MDMConfigs>();
+      schema.AddCollection<t_NoteType>();
+      return schema;
+    }
+  }
+}
+
+
+--- t_CelestaReadingDeviceTypes.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.t_CelestaReadingDeviceTypes
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class t_CelestaReadingDeviceTypes : SQLiteOfflineEntity
+  {
+    private int _Id;
+    private int _Type;
+    private string _Messbereich;
+    private string _CelestaId;
+
+    [PrimaryKey]
+    public int Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    public int Type
+    {
+      get => this._Type;
+      set
+      {
+        this.OnPropertyChanging(nameof (Type));
+        this._Type = value;
+        this.OnPropertyChanged(nameof (Type));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Messbereich
+    {
+      get => this._Messbereich;
+      set
+      {
+        this.OnPropertyChanging(nameof (Messbereich));
+        this._Messbereich = value;
+        this.OnPropertyChanged(nameof (Messbereich));
+      }
+    }
+
+    [MaxLength(255)]
+    public string CelestaId
+    {
+      get => this._CelestaId;
+      set
+      {
+        this.OnPropertyChanging(nameof (CelestaId));
+        this._CelestaId = value;
+        this.OnPropertyChanged(nameof (CelestaId));
+      }
+    }
+  }
+}
+
+
+--- t_Channel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.t_Channel
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class t_Channel : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _Code;
+    private string _CelestaCode;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(200)]
+    public string Code
+    {
+      get => this._Code;
+      set
+      {
+        this.OnPropertyChanging(nameof (Code));
+        this._Code = value;
+        this.OnPropertyChanged(nameof (Code));
+      }
+    }
+
+    [MaxLength(255)]
+    public string CelestaCode
+    {
+      get => this._CelestaCode;
+      set
+      {
+        this.OnPropertyChanging(nameof (CelestaCode));
+        this._CelestaCode = value;
+        this.OnPropertyChanged(nameof (CelestaCode));
+      }
+    }
+  }
+}
+
+
+--- t_COMServer.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.t_COMServer
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class t_COMServer : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _Name;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(200)]
+    public string Name
+    {
+      get => this._Name;
+      set
+      {
+        this.OnPropertyChanging(nameof (Name));
+        this._Name = value;
+        this.OnPropertyChanged(nameof (Name));
+      }
+    }
+  }
+}
+
+
+--- t_ConnectedDeviceType.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.t_ConnectedDeviceType
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class t_ConnectedDeviceType : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _Code;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(200)]
+    public string Code
+    {
+      get => this._Code;
+      set
+      {
+        this.OnPropertyChanging(nameof (Code));
+        this._Code = value;
+        this.OnPropertyChanged(nameof (Code));
+      }
+    }
+  }
+}
+
+
+--- t_Country.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.t_Country
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class t_Country : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _Code;
+    private string _Name;
+    private Guid? _DefaultScenarioId;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Code
+    {
+      get => this._Code;
+      set
+      {
+        this.OnPropertyChanging(nameof (Code));
+        this._Code = value;
+        this.OnPropertyChanged(nameof (Code));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Name
+    {
+      get => this._Name;
+      set
+      {
+        this.OnPropertyChanging(nameof (Name));
+        this._Name = value;
+        this.OnPropertyChanged(nameof (Name));
+      }
+    }
+
+    public Guid? DefaultScenarioId
+    {
+      get => this._DefaultScenarioId;
+      set
+      {
+        this.OnPropertyChanging(nameof (DefaultScenarioId));
+        this._DefaultScenarioId = value;
+        this.OnPropertyChanged(nameof (DefaultScenarioId));
+      }
+    }
+  }
+}
+
+
+--- t_Filters.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.t_Filters
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class t_Filters : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _Name;
+    private string _Description;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(100)]
+    public string Name
+    {
+      get => this._Name;
+      set
+      {
+        this.OnPropertyChanging(nameof (Name));
+        this._Name = value;
+        this.OnPropertyChanged(nameof (Name));
+      }
+    }
+
+    [MaxLength(1000)]
+    public string Description
+    {
+      get => this._Description;
+      set
+      {
+        this.OnPropertyChanging(nameof (Description));
+        this._Description = value;
+        this.OnPropertyChanged(nameof (Description));
+      }
+    }
+  }
+}
+
+
+--- t_JobDefinitions.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.t_JobDefinitions
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class t_JobDefinitions : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _Name;
+    private string _EquipmentModel;
+    private string _System;
+    private string _ServiceJob;
+    private string _EquipmentParams;
+    private string _ProfileType;
+    private DateTime? _StartDate;
+    private DateTime? _EndDate;
+    private bool? _IsDeactivated;
+    private long? _DueDate;
+    private long? _Month;
+    private long? _Day;
+    private long? _QuarterHour;
+    private byte[] _Interval;
+    private Guid? _FilterId;
+    private string _ProfileTypeParams;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Name
+    {
+      get => this._Name;
+      set
+      {
+        this.OnPropertyChanging(nameof (Name));
+        this._Name = value;
+        this.OnPropertyChanged(nameof (Name));
+      }
+    }
+
+    [MaxLength(255)]
+    public string EquipmentModel
+    {
+      get => this._EquipmentModel;
+      set
+      {
+        this.OnPropertyChanging(nameof (EquipmentModel));
+        this._EquipmentModel = value;
+        this.OnPropertyChanged(nameof (EquipmentModel));
+      }
+    }
+
+    [MaxLength(255)]
+    public string System
+    {
+      get => this._System;
+      set
+      {
+        this.OnPropertyChanging(nameof (System));
+        this._System = value;
+        this.OnPropertyChanged(nameof (System));
+      }
+    }
+
+    [MaxLength(255)]
+    public string ServiceJob
+    {
+      get => this._ServiceJob;
+      set
+      {
+        this.OnPropertyChanging(nameof (ServiceJob));
+        this._ServiceJob = value;
+        this.OnPropertyChanged(nameof (ServiceJob));
+      }
+    }
+
+    [MaxLength(8000)]
+    public string EquipmentParams
+    {
+      get => this._EquipmentParams;
+      set
+      {
+        this.OnPropertyChanging(nameof (EquipmentParams));
+        this._EquipmentParams = value;
+        this.OnPropertyChanged(nameof (EquipmentParams));
+      }
+    }
+
+    [MaxLength(255)]
+    public string ProfileType
+    {
+      get => this._ProfileType;
+      set
+      {
+        this.OnPropertyChanging(nameof (ProfileType));
+        this._ProfileType = value;
+        this.OnPropertyChanged(nameof (ProfileType));
+      }
+    }
+
+    public DateTime? StartDate
+    {
+      get => this._StartDate;
+      set
+      {
+        this.OnPropertyChanging(nameof (StartDate));
+        this._StartDate = value;
+        this.OnPropertyChanged(nameof (StartDate));
+      }
+    }
+
+    public DateTime? EndDate
+    {
+      get => this._EndDate;
+      set
+      {
+        this.OnPropertyChanging(nameof (EndDate));
+        this._EndDate = value;
+        this.OnPropertyChanged(nameof (EndDate));
+      }
+    }
+
+    public bool? IsDeactivated
+    {
+      get => this._IsDeactivated;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsDeactivated));
+        this._IsDeactivated = value;
+        this.OnPropertyChanged(nameof (IsDeactivated));
+      }
+    }
+
+    public long? DueDate
+    {
+      get => this._DueDate;
+      set
+      {
+        this.OnPropertyChanging(nameof (DueDate));
+        this._DueDate = value;
+        this.OnPropertyChanged(nameof (DueDate));
+      }
+    }
+
+    public long? Month
+    {
+      get => this._Month;
+      set
+      {
+        this.OnPropertyChanging(nameof (Month));
+        this._Month = value;
+        this.OnPropertyChanged(nameof (Month));
+      }
+    }
+
+    public long? Day
+    {
+      get => this._Day;
+      set
+      {
+        this.OnPropertyChanging(nameof (Day));
+        this._Day = value;
+        this.OnPropertyChanged(nameof (Day));
+      }
+    }
+
+    public long? QuarterHour
+    {
+      get => this._QuarterHour;
+      set
+      {
+        this.OnPropertyChanging(nameof (QuarterHour));
+        this._QuarterHour = value;
+        this.OnPropertyChanged(nameof (QuarterHour));
+      }
+    }
+
+    [MaxLength(8000)]
+    public byte[] Interval
+    {
+      get => this._Interval;
+      set
+      {
+        this.OnPropertyChanging(nameof (Interval));
+        this._Interval = value;
+        this.OnPropertyChanged(nameof (Interval));
+      }
+    }
+
+    public Guid? FilterId
+    {
+      get => this._FilterId;
+      set
+      {
+        this.OnPropertyChanging(nameof (FilterId));
+        this._FilterId = value;
+        this.OnPropertyChanged(nameof (FilterId));
+      }
+    }
+
+    [MaxLength(8000)]
+    public string ProfileTypeParams
+    {
+      get => this._ProfileTypeParams;
+      set
+      {
+        this.OnPropertyChanging(nameof (ProfileTypeParams));
+        this._ProfileTypeParams = value;
+        this.OnPropertyChanged(nameof (ProfileTypeParams));
+      }
+    }
+  }
+}
+
+
+--- t_MDMConfigs.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.t_MDMConfigs
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class t_MDMConfigs : SQLiteOfflineEntity
+  {
+    private int _Id;
+    private string _MDMPassword;
+    private string _MDMUser;
+    private string _MDMUrl;
+    private int? _Company;
+    private string _CustomerNumber;
+    private Guid? _CountryId;
+
+    [PrimaryKey]
+    public int Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(255)]
+    public string MDMPassword
+    {
+      get => this._MDMPassword;
+      set
+      {
+        this.OnPropertyChanging(nameof (MDMPassword));
+        this._MDMPassword = value;
+        this.OnPropertyChanged(nameof (MDMPassword));
+      }
+    }
+
+    [MaxLength(255)]
+    public string MDMUser
+    {
+      get => this._MDMUser;
+      set
+      {
+        this.OnPropertyChanging(nameof (MDMUser));
+        this._MDMUser = value;
+        this.OnPropertyChanged(nameof (MDMUser));
+      }
+    }
+
+    [MaxLength(255)]
+    public string MDMUrl
+    {
+      get => this._MDMUrl;
+      set
+      {
+        this.OnPropertyChanging(nameof (MDMUrl));
+        this._MDMUrl = value;
+        this.OnPropertyChanged(nameof (MDMUrl));
+      }
+    }
+
+    public int? Company
+    {
+      get => this._Company;
+      set
+      {
+        this.OnPropertyChanging(nameof (Company));
+        this._Company = value;
+        this.OnPropertyChanged(nameof (Company));
+      }
+    }
+
+    [MaxLength(255)]
+    public string CustomerNumber
+    {
+      get => this._CustomerNumber;
+      set
+      {
+        this.OnPropertyChanging(nameof (CustomerNumber));
+        this._CustomerNumber = value;
+        this.OnPropertyChanged(nameof (CustomerNumber));
+      }
+    }
+
+    public Guid? CountryId
+    {
+      get => this._CountryId;
+      set
+      {
+        this.OnPropertyChanging(nameof (CountryId));
+        this._CountryId = value;
+        this.OnPropertyChanged(nameof (CountryId));
+      }
+    }
+  }
+}
+
+
+--- t_MeasureUnit.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.t_MeasureUnit
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class t_MeasureUnit : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _Code;
+    private string _CelestaCode;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(200)]
+    public string Code
+    {
+      get => this._Code;
+      set
+      {
+        this.OnPropertyChanging(nameof (Code));
+        this._Code = value;
+        this.OnPropertyChanged(nameof (Code));
+      }
+    }
+
+    [MaxLength(255)]
+    public string CelestaCode
+    {
+      get => this._CelestaCode;
+      set
+      {
+        this.OnPropertyChanging(nameof (CelestaCode));
+        this._CelestaCode = value;
+        this.OnPropertyChanged(nameof (CelestaCode));
+      }
+    }
+  }
+}
+
+
+--- t_NoteType.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.t_NoteType
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class t_NoteType : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _Description;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Description
+    {
+      get => this._Description;
+      set
+      {
+        this.OnPropertyChanging(nameof (Description));
+        this._Description = value;
+        this.OnPropertyChanged(nameof (Description));
+      }
+    }
+  }
+}
+
+
+--- t_Provider.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.t_Provider
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class t_Provider : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _ProviderName;
+    private string _SimPin;
+    private string _AccessPoint;
+    private string _UserId;
+    private string _UserPassword;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(255)]
+    public string ProviderName
+    {
+      get => this._ProviderName;
+      set
+      {
+        this.OnPropertyChanging(nameof (ProviderName));
+        this._ProviderName = value;
+        this.OnPropertyChanged(nameof (ProviderName));
+      }
+    }
+
+    [MaxLength(255)]
+    public string SimPin
+    {
+      get => this._SimPin;
+      set
+      {
+        this.OnPropertyChanging(nameof (SimPin));
+        this._SimPin = value;
+        this.OnPropertyChanged(nameof (SimPin));
+      }
+    }
+
+    [MaxLength(255)]
+    public string AccessPoint
+    {
+      get => this._AccessPoint;
+      set
+      {
+        this.OnPropertyChanging(nameof (AccessPoint));
+        this._AccessPoint = value;
+        this.OnPropertyChanged(nameof (AccessPoint));
+      }
+    }
+
+    [MaxLength(255)]
+    public string UserId
+    {
+      get => this._UserId;
+      set
+      {
+        this.OnPropertyChanging(nameof (UserId));
+        this._UserId = value;
+        this.OnPropertyChanged(nameof (UserId));
+      }
+    }
+
+    [MaxLength(255)]
+    public string UserPassword
+    {
+      get => this._UserPassword;
+      set
+      {
+        this.OnPropertyChanging(nameof (UserPassword));
+        this._UserPassword = value;
+        this.OnPropertyChanged(nameof (UserPassword));
+      }
+    }
+  }
+}
+
+
+--- t_RoomType.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.t_RoomType
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class t_RoomType : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _Code;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(200)]
+    public string Code
+    {
+      get => this._Code;
+      set
+      {
+        this.OnPropertyChanging(nameof (Code));
+        this._Code = value;
+        this.OnPropertyChanged(nameof (Code));
+      }
+    }
+  }
+}
+
+
+--- t_Rules.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.t_Rules
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class t_Rules : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _PhysicalQuantity;
+    private string _MeterType;
+    private string _Calculation;
+    private string _CalculationStart;
+    private string _StorageInterval;
+    private string _Creation;
+    private int _RuleIndex;
+    private string _ValueId;
+    private Guid? _FilterId;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(100)]
+    public string PhysicalQuantity
+    {
+      get => this._PhysicalQuantity;
+      set
+      {
+        this.OnPropertyChanging(nameof (PhysicalQuantity));
+        this._PhysicalQuantity = value;
+        this.OnPropertyChanged(nameof (PhysicalQuantity));
+      }
+    }
+
+    [MaxLength(100)]
+    public string MeterType
+    {
+      get => this._MeterType;
+      set
+      {
+        this.OnPropertyChanging(nameof (MeterType));
+        this._MeterType = value;
+        this.OnPropertyChanged(nameof (MeterType));
+      }
+    }
+
+    [MaxLength(100)]
+    public string Calculation
+    {
+      get => this._Calculation;
+      set
+      {
+        this.OnPropertyChanging(nameof (Calculation));
+        this._Calculation = value;
+        this.OnPropertyChanged(nameof (Calculation));
+      }
+    }
+
+    [MaxLength(100)]
+    public string CalculationStart
+    {
+      get => this._CalculationStart;
+      set
+      {
+        this.OnPropertyChanging(nameof (CalculationStart));
+        this._CalculationStart = value;
+        this.OnPropertyChanged(nameof (CalculationStart));
+      }
+    }
+
+    [MaxLength(100)]
+    public string StorageInterval
+    {
+      get => this._StorageInterval;
+      set
+      {
+        this.OnPropertyChanging(nameof (StorageInterval));
+        this._StorageInterval = value;
+        this.OnPropertyChanged(nameof (StorageInterval));
+      }
+    }
+
+    [MaxLength(100)]
+    public string Creation
+    {
+      get => this._Creation;
+      set
+      {
+        this.OnPropertyChanging(nameof (Creation));
+        this._Creation = value;
+        this.OnPropertyChanged(nameof (Creation));
+      }
+    }
+
+    public int RuleIndex
+    {
+      get => this._RuleIndex;
+      set
+      {
+        this.OnPropertyChanging(nameof (RuleIndex));
+        this._RuleIndex = value;
+        this.OnPropertyChanged(nameof (RuleIndex));
+      }
+    }
+
+    [MaxLength(255)]
+    public string ValueId
+    {
+      get => this._ValueId;
+      set
+      {
+        this.OnPropertyChanging(nameof (ValueId));
+        this._ValueId = value;
+        this.OnPropertyChanged(nameof (ValueId));
+      }
+    }
+
+    public Guid? FilterId
+    {
+      get => this._FilterId;
+      set
+      {
+        this.OnPropertyChanging(nameof (FilterId));
+        this._FilterId = value;
+        this.OnPropertyChanged(nameof (FilterId));
+      }
+    }
+  }
+}
+
+
+--- t_Scenario.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.t_Scenario
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class t_Scenario : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private int _Code;
+    private string _CelestaCode;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    public int Code
+    {
+      get => this._Code;
+      set
+      {
+        this.OnPropertyChanging(nameof (Code));
+        this._Code = value;
+        this.OnPropertyChanged(nameof (Code));
+      }
+    }
+
+    [MaxLength(255)]
+    public string CelestaCode
+    {
+      get => this._CelestaCode;
+      set
+      {
+        this.OnPropertyChanging(nameof (CelestaCode));
+        this._CelestaCode = value;
+        this.OnPropertyChanged(nameof (CelestaCode));
+      }
+    }
+  }
+}
+
+
+--- t_ScenarioJobDefinitions.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.t_ScenarioJobDefinitions
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class t_ScenarioJobDefinitions : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private Guid? _ScenarioId;
+    private Guid? _JobDefinitionId;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    public Guid? ScenarioId
+    {
+      get => this._ScenarioId;
+      set
+      {
+        this.OnPropertyChanging(nameof (ScenarioId));
+        this._ScenarioId = value;
+        this.OnPropertyChanged(nameof (ScenarioId));
+      }
+    }
+
+    public Guid? JobDefinitionId
+    {
+      get => this._JobDefinitionId;
+      set
+      {
+        this.OnPropertyChanging(nameof (JobDefinitionId));
+        this._JobDefinitionId = value;
+        this.OnPropertyChanged(nameof (JobDefinitionId));
+      }
+    }
+  }
+}
+
+
+--- t_StructureNodeType.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ConfigurationScope.t_StructureNodeType
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ConfigurationScope
+{
+  public class t_StructureNodeType : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _Name;
+    private string _IconPath;
+    private bool? _IsFixed;
+    private bool? _IsLogical;
+    private bool? _IsPhysical;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(200)]
+    public string Name
+    {
+      get => this._Name;
+      set
+      {
+        this.OnPropertyChanging(nameof (Name));
+        this._Name = value;
+        this.OnPropertyChanged(nameof (Name));
+      }
+    }
+
+    [MaxLength(200)]
+    public string IconPath
+    {
+      get => this._IconPath;
+      set
+      {
+        this.OnPropertyChanging(nameof (IconPath));
+        this._IconPath = value;
+        this.OnPropertyChanged(nameof (IconPath));
+      }
+    }
+
+    public bool? IsFixed
+    {
+      get => this._IsFixed;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsFixed));
+        this._IsFixed = value;
+        this.OnPropertyChanged(nameof (IsFixed));
+      }
+    }
+
+    public bool? IsLogical
+    {
+      get => this._IsLogical;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsLogical));
+        this._IsLogical = value;
+        this.OnPropertyChanged(nameof (IsLogical));
+      }
+    }
+
+    public bool? IsPhysical
+    {
+      get => this._IsPhysical;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsPhysical));
+        this._IsPhysical = value;
+        this.OnPropertyChanged(nameof (IsPhysical));
+      }
+    }
+  }
+}
+

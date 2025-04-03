@@ -1,0 +1,2319 @@
+
+--- AbstractInvocation.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.AbstractInvocation
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  [Serializable]
+  public abstract class AbstractInvocation : IInvocation, ISerializable
+  {
+    private readonly IInterceptor[] interceptors;
+    private readonly object[] arguments;
+    private int execIndex = -1;
+    private Type[] genericMethodArguments;
+    private readonly MethodInfo proxiedMethod;
+    protected readonly object proxyObject;
+
+    protected AbstractInvocation(
+      object proxy,
+      IInterceptor[] interceptors,
+      MethodInfo proxiedMethod,
+      object[] arguments)
+    {
+      this.proxyObject = proxy;
+      this.interceptors = interceptors;
+      this.proxiedMethod = proxiedMethod;
+      this.arguments = arguments;
+    }
+
+    protected AbstractInvocation(
+      object proxy,
+      Type targetType,
+      IInterceptor[] interceptors,
+      MethodInfo proxiedMethod,
+      object[] arguments,
+      IInterceptorSelector selector,
+      ref IInterceptor[] methodInterceptors)
+      : this(proxy, interceptors, proxiedMethod, arguments)
+    {
+      methodInterceptors = this.SelectMethodInterceptors(selector, methodInterceptors, targetType);
+      this.interceptors = methodInterceptors;
+    }
+
+    private IInterceptor[] SelectMethodInterceptors(
+      IInterceptorSelector selector,
+      IInterceptor[] methodInterceptors,
+      Type targetType)
+    {
+      return methodInterceptors ?? selector.SelectInterceptors(targetType, this.Method, this.interceptors) ?? new IInterceptor[0];
+    }
+
+    public void SetGenericMethodArguments(Type[] arguments)
+    {
+      this.genericMethodArguments = arguments;
+    }
+
+    public abstract object InvocationTarget { get; }
+
+    public abstract Type TargetType { get; }
+
+    public abstract MethodInfo MethodInvocationTarget { get; }
+
+    public Type[] GenericArguments => this.genericMethodArguments;
+
+    public object Proxy => this.proxyObject;
+
+    public MethodInfo Method => this.proxiedMethod;
+
+    public MethodInfo GetConcreteMethod() => this.EnsureClosedMethod(this.Method);
+
+    public MethodInfo GetConcreteMethodInvocationTarget() => this.MethodInvocationTarget;
+
+    public object ReturnValue { get; set; }
+
+    public object[] Arguments => this.arguments;
+
+    public void SetArgumentValue(int index, object value) => this.arguments[index] = value;
+
+    public object GetArgumentValue(int index) => this.arguments[index];
+
+    public void Proceed()
+    {
+      if (this.interceptors == null)
+      {
+        this.InvokeMethodOnTarget();
+      }
+      else
+      {
+        ++this.execIndex;
+        if (this.execIndex == this.interceptors.Length)
+        {
+          this.InvokeMethodOnTarget();
+        }
+        else
+        {
+          if (this.execIndex > this.interceptors.Length)
+            throw new InvalidOperationException("This is a DynamicProxy2 error: invocation.Proceed() has been called more times than expected.This usually signifies a bug in the calling code. Make sure that" + (this.interceptors.Length <= 1 ? " interceptor" : " each one of " + (object) this.interceptors.Length + " interceptors") + " selected for the method '" + (object) this.Method + "'calls invocation.Proceed() at most once.");
+          this.interceptors[this.execIndex].Intercept((IInvocation) this);
+        }
+      }
+    }
+
+    public void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      info.SetType(typeof (RemotableInvocation));
+      info.AddValue("invocation", (object) new RemotableInvocation((IInvocation) this));
+    }
+
+    protected abstract void InvokeMethodOnTarget();
+
+    protected void ThrowOnNoTarget()
+    {
+      string str1 = this.interceptors.Length != 0 ? "The interceptor attempted to 'Proceed'" : "There are no interceptors specified";
+      string str2;
+      string str3;
+      if (this.Method.DeclaringType.IsClass && this.Method.IsAbstract)
+      {
+        str2 = "is abstract";
+        str3 = "an abstract method";
+      }
+      else
+      {
+        str2 = "has no target";
+        str3 = "method without target";
+      }
+      throw new NotImplementedException(string.Format("This is a DynamicProxy2 error: {0} for method '{1}' which {2}. When calling {3} there is no implementation to 'proceed' to and it is the responsibility of the interceptor to mimic the implementation (set return value, out arguments etc)", (object) str1, (object) this.Method, (object) str2, (object) str3));
+    }
+
+    private MethodInfo EnsureClosedMethod(MethodInfo method)
+    {
+      return method.ContainsGenericParameters ? method.GetGenericMethodDefinition().MakeGenericMethod(this.genericMethodArguments) : method;
+    }
+  }
+}
+
+
+--- AllMethodsHook.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.AllMethodsHook
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  [Serializable]
+  public class AllMethodsHook : IProxyGenerationHook
+  {
+    protected static readonly ICollection<Type> SkippedTypes = (ICollection<Type>) new Type[3]
+    {
+      typeof (object),
+      typeof (MarshalByRefObject),
+      typeof (ContextBoundObject)
+    };
+
+    public virtual bool ShouldInterceptMethod(Type type, MethodInfo methodInfo)
+    {
+      return !AllMethodsHook.SkippedTypes.Contains(methodInfo.DeclaringType) && !this.IsFinalizer(methodInfo);
+    }
+
+    protected bool IsFinalizer(MethodInfo methodInfo)
+    {
+      return methodInfo.Name == "Finalize" && methodInfo.GetBaseDefinition().DeclaringType == typeof (object);
+    }
+
+    public virtual void NonProxyableMemberNotification(Type type, MemberInfo memberInfo)
+    {
+    }
+
+    public virtual void MethodsInspected()
+    {
+    }
+
+    public override bool Equals(object obj) => obj != null && obj.GetType() == this.GetType();
+
+    public override int GetHashCode() => this.GetType().GetHashCode();
+  }
+}
+
+
+--- AttributeUtil.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.AttributeUtil
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Generators;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public static class AttributeUtil
+  {
+    private static readonly IDictionary<Type, IAttributeDisassembler> disassemblers = (IDictionary<Type, IAttributeDisassembler>) new Dictionary<Type, IAttributeDisassembler>();
+    private static IAttributeDisassembler fallbackDisassembler = (IAttributeDisassembler) new AttributeDisassembler();
+
+    public static IAttributeDisassembler FallbackDisassembler
+    {
+      get => AttributeUtil.fallbackDisassembler;
+      set => AttributeUtil.fallbackDisassembler = value;
+    }
+
+    public static void AddDisassembler<TAttribute>(IAttributeDisassembler disassembler) where TAttribute : Attribute
+    {
+      AttributeUtil.disassemblers[typeof (TAttribute)] = disassembler != null ? disassembler : throw new ArgumentNullException(nameof (disassembler));
+    }
+
+    public static CustomAttributeBuilder CreateBuilder(CustomAttributeData attribute)
+    {
+      PropertyInfo[] properties;
+      object[] propertyValues;
+      FieldInfo[] fields;
+      object[] fieldValues;
+      AttributeUtil.GetSettersAndFields((IEnumerable<CustomAttributeNamedArgument>) attribute.NamedArguments, out properties, out propertyValues, out fields, out fieldValues);
+      return new CustomAttributeBuilder(attribute.Constructor, AttributeUtil.GetCtorArguments(attribute.ConstructorArguments), properties, propertyValues, fields, fieldValues);
+    }
+
+    private static object[] GetCtorArguments(
+      IList<CustomAttributeTypedArgument> constructorArguments)
+    {
+      object[] ctorArguments = new object[constructorArguments.Count];
+      for (int index = 0; index < constructorArguments.Count; ++index)
+        ctorArguments[index] = constructorArguments[index].Value;
+      return ctorArguments;
+    }
+
+    private static void GetSettersAndFields(
+      IEnumerable<CustomAttributeNamedArgument> namedArguments,
+      out PropertyInfo[] properties,
+      out object[] propertyValues,
+      out FieldInfo[] fields,
+      out object[] fieldValues)
+    {
+      List<PropertyInfo> propertyInfoList = new List<PropertyInfo>();
+      List<object> objectList1 = new List<object>();
+      List<FieldInfo> fieldInfoList = new List<FieldInfo>();
+      List<object> objectList2 = new List<object>();
+      foreach (CustomAttributeNamedArgument namedArgument in namedArguments)
+      {
+        switch (namedArgument.MemberInfo.MemberType)
+        {
+          case MemberTypes.Field:
+            fieldInfoList.Add(namedArgument.MemberInfo as FieldInfo);
+            objectList2.Add(namedArgument.TypedValue.Value);
+            continue;
+          case MemberTypes.Property:
+            propertyInfoList.Add(namedArgument.MemberInfo as PropertyInfo);
+            objectList1.Add(namedArgument.TypedValue.Value);
+            continue;
+          default:
+            throw new ArgumentException(string.Format("Unexpected member type {0} in custom attribute.", (object) namedArgument.MemberInfo.MemberType));
+        }
+      }
+      properties = propertyInfoList.ToArray();
+      propertyValues = objectList1.ToArray();
+      fields = fieldInfoList.ToArray();
+      fieldValues = objectList2.ToArray();
+    }
+
+    public static IEnumerable<CustomAttributeBuilder> GetNonInheritableAttributes(
+      this MemberInfo member)
+    {
+      IList<CustomAttributeData> attributes = CustomAttributeData.GetCustomAttributes(member);
+      foreach (CustomAttributeData attribute in (IEnumerable<CustomAttributeData>) attributes)
+      {
+        Type attributeType = attribute.Constructor.DeclaringType;
+        if (!AttributeUtil.ShouldSkipAttributeReplication(attributeType))
+        {
+          CustomAttributeBuilder builder;
+          try
+          {
+            builder = AttributeUtil.CreateBuilder(attribute);
+          }
+          catch (ArgumentException ex)
+          {
+            throw new ProxyGenerationException(string.Format("Due to limitations in CLR, DynamicProxy was unable to successfully replicate non-inheritable attribute {0} on {1}{2}. To avoid this error you can chose not to replicate this attribute type by calling '{3}.Add(typeof({0}))'.", (object) attributeType.FullName, member.ReflectedType == null ? (object) "" : (object) member.ReflectedType.FullName, member is Type ? (object) "" : (object) ("." + member.Name), (object) typeof (AttributesToAvoidReplicating).FullName), (Exception) ex);
+          }
+          if (builder != null)
+            yield return builder;
+        }
+      }
+    }
+
+    public static IEnumerable<CustomAttributeBuilder> GetNonInheritableAttributes(
+      this ParameterInfo parameter)
+    {
+      IList<CustomAttributeData> attributes = CustomAttributeData.GetCustomAttributes(parameter);
+      foreach (CustomAttributeData attribute in (IEnumerable<CustomAttributeData>) attributes)
+      {
+        Type attributeType = attribute.Constructor.DeclaringType;
+        if (!AttributeUtil.ShouldSkipAttributeReplication(attributeType))
+        {
+          CustomAttributeBuilder builder = AttributeUtil.CreateBuilder(attribute);
+          if (builder != null)
+            yield return builder;
+        }
+      }
+    }
+
+    private static bool ShouldSkipAttributeReplication(Type attribute)
+    {
+      if (!attribute.IsPublic || AttributeUtil.SpecialCaseAttributThatShouldNotBeReplicated(attribute))
+        return true;
+      object[] customAttributes = attribute.GetCustomAttributes(typeof (AttributeUsageAttribute), true);
+      return customAttributes.Length == 0 || ((AttributeUsageAttribute) customAttributes[0]).Inherited;
+    }
+
+    private static bool SpecialCaseAttributThatShouldNotBeReplicated(Type attribute)
+    {
+      return AttributesToAvoidReplicating.Contains(attribute);
+    }
+
+    public static CustomAttributeBuilder CreateBuilder<TAttribute>() where TAttribute : Attribute, new()
+    {
+      return new CustomAttributeBuilder(typeof (TAttribute).GetConstructor(Type.EmptyTypes), new object[0]);
+    }
+
+    public static CustomAttributeBuilder CreateBuilder(
+      Type attribute,
+      object[] constructorArguments)
+    {
+      return new CustomAttributeBuilder(attribute.GetConstructor(AttributeUtil.GetTypes(constructorArguments)), constructorArguments);
+    }
+
+    internal static CustomAttributeBuilder CreateBuilder(Attribute attribute)
+    {
+      Type type = attribute.GetType();
+      IAttributeDisassembler attributeDisassembler;
+      return AttributeUtil.disassemblers.TryGetValue(type, out attributeDisassembler) ? attributeDisassembler.Disassemble(attribute) : AttributeUtil.FallbackDisassembler.Disassemble(attribute);
+    }
+
+    private static Type[] GetTypes(object[] objects)
+    {
+      Type[] types = new Type[objects.Length];
+      for (int index = 0; index < types.Length; ++index)
+        types[index] = objects[index].GetType();
+      return types;
+    }
+  }
+}
+
+
+--- CacheMappingsAttribute.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.CacheMappingsAttribute
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Generators;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.Serialization.Formatters.Binary;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
+  [CLSCompliant(false)]
+  public class CacheMappingsAttribute : Attribute
+  {
+    private static readonly ConstructorInfo constructor = typeof (CacheMappingsAttribute).GetConstructor(new Type[1]
+    {
+      typeof (byte[])
+    });
+    private readonly byte[] _serializedCacheMappings;
+
+    public static void ApplyTo(
+      AssemblyBuilder assemblyBuilder,
+      Dictionary<CacheKey, string> mappings)
+    {
+      using (MemoryStream serializationStream = new MemoryStream())
+      {
+        new BinaryFormatter().Serialize((Stream) serializationStream, (object) mappings);
+        byte[] array = serializationStream.ToArray();
+        CustomAttributeBuilder customBuilder = new CustomAttributeBuilder(CacheMappingsAttribute.constructor, new object[1]
+        {
+          (object) array
+        });
+        assemblyBuilder.SetCustomAttribute(customBuilder);
+      }
+    }
+
+    public CacheMappingsAttribute(byte[] serializedCacheMappings)
+    {
+      this._serializedCacheMappings = serializedCacheMappings;
+    }
+
+    public byte[] SerializedCacheMappings => this._serializedCacheMappings;
+
+    public Dictionary<CacheKey, string> GetDeserializedMappings()
+    {
+      using (MemoryStream serializationStream = new MemoryStream(this.SerializedCacheMappings))
+        return (Dictionary<CacheKey, string>) new BinaryFormatter().Deserialize((Stream) serializationStream);
+    }
+  }
+}
+
+
+--- CompositionInvocation.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.CompositionInvocation
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public abstract class CompositionInvocation : AbstractInvocation
+  {
+    protected object target;
+
+    protected CompositionInvocation(
+      object target,
+      object proxy,
+      IInterceptor[] interceptors,
+      MethodInfo proxiedMethod,
+      object[] arguments)
+      : base(proxy, interceptors, proxiedMethod, arguments)
+    {
+      this.target = target;
+    }
+
+    protected CompositionInvocation(
+      object target,
+      object proxy,
+      IInterceptor[] interceptors,
+      MethodInfo proxiedMethod,
+      object[] arguments,
+      IInterceptorSelector selector,
+      ref IInterceptor[] methodInterceptors)
+      : base(proxy, CompositionInvocation.GetTargetType(target), interceptors, proxiedMethod, arguments, selector, ref methodInterceptors)
+    {
+      this.target = target;
+    }
+
+    private static Type GetTargetType(object targetObject) => targetObject?.GetType();
+
+    protected void EnsureValidTarget()
+    {
+      if (this.target == null)
+        this.ThrowOnNoTarget();
+      if (object.ReferenceEquals(this.target, this.proxyObject))
+        throw new InvalidOperationException("This is a DynamicProxy2 error: target of invocation has been set to the proxy itself. This may result in recursively calling the method over and over again until stack overflow, which may destabilize your program.This usually signifies a bug in the calling code. Make sure no interceptor sets proxy as its invocation target.");
+    }
+
+    protected void EnsureValidProxyTarget(object newTarget)
+    {
+      if (newTarget == null)
+        throw new ArgumentNullException(nameof (newTarget));
+      if (object.ReferenceEquals(newTarget, this.proxyObject))
+        throw new InvalidOperationException("This is a DynamicProxy2 error: target of proxy has been set to the proxy itself. This would result in recursively calling proxy methods over and over again until stack overflow, which may destabilize your program.This usually signifies a bug in the calling code. Make sure no interceptor sets proxy as its own target.");
+    }
+
+    public override object InvocationTarget => this.target;
+
+    public override Type TargetType => CompositionInvocation.GetTargetType(this.target);
+
+    public override MethodInfo MethodInvocationTarget
+    {
+      get => InvocationHelper.GetMethodOnObject(this.target, this.Method);
+    }
+  }
+}
+
+
+--- DefaultProxyBuilder.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.DefaultProxyBuilder
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.Core.Logging;
+using Castle.DynamicProxy.Generators;
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public class DefaultProxyBuilder : IProxyBuilder
+  {
+    private readonly ModuleScope scope;
+    private ILogger logger = (ILogger) NullLogger.Instance;
+
+    public DefaultProxyBuilder()
+      : this(new ModuleScope())
+    {
+    }
+
+    public DefaultProxyBuilder(ModuleScope scope) => this.scope = scope;
+
+    public ILogger Logger
+    {
+      get => this.logger;
+      set => this.logger = value;
+    }
+
+    public ModuleScope ModuleScope => this.scope;
+
+    [Obsolete("Use CreateClassProxyType method instead.")]
+    public Type CreateClassProxy(Type classToProxy, ProxyGenerationOptions options)
+    {
+      return this.CreateClassProxyType(classToProxy, Type.EmptyTypes, options);
+    }
+
+    [Obsolete("Use CreateClassProxyType method instead.")]
+    public Type CreateClassProxy(
+      Type classToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options)
+    {
+      return this.CreateClassProxyType(classToProxy, additionalInterfacesToProxy, options);
+    }
+
+    public Type CreateClassProxyType(
+      Type classToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options)
+    {
+      this.AssertValidType(classToProxy);
+      this.AssertValidTypes((IEnumerable<Type>) additionalInterfacesToProxy);
+      ClassProxyGenerator classProxyGenerator = new ClassProxyGenerator(this.scope, classToProxy);
+      classProxyGenerator.Logger = this.logger;
+      return classProxyGenerator.GenerateCode(additionalInterfacesToProxy, options);
+    }
+
+    public Type CreateClassProxyTypeWithTarget(
+      Type classToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options)
+    {
+      this.AssertValidType(classToProxy);
+      this.AssertValidTypes((IEnumerable<Type>) additionalInterfacesToProxy);
+      ClassProxyWithTargetGenerator withTargetGenerator = new ClassProxyWithTargetGenerator(this.scope, classToProxy, additionalInterfacesToProxy, options);
+      withTargetGenerator.Logger = this.logger;
+      return withTargetGenerator.GetGeneratedType();
+    }
+
+    public Type CreateInterfaceProxyTypeWithTarget(
+      Type interfaceToProxy,
+      Type[] additionalInterfacesToProxy,
+      Type targetType,
+      ProxyGenerationOptions options)
+    {
+      this.AssertValidType(interfaceToProxy);
+      this.AssertValidTypes((IEnumerable<Type>) additionalInterfacesToProxy);
+      InterfaceProxyWithTargetGenerator withTargetGenerator = new InterfaceProxyWithTargetGenerator(this.scope, interfaceToProxy);
+      withTargetGenerator.Logger = this.logger;
+      return withTargetGenerator.GenerateCode(targetType, additionalInterfacesToProxy, options);
+    }
+
+    public Type CreateInterfaceProxyTypeWithTargetInterface(
+      Type interfaceToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options)
+    {
+      this.AssertValidType(interfaceToProxy);
+      this.AssertValidTypes((IEnumerable<Type>) additionalInterfacesToProxy);
+      InterfaceProxyWithTargetInterfaceGenerator interfaceGenerator = new InterfaceProxyWithTargetInterfaceGenerator(this.scope, interfaceToProxy);
+      interfaceGenerator.Logger = this.logger;
+      return interfaceGenerator.GenerateCode(interfaceToProxy, additionalInterfacesToProxy, options);
+    }
+
+    public Type CreateInterfaceProxyTypeWithoutTarget(
+      Type interfaceToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options)
+    {
+      this.AssertValidType(interfaceToProxy);
+      this.AssertValidTypes((IEnumerable<Type>) additionalInterfacesToProxy);
+      InterfaceProxyWithoutTargetGenerator withoutTargetGenerator = new InterfaceProxyWithoutTargetGenerator(this.scope, interfaceToProxy);
+      withoutTargetGenerator.Logger = this.logger;
+      return withoutTargetGenerator.GenerateCode(typeof (object), additionalInterfacesToProxy, options);
+    }
+
+    private void AssertValidType(Type target)
+    {
+      if (target.IsGenericTypeDefinition)
+        throw new GeneratorException("Type " + target.FullName + " is a generic type definition. Can not create proxy for open generic types.");
+      if (!this.IsPublic(target) && !this.IsAccessible(target))
+        throw new GeneratorException("Type " + target.FullName + " is not visible to DynamicProxy. Can not create proxy for types that are not accessible. Make the type public, or internal and mark your assembly with [assembly: InternalsVisibleTo(InternalsVisible.ToDynamicProxyGenAssembly2)] attribute.");
+    }
+
+    private void AssertValidTypes(IEnumerable<Type> targetTypes)
+    {
+      if (targetTypes == null)
+        return;
+      foreach (Type targetType in targetTypes)
+        this.AssertValidType(targetType);
+    }
+
+    private bool IsAccessible(Type target)
+    {
+      bool isNested = target.IsNested;
+      bool flag = isNested && (target.IsNestedAssembly || target.IsNestedFamORAssem);
+      return (!target.IsVisible && !isNested || flag) && InternalsHelper.IsInternalToDynamicProxy(target.Assembly);
+    }
+
+    private bool IsPublic(Type target) => target.IsPublic || target.IsNestedPublic;
+  }
+}
+
+
+--- IAttributeDisassembler.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.IAttributeDisassembler
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public interface IAttributeDisassembler
+  {
+    CustomAttributeBuilder Disassemble(Attribute attribute);
+  }
+}
+
+
+--- IChangeProxyTarget.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.IChangeProxyTarget
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public interface IChangeProxyTarget
+  {
+    void ChangeInvocationTarget(object target);
+
+    void ChangeProxyTarget(object target);
+  }
+}
+
+
+--- IInterceptor.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.IInterceptor
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public interface IInterceptor
+  {
+    void Intercept(IInvocation invocation);
+  }
+}
+
+
+--- IInterceptorSelector.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.IInterceptorSelector
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public interface IInterceptorSelector
+  {
+    IInterceptor[] SelectInterceptors(Type type, MethodInfo method, IInterceptor[] interceptors);
+  }
+}
+
+
+--- IInvocation.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.IInvocation
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public interface IInvocation
+  {
+    object Proxy { get; }
+
+    object InvocationTarget { get; }
+
+    Type TargetType { get; }
+
+    object[] Arguments { get; }
+
+    void SetArgumentValue(int index, object value);
+
+    object GetArgumentValue(int index);
+
+    Type[] GenericArguments { get; }
+
+    MethodInfo Method { get; }
+
+    MethodInfo GetConcreteMethod();
+
+    MethodInfo MethodInvocationTarget { get; }
+
+    MethodInfo GetConcreteMethodInvocationTarget();
+
+    object ReturnValue { get; set; }
+
+    void Proceed();
+  }
+}
+
+
+--- InheritanceInvocation.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.InheritanceInvocation
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public abstract class InheritanceInvocation : AbstractInvocation
+  {
+    private readonly Type targetType;
+
+    protected InheritanceInvocation(
+      Type targetType,
+      object proxy,
+      IInterceptor[] interceptors,
+      MethodInfo proxiedMethod,
+      object[] arguments)
+      : base(proxy, interceptors, proxiedMethod, arguments)
+    {
+      this.targetType = targetType;
+    }
+
+    protected InheritanceInvocation(
+      Type targetType,
+      object proxy,
+      IInterceptor[] interceptors,
+      MethodInfo proxiedMethod,
+      object[] arguments,
+      IInterceptorSelector selector,
+      ref IInterceptor[] methodInterceptors)
+      : base(proxy, targetType, interceptors, proxiedMethod, arguments, selector, ref methodInterceptors)
+    {
+      this.targetType = targetType;
+    }
+
+    public override object InvocationTarget => this.Proxy;
+
+    public override Type TargetType => this.targetType;
+
+    public override MethodInfo MethodInvocationTarget
+    {
+      get => InvocationHelper.GetMethodOnType(this.targetType, this.Method);
+    }
+
+    protected abstract override void InvokeMethodOnTarget();
+  }
+}
+
+
+--- InternalsHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.InternalsHelper
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.Core.Internal;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public class InternalsHelper
+  {
+    private static readonly Lock internalsToDynProxyLock = Lock.Create();
+    private static readonly IDictionary<Assembly, bool> internalsToDynProxy = (IDictionary<Assembly, bool>) new Dictionary<Assembly, bool>();
+
+    public static bool IsInternalToDynamicProxy(Assembly asm)
+    {
+      using (IUpgradeableLockHolder upgradeableLockHolder = InternalsHelper.internalsToDynProxyLock.ForReadingUpgradeable())
+      {
+        if (InternalsHelper.internalsToDynProxy.ContainsKey(asm))
+          return InternalsHelper.internalsToDynProxy[asm];
+        upgradeableLockHolder.Upgrade();
+        if (InternalsHelper.internalsToDynProxy.ContainsKey(asm))
+          return InternalsHelper.internalsToDynProxy[asm];
+        InternalsVisibleToAttribute[] customAttributes = (InternalsVisibleToAttribute[]) asm.GetCustomAttributes(typeof (InternalsVisibleToAttribute), false);
+        bool dynamicProxy = false;
+        foreach (InternalsVisibleToAttribute visibleToAttribute in customAttributes)
+        {
+          if (visibleToAttribute.AssemblyName.Contains(ModuleScope.DEFAULT_ASSEMBLY_NAME))
+          {
+            dynamicProxy = true;
+            break;
+          }
+        }
+        InternalsHelper.internalsToDynProxy.Add(asm, dynamicProxy);
+        return dynamicProxy;
+      }
+    }
+
+    public static bool IsInternal(MethodInfo method)
+    {
+      if (method.IsAssembly)
+        return true;
+      return method.IsFamilyAndAssembly && !method.IsFamilyOrAssembly;
+    }
+  }
+}
+
+
+--- InvalidMixinConfigurationException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.InvalidMixinConfigurationException
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  [Serializable]
+  public class InvalidMixinConfigurationException : Exception
+  {
+    public InvalidMixinConfigurationException(string message)
+      : base(message)
+    {
+    }
+
+    public InvalidMixinConfigurationException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+
+    protected InvalidMixinConfigurationException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+    }
+  }
+}
+
+
+--- InvocationHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.InvocationHelper
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.Core.Internal;
+using Castle.DynamicProxy.Generators;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  internal static class InvocationHelper
+  {
+    private static readonly Dictionary<KeyValuePair<MethodInfo, Type>, MethodInfo> cache = new Dictionary<KeyValuePair<MethodInfo, Type>, MethodInfo>();
+    private static readonly Lock @lock = Lock.Create();
+
+    public static MethodInfo GetMethodOnObject(object target, MethodInfo proxiedMethod)
+    {
+      return target == null ? (MethodInfo) null : InvocationHelper.GetMethodOnType(target.GetType(), proxiedMethod);
+    }
+
+    public static MethodInfo GetMethodOnType(Type type, MethodInfo proxiedMethod)
+    {
+      if (type == null)
+        throw new ArgumentNullException(nameof (type));
+      using (IUpgradeableLockHolder upgradeableLockHolder = InvocationHelper.@lock.ForReadingUpgradeable())
+      {
+        MethodInfo fromCache1 = InvocationHelper.GetFromCache(proxiedMethod, type);
+        if (fromCache1 != null)
+          return fromCache1;
+        upgradeableLockHolder.Upgrade();
+        MethodInfo fromCache2 = InvocationHelper.GetFromCache(proxiedMethod, type);
+        if (fromCache2 != null)
+          return fromCache2;
+        MethodInfo method = InvocationHelper.ObtainMethod(proxiedMethod, type);
+        InvocationHelper.PutToCache(proxiedMethod, type, method);
+        return method;
+      }
+    }
+
+    private static MethodInfo ObtainMethod(MethodInfo proxiedMethod, Type type)
+    {
+      Type[] typeArray = (Type[]) null;
+      if (proxiedMethod.IsGenericMethod)
+      {
+        typeArray = proxiedMethod.GetGenericArguments();
+        proxiedMethod = proxiedMethod.GetGenericMethodDefinition();
+      }
+      Type declaringType = proxiedMethod.DeclaringType;
+      MethodInfo methodInfo = (MethodInfo) null;
+      if (declaringType.IsInterface)
+      {
+        InterfaceMapping interfaceMap = type.GetInterfaceMap(declaringType);
+        int index = Array.IndexOf<MethodInfo>(interfaceMap.InterfaceMethods, proxiedMethod);
+        methodInfo = interfaceMap.TargetMethods[index];
+      }
+      else
+      {
+        foreach (MethodInfo allInstanceMethod in MethodFinder.GetAllInstanceMethods(type, BindingFlags.Public | BindingFlags.NonPublic))
+        {
+          if (MethodSignatureComparer.Instance.Equals(allInstanceMethod.GetBaseDefinition(), proxiedMethod))
+          {
+            methodInfo = allInstanceMethod;
+            break;
+          }
+        }
+      }
+      if (methodInfo == null)
+        throw new ArgumentException(string.Format("Could not find method overriding {0} on type {1}. This is most likely a bug. Please report it.", (object) proxiedMethod, (object) type));
+      return typeArray == null ? methodInfo : methodInfo.MakeGenericMethod(typeArray);
+    }
+
+    private static void PutToCache(MethodInfo methodInfo, Type type, MethodInfo value)
+    {
+      KeyValuePair<MethodInfo, Type> key = new KeyValuePair<MethodInfo, Type>(methodInfo, type);
+      InvocationHelper.cache.Add(key, value);
+    }
+
+    private static MethodInfo GetFromCache(MethodInfo methodInfo, Type type)
+    {
+      KeyValuePair<MethodInfo, Type> key = new KeyValuePair<MethodInfo, Type>(methodInfo, type);
+      MethodInfo fromCache;
+      InvocationHelper.cache.TryGetValue(key, out fromCache);
+      return fromCache;
+    }
+  }
+}
+
+
+--- IProxyBuilder.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.IProxyBuilder
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.Core.Logging;
+using System;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public interface IProxyBuilder
+  {
+    ILogger Logger { get; set; }
+
+    ModuleScope ModuleScope { get; }
+
+    [Obsolete("Use CreateClassProxyType method instead.")]
+    Type CreateClassProxy(Type classToProxy, ProxyGenerationOptions options);
+
+    [Obsolete("Use CreateClassProxyType method instead.")]
+    Type CreateClassProxy(
+      Type classToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options);
+
+    Type CreateClassProxyType(
+      Type classToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options);
+
+    Type CreateInterfaceProxyTypeWithTarget(
+      Type interfaceToProxy,
+      Type[] additionalInterfacesToProxy,
+      Type targetType,
+      ProxyGenerationOptions options);
+
+    Type CreateInterfaceProxyTypeWithoutTarget(
+      Type interfaceToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options);
+
+    Type CreateInterfaceProxyTypeWithTargetInterface(
+      Type interfaceToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options);
+
+    Type CreateClassProxyTypeWithTarget(
+      Type classToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options);
+  }
+}
+
+
+--- IProxyGenerationHook.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.IProxyGenerationHook
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public interface IProxyGenerationHook
+  {
+    bool ShouldInterceptMethod(Type type, MethodInfo methodInfo);
+
+    void NonProxyableMemberNotification(Type type, MemberInfo memberInfo);
+
+    void MethodsInspected();
+  }
+}
+
+
+--- IProxyTargetAccessor.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.IProxyTargetAccessor
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public interface IProxyTargetAccessor
+  {
+    object DynProxyGetTarget();
+
+    IInterceptor[] GetInterceptors();
+  }
+}
+
+
+--- MixinData.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.MixinData
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public class MixinData
+  {
+    private readonly List<object> mixinsImpl = new List<object>();
+    private readonly Dictionary<Type, int> mixinPositions = new Dictionary<Type, int>();
+
+    public MixinData(IEnumerable<object> mixinInstances)
+    {
+      if (mixinInstances == null)
+        return;
+      List<Type> typeList = new List<Type>();
+      Dictionary<Type, object> dictionary = new Dictionary<Type, object>();
+      foreach (object mixinInstance in mixinInstances)
+      {
+        foreach (Type key in mixinInstance.GetType().GetInterfaces())
+        {
+          typeList.Add(key);
+          if (dictionary.ContainsKey(key))
+            throw new ArgumentException(string.Format("The list of mixins contains two mixins implementing the same interface '{0}': {1} and {2}. An interface cannot be added by more than one mixin.", (object) key.FullName, (object) dictionary[key].GetType().Name, (object) mixinInstance.GetType().Name), nameof (mixinInstances));
+          dictionary[key] = mixinInstance;
+        }
+      }
+      typeList.Sort((Comparison<Type>) ((x, y) => x.FullName.CompareTo(y.FullName)));
+      for (int index = 0; index < typeList.Count; ++index)
+      {
+        Type key = typeList[index];
+        object obj = dictionary[key];
+        this.mixinPositions[key] = index;
+        this.mixinsImpl.Add(obj);
+      }
+    }
+
+    public IEnumerable<object> Mixins => (IEnumerable<object>) this.mixinsImpl;
+
+    public IEnumerable<Type> MixinInterfaces => (IEnumerable<Type>) this.mixinPositions.Keys;
+
+    public int GetMixinPosition(Type mixinInterfaceType) => this.mixinPositions[mixinInterfaceType];
+
+    public bool ContainsMixin(Type mixinInterfaceType)
+    {
+      return this.mixinPositions.ContainsKey(mixinInterfaceType);
+    }
+
+    public object GetMixinInstance(Type mixinInterfaceType)
+    {
+      return this.mixinsImpl[this.mixinPositions[mixinInterfaceType]];
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (object.ReferenceEquals((object) this, obj))
+        return true;
+      MixinData objA = obj as MixinData;
+      if (object.ReferenceEquals((object) objA, (object) null) || this.mixinsImpl.Count != objA.mixinsImpl.Count)
+        return false;
+      for (int index = 0; index < this.mixinsImpl.Count; ++index)
+      {
+        if (this.mixinsImpl[index].GetType() != objA.mixinsImpl[index].GetType())
+          return false;
+      }
+      return true;
+    }
+
+    public override int GetHashCode()
+    {
+      int hashCode = 0;
+      foreach (object obj in this.mixinsImpl)
+        hashCode = 29 * hashCode + obj.GetType().GetHashCode();
+      return hashCode;
+    }
+  }
+}
+
+
+--- ModuleScope.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.ModuleScope
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.Core.Internal;
+using Castle.DynamicProxy.Generators;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Resources;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public class ModuleScope
+  {
+    public static readonly string DEFAULT_FILE_NAME = "CastleDynProxy2.dll";
+    public static readonly string DEFAULT_ASSEMBLY_NAME = "DynamicProxyGenAssembly2";
+    private ModuleBuilder moduleBuilderWithStrongName;
+    private ModuleBuilder moduleBuilder;
+    private readonly string strongAssemblyName;
+    private readonly string weakAssemblyName;
+    private readonly string strongModulePath;
+    private readonly string weakModulePath;
+    private readonly Dictionary<CacheKey, Type> typeCache = new Dictionary<CacheKey, Type>();
+    private readonly Lock cacheLock = Lock.Create();
+    private readonly object moduleLocker = new object();
+    private readonly bool savePhysicalAssembly;
+    private readonly bool disableSignedModule;
+    private readonly INamingScope namingScope;
+
+    public ModuleScope()
+      : this(false, false)
+    {
+    }
+
+    public ModuleScope(bool savePhysicalAssembly)
+      : this(savePhysicalAssembly, false)
+    {
+    }
+
+    public ModuleScope(bool savePhysicalAssembly, bool disableSignedModule)
+      : this(savePhysicalAssembly, disableSignedModule, ModuleScope.DEFAULT_ASSEMBLY_NAME, ModuleScope.DEFAULT_FILE_NAME, ModuleScope.DEFAULT_ASSEMBLY_NAME, ModuleScope.DEFAULT_FILE_NAME)
+    {
+    }
+
+    public ModuleScope(
+      bool savePhysicalAssembly,
+      bool disableSignedModule,
+      string strongAssemblyName,
+      string strongModulePath,
+      string weakAssemblyName,
+      string weakModulePath)
+      : this(savePhysicalAssembly, disableSignedModule, (INamingScope) new Castle.DynamicProxy.Generators.NamingScope(), strongAssemblyName, strongModulePath, weakAssemblyName, weakModulePath)
+    {
+    }
+
+    public ModuleScope(
+      bool savePhysicalAssembly,
+      bool disableSignedModule,
+      INamingScope namingScope,
+      string strongAssemblyName,
+      string strongModulePath,
+      string weakAssemblyName,
+      string weakModulePath)
+    {
+      this.savePhysicalAssembly = savePhysicalAssembly;
+      this.disableSignedModule = disableSignedModule;
+      this.namingScope = namingScope;
+      this.strongAssemblyName = strongAssemblyName;
+      this.strongModulePath = strongModulePath;
+      this.weakAssemblyName = weakAssemblyName;
+      this.weakModulePath = weakModulePath;
+    }
+
+    public INamingScope NamingScope => this.namingScope;
+
+    public Lock Lock => this.cacheLock;
+
+    public Type GetFromCache(CacheKey key)
+    {
+      Type fromCache;
+      this.typeCache.TryGetValue(key, out fromCache);
+      return fromCache;
+    }
+
+    public void RegisterInCache(CacheKey key, Type type) => this.typeCache[key] = type;
+
+    public static byte[] GetKeyPair()
+    {
+      using (Stream manifestResourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Castle.DynamicProxy.DynProxy.snk"))
+      {
+        int count = manifestResourceStream != null ? (int) manifestResourceStream.Length : throw new MissingManifestResourceException("Should have a Castle.DynamicProxy.DynProxy.snk as an embedded resource, so Dynamic Proxy could sign generated assembly");
+        byte[] buffer = new byte[count];
+        manifestResourceStream.Read(buffer, 0, count);
+        return buffer;
+      }
+    }
+
+    public ModuleBuilder StrongNamedModule => this.moduleBuilderWithStrongName;
+
+    public string StrongNamedModuleName => Path.GetFileName(this.strongModulePath);
+
+    public string StrongNamedModuleDirectory
+    {
+      get
+      {
+        string directoryName = Path.GetDirectoryName(this.strongModulePath);
+        return string.IsNullOrEmpty(directoryName) ? (string) null : directoryName;
+      }
+    }
+
+    public ModuleBuilder WeakNamedModule => this.moduleBuilder;
+
+    public string WeakNamedModuleName => Path.GetFileName(this.weakModulePath);
+
+    public string WeakNamedModuleDirectory
+    {
+      get
+      {
+        string directoryName = Path.GetDirectoryName(this.weakModulePath);
+        return directoryName == string.Empty ? (string) null : directoryName;
+      }
+    }
+
+    public ModuleBuilder ObtainDynamicModule(bool isStrongNamed)
+    {
+      return isStrongNamed ? this.ObtainDynamicModuleWithStrongName() : this.ObtainDynamicModuleWithWeakName();
+    }
+
+    public ModuleBuilder ObtainDynamicModuleWithStrongName()
+    {
+      if (this.disableSignedModule)
+        throw new InvalidOperationException("Usage of signed module has been disabled. Use unsigned module or enable signed module.");
+      lock (this.moduleLocker)
+      {
+        if (this.moduleBuilderWithStrongName == null)
+          this.moduleBuilderWithStrongName = this.CreateModule(true);
+        return this.moduleBuilderWithStrongName;
+      }
+    }
+
+    public ModuleBuilder ObtainDynamicModuleWithWeakName()
+    {
+      lock (this.moduleLocker)
+      {
+        if (this.moduleBuilder == null)
+          this.moduleBuilder = this.CreateModule(false);
+        return this.moduleBuilder;
+      }
+    }
+
+    private ModuleBuilder CreateModule(bool signStrongName)
+    {
+      AssemblyName assemblyName = this.GetAssemblyName(signStrongName);
+      string str = signStrongName ? this.StrongNamedModuleName : this.WeakNamedModuleName;
+      string dir = signStrongName ? this.StrongNamedModuleDirectory : this.WeakNamedModuleDirectory;
+      if (!this.savePhysicalAssembly)
+        return AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run).DefineDynamicModule(str, false);
+      AssemblyBuilder assemblyBuilder;
+      try
+      {
+        assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndSave, dir);
+      }
+      catch (ArgumentException ex)
+      {
+        if (signStrongName || ex.StackTrace.Contains("ComputePublicKey"))
+          throw new ArgumentException(string.Format("There was an error creating dynamic assembly for your proxies - you don't have permissions required to sing the assembly. To workaround it you can enfornce generating non-signed assembly only when creating {0}. ALternatively ensure that your account has all the required permissions.", (object) this.GetType()), (Exception) ex);
+        throw;
+      }
+      return assemblyBuilder.DefineDynamicModule(str, str, false);
+    }
+
+    private AssemblyName GetAssemblyName(bool signStrongName)
+    {
+      AssemblyName assemblyName = new AssemblyName()
+      {
+        Name = signStrongName ? this.strongAssemblyName : this.weakAssemblyName
+      };
+      if (signStrongName)
+      {
+        byte[] keyPair = ModuleScope.GetKeyPair();
+        if (keyPair != null)
+          assemblyName.KeyPair = new StrongNameKeyPair(keyPair);
+      }
+      return assemblyName;
+    }
+
+    public string SaveAssembly()
+    {
+      if (!this.savePhysicalAssembly)
+        return (string) null;
+      if (this.StrongNamedModule != null && this.WeakNamedModule != null)
+        throw new InvalidOperationException("Both a strong-named and a weak-named assembly have been generated.");
+      if (this.StrongNamedModule != null)
+        return this.SaveAssembly(true);
+      return this.WeakNamedModule != null ? this.SaveAssembly(false) : (string) null;
+    }
+
+    public string SaveAssembly(bool strongNamed)
+    {
+      if (!this.savePhysicalAssembly)
+        return (string) null;
+      AssemblyBuilder builder;
+      string assemblyFileName;
+      string fullyQualifiedName;
+      if (strongNamed)
+      {
+        builder = this.StrongNamedModule != null ? (AssemblyBuilder) this.StrongNamedModule.Assembly : throw new InvalidOperationException("No strong-named assembly has been generated.");
+        assemblyFileName = this.StrongNamedModuleName;
+        fullyQualifiedName = this.StrongNamedModule.FullyQualifiedName;
+      }
+      else
+      {
+        builder = this.WeakNamedModule != null ? (AssemblyBuilder) this.WeakNamedModule.Assembly : throw new InvalidOperationException("No weak-named assembly has been generated.");
+        assemblyFileName = this.WeakNamedModuleName;
+        fullyQualifiedName = this.WeakNamedModule.FullyQualifiedName;
+      }
+      if (File.Exists(fullyQualifiedName))
+        File.Delete(fullyQualifiedName);
+      this.AddCacheMappings(builder);
+      builder.Save(assemblyFileName);
+      return fullyQualifiedName;
+    }
+
+    private void AddCacheMappings(AssemblyBuilder builder)
+    {
+      Dictionary<CacheKey, string> mappings;
+      using (this.Lock.ForReading())
+      {
+        mappings = new Dictionary<CacheKey, string>();
+        foreach (KeyValuePair<CacheKey, Type> keyValuePair in this.typeCache)
+          mappings.Add(keyValuePair.Key, keyValuePair.Value.FullName);
+      }
+      CacheMappingsAttribute.ApplyTo(builder, mappings);
+    }
+
+    public void LoadAssemblyIntoCache(Assembly assembly)
+    {
+      CacheMappingsAttribute[] mappingsAttributeArray = assembly != null ? (CacheMappingsAttribute[]) assembly.GetCustomAttributes(typeof (CacheMappingsAttribute), false) : throw new ArgumentNullException(nameof (assembly));
+      if (mappingsAttributeArray.Length == 0)
+        throw new ArgumentException(string.Format("The given assembly '{0}' does not contain any cache information for generated types.", (object) assembly.FullName), nameof (assembly));
+      foreach (KeyValuePair<CacheKey, string> deserializedMapping in mappingsAttributeArray[0].GetDeserializedMappings())
+      {
+        Type type = assembly.GetType(deserializedMapping.Value);
+        if (type != null)
+          this.RegisterInCache(deserializedMapping.Key, type);
+      }
+    }
+
+    public TypeBuilder DefineType(bool inSignedModulePreferably, string name, TypeAttributes flags)
+    {
+      return this.ObtainDynamicModule(!this.disableSignedModule && inSignedModulePreferably).DefineType(name, flags);
+    }
+  }
+}
+
+
+--- PersistentProxyBuilder.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.PersistentProxyBuilder
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public class PersistentProxyBuilder : DefaultProxyBuilder
+  {
+    public PersistentProxyBuilder()
+      : base(new ModuleScope(true))
+    {
+    }
+
+    public string SaveAssembly() => this.ModuleScope.SaveAssembly();
+  }
+}
+
+
+--- ProxyGenerationException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.ProxyGenerationException
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  public class ProxyGenerationException : Exception
+  {
+    public ProxyGenerationException(string message)
+      : base(message)
+    {
+    }
+
+    public ProxyGenerationException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+  }
+}
+
+
+--- ProxyGenerationOptions.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.ProxyGenerationOptions
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Collections.Generic;
+using System.Reflection.Emit;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  [Serializable]
+  public class ProxyGenerationOptions : ISerializable
+  {
+    public static readonly ProxyGenerationOptions Default = new ProxyGenerationOptions();
+    private List<object> mixins;
+    internal readonly IList<Attribute> attributesToAddToGeneratedTypes = (IList<Attribute>) new List<Attribute>();
+    private readonly IList<CustomAttributeBuilder> additionalAttributes = (IList<CustomAttributeBuilder>) new List<CustomAttributeBuilder>();
+    [NonSerialized]
+    private MixinData mixinData;
+
+    public ProxyGenerationOptions(IProxyGenerationHook hook)
+    {
+      this.BaseTypeForInterfaceProxy = typeof (object);
+      this.Hook = hook;
+    }
+
+    public ProxyGenerationOptions()
+      : this((IProxyGenerationHook) new AllMethodsHook())
+    {
+    }
+
+    private ProxyGenerationOptions(SerializationInfo info, StreamingContext context)
+    {
+      this.Hook = (IProxyGenerationHook) info.GetValue("hook", typeof (IProxyGenerationHook));
+      this.Selector = (IInterceptorSelector) info.GetValue("selector", typeof (IInterceptorSelector));
+      this.mixins = (List<object>) info.GetValue(nameof (mixins), typeof (List<object>));
+      this.BaseTypeForInterfaceProxy = Type.GetType(info.GetString("baseTypeForInterfaceProxy.AssemblyQualifiedName"));
+    }
+
+    public void Initialize()
+    {
+      if (this.mixinData != null)
+        return;
+      try
+      {
+        this.mixinData = new MixinData((IEnumerable<object>) this.mixins);
+      }
+      catch (ArgumentException ex)
+      {
+        throw new InvalidMixinConfigurationException("There is a problem with the mixins added to this ProxyGenerationOptions: " + ex.Message, (Exception) ex);
+      }
+    }
+
+    public void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      info.AddValue("hook", (object) this.Hook);
+      info.AddValue("selector", (object) this.Selector);
+      info.AddValue("mixins", (object) this.mixins);
+      info.AddValue("baseTypeForInterfaceProxy.AssemblyQualifiedName", (object) this.BaseTypeForInterfaceProxy.AssemblyQualifiedName);
+    }
+
+    public IProxyGenerationHook Hook { get; set; }
+
+    public IInterceptorSelector Selector { get; set; }
+
+    public Type BaseTypeForInterfaceProxy { get; set; }
+
+    [Obsolete("This property is obsolete and will be removed in future versions. Use AdditionalAttributes property instead. You can use AttributeUtil class to simplify creating CustomAttributeBuilder instances for common cases.")]
+    public IList<Attribute> AttributesToAddToGeneratedTypes => this.attributesToAddToGeneratedTypes;
+
+    public IList<CustomAttributeBuilder> AdditionalAttributes => this.additionalAttributes;
+
+    public MixinData MixinData
+    {
+      get
+      {
+        return this.mixinData != null ? this.mixinData : throw new InvalidOperationException("Call Initialize before accessing the MixinData property.");
+      }
+    }
+
+    public void AddMixinInstance(object instance)
+    {
+      if (instance == null)
+        throw new ArgumentNullException(nameof (instance));
+      if (this.mixins == null)
+        this.mixins = new List<object>();
+      this.mixins.Add(instance);
+      this.mixinData = (MixinData) null;
+    }
+
+    public object[] MixinsAsArray() => this.mixins == null ? new object[0] : this.mixins.ToArray();
+
+    public bool HasMixins => this.mixins != null && this.mixins.Count != 0;
+
+    public override bool Equals(object obj)
+    {
+      if (object.ReferenceEquals((object) this, obj))
+        return true;
+      ProxyGenerationOptions objA = obj as ProxyGenerationOptions;
+      if (object.ReferenceEquals((object) objA, (object) null))
+        return false;
+      this.Initialize();
+      objA.Initialize();
+      return object.Equals((object) this.Hook, (object) objA.Hook) && object.Equals((object) (this.Selector == null), (object) (objA.Selector == null)) && object.Equals((object) this.MixinData, (object) objA.MixinData) && object.Equals((object) this.BaseTypeForInterfaceProxy, (object) objA.BaseTypeForInterfaceProxy);
+    }
+
+    public override int GetHashCode()
+    {
+      this.Initialize();
+      return 29 * (29 * (29 * (this.Hook != null ? this.Hook.GetType().GetHashCode() : 0) + (this.Selector != null ? 1 : 0)) + this.MixinData.GetHashCode()) + (this.BaseTypeForInterfaceProxy != null ? this.BaseTypeForInterfaceProxy.GetHashCode() : 0);
+    }
+  }
+}
+
+
+--- ProxyGenerator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.ProxyGenerator
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.Core.Internal;
+using Castle.Core.Logging;
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Runtime.Remoting;
+using System.Security.Permissions;
+using System.Text;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  [CLSCompliant(true)]
+  public class ProxyGenerator
+  {
+    private ILogger logger = (ILogger) NullLogger.Instance;
+    private readonly IProxyBuilder proxyBuilder;
+
+    public ProxyGenerator(IProxyBuilder builder)
+    {
+      this.proxyBuilder = builder;
+      if (!this.HasSecurityPermission())
+        return;
+      this.Logger = (ILogger) new TraceLogger("Castle.DynamicProxy", LoggerLevel.Warn);
+    }
+
+    private bool HasSecurityPermission()
+    {
+      return new SecurityPermission(SecurityPermissionFlag.ControlEvidence | SecurityPermissionFlag.ControlPolicy).IsGranted();
+    }
+
+    public ProxyGenerator()
+      : this((IProxyBuilder) new DefaultProxyBuilder())
+    {
+    }
+
+    public ILogger Logger
+    {
+      get => this.logger;
+      set
+      {
+        this.logger = value;
+        this.proxyBuilder.Logger = value;
+      }
+    }
+
+    public IProxyBuilder ProxyBuilder => this.proxyBuilder;
+
+    public TInterface CreateInterfaceProxyWithTarget<TInterface>(
+      TInterface target,
+      params IInterceptor[] interceptors)
+      where TInterface : class
+    {
+      return (TInterface) this.CreateInterfaceProxyWithTarget(typeof (TInterface), (object) target, ProxyGenerationOptions.Default, interceptors);
+    }
+
+    public TInterface CreateInterfaceProxyWithTarget<TInterface>(
+      TInterface target,
+      ProxyGenerationOptions options,
+      params IInterceptor[] interceptors)
+      where TInterface : class
+    {
+      return (TInterface) this.CreateInterfaceProxyWithTarget(typeof (TInterface), (object) target, options, interceptors);
+    }
+
+    public object CreateInterfaceProxyWithTarget(
+      Type interfaceToProxy,
+      object target,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateInterfaceProxyWithTarget(interfaceToProxy, target, ProxyGenerationOptions.Default, interceptors);
+    }
+
+    public object CreateInterfaceProxyWithTarget(
+      Type interfaceToProxy,
+      object target,
+      ProxyGenerationOptions options,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateInterfaceProxyWithTarget(interfaceToProxy, (Type[]) null, target, options, interceptors);
+    }
+
+    public object CreateInterfaceProxyWithTarget(
+      Type interfaceToProxy,
+      Type[] additionalInterfacesToProxy,
+      object target,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateInterfaceProxyWithTarget(interfaceToProxy, additionalInterfacesToProxy, target, ProxyGenerationOptions.Default, interceptors);
+    }
+
+    public virtual object CreateInterfaceProxyWithTarget(
+      Type interfaceToProxy,
+      Type[] additionalInterfacesToProxy,
+      object target,
+      ProxyGenerationOptions options,
+      params IInterceptor[] interceptors)
+    {
+      if (interfaceToProxy == null)
+        throw new ArgumentNullException(nameof (interfaceToProxy));
+      if (target == null)
+        throw new ArgumentNullException(nameof (target));
+      if (interceptors == null)
+        throw new ArgumentNullException(nameof (interceptors));
+      if (!interfaceToProxy.IsInterface)
+        throw new ArgumentException("Specified type is not an interface", nameof (interfaceToProxy));
+      Type type = target.GetType();
+      if (!interfaceToProxy.IsAssignableFrom(type))
+        throw new ArgumentException("Target does not implement interface " + interfaceToProxy.FullName, nameof (target));
+      this.CheckNotGenericTypeDefinition(interfaceToProxy, nameof (interfaceToProxy));
+      this.CheckNotGenericTypeDefinitions((IEnumerable<Type>) additionalInterfacesToProxy, nameof (additionalInterfacesToProxy));
+      return Activator.CreateInstance(this.CreateInterfaceProxyTypeWithTarget(interfaceToProxy, additionalInterfacesToProxy, type, options), this.GetConstructorArguments(target, interceptors, options).ToArray());
+    }
+
+    protected List<object> GetConstructorArguments(
+      object target,
+      IInterceptor[] interceptors,
+      ProxyGenerationOptions options)
+    {
+      List<object> constructorArguments = new List<object>(options.MixinData.Mixins)
+      {
+        (object) interceptors,
+        target
+      };
+      if (options.Selector != null)
+        constructorArguments.Add((object) options.Selector);
+      return constructorArguments;
+    }
+
+    public object CreateInterfaceProxyWithTargetInterface(
+      Type interfaceToProxy,
+      object target,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateInterfaceProxyWithTargetInterface(interfaceToProxy, target, ProxyGenerationOptions.Default, interceptors);
+    }
+
+    public TInterface CreateInterfaceProxyWithTargetInterface<TInterface>(
+      TInterface target,
+      params IInterceptor[] interceptors)
+      where TInterface : class
+    {
+      return (TInterface) this.CreateInterfaceProxyWithTargetInterface(typeof (TInterface), (object) target, ProxyGenerationOptions.Default, interceptors);
+    }
+
+    public TInterface CreateInterfaceProxyWithTargetInterface<TInterface>(
+      TInterface target,
+      ProxyGenerationOptions options,
+      params IInterceptor[] interceptors)
+      where TInterface : class
+    {
+      return (TInterface) this.CreateInterfaceProxyWithTargetInterface(typeof (TInterface), (object) target, options, interceptors);
+    }
+
+    public object CreateInterfaceProxyWithTargetInterface(
+      Type interfaceToProxy,
+      Type[] additionalInterfacesToProxy,
+      object target,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateInterfaceProxyWithTargetInterface(interfaceToProxy, additionalInterfacesToProxy, target, ProxyGenerationOptions.Default, interceptors);
+    }
+
+    public object CreateInterfaceProxyWithTargetInterface(
+      Type interfaceToProxy,
+      object target,
+      ProxyGenerationOptions options,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateInterfaceProxyWithTargetInterface(interfaceToProxy, (Type[]) null, target, options, interceptors);
+    }
+
+    public virtual object CreateInterfaceProxyWithTargetInterface(
+      Type interfaceToProxy,
+      Type[] additionalInterfacesToProxy,
+      object target,
+      ProxyGenerationOptions options,
+      params IInterceptor[] interceptors)
+    {
+      if (target != null && !interfaceToProxy.IsInstanceOfType(target))
+        throw new ArgumentException("targetType");
+      if (interfaceToProxy == null)
+        throw new ArgumentNullException(nameof (interfaceToProxy));
+      if (interceptors == null)
+        throw new ArgumentNullException(nameof (interceptors));
+      if (!interfaceToProxy.IsInterface)
+        throw new ArgumentException("Specified type is not an interface", nameof (interfaceToProxy));
+      bool flag = false;
+      if (target != null && !interfaceToProxy.IsAssignableFrom(target.GetType()))
+      {
+        if (RemotingServices.IsTransparentProxy(target))
+        {
+          if (RemotingServices.GetRealProxy(target) is IRemotingTypeInfo realProxy)
+          {
+            if (!realProxy.CanCastTo(interfaceToProxy, target))
+              throw new ArgumentException("Target does not implement interface " + interfaceToProxy.FullName, nameof (target));
+            flag = true;
+          }
+        }
+        else
+        {
+          if (!Marshal.IsComObject(target))
+            throw new ArgumentException("Target does not implement interface " + interfaceToProxy.FullName, nameof (target));
+          Guid guid = interfaceToProxy.GUID;
+          if (guid != Guid.Empty)
+          {
+            IntPtr iunknownForObject = Marshal.GetIUnknownForObject(target);
+            IntPtr ppv = IntPtr.Zero;
+            if (Marshal.QueryInterface(iunknownForObject, ref guid, out ppv) == 0 && ppv == IntPtr.Zero)
+              throw new ArgumentException("Target COM object does not implement interface " + interfaceToProxy.FullName, nameof (target));
+          }
+        }
+      }
+      this.CheckNotGenericTypeDefinition(interfaceToProxy, nameof (interfaceToProxy));
+      this.CheckNotGenericTypeDefinitions((IEnumerable<Type>) additionalInterfacesToProxy, nameof (additionalInterfacesToProxy));
+      Type withTargetInterface = this.CreateInterfaceProxyTypeWithTargetInterface(interfaceToProxy, additionalInterfacesToProxy, options);
+      List<object> constructorArguments = this.GetConstructorArguments(target, interceptors, options);
+      return flag ? withTargetInterface.GetConstructors()[0].Invoke(constructorArguments.ToArray()) : Activator.CreateInstance(withTargetInterface, constructorArguments.ToArray());
+    }
+
+    public TInterface CreateInterfaceProxyWithoutTarget<TInterface>(IInterceptor interceptor) where TInterface : class
+    {
+      return (TInterface) this.CreateInterfaceProxyWithoutTarget(typeof (TInterface), interceptor);
+    }
+
+    public TInterface CreateInterfaceProxyWithoutTarget<TInterface>(
+      params IInterceptor[] interceptors)
+      where TInterface : class
+    {
+      return (TInterface) this.CreateInterfaceProxyWithoutTarget(typeof (TInterface), interceptors);
+    }
+
+    public TInterface CreateInterfaceProxyWithoutTarget<TInterface>(
+      ProxyGenerationOptions options,
+      params IInterceptor[] interceptors)
+      where TInterface : class
+    {
+      return (TInterface) this.CreateInterfaceProxyWithoutTarget(typeof (TInterface), Type.EmptyTypes, options, interceptors);
+    }
+
+    public object CreateInterfaceProxyWithoutTarget(Type interfaceToProxy, IInterceptor interceptor)
+    {
+      return this.CreateInterfaceProxyWithoutTarget(interfaceToProxy, Type.EmptyTypes, ProxyGenerationOptions.Default, interceptor);
+    }
+
+    public object CreateInterfaceProxyWithoutTarget(
+      Type interfaceToProxy,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateInterfaceProxyWithoutTarget(interfaceToProxy, Type.EmptyTypes, ProxyGenerationOptions.Default, interceptors);
+    }
+
+    public object CreateInterfaceProxyWithoutTarget(
+      Type interfaceToProxy,
+      Type[] additionalInterfacesToProxy,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateInterfaceProxyWithoutTarget(interfaceToProxy, additionalInterfacesToProxy, ProxyGenerationOptions.Default, interceptors);
+    }
+
+    public object CreateInterfaceProxyWithoutTarget(
+      Type interfaceToProxy,
+      ProxyGenerationOptions options,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateInterfaceProxyWithoutTarget(interfaceToProxy, Type.EmptyTypes, options, interceptors);
+    }
+
+    public virtual object CreateInterfaceProxyWithoutTarget(
+      Type interfaceToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options,
+      params IInterceptor[] interceptors)
+    {
+      if (interfaceToProxy == null)
+        throw new ArgumentNullException(nameof (interfaceToProxy));
+      if (interceptors == null)
+        throw new ArgumentNullException(nameof (interceptors));
+      if (!interfaceToProxy.IsInterface)
+        throw new ArgumentException("Specified type is not an interface", nameof (interfaceToProxy));
+      this.CheckNotGenericTypeDefinition(interfaceToProxy, nameof (interfaceToProxy));
+      this.CheckNotGenericTypeDefinitions((IEnumerable<Type>) additionalInterfacesToProxy, nameof (additionalInterfacesToProxy));
+      return Activator.CreateInstance(this.CreateInterfaceProxyTypeWithoutTarget(interfaceToProxy, additionalInterfacesToProxy, options), this.GetConstructorArguments((object) null, interceptors, options).ToArray());
+    }
+
+    public TClass CreateClassProxyWithTarget<TClass>(
+      TClass target,
+      params IInterceptor[] interceptors)
+      where TClass : class
+    {
+      return (TClass) this.CreateClassProxyWithTarget(typeof (TClass), Type.EmptyTypes, (object) target, ProxyGenerationOptions.Default, new object[0], interceptors);
+    }
+
+    public TClass CreateClassProxyWithTarget<TClass>(
+      TClass target,
+      ProxyGenerationOptions options,
+      params IInterceptor[] interceptors)
+      where TClass : class
+    {
+      return (TClass) this.CreateClassProxyWithTarget(typeof (TClass), Type.EmptyTypes, (object) target, options, new object[0], interceptors);
+    }
+
+    public object CreateClassProxyWithTarget(
+      Type classToProxy,
+      Type[] additionalInterfacesToProxy,
+      object target,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateClassProxyWithTarget(classToProxy, additionalInterfacesToProxy, target, ProxyGenerationOptions.Default, new object[0], interceptors);
+    }
+
+    public object CreateClassProxyWithTarget(
+      Type classToProxy,
+      object target,
+      ProxyGenerationOptions options,
+      object[] constructorArguments,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateClassProxyWithTarget(classToProxy, Type.EmptyTypes, target, options, constructorArguments, interceptors);
+    }
+
+    public object CreateClassProxyWithTarget(
+      Type classToProxy,
+      object target,
+      object[] constructorArguments,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateClassProxyWithTarget(classToProxy, Type.EmptyTypes, target, ProxyGenerationOptions.Default, constructorArguments, interceptors);
+    }
+
+    public object CreateClassProxyWithTarget(
+      Type classToProxy,
+      object target,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateClassProxyWithTarget(classToProxy, Type.EmptyTypes, target, ProxyGenerationOptions.Default, new object[0], interceptors);
+    }
+
+    public object CreateClassProxyWithTarget(
+      Type classToProxy,
+      object target,
+      ProxyGenerationOptions options,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateClassProxyWithTarget(classToProxy, Type.EmptyTypes, target, options, new object[0], interceptors);
+    }
+
+    public object CreateClassProxyWithTarget(
+      Type classToProxy,
+      Type[] additionalInterfacesToProxy,
+      object target,
+      ProxyGenerationOptions options,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateClassProxyWithTarget(classToProxy, additionalInterfacesToProxy, target, options, new object[0], interceptors);
+    }
+
+    public virtual object CreateClassProxyWithTarget(
+      Type classToProxy,
+      Type[] additionalInterfacesToProxy,
+      object target,
+      ProxyGenerationOptions options,
+      object[] constructorArguments,
+      params IInterceptor[] interceptors)
+    {
+      if (classToProxy == null)
+        throw new ArgumentNullException(nameof (classToProxy));
+      if (options == null)
+        throw new ArgumentNullException(nameof (options));
+      if (!classToProxy.IsClass)
+        throw new ArgumentException("'classToProxy' must be a class", nameof (classToProxy));
+      this.CheckNotGenericTypeDefinition(classToProxy, nameof (classToProxy));
+      this.CheckNotGenericTypeDefinitions((IEnumerable<Type>) additionalInterfacesToProxy, nameof (additionalInterfacesToProxy));
+      Type proxyTypeWithTarget = this.CreateClassProxyTypeWithTarget(classToProxy, additionalInterfacesToProxy, options);
+      List<object> proxyArguments = this.BuildArgumentListForClassProxyWithTarget(target, options, interceptors);
+      if (constructorArguments != null && constructorArguments.Length != 0)
+        proxyArguments.AddRange((IEnumerable<object>) constructorArguments);
+      return this.CreateClassProxyInstance(proxyTypeWithTarget, proxyArguments, classToProxy, constructorArguments);
+    }
+
+    public TClass CreateClassProxy<TClass>(params IInterceptor[] interceptors) where TClass : class
+    {
+      return (TClass) this.CreateClassProxy(typeof (TClass), ProxyGenerationOptions.Default, interceptors);
+    }
+
+    public TClass CreateClassProxy<TClass>(
+      ProxyGenerationOptions options,
+      params IInterceptor[] interceptors)
+      where TClass : class
+    {
+      return (TClass) this.CreateClassProxy(typeof (TClass), options, interceptors);
+    }
+
+    public object CreateClassProxy(
+      Type classToProxy,
+      Type[] additionalInterfacesToProxy,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateClassProxy(classToProxy, additionalInterfacesToProxy, ProxyGenerationOptions.Default, interceptors);
+    }
+
+    public object CreateClassProxy(
+      Type classToProxy,
+      ProxyGenerationOptions options,
+      object[] constructorArguments,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateClassProxy(classToProxy, (Type[]) null, options, constructorArguments, interceptors);
+    }
+
+    public object CreateClassProxy(
+      Type classToProxy,
+      object[] constructorArguments,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateClassProxy(classToProxy, (Type[]) null, ProxyGenerationOptions.Default, constructorArguments, interceptors);
+    }
+
+    public object CreateClassProxy(Type classToProxy, params IInterceptor[] interceptors)
+    {
+      return this.CreateClassProxy(classToProxy, (Type[]) null, ProxyGenerationOptions.Default, (object[]) null, interceptors);
+    }
+
+    public object CreateClassProxy(
+      Type classToProxy,
+      ProxyGenerationOptions options,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateClassProxy(classToProxy, (Type[]) null, options, interceptors);
+    }
+
+    public object CreateClassProxy(
+      Type classToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options,
+      params IInterceptor[] interceptors)
+    {
+      return this.CreateClassProxy(classToProxy, additionalInterfacesToProxy, options, (object[]) null, interceptors);
+    }
+
+    public virtual object CreateClassProxy(
+      Type classToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options,
+      object[] constructorArguments,
+      params IInterceptor[] interceptors)
+    {
+      if (classToProxy == null)
+        throw new ArgumentNullException(nameof (classToProxy));
+      if (options == null)
+        throw new ArgumentNullException(nameof (options));
+      if (!classToProxy.IsClass)
+        throw new ArgumentException("'classToProxy' must be a class", nameof (classToProxy));
+      this.CheckNotGenericTypeDefinition(classToProxy, nameof (classToProxy));
+      this.CheckNotGenericTypeDefinitions((IEnumerable<Type>) additionalInterfacesToProxy, nameof (additionalInterfacesToProxy));
+      Type classProxyType = this.CreateClassProxyType(classToProxy, additionalInterfacesToProxy, options);
+      List<object> proxyArguments = this.BuildArgumentListForClassProxy(options, interceptors);
+      if (constructorArguments != null && constructorArguments.Length != 0)
+        proxyArguments.AddRange((IEnumerable<object>) constructorArguments);
+      return this.CreateClassProxyInstance(classProxyType, proxyArguments, classToProxy, constructorArguments);
+    }
+
+    protected object CreateClassProxyInstance(
+      Type proxyType,
+      List<object> proxyArguments,
+      Type classToProxy,
+      object[] constructorArguments)
+    {
+      try
+      {
+        return Activator.CreateInstance(proxyType, proxyArguments.ToArray());
+      }
+      catch (MissingMethodException ex)
+      {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.AppendFormat("Can not instantiate proxy of class: {0}.", (object) classToProxy.FullName);
+        stringBuilder.AppendLine();
+        if (constructorArguments == null || constructorArguments.Length == 0)
+        {
+          stringBuilder.Append("Could not find a parameterless constructor.");
+        }
+        else
+        {
+          stringBuilder.AppendLine("Could not find a constructor that would match given arguments:");
+          foreach (object constructorArgument in constructorArguments)
+            stringBuilder.AppendLine(constructorArgument.GetType().ToString());
+        }
+        throw new ArgumentException(stringBuilder.ToString(), nameof (constructorArguments));
+      }
+    }
+
+    protected void CheckNotGenericTypeDefinition(Type type, string argumentName)
+    {
+      if (type != null && type.IsGenericTypeDefinition)
+        throw new ArgumentException("You can't specify a generic type definition.", argumentName);
+    }
+
+    protected void CheckNotGenericTypeDefinitions(IEnumerable<Type> types, string argumentName)
+    {
+      if (types == null)
+        return;
+      foreach (Type type in types)
+        this.CheckNotGenericTypeDefinition(type, argumentName);
+    }
+
+    protected List<object> BuildArgumentListForClassProxyWithTarget(
+      object target,
+      ProxyGenerationOptions options,
+      IInterceptor[] interceptors)
+    {
+      List<object> objectList = new List<object>();
+      objectList.Add(target);
+      objectList.AddRange(options.MixinData.Mixins);
+      objectList.Add((object) interceptors);
+      if (options.Selector != null)
+        objectList.Add((object) options.Selector);
+      return objectList;
+    }
+
+    protected List<object> BuildArgumentListForClassProxy(
+      ProxyGenerationOptions options,
+      IInterceptor[] interceptors)
+    {
+      List<object> objectList = new List<object>(options.MixinData.Mixins)
+      {
+        (object) interceptors
+      };
+      if (options.Selector != null)
+        objectList.Add((object) options.Selector);
+      return objectList;
+    }
+
+    protected Type CreateClassProxyType(
+      Type classToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options)
+    {
+      return this.ProxyBuilder.CreateClassProxyType(classToProxy, additionalInterfacesToProxy, options);
+    }
+
+    protected Type CreateInterfaceProxyTypeWithTarget(
+      Type interfaceToProxy,
+      Type[] additionalInterfacesToProxy,
+      Type targetType,
+      ProxyGenerationOptions options)
+    {
+      return this.ProxyBuilder.CreateInterfaceProxyTypeWithTarget(interfaceToProxy, additionalInterfacesToProxy, targetType, options);
+    }
+
+    protected Type CreateInterfaceProxyTypeWithTargetInterface(
+      Type interfaceToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options)
+    {
+      return this.ProxyBuilder.CreateInterfaceProxyTypeWithTargetInterface(interfaceToProxy, additionalInterfacesToProxy, options);
+    }
+
+    protected Type CreateInterfaceProxyTypeWithoutTarget(
+      Type interfaceToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options)
+    {
+      return this.ProxyBuilder.CreateInterfaceProxyTypeWithoutTarget(interfaceToProxy, additionalInterfacesToProxy, options);
+    }
+
+    protected Type CreateClassProxyTypeWithTarget(
+      Type classToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options)
+    {
+      return this.ProxyBuilder.CreateClassProxyTypeWithTarget(classToProxy, additionalInterfacesToProxy, options);
+    }
+  }
+}
+
+
+--- RemotableInvocation.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.RemotableInvocation
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  [Serializable]
+  public class RemotableInvocation : MarshalByRefObject, IInvocation, ISerializable
+  {
+    private readonly IInvocation parent;
+
+    public RemotableInvocation(IInvocation parent) => this.parent = parent;
+
+    protected RemotableInvocation(SerializationInfo info, StreamingContext context)
+    {
+      this.parent = (IInvocation) info.GetValue("invocation", typeof (IInvocation));
+    }
+
+    public void SetArgumentValue(int index, object value)
+    {
+      this.parent.SetArgumentValue(index, value);
+    }
+
+    public object GetArgumentValue(int index) => this.parent.GetArgumentValue(index);
+
+    public Type[] GenericArguments => this.parent.GenericArguments;
+
+    public void Proceed() => this.parent.Proceed();
+
+    public object Proxy => this.parent.Proxy;
+
+    public object InvocationTarget => this.parent.InvocationTarget;
+
+    public Type TargetType => this.parent.TargetType;
+
+    public object[] Arguments => this.parent.Arguments;
+
+    public MethodInfo Method => this.parent.Method;
+
+    public MethodInfo GetConcreteMethod() => this.parent.GetConcreteMethod();
+
+    public MethodInfo MethodInvocationTarget => this.parent.MethodInvocationTarget;
+
+    public MethodInfo GetConcreteMethodInvocationTarget()
+    {
+      return this.parent.GetConcreteMethodInvocationTarget();
+    }
+
+    public object ReturnValue
+    {
+      get => this.parent.ReturnValue;
+      set => this.parent.ReturnValue = value;
+    }
+
+    public void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      info.SetType(typeof (RemotableInvocation));
+      info.AddValue("invocation", (object) new RemotableInvocation((IInvocation) this));
+    }
+  }
+}
+
+
+--- StandardInterceptor.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.StandardInterceptor
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.DynamicProxy
+{
+  [Serializable]
+  public class StandardInterceptor : MarshalByRefObject, IInterceptor
+  {
+    public void Intercept(IInvocation invocation)
+    {
+      this.PreProceed(invocation);
+      this.PerformProceed(invocation);
+      this.PostProceed(invocation);
+    }
+
+    protected virtual void PerformProceed(IInvocation invocation) => invocation.Proceed();
+
+    protected virtual void PreProceed(IInvocation invocation)
+    {
+    }
+
+    protected virtual void PostProceed(IInvocation invocation)
+    {
+    }
+  }
+}
+

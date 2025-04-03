@@ -1,0 +1,411 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B2CDE85F-5FFE-4ED4-AB98-1D0D00F3D93A}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>MSS_Client</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>MSS_Client</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AForge.Video">
+      <HintPath>lib\AForge.Video.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Video.DirectShow">
+      <HintPath>lib\AForge.Video.DirectShow.dll</HintPath>
+    </Reference>
+    <Reference Include="AutoMapper">
+      <HintPath>lib\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Library.Core.Cryptography">
+      <HintPath>lib\Common.Library.Core.Cryptography.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Library.NHibernate.Data">
+      <HintPath>lib\Common.Library.NHibernate.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="EDC_Handler">
+      <HintPath>lib\EDC_Handler.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentNHibernate">
+      <HintPath>lib\FluentNHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="GMMToMSSMigrator">
+      <HintPath>lib\GMMToMSSMigrator.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmInterface">
+      <HintPath>lib\GmmInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="InTheHand.Net.Personal">
+      <HintPath>lib\InTheHand.Net.Personal.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Business">
+      <HintPath>lib\MSS.Business.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Client.UI.Common">
+      <HintPath>lib\MSS.Client.UI.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Client.UI.Desktop">
+      <HintPath>lib\MSS.Client.UI.Desktop.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Client.UI.Tablet">
+      <HintPath>lib\MSS.Client.UI.Tablet.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Core">
+      <HintPath>lib\MSS.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.DIConfiguration">
+      <HintPath>lib\MSS.DIConfiguration.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.DTO">
+      <HintPath>lib\MSS.DTO.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Interfaces">
+      <HintPath>lib\MSS.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Localisation">
+      <HintPath>lib\MSS.Localisation.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.MDMCommunication.Business">
+      <HintPath>lib\MSS.MDMCommunication.Business.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.PartialSync">
+      <HintPath>lib\MSS.PartialSync.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Utils">
+      <HintPath>lib\MSS.Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="MSSArchive.Core">
+      <HintPath>lib\MSSArchive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MSSWeb.Common">
+      <HintPath>lib\MSSWeb.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="MVVM">
+      <HintPath>lib\MVVM.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Synchronization">
+      <HintPath>lib\Microsoft.Synchronization.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Synchronization.Data">
+      <HintPath>lib\Microsoft.Synchronization.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Synchronization.Data.SqlServer">
+      <HintPath>lib\Microsoft.Synchronization.Data.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="MinomatHandler">
+      <HintPath>lib\MinomatHandler.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>lib\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject">
+      <HintPath>lib\Ninject.dll</HintPath>
+    </Reference>
+    <Reference Include="PDC_Handler">
+      <HintPath>lib\PDC_Handler.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="ReachFramework" />
+    <Reference Include="ReadoutConfiguration">
+      <HintPath>lib\ReadoutConfiguration.dll</HintPath>
+    </Reference>
+    <Reference Include="Styles">
+      <HintPath>lib\Styles.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Printing" />
+    <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Telerik.Windows.Controls">
+      <HintPath>lib\Telerik.Windows.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.GridView">
+      <HintPath>lib\Telerik.Windows.Controls.GridView.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Navigation">
+      <HintPath>lib\Telerik.Windows.Controls.Navigation.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.ScheduleView">
+      <HintPath>lib\Telerik.Windows.Controls.ScheduleView.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Data">
+      <HintPath>lib\Telerik.Windows.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Documents">
+      <HintPath>lib\Telerik.Windows.Documents.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Documents.FormatProviders.Html">
+      <HintPath>lib\Telerik.Windows.Documents.FormatProviders.Html.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Documents.FormatProviders.OpenXml">
+      <HintPath>lib\Telerik.Windows.Documents.FormatProviders.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Documents.FormatProviders.Pdf">
+      <HintPath>lib\Telerik.Windows.Documents.FormatProviders.Pdf.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Documents.FormatProviders.Rtf">
+      <HintPath>lib\Telerik.Windows.Documents.FormatProviders.Rtf.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Documents.FormatProviders.Xaml">
+      <HintPath>lib\Telerik.Windows.Documents.FormatProviders.Xaml.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="XamlGeneratedNamespace\GeneratedInternalTypeHelper.cs" />
+    <Compile Include="Utils\AppSettings.cs" />
+    <Compile Include="Utils\ChangeableParametersSystem.cs" />
+    <Compile Include="Utils\IQuickMessageShower.cs" />
+    <Compile Include="Utils\QuickMessageShower.cs" />
+    <Compile Include="Utils\OrderDtoErrorMessages.cs" />
+    <Compile Include="Utils\WindowDictionaryFactory.cs" />
+    <Compile Include="Utils\TabletWindowFactory.cs" />
+    <Compile Include="Utils\DesktopWindowFactory.cs" />
+    <Compile Include="Utils\MessageHandlingManager.cs" />
+    <Compile Include="Utils\MSSUIHelper.cs" />
+    <Compile Include="Utils\StructureImageHelper.cs" />
+    <Compile Include="Utils\StructureTreeStateHelper.cs" />
+    <Compile Include="Utils\ViewsdependencyModule.cs" />
+    <Compile Include="Utils\WindowTypes.cs" />
+    <Compile Include="Utils\CustomFilterBehavior.cs" />
+    <Compile Include="Utils\CustomFilterDescriptor.cs" />
+    <Compile Include="Utils\Virtualization\CreateLambdaExpressionAsStringExtension.cs" />
+    <Compile Include="Utils\Virtualization\ServerOperationProcessor`1.cs" />
+    <Compile Include="Utils\Virtualization\VirtualizationHelper.cs" />
+    <Compile Include="Utils\Virtualization\VirtualizationManager.cs" />
+    <Compile Include="ViewModel\CleanupAppDataMessageViewModel.cs" />
+    <Compile Include="ViewModel\GenericMessageConfirmationViewModel.cs" />
+    <Compile Include="ViewModel\ImportGmmDataViewModel.cs" />
+    <Compile Include="ViewModel\MSSAboutViewModel.cs" />
+    <Compile Include="ViewModel\MSSLicenseCustomerWindowViewModel.cs" />
+    <Compile Include="ViewModel\GenericMessageViewModel.cs" />
+    <Compile Include="ViewModel\MSSLoginWindowViewModel.cs" />
+    <Compile Include="ViewModel\MSSMainWindowViewModel.cs" />
+    <Compile Include="ViewModel\MSSViewModel.cs" />
+    <Compile Include="ViewModel\Orders\AssignMetersViewModel.cs" />
+    <Compile Include="ViewModel\Orders\CreateEditOrderViewModel.cs" />
+    <Compile Include="ViewModel\Orders\DeleteSingleOrderViewModel.cs" />
+    <Compile Include="ViewModel\Orders\ExecuteInstallationOrderViewModel.cs" />
+    <Compile Include="ViewModel\Orders\MinomatStructure.cs" />
+    <Compile Include="ViewModel\Orders\ExecuteReadingOrderViewModel.cs" />
+    <Compile Include="ViewModel\Orders\ValueIdentString.cs" />
+    <Compile Include="ViewModel\Orders\ManuallyAssignMetersViewModel.cs" />
+    <Compile Include="ViewModel\Orders\TenantInfo.cs" />
+    <Compile Include="ViewModel\Orders\MinomatIdPopupViewModel.cs" />
+    <Compile Include="ViewModel\Orders\NetworkSetupViewModel.cs" />
+    <Compile Include="ViewModel\Orders\NetworkSetupSlaveInfo.cs" />
+    <Compile Include="ViewModel\Orders\OrderMessagesViewModel.cs" />
+    <Compile Include="ViewModel\Orders\OrdersViewModel.cs" />
+    <Compile Include="ViewModel\Orders\PrintPreviewViewModel.cs" />
+    <Compile Include="ViewModel\Orders\RegisterDevicesUserModeViewModel.cs" />
+    <Compile Include="ViewModel\Orders\RegisteredDevicesForMinomatViewModel.cs" />
+    <Compile Include="ViewModel\Orders\RepairModeViewModel.cs" />
+    <Compile Include="ViewModel\Orders\ReportsForMinomatsViewModel.cs" />
+    <Compile Include="ViewModel\Orders\ReportsForTenantsViewModel.cs" />
+    <Compile Include="ViewModel\Orders\MeterInfo.cs" />
+    <Compile Include="ViewModel\Orders\MinomatMasterInfo.cs" />
+    <Compile Include="ViewModel\Orders\MinomatSlaveInfo.cs" />
+    <Compile Include="ViewModel\Orders\ShowDataCollectorsForMeterViewModel.cs" />
+    <Compile Include="ViewModel\Orders\ShowRoutingTableViewModel.cs" />
+    <Compile Include="ViewModel\Orders\MinomatTreeInfoDTO.cs" />
+    <Compile Include="ViewModel\Orders\StructureOrdersViewModel.cs" />
+    <Compile Include="ViewModel\Orders\TestGSMViewModel.cs" />
+    <Compile Include="ViewModel\Orders\Ctrls\PercentProgressBarUpdater.cs" />
+    <Compile Include="ViewModel\Orders\Ctrls\ListProgressBarUpdater.cs" />
+    <Compile Include="ViewModel\Orders\Ctrls\IProgressBarUpdater.cs" />
+    <Compile Include="ViewModel\Orders\Ctrls\ProgressBarCtrl.cs" />
+    <Compile Include="ViewModel\Users\CreateRoleViewModel.cs" />
+    <Compile Include="ViewModel\Users\CreateUserViewModel.cs" />
+    <Compile Include="ViewModel\Users\DeleteRoleViewModel.cs" />
+    <Compile Include="ViewModel\Users\DeleteUserViewModel.cs" />
+    <Compile Include="ViewModel\Users\EditRoleViewModel.cs" />
+    <Compile Include="ViewModel\Users\EditUserViewModel.cs" />
+    <Compile Include="ViewModel\Users\UsersViewModel.cs" />
+    <Compile Include="ViewModel\Users\ViewRolePermissionsViewModel.cs" />
+    <Compile Include="ViewModel\Synchronization\ShowConflictsViewModel.cs" />
+    <Compile Include="ViewModel\Structures\EditMinomatMasterViewModel.cs" />
+    <Compile Include="ViewModel\Structures\EditMinomatSlaveViewModel.cs" />
+    <Compile Include="ViewModel\Structures\EditMinomatViewModel.cs" />
+    <Compile Include="ViewModel\Structures\WarningWithListBoxViewModel.cs" />
+    <Compile Include="ViewModel\Structures\SetEvaluationFactorViewModel.cs" />
+    <Compile Include="ViewModel\Structures\CreateEditLocationViewModel.cs" />
+    <Compile Include="ViewModel\Structures\CreateEditTenantViewModel.cs" />
+    <Compile Include="ViewModel\Structures\CreateFixedStructureViewModel.cs" />
+    <Compile Include="ViewModel\Structures\CreateLogicalStructureViewModel.cs" />
+    <Compile Include="ViewModel\Structures\CreatePhysicalStructureViewModel.cs" />
+    <Compile Include="ViewModel\Structures\StructureViewModelBase.cs" />
+    <Compile Include="ViewModel\Structures\DeleteStructureViewModel.cs" />
+    <Compile Include="ViewModel\Structures\EditFixedStructureViewModel.cs" />
+    <Compile Include="ViewModel\Structures\EditGenericEntityViewModel.cs" />
+    <Compile Include="ViewModel\Structures\EditLogicalStructureViewModel.cs" />
+    <Compile Include="ViewModel\Structures\EditPhysicalStructureViewModel.cs" />
+    <Compile Include="ViewModel\Structures\StructuresViewModel.cs" />
+    <Compile Include="ViewModel\Structures\Helpers\DeviceHelpers\DeviceStateEnum.cs" />
+    <Compile Include="ViewModel\Structures\Helpers\StructureHelpers\CreateFixedStructureBehavior.cs" />
+    <Compile Include="ViewModel\Structures\Helpers\StructureHelpers\CreateLogicalStructureBehavior.cs" />
+    <Compile Include="ViewModel\Structures\Helpers\StructureHelpers\CreatePhysicalStructureBehavior.cs" />
+    <Compile Include="ViewModel\Structures\Helpers\StructureHelpers\EditFixedStructureBehavior.cs" />
+    <Compile Include="ViewModel\Structures\Helpers\StructureHelpers\EditLogicalStructureBehavior.cs" />
+    <Compile Include="ViewModel\Structures\Helpers\StructureHelpers\EditPhysicalStructureBehavior.cs" />
+    <Compile Include="ViewModel\Structures\Helpers\StructureHelpers\FixedStructureBehavior.cs" />
+    <Compile Include="ViewModel\Structures\Helpers\StructureHelpers\LogicalStructureBehaviour.cs" />
+    <Compile Include="ViewModel\Structures\Helpers\StructureHelpers\PhysicalStructureBehaviour.cs" />
+    <Compile Include="ViewModel\Structures\Helpers\StructureHelpers\StructureBehaviour.cs" />
+    <Compile Include="ViewModel\Structures\Helpers\StructureHelpers\StructureFactory.cs" />
+    <Compile Include="ViewModel\Structures\DeviceViewModels\CreateDeviceViewModel.cs" />
+    <Compile Include="ViewModel\Structures\DeviceViewModels\EditDeviceViewModel.cs" />
+    <Compile Include="ViewModel\Structures\DeviceViewModels\ReplacementMeterDropDownValue.cs" />
+    <Compile Include="ViewModel\Structures\DeviceViewModels\ReplaceDeviceViewModel.cs" />
+    <Compile Include="ViewModel\Structures\DeviceViewModels\DeviceViewModel.cs" />
+    <Compile Include="ViewModel\Startup\MSSSplashScreenViewModel.cs" />
+    <Compile Include="ViewModel\Settings\ConfigChangeableParamsViewModel.cs" />
+    <Compile Include="ViewModel\Settings\EditServerPathViewModel.cs" />
+    <Compile Include="ViewModel\Settings\ProfileTypeViewModel.cs" />
+    <Compile Include="ViewModel\Settings\SendDataBeforeChangeServerViewModel.cs" />
+    <Compile Include="ViewModel\Settings\SettingsViewModel.cs" />
+    <Compile Include="ViewModel\Settings\StructureScanSettingsViewModel.cs" />
+    <Compile Include="ViewModel\Settings\Selector\EquipmentSelector.cs" />
+    <Compile Include="ViewModel\Reporting\ConsumptionViewModel.cs" />
+    <Compile Include="ViewModel\Reporting\ExportJobViewModel.cs" />
+    <Compile Include="ViewModel\Reporting\ExportFileSettingsViewModel.cs" />
+    <Compile Include="ViewModel\Reporting\MinomatCommunicationLogDetailsViewModel.cs" />
+    <Compile Include="ViewModel\Reporting\PrintOptionsViewModel.cs" />
+    <Compile Include="ViewModel\Reporting\ColumnToPrint.cs" />
+    <Compile Include="ViewModel\Reporting\ReadingValuesPrintPreviewViewModel.cs" />
+    <Compile Include="ViewModel\Reporting\ReportingViewModel.cs" />
+    <Compile Include="ViewModel\RadioTest\AssignTestRunViewModel.cs" />
+    <Compile Include="ViewModel\RadioTest\RadioTestViewModel.cs" />
+    <Compile Include="ViewModel\NewsAndUpdates\NewsAndUpdatesViewModel.cs" />
+    <Compile Include="ViewModel\ExceptionMessageBox\ExceptionMessageBoxViewModel.cs" />
+    <Compile Include="ViewModel\ExceptionMessageBox\MessageHandlerViewModel.cs" />
+    <Compile Include="ViewModel\Download\DownloadStructuresViewModel.cs" />
+    <Compile Include="ViewModel\DataFilters\AddFilterViewModel.cs" />
+    <Compile Include="ViewModel\DataFilters\AddRuleViewModel.cs" />
+    <Compile Include="ViewModel\DataFilters\FilterViewModel.cs" />
+    <Compile Include="ViewModel\DataFilters\RemoveFilterViewModel.cs" />
+    <Compile Include="ViewModel\DataFilters\RemoveRuleViewModel.cs" />
+    <Compile Include="ViewModel\DataFilters\UpdateFilterViewModel.cs" />
+    <Compile Include="ViewModel\DataFilters\UpdateRuleViewModel.cs" />
+    <Compile Include="ViewModel\GenericProgressDialog\DeterminateProgressDialogViewModel.cs" />
+    <Compile Include="ViewModel\GenericProgressDialog\GenericProgressDialogViewModel.cs" />
+    <Compile Include="ViewModel\Meters\AddNoteViewModel.cs" />
+    <Compile Include="ViewModel\Meters\EditNoteViewModel.cs" />
+    <Compile Include="ViewModel\Meters\MeterNotesViewModel.cs" />
+    <Compile Include="ViewModel\Meters\NoteWithTranslation.cs" />
+    <Compile Include="ViewModel\Meters\MeterPhotosViewModel.cs" />
+    <Compile Include="ViewModel\Meters\TakePhotoViewModel.cs" />
+    <Compile Include="ViewModel\Meters\TranslationRulesViewModel.cs" />
+    <Compile Include="ViewModel\Meters\MeterReadingValuesViewModel.cs" />
+    <Compile Include="ViewModel\Meters\MetersViewModel.cs" />
+    <Compile Include="ViewModel\Jobs\AddJobDefinitionViewModel.cs" />
+    <Compile Include="ViewModel\Jobs\AddMssReadingJobViewModel.cs" />
+    <Compile Include="ViewModel\Jobs\AssignStructureMbusViewModel.cs" />
+    <Compile Include="ViewModel\Jobs\AssignStructureViewModel.cs" />
+    <Compile Include="ViewModel\Jobs\IntervalsViewModel.cs" />
+    <Compile Include="ViewModel\Jobs\JobLogsForJobViewModel.cs" />
+    <Compile Include="ViewModel\Jobs\RemoveJob.cs" />
+    <Compile Include="ViewModel\Jobs\RemoveJobDefinition.cs" />
+    <Compile Include="ViewModel\Jobs\SystemSelectionViewModel.cs" />
+    <Compile Include="ViewModel\Jobs\ViewJobStructureViewModel.cs" />
+    <Compile Include="ViewModel\Jobs\EditScenarioViewModel.cs" />
+    <Compile Include="ViewModel\Jobs\JobsViewModel.cs" />
+    <Compile Include="ViewModel\DataCollectors\DataCollectorsViewModel.cs" />
+    <Compile Include="ViewModel\DataCollectors\StructureMinomatViewModel.cs" />
+    <Compile Include="ViewModel\DataCollectors\AddToMasterPoolViewModel.cs" />
+    <Compile Include="ViewModel\DataCollectors\CreateDataCollectorsViewModel.cs" />
+    <Compile Include="ViewModel\DataCollectors\DataCollectorViewModelBase.cs" />
+    <Compile Include="ViewModel\DataCollectors\DeleteDataCollectorViewModel.cs" />
+    <Compile Include="ViewModel\DataCollectors\EditDataCollectorViewModel.cs" />
+    <Compile Include="ViewModel\DataCollectors\MasterPoolViewModel.cs" />
+    <Compile Include="ViewModel\DataCollectors\MasterPoolViewModelBase.cs" />
+    <Compile Include="ViewModel\DataCollectors\RemoveFromMasterPoolViewModel.cs" />
+    <Compile Include="ViewModel\Configuration\ConfigurationParametersVmPart.cs" />
+    <Compile Include="ViewModel\Configuration\ConfigurationViewModel.cs" />
+    <Compile Include="ViewModel\Configuration\ExpertConfigurationViewModel.cs" />
+    <Compile Include="ViewModel\Configuration\DeviceModelChangeableParametersViewModel.cs" />
+    <Compile Include="ViewModel\Configuration\FirmwareUpdateViewModel.cs" />
+    <Compile Include="ViewModel\Archiving\ViewArchiveMinomatViewModel.cs" />
+    <Compile Include="ViewModel\Archiving\ViewArchiveMeterViewModel.cs" />
+    <Compile Include="ViewModel\Archiving\ViewArchiveLocationViewModel.cs" />
+    <Compile Include="ViewModel\Archiving\ViewArchiveEntityViewModel.cs" />
+    <Compile Include="ViewModel\Archiving\ViewArchiveTenantViewModel.cs" />
+    <Compile Include="ViewModel\Archiving\ArchivingViewModel.cs" />
+    <Compile Include="ViewModel\Archiving\CreateEditArchiveJobViewModel.cs" />
+    <Compile Include="ViewModel\Archiving\DeleteArchiveJobViewModel.cs" />
+    <Compile Include="ViewModel\Archiving\SearchMssReadingJobViewModel.cs" />
+    <Compile Include="ViewModel\Archiving\SearchLogsViewModel.cs" />
+    <Compile Include="ViewModel\Archiving\SearchOrdersViewModel.cs" />
+    <Compile Include="ViewModel\Archiving\SearchReadingValuesViewModel.cs" />
+    <Compile Include="ViewModel\Archiving\SearchStructuresViewModel.cs" />
+    <Compile Include="Properties\Settings.cs" />
+    <Compile Include="Properties\Resources.cs" />
+    <Compile Include="Commands\BrowseCommand.cs" />
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>app.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="app.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="viewsresources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="viewsresourcestablet.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

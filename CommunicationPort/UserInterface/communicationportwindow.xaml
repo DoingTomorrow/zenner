@@ -1,0 +1,104 @@
+<Window x:Class="CommunicationPort.UserInterface.CommunicationPortWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Title="CommunicationPort Main Window" Height="639.099" Width="869.754"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico"
+        WindowStartupLocation="CenterOwner">
+  <Grid DataContext="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}}">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="300*"/>
+      <RowDefinition Height="300*"/>
+    </Grid.RowDefinitions>
+    <Menu Name="menuMain" Height="23" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+      <MenuItem Name="MenuItemComponents" Header="Components" Visibility="Collapsed"/>
+      <MenuItem Click="MiConBLE_Test_Click" Name="MenuItemMiConBLE_TEST" Header="MiConBLE-TEST" IsEnabled="false"/>
+    </Menu>
+    <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" Margin="0,23,0,0" VerticalAlignment="Top"
+                                    Height="56"/>
+    <Grid Margin="0,79,0,0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+      </Grid.ColumnDefinitions>
+      <GroupBox Name="GroupBoxComState" Header="Com state">
+        <TextBlock Name="TextBlockComState"/>
+      </GroupBox>
+      <GroupBox Name="GroupBoxDeviceInof" Grid.Column="1" Header="Communication device">
+        <TextBox Name="TextBoxDeviceInfo" IsReadOnly="true"/>
+      </GroupBox>
+    </Grid>
+    <GridSplitter Grid.Row="1" VerticalAlignment="Top" Height="5" Margin="5,0,5,0" HorizontalAlignment="Stretch"/>
+    <Grid Row="1">
+      <ScrollViewer Margin="0,10,0,98">
+        <StackPanel Name="StackPanalSetup">
+          <Grid Name="GridPortType">
+            <Label Name="LabelPortType" Content="Port type:" HorizontalAlignment="Left" Height="26" Margin="10,5,0,0"
+                   Width="170" HorizontalContentAlignment="Right"/>
+            <ComboBox SelectionChanged="ComboBoxPortType_SelectionChanged" Name="ComboBoxPortType" Height="24"
+                      Margin="185,5,10,0" VerticalAlignment="Top"/>
+          </Grid>
+          <Grid Name="GridPort">
+            <Label Name="LabelPort" Content="Port:" HorizontalAlignment="Left" Height="26" Margin="10,5,0,0"
+                   Width="170" HorizontalContentAlignment="Right"/>
+            <ComboBox SelectionChanged="ComboBoxPort_SelectionChanged" DropDownOpened="ComboBoxPort_DropDownOpened"
+                      Name="ComboBoxPort" Height="24" Margin="185,5,10,0" VerticalAlignment="Top" Grid.Column="2"/>
+          </Grid>
+          <Grid Name="GridBaudrateParity">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="185"/>
+              <ColumnDefinition Width="218*"/>
+              <ColumnDefinition Width="31*"/>
+              <ColumnDefinition Width="170"/>
+              <ColumnDefinition Width="249*"/>
+            </Grid.ColumnDefinitions>
+            <Label Name="LabelBaudrate" Content="Baudrate:" HorizontalAlignment="Left" Height="26" Margin="10,5,0,0"
+                   Width="170" HorizontalContentAlignment="Right"/>
+            <ComboBox SelectionChanged="ComboBoxBaudrate_SelectionChanged" Name="ComboBoxBaudrate" Grid.Column="1"
+                      Height="24" Margin="0,0,170,0" VerticalAlignment="Center" Grid.ColumnSpan="3"/>
+            <Label Name="LabelParity" Grid.Column="3" Content="Parity:" HorizontalAlignment="Left" Height="26"
+                   HorizontalContentAlignment="Right" Grid.ColumnSpan="2" Margin="128,2,0,3"/>
+            <ComboBox SelectionChanged="ComboBoxParity_SelectionChanged" Name="ComboBoxParity" Grid.Column="4"
+                      Height="24" Margin="0,4,10,3"/>
+          </Grid>
+          <Grid Name="GridWakeupEcho">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="185"/>
+              <ColumnDefinition/>
+              <ColumnDefinition Width="170"/>
+              <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Name="LabelWakeup" Content="Wakeup:" HorizontalAlignment="Left" Height="26" Margin="10,5,0,0"
+                   Width="170" HorizontalContentAlignment="Right"/>
+            <ComboBox SelectionChanged="ComboBoxWakeup_SelectionChanged" Name="ComboBoxWakeup" Grid.Column="1"
+                      Height="24"/>
+            <Label Name="LabelEcho" Grid.Column="2" Content="Echo:" HorizontalAlignment="Right" Height="26"
+                   HorizontalContentAlignment="Right"/>
+            <ComboBox SelectionChanged="ComboBoxEcho_SelectionChanged" Name="ComboBoxEcho" Grid.Column="3" Height="24"
+                      Margin="0,0,10,0"/>
+          </Grid>
+          <Grid Name="GridMiConSetup" Visibility="Collapsed">
+            <Label Name="LabelMiConSetup" Content="MinoConnect setup:" HorizontalAlignment="Left" Height="26"
+                   Margin="10,5,0,0" Width="170" HorizontalContentAlignment="Right"/>
+            <ComboBox SelectionChanged="ComboBoxMiConSetup_SelectionChanged" Name="ComboBoxMiConSetup" Height="24"
+                      Margin="185,5,10,0" VerticalAlignment="Top"/>
+          </Grid>
+        </StackPanel>
+      </ScrollViewer>
+      <Button Click="ButtonOpenClose_Click" Name="ButtonOpenClose" Content="OpenClose" Margin="0,0,10,10"
+              HorizontalAlignment="Right" Width="250" Height="22" VerticalAlignment="Bottom"/>
+      <Button Click="ButtonTiming_Click" Name="ButtonTiming" Content="Timing" Margin="0,0,273,10"
+              HorizontalAlignment="Right" Width="250" Height="22" VerticalAlignment="Bottom"/>
+      <Label Content="Channel:" HorizontalAlignment="Left" Margin="10,0,0,60" VerticalAlignment="Bottom"
+             Width="100" HorizontalContentAlignment="Right"/>
+      <TextBox Name="TextBoxChannel" Height="23" Margin="120,0,10,63" VerticalAlignment="Bottom"
+               Text="{Binding Path=ReadingChannelIdentification, Mode=TwoWay}"/>
+      <Label Content="Messages:" HorizontalAlignment="Left" Margin="10,0,0,34" VerticalAlignment="Bottom"
+             Width="100" HorizontalContentAlignment="Right"/>
+      <TextBlock Name="TextBlockMessages" Height="23" Margin="120,0,10,34" VerticalAlignment="Bottom"/>
+      <Label Content="Alive:" HorizontalAlignment="Left" Margin="10,0,0,10" VerticalAlignment="Bottom"
+             Width="100" HorizontalContentAlignment="Right"/>
+      <TextBlock Name="TextBlockAlive" Height="23" Margin="120,0,638,6" VerticalAlignment="Bottom"/>
+    </Grid>
+  </Grid>
+</Window>

@@ -1,0 +1,1952 @@
+
+--- ArchivingViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Archiving.ArchivingViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using AutoMapper;
+using Microsoft.Win32;
+using MSS.Business.Errors;
+using MSS.Business.Events;
+using MSS.Business.Modules.Archiving;
+using MSS.Business.Modules.Reporting;
+using MSS.Business.Modules.UsersManagement;
+using MSS.Business.Utils;
+using MSS.Core.Model.Archiving;
+using MSS.DIConfiguration;
+using MSS.DTO.Archive;
+using MSS.DTO.MessageHandler;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MSS.Utils.Utils;
+using MSS_Client.Utils;
+using MSS_Client.ViewModel.GenericProgressDialog;
+using MSSArchive.Core.Model.Meters;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using NHibernate;
+using Ninject;
+using Ninject.Parameters;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Archiving
+{
+  internal class ArchivingViewModel : ValidationViewModelBase
+  {
+    public readonly IRepositoryFactory RepositoryFactory;
+    public readonly IRepository<ArchiveJob> _archiveJobRepository;
+    private readonly IWindowFactory _windowFactory;
+    private ViewModelBase _messageUserControl;
+    private BackgroundWorker _backgroundWorkerExport;
+    private bool _searchDone;
+    private string _searchArchiveText;
+    private List<ArchiveEntity> _archiveEntityCollection;
+    private DateTime _selectableDateEndForStartDate = DateTime.Now.AddDays(-1.0);
+    private DateTime _selectedStartDate = DateTime.Now.AddDays(-1.0);
+    private DateTime _selectedEndDate = DateTime.Now.AddDays(-1.0);
+    private bool _isSearchReadingValues;
+    private bool _isSearchLogs;
+    private ViewModelBase _searchArchiveViewModel;
+    private string _archiveName = string.Empty;
+    private IEnumerable<ArchiveJobDTO> _getArchiveJobs;
+    private bool _isArchiveNowTabVisible;
+    private bool _isArchiveNowTabSelected;
+    private bool _isSearchArchiveTabVisible;
+    private bool _isSearchArchiveTabSelected;
+    private bool _isArchiveJobsTabVisible;
+    private bool _isArchiveJobsTabSelected;
+    private bool _createArchiveJobVisibility;
+    private bool _deleteArchiveJobVisiblity;
+    private bool _runArchiveJobVisibility;
+    private bool _exportArchiveVisibility;
+    private bool _archiveAndKeepDataVisibility;
+    private bool _archiveAndDeleteDataVisibility;
+
+    [Inject]
+    public ArchivingViewModel(IRepositoryFactory repositoryFactory, IWindowFactory windowFactory)
+    {
+      this.RepositoryFactory = repositoryFactory;
+      this._windowFactory = windowFactory;
+      this._archiveJobRepository = repositoryFactory.GetRepository<ArchiveJob>();
+      this.ArchivedEntitiesCollection = ((IEnumerable<ArchivedEntitiesEnum>) Enum.GetValues(typeof (ArchivedEntitiesEnum))).Select<ArchivedEntitiesEnum, ArchiveEntity>((Func<ArchivedEntitiesEnum, ArchiveEntity>) (archivedEntitiesEnum => new ArchiveEntity()
+      {
+        IsChecked = false,
+        Name = archivedEntitiesEnum.GetStringValue(),
+        ArchivedEntityEnum = archivedEntitiesEnum
+      })).ToList<ArchiveEntity>();
+      Mapper.CreateMap<ArchiveJob, ArchiveJobDTO>().ForMember((Expression<Func<ArchiveJobDTO, object>>) (ajDto => ajDto.ArchivedEntities), (Action<IMemberConfigurationExpression<ArchiveJob>>) (s => s.ResolveUsing((Func<ArchiveJob, object>) (aj => (object) ArchivingHelper.ArchivedEntitiesString(aj.ArchivedEntities))))).ForMember((Expression<Func<ArchiveJobDTO, object>>) (ajDto => ajDto.ArchivedEntitiesList), (Action<IMemberConfigurationExpression<ArchiveJob>>) (s => s.ResolveUsing((Func<ArchiveJob, object>) (aj => (object) ArchivingHelper.DeserializeArchivedEntities(aj.ArchivedEntities)))));
+      this.GetArchiveJobs = this.GetArchiveJobDTOs();
+      this.IsSearchReadingValues = true;
+      EventPublisher.Register<ArchiveSearched>(new Action<ArchiveSearched>(this.SetArchiveFiltering));
+      UsersManager usersManager1 = new UsersManager(this.RepositoryFactory);
+      this.ArchiveAndKeepDataVisibility = usersManager1.HasRight(OperationEnum.ArchivingOnDemand.ToString());
+      this.ArchiveAndDeleteDataVisibility = usersManager1.HasRight(OperationEnum.CleanupOnDemand.ToString());
+      this.IsArchiveNowTabVisible = false;
+      this.IsArchiveNowTabSelected = this.IsArchiveNowTabVisible;
+      this.IsSearchArchiveTabVisible = usersManager1.HasRight(OperationEnum.ArchivedDataView.ToString());
+      this.IsSearchArchiveTabSelected = !this.IsArchiveNowTabSelected && this.IsSearchArchiveTabVisible;
+      UsersManager usersManager2 = usersManager1;
+      OperationEnum operationEnum = OperationEnum.ArchiveJobView;
+      string operation1 = operationEnum.ToString();
+      this.IsArchiveJobsTabVisible = usersManager2.HasRight(operation1);
+      this.IsArchiveJobsTabSelected = !this.IsArchiveNowTabSelected && !this.IsSearchArchiveTabSelected && this.IsArchiveJobsTabVisible;
+      UsersManager usersManager3 = usersManager1;
+      operationEnum = OperationEnum.ArchivedDataExport;
+      string operation2 = operationEnum.ToString();
+      this.ExportArchiveVisibility = usersManager3.HasRight(operation2);
+      UsersManager usersManager4 = usersManager1;
+      operationEnum = OperationEnum.ArchiveJobCreate;
+      string operation3 = operationEnum.ToString();
+      this.CreateArchiveJobVisibility = usersManager4.HasRight(operation3);
+      UsersManager usersManager5 = usersManager1;
+      operationEnum = OperationEnum.ArchiveJobDelete;
+      string operation4 = operationEnum.ToString();
+      this.DeleteArchiveJobVisibility = usersManager5.HasRight(operation4);
+      UsersManager usersManager6 = usersManager1;
+      operationEnum = OperationEnum.ArchiveJobRun;
+      string operation5 = operationEnum.ToString();
+      this.RunArchiveJobVisibility = usersManager6.HasRight(operation5);
+    }
+
+    public ViewModelBase MessageUserControl
+    {
+      get => this._messageUserControl;
+      set
+      {
+        this._messageUserControl = value;
+        this.OnPropertyChanged(nameof (MessageUserControl));
+      }
+    }
+
+    public ICommand RunArchiveJobCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          ArchiveJobDTO archiveJobVm = parameter as ArchiveJobDTO;
+          if (archiveJobVm == null)
+            return;
+          GenericProgressDialogViewModel pd = DIConfigurator.GetConfigurator().Get<GenericProgressDialogViewModel>((IParameter) new ConstructorArgument("progressDialogTitle", (object) Resources.MSS_CLIENT_ARCHIVE_TITLE), (IParameter) new ConstructorArgument("progressDialogMessage", (object) Resources.MSS_CLIENT_ARCHIVE_MESSAGE));
+          BackgroundWorker backgroundWorker = new BackgroundWorker()
+          {
+            WorkerReportsProgress = true,
+            WorkerSupportsCancellation = true
+          };
+          backgroundWorker.DoWork += (DoWorkEventHandler) ((sender, args) =>
+          {
+            ArchiveManagerADO archiveManagerAdo = new ArchiveManagerADO(this.RepositoryFactory);
+            ArchiveJob byId = this.RepositoryFactory.GetRepository<ArchiveJob>().GetById((object) archiveJobVm.Id);
+            archiveManagerAdo.Archive(byId);
+            if (archiveJobVm.DeleteAfterArchive)
+              new CleanupManager(this.RepositoryFactory).Cleanup(byId);
+            byId.LastExecutionDate = new DateTime?(DateTime.Now);
+            this.RepositoryFactory.GetRepository<ArchiveJob>().Update(byId);
+            this.GetArchiveJobs = this.GetArchiveJobDTOs();
+          });
+          backgroundWorker.RunWorkerCompleted += (RunWorkerCompletedEventHandler) ((sender, args) =>
+          {
+            pd.OnRequestClose(false);
+            MSS.DTO.Message.Message message = (MSS.DTO.Message.Message) null;
+            if (args.Cancelled)
+              message = new MSS.DTO.Message.Message()
+              {
+                MessageType = MessageTypeEnum.Warning,
+                MessageText = Resources.MSS_Client_Archivation_Cancelled
+              };
+            else if (args.Error != null)
+            {
+              MSS.Business.Errors.MessageHandler.LogException(args.Error);
+              MessageHandlingManager.ShowExceptionMessageDialog(MSSHelper.GetErrorMessage(args.Error), this._windowFactory);
+            }
+            else
+              message = new MSS.DTO.Message.Message()
+              {
+                MessageType = MessageTypeEnum.Success,
+                MessageText = Resources.MSS_Client_Archivation_Succedded
+              };
+            if (message == null)
+              return;
+            EventPublisher.Publish<ActionFinished>(new ActionFinished()
+            {
+              Message = message
+            }, (IViewModel) this);
+          });
+          backgroundWorker.RunWorkerAsync();
+          this._windowFactory.CreateNewProgressDialog((IViewModel) pd, backgroundWorker);
+        }));
+      }
+    }
+
+    public ICommand ArchiveAndKeepDataCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          if (!this.IsValid)
+            return;
+          GenericProgressDialogViewModel pd = DIConfigurator.GetConfigurator().Get<GenericProgressDialogViewModel>((IParameter) new ConstructorArgument("progressDialogTitle", (object) Resources.MSS_CLIENT_ARCHIVE_TITLE), (IParameter) new ConstructorArgument("progressDialogMessage", (object) Resources.MSS_CLIENT_ARCHIVE_MESSAGE));
+          BackgroundWorker backgroundWorker = new BackgroundWorker()
+          {
+            WorkerReportsProgress = true,
+            WorkerSupportsCancellation = true
+          };
+          ArchiveManagerADO archiveManagerAdo;
+          backgroundWorker.DoWork += (DoWorkEventHandler) ((sender, args) => archiveManagerAdo = new ArchiveManagerADO(this.RepositoryFactory));
+          backgroundWorker.RunWorkerCompleted += (RunWorkerCompletedEventHandler) ((sender, args) =>
+          {
+            pd.OnRequestClose(false);
+            MSS.DTO.Message.Message message = (MSS.DTO.Message.Message) null;
+            if (args.Cancelled)
+              message = new MSS.DTO.Message.Message()
+              {
+                MessageType = MessageTypeEnum.Warning,
+                MessageText = Resources.MSS_Client_Archivation_Cancelled
+              };
+            else if (args.Error != null)
+            {
+              MSS.Business.Errors.MessageHandler.LogException(args.Error);
+              MessageHandlingManager.ShowExceptionMessageDialog(MSSHelper.GetErrorMessage(args.Error), this._windowFactory);
+            }
+            else
+              message = new MSS.DTO.Message.Message()
+              {
+                MessageType = MessageTypeEnum.Success,
+                MessageText = Resources.MSS_Client_Archivation_Succedded
+              };
+            if (message == null)
+              return;
+            EventPublisher.Publish<ActionFinished>(new ActionFinished()
+            {
+              Message = message
+            }, (IViewModel) this);
+          });
+          backgroundWorker.RunWorkerAsync();
+          this._windowFactory.CreateNewProgressDialog((IViewModel) pd, backgroundWorker);
+        }));
+      }
+    }
+
+    public ICommand ArchiveAndDeleteDataCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          if (!this.IsValid)
+            return;
+          GenericProgressDialogViewModel pd = DIConfigurator.GetConfigurator().Get<GenericProgressDialogViewModel>((IParameter) new ConstructorArgument("progressDialogTitle", (object) Resources.MSS_CLIENT_ARCHIVE_TITLE), (IParameter) new ConstructorArgument("progressDialogMessage", (object) Resources.MSS_CLIENT_ARCHIVE_MESSAGE));
+          BackgroundWorker backgroundWorker = new BackgroundWorker()
+          {
+            WorkerReportsProgress = true,
+            WorkerSupportsCancellation = true
+          };
+          backgroundWorker.DoWork += (DoWorkEventHandler) ((sender, args) =>
+          {
+            ArchiveDetailsADO archiveDetailsAdo = new ArchiveDetailsADO()
+            {
+              StartTime = this.SelectedStartDate,
+              EndTime = this.SelectedEndDate,
+              ArchivedEntities = this.ArchivedEntitiesCollection,
+              ArchiveName = this.ArchiveName
+            };
+            ArchiveManagerADO archiveManagerAdo = new ArchiveManagerADO(this.RepositoryFactory);
+            CleanupManager cleanupManager = new CleanupManager(this.RepositoryFactory);
+          });
+          backgroundWorker.RunWorkerCompleted += (RunWorkerCompletedEventHandler) ((sender, args) =>
+          {
+            pd.OnRequestClose(false);
+            MSS.DTO.Message.Message message = (MSS.DTO.Message.Message) null;
+            if (args.Cancelled)
+              message = new MSS.DTO.Message.Message()
+              {
+                MessageType = MessageTypeEnum.Warning,
+                MessageText = Resources.MSS_Client_Archivation_Cancelled
+              };
+            else if (args.Error != null)
+            {
+              MSS.Business.Errors.MessageHandler.LogException(args.Error);
+              MessageHandlingManager.ShowExceptionMessageDialog(MSSHelper.GetErrorMessage(args.Error), this._windowFactory);
+            }
+            else
+              message = new MSS.DTO.Message.Message()
+              {
+                MessageType = MessageTypeEnum.Success,
+                MessageText = Resources.MSS_Client_Archivation_Succedded
+              };
+            if (message == null)
+              return;
+            EventPublisher.Publish<ActionFinished>(new ActionFinished()
+            {
+              Message = message
+            }, (IViewModel) this);
+          });
+          backgroundWorker.RunWorkerAsync();
+          this._windowFactory.CreateNewProgressDialog((IViewModel) pd, backgroundWorker);
+        }));
+      }
+    }
+
+    public ICommand CreateArchiveJobCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<CreateEditArchiveJobViewModel>((IParameter) new ConstructorArgument("archiveJob", (object) null)));
+          if (newModalDialog.HasValue && newModalDialog.Value)
+          {
+            this.MessageUserControl = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+            this.GetArchiveJobs = this.GetArchiveJobDTOs();
+            this.OnPropertyChanged("GetArchiveJobs");
+          }
+          else
+            this.MessageUserControl = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    public ICommand EditArchiveJobCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          ArchiveJobDTO archiveJobDto = parameter as ArchiveJobDTO;
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<CreateEditArchiveJobViewModel>((IParameter) new ConstructorArgument("archiveJob", (object) archiveJobDto)));
+          if (newModalDialog.HasValue && newModalDialog.Value)
+          {
+            if (archiveJobDto != null)
+              this._archiveJobRepository.Refresh((object) archiveJobDto.Id);
+            this.MessageUserControl = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+            this.GetArchiveJobs = this.GetArchiveJobDTOs();
+            this.OnPropertyChanged("GetArchiveJobs");
+          }
+          else
+            this.MessageUserControl = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    public ICommand DeleteArchiveJobCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          ArchiveJobDTO archiveJobDto = parameter as ArchiveJobDTO;
+          bool? newModalDialog = this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<DeleteArchiveJobViewModel>((IParameter) new ConstructorArgument("archiveJob", (object) archiveJobDto)));
+          if (newModalDialog.HasValue && newModalDialog.Value)
+          {
+            this.MessageUserControl = MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_SuccessMessage);
+            this.GetArchiveJobs = this.GetArchiveJobDTOs();
+            this.OnPropertyChanged("GetArchiveJobs");
+          }
+          else
+            this.MessageUserControl = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_OperationCancelledMessage);
+        }));
+      }
+    }
+
+    private void WriteArchiveList<T>(
+      CSVManager csvManager,
+      string fileName,
+      Expression<Func<T, bool>> expression)
+    {
+      ISessionFactory factoryMssArchive = ArchiveManagerNHibernate.GetSessionFactoryMSSArchive();
+      PagingProvider<T> pagingProvider = expression != null ? new PagingProvider<T>(factoryMssArchive, expression) : new PagingProvider<T>(factoryMssArchive);
+      int num = pagingProvider.FetchCount();
+      int parameterValue = MSS.Business.Utils.AppContext.Current.GetParameterValue<int>("LoadSizeForExportOfArchive");
+      ReportingHelper reportingHelper = new ReportingHelper();
+      IList<T> archiveList = pagingProvider.FetchRange(1, parameterValue);
+      int startIndex = 1;
+      StreamWriter streamWriter = new StreamWriter(fileName, false);
+      streamWriter.WriteLine(reportingHelper.WriteArchiveListHeader<T>());
+      streamWriter.Close();
+      while (startIndex < num)
+      {
+        List<string[]> archiveListRows = reportingHelper.GetArchiveListRows<T>((IEnumerable<T>) archiveList);
+        startIndex += parameterValue;
+        archiveList = pagingProvider.FetchRange(startIndex, parameterValue);
+        csvManager.WriteToFile(fileName, archiveListRows);
+      }
+    }
+
+    private void CancelProcess(object sender, EventArgs e)
+    {
+      this._backgroundWorkerExport.CancelAsync();
+    }
+
+    public ICommand ExportArchiveCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (_ =>
+        {
+          GenericProgressDialogViewModel pd = DIConfigurator.GetConfigurator().Get<GenericProgressDialogViewModel>((IParameter) new ConstructorArgument("progressDialogTitle", (object) Resources.MSS_Client_Export), (IParameter) new ConstructorArgument("progressDialogMessage", (object) Resources.EXPORT_INSTALLATION_ORDER_TEXT));
+          this._backgroundWorkerExport = new BackgroundWorker()
+          {
+            WorkerReportsProgress = true,
+            WorkerSupportsCancellation = true
+          };
+          SaveFileDialog saveStructureDialog = new SaveFileDialog()
+          {
+            Filter = "CSV Document|*.csv|Xcel Document|*.xlsx",
+            Title = "Save archive to file"
+          };
+          bool? isOkButton = saveStructureDialog.ShowDialog();
+          this._backgroundWorkerExport.DoWork += (DoWorkEventHandler) ((sender, args) =>
+          {
+            Expression<Func<ArchiveMeterReadingValue, bool>> expression = (Expression<Func<ArchiveMeterReadingValue, bool>>) null;
+            if (this.SearchArchiveText != null)
+              expression = (Expression<Func<ArchiveMeterReadingValue, bool>>) (mrv => mrv.MeterSerialNumber == this.\u003C\u003E4__this.SearchArchiveText);
+            DoWorkEventArgs doWorkEventArgs = args;
+            doWorkEventArgs.Cancel = ((doWorkEventArgs.Cancel ? 1 : 0) | (!isOkButton.HasValue ? 1 : (!isOkButton.Value ? 1 : 0))) != 0;
+            if (saveStructureDialog.FileName == string.Empty)
+              return;
+            switch (saveStructureDialog.FilterIndex)
+            {
+              case 1:
+                this.WriteArchiveList<ArchiveMeterReadingValue>(new CSVManager(), saveStructureDialog.FileName.Replace(".csv", "_ArchiveMeterReadingValues.csv"), expression);
+                break;
+              case 2:
+                new XCellManager().WriteArchiveToFile<ArchiveMeterReadingValue>(saveStructureDialog.FileName, expression);
+                break;
+            }
+          });
+          this._backgroundWorkerExport.RunWorkerCompleted += (RunWorkerCompletedEventHandler) ((sender, args) =>
+          {
+            pd.OnRequestClose(false);
+            if (args.Cancelled)
+              this.MessageUserControl = MessageHandlingManager.ShowWarningMessage(MessageCodes.OperationCancelled.GetStringValue());
+            else if (args.Error != null)
+            {
+              MSS.Business.Errors.MessageHandler.LogException(args.Error);
+              MessageHandlingManager.ShowExceptionMessageDialog(MSSHelper.GetErrorMessage(args.Error), this._windowFactory);
+            }
+            else
+              this.MessageUserControl = MessageHandlingManager.ShowSuccessMessage(MessageCodes.Success_Operation.GetStringValue());
+          });
+          this._backgroundWorkerExport.RunWorkerAsync();
+          this._windowFactory.CreateNewProgressDialog((IViewModel) pd, this._backgroundWorkerExport);
+        }));
+      }
+    }
+
+    public IEnumerable<ArchiveJobDTO> GetArchiveJobDTOs()
+    {
+      return (IEnumerable<ArchiveJobDTO>) Mapper.Map<List<ArchiveJob>, List<ArchiveJobDTO>>(this.RepositoryFactory.GetRepository<ArchiveJob>().GetAll().ToList<ArchiveJob>());
+    }
+
+    private void SetArchiveFiltering(ArchiveSearched obj)
+    {
+      this.SearchDone = true;
+      this.SearchArchiveText = obj.SearchedText;
+    }
+
+    public bool SearchDone
+    {
+      get => this._searchDone;
+      set
+      {
+        this._searchDone = value;
+        this.OnPropertyChanged(nameof (SearchDone));
+      }
+    }
+
+    public string SearchArchiveText
+    {
+      get => this._searchArchiveText;
+      set
+      {
+        this._searchArchiveText = value;
+        this.OnPropertyChanged(nameof (SearchArchiveText));
+      }
+    }
+
+    public bool IsCheckedReadingData { get; set; }
+
+    public bool IsCheckedOrders { get; set; }
+
+    public bool IsCheckedJobs { get; set; }
+
+    public bool IsCheckedLogs { get; set; }
+
+    public List<ArchiveEntity> ArchivedEntitiesCollection
+    {
+      get => this._archiveEntityCollection;
+      set
+      {
+        this._archiveEntityCollection = value;
+        this.OnPropertyChanged(nameof (ArchivedEntitiesCollection));
+      }
+    }
+
+    public DateTime SelectableDateEnd => DateTime.Now.AddDays(-1.0);
+
+    public DateTime SelectableDateEndForStartDate
+    {
+      get => this._selectableDateEndForStartDate;
+      set
+      {
+        this._selectableDateEndForStartDate = value;
+        this.OnPropertyChanged(nameof (SelectableDateEndForStartDate));
+      }
+    }
+
+    public DateTime SelectedStartDate
+    {
+      get => this._selectedStartDate;
+      set
+      {
+        this._selectedStartDate = value;
+        this.OnPropertyChanged(nameof (SelectedStartDate));
+      }
+    }
+
+    public DateTime SelectedEndDate
+    {
+      get => this._selectedEndDate;
+      set
+      {
+        this._selectedEndDate = value;
+        this.SelectableDateEndForStartDate = this._selectedEndDate;
+        if (this.SelectedStartDate > this._selectedEndDate)
+          this.SelectedStartDate = this._selectedEndDate;
+        this.OnPropertyChanged(nameof (SelectedEndDate));
+      }
+    }
+
+    public bool IsSearchReadingValues
+    {
+      get => this._isSearchReadingValues;
+      set
+      {
+        this._isSearchReadingValues = value;
+        if (this._isSearchReadingValues)
+          this.SearchArchiveViewModel = (ViewModelBase) DIConfigurator.GetConfigurator().Get<SearchReadingValuesViewModel>();
+        this.OnPropertyChanged(nameof (IsSearchReadingValues));
+      }
+    }
+
+    public bool IsSearchLogs
+    {
+      get => this._isSearchLogs;
+      set
+      {
+        this._isSearchLogs = value;
+        if (this._isSearchLogs)
+          this.SearchArchiveViewModel = (ViewModelBase) DIConfigurator.GetConfigurator().Get<SearchLogsViewModel>();
+        this.OnPropertyChanged(nameof (IsSearchLogs));
+      }
+    }
+
+    public ViewModelBase SearchArchiveViewModel
+    {
+      get => this._searchArchiveViewModel;
+      set
+      {
+        if (this._searchArchiveViewModel != null)
+          this._searchArchiveViewModel.Dispose();
+        this._searchArchiveViewModel = value;
+        this.OnPropertyChanged(nameof (SearchArchiveViewModel));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_Client_Archive_ArchiveNameValidationMessage")]
+    public string ArchiveName
+    {
+      get => this._archiveName;
+      set
+      {
+        this._archiveName = value;
+        this.OnPropertyChanged(nameof (ArchiveName));
+      }
+    }
+
+    public IEnumerable<ArchiveJobDTO> GetArchiveJobs
+    {
+      get => this._getArchiveJobs;
+      set
+      {
+        this._getArchiveJobs = value;
+        this.OnPropertyChanged(nameof (GetArchiveJobs));
+      }
+    }
+
+    public bool IsArchiveNowTabVisible
+    {
+      get => this._isArchiveNowTabVisible;
+      set
+      {
+        this._isArchiveNowTabVisible = value;
+        this.OnPropertyChanged(nameof (IsArchiveNowTabVisible));
+      }
+    }
+
+    public bool IsArchiveNowTabSelected
+    {
+      get => this._isArchiveNowTabSelected;
+      set
+      {
+        this._isArchiveNowTabSelected = value;
+        this.OnPropertyChanged(nameof (IsArchiveNowTabSelected));
+      }
+    }
+
+    public bool IsSearchArchiveTabVisible
+    {
+      get => this._isSearchArchiveTabVisible;
+      set
+      {
+        this._isSearchArchiveTabVisible = value;
+        this.OnPropertyChanged(nameof (IsSearchArchiveTabVisible));
+      }
+    }
+
+    public bool IsSearchArchiveTabSelected
+    {
+      get => this._isSearchArchiveTabSelected;
+      set
+      {
+        this._isSearchArchiveTabSelected = value;
+        this.OnPropertyChanged(nameof (IsSearchArchiveTabSelected));
+      }
+    }
+
+    public bool IsArchiveJobsTabVisible
+    {
+      get => this._isArchiveJobsTabVisible;
+      set
+      {
+        this._isArchiveJobsTabVisible = value;
+        this.OnPropertyChanged(nameof (IsArchiveJobsTabVisible));
+      }
+    }
+
+    public bool IsArchiveJobsTabSelected
+    {
+      get => this._isArchiveJobsTabSelected;
+      set
+      {
+        this._isArchiveJobsTabSelected = value;
+        this.OnPropertyChanged(nameof (IsArchiveJobsTabSelected));
+      }
+    }
+
+    public bool CreateArchiveJobVisibility
+    {
+      get => this._createArchiveJobVisibility;
+      set
+      {
+        this._createArchiveJobVisibility = value;
+        this.OnPropertyChanged(nameof (CreateArchiveJobVisibility));
+      }
+    }
+
+    public bool DeleteArchiveJobVisibility
+    {
+      get => this._deleteArchiveJobVisiblity;
+      set
+      {
+        this._deleteArchiveJobVisiblity = value;
+        this.OnPropertyChanged(nameof (DeleteArchiveJobVisibility));
+      }
+    }
+
+    public bool RunArchiveJobVisibility
+    {
+      get => this._runArchiveJobVisibility;
+      set
+      {
+        this._runArchiveJobVisibility = value;
+        this.OnPropertyChanged(nameof (RunArchiveJobVisibility));
+      }
+    }
+
+    public bool ExportArchiveVisibility
+    {
+      get => this._exportArchiveVisibility;
+      set
+      {
+        this._exportArchiveVisibility = value;
+        this.OnPropertyChanged(nameof (ExportArchiveVisibility));
+      }
+    }
+
+    public bool ArchiveAndKeepDataVisibility
+    {
+      get => this._archiveAndKeepDataVisibility;
+      set
+      {
+        this._archiveAndKeepDataVisibility = value;
+        this.OnPropertyChanged(nameof (ArchiveAndKeepDataVisibility));
+      }
+    }
+
+    public bool ArchiveAndDeleteDataVisibility
+    {
+      get => this._archiveAndDeleteDataVisibility;
+      set
+      {
+        this._archiveAndDeleteDataVisibility = value;
+        this.OnPropertyChanged(nameof (ArchiveAndDeleteDataVisibility));
+      }
+    }
+  }
+}
+
+
+--- CreateEditArchiveJobViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Archiving.CreateEditArchiveJobViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Modules.Archiving;
+using MSS.Business.Utils;
+using MSS.Core.Model.Archiving;
+using MSS.Core.Model.Reporting;
+using MSS.DTO.Archive;
+using MSS.DTO.Reporting;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MSS.Utils.Utils;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Archiving
+{
+  internal class CreateEditArchiveJobViewModel : ValidationViewModelBase
+  {
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly IRepository<ArchiveJob> _archiveJobRepository;
+    private readonly ArchiveJobDTO _archiveJob;
+    private int _selectedJobPeriodicityId;
+    private DateTime _startDateValue;
+    private string _archiveName = string.Empty;
+    private int _numberOfDaysToExport;
+    private bool _deleteAfterArchive;
+    private ViewModelBase _messageUserControl;
+    private string _archiveJobDialogTitle;
+    private List<ArchiveEntity> _archiveEntityCollection;
+
+    public CreateEditArchiveJobViewModel(
+      IRepositoryFactory repositoryFactory,
+      ArchiveJobDTO archiveJob)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._archiveJobRepository = repositoryFactory.GetRepository<ArchiveJob>();
+      this.ArchiveJobDialogTitle = archiveJob == null ? CultureResources.GetValue("MSS_Client_Archiving_CreateArchiveJob") : CultureResources.GetValue("MSS_Client_Archiving_EditArchiveJob");
+      this._archiveJob = archiveJob;
+      bool flag = archiveJob != null;
+      this.IsAddArchiveJobButtonVisible = !flag;
+      this.IsEditArchiveJobButtonVisible = flag;
+      if (flag)
+      {
+        this.ArchiveName = archiveJob.ArchiveName;
+        this.StartDateValue = archiveJob.StartDate;
+        this.NumberOfDaysToExport = archiveJob.NumberOfDaysToExport;
+        this.DeleteAfterArchive = archiveJob.DeleteAfterArchive;
+        this.ArchivedEntitiesCollection = archiveJob.ArchivedEntitiesList;
+        AutomatedExportJobPeriodicityDTO jobPeriodicityDto = this.GetJobPeriodicities.FirstOrDefault<AutomatedExportJobPeriodicityDTO>((Func<AutomatedExportJobPeriodicityDTO, bool>) (p => p.AutomatedExportPeriodicityEnum == archiveJob.Periodicity));
+        if (jobPeriodicityDto == null)
+          return;
+        this.SelectedJobPeriodicityId = jobPeriodicityDto.Id;
+      }
+      else
+      {
+        this.StartDateValue = DateTime.Now;
+        this.ArchivedEntitiesCollection = ((IEnumerable<ArchivedEntitiesEnum>) Enum.GetValues(typeof (ArchivedEntitiesEnum))).Where<ArchivedEntitiesEnum>((Func<ArchivedEntitiesEnum, bool>) (x => x == ArchivedEntitiesEnum.Logs || x == ArchivedEntitiesEnum.ReadingData)).Select<ArchivedEntitiesEnum, ArchiveEntity>((Func<ArchivedEntitiesEnum, ArchiveEntity>) (archivedEntitiesEnum => new ArchiveEntity()
+        {
+          IsChecked = false,
+          Name = archivedEntitiesEnum.GetStringValue(),
+          ArchivedEntityEnum = archivedEntitiesEnum
+        })).ToList<ArchiveEntity>();
+      }
+    }
+
+    public IEnumerable<AutomatedExportJobPeriodicityDTO> GetJobPeriodicities
+    {
+      get
+      {
+        return MSSHelper.GetListOfObjectsFromEnum<AutomatedExportJobPeriodicityEnum, AutomatedExportJobPeriodicityDTO>();
+      }
+    }
+
+    public ICommand CreateArchiveJobCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) delegate
+        {
+          if (!this.IsValid)
+            return;
+          AutomatedExportJobPeriodicityDTO jobPeriodicityDto = this.GetJobPeriodicities.FirstOrDefault<AutomatedExportJobPeriodicityDTO>((Func<AutomatedExportJobPeriodicityDTO, bool>) (jp => jp.Id == this.SelectedJobPeriodicityId));
+          if (jobPeriodicityDto != null)
+            this._archiveJobRepository.Insert(new ArchiveJob()
+            {
+              ArchiveName = this.ArchiveName,
+              CreatedOn = DateTime.Now,
+              NumberOfDaysToExport = this.NumberOfDaysToExport,
+              DeleteAfterArchive = this.DeleteAfterArchive,
+              ArchivedEntities = ArchivingHelper.SerializeArchivedEntities(this.ArchivedEntitiesCollection),
+              StartDate = this.StartDateValue,
+              Periodicity = jobPeriodicityDto.AutomatedExportPeriodicityEnum
+            });
+          this.OnRequestClose(true);
+        });
+      }
+    }
+
+    public ICommand EditArchiveJobCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) delegate
+        {
+          if (!this.IsValid)
+            return;
+          ArchiveJob entity = this._archiveJobRepository.FirstOrDefault((Expression<Func<ArchiveJob, bool>>) (aj => aj.Id == this._archiveJob.Id));
+          AutomatedExportJobPeriodicityDTO jobPeriodicityDto = this.GetJobPeriodicities.FirstOrDefault<AutomatedExportJobPeriodicityDTO>((Func<AutomatedExportJobPeriodicityDTO, bool>) (jp => jp.Id == this.SelectedJobPeriodicityId));
+          entity.ArchiveName = this.ArchiveName;
+          entity.CreatedOn = DateTime.Now;
+          entity.NumberOfDaysToExport = this.NumberOfDaysToExport;
+          entity.DeleteAfterArchive = this.DeleteAfterArchive;
+          entity.ArchivedEntities = ArchivingHelper.SerializeArchivedEntities(this.ArchivedEntitiesCollection);
+          entity.StartDate = this.StartDateValue;
+          if (jobPeriodicityDto != null)
+            entity.Periodicity = jobPeriodicityDto.AutomatedExportPeriodicityEnum;
+          this._archiveJobRepository.Update(entity);
+          this.OnRequestClose(true);
+        });
+      }
+    }
+
+    public int SelectedJobPeriodicityId
+    {
+      get => this._selectedJobPeriodicityId;
+      set
+      {
+        this._selectedJobPeriodicityId = value;
+        this.OnPropertyChanged(nameof (SelectedJobPeriodicityId));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_Client_AutomatedExportJob_StartDateErrorToolTip")]
+    public DateTime StartDateValue
+    {
+      get => this._startDateValue;
+      set
+      {
+        this._startDateValue = value;
+        this.OnPropertyChanged(nameof (StartDateValue));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_Client_Archive_ArchiveNameValidationMessage")]
+    public string ArchiveName
+    {
+      get => this._archiveName;
+      set
+      {
+        this._archiveName = value;
+        this.OnPropertyChanged(nameof (ArchiveName));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_Client_Archive_NumberOfDaysToExportErrorToolTip")]
+    public int NumberOfDaysToExport
+    {
+      get => this._numberOfDaysToExport;
+      set
+      {
+        this._numberOfDaysToExport = value;
+        this.OnPropertyChanged(nameof (NumberOfDaysToExport));
+      }
+    }
+
+    public bool DeleteAfterArchive
+    {
+      get => this._deleteAfterArchive;
+      set
+      {
+        this._deleteAfterArchive = value;
+        this.OnPropertyChanged(nameof (DeleteAfterArchive));
+      }
+    }
+
+    public bool IsAddArchiveJobButtonVisible { get; set; }
+
+    public bool IsEditArchiveJobButtonVisible { get; set; }
+
+    public ViewModelBase MessageUserControl
+    {
+      get => this._messageUserControl;
+      set
+      {
+        this._messageUserControl = value;
+        this.OnPropertyChanged(nameof (MessageUserControl));
+      }
+    }
+
+    public string ArchiveJobDialogTitle
+    {
+      get => this._archiveJobDialogTitle;
+      set
+      {
+        this._archiveJobDialogTitle = value;
+        this.OnPropertyChanged(nameof (ArchiveJobDialogTitle));
+      }
+    }
+
+    public List<ArchiveEntity> ArchivedEntitiesCollection
+    {
+      get => this._archiveEntityCollection;
+      set
+      {
+        this._archiveEntityCollection = value;
+        this.OnPropertyChanged(nameof (ArchivedEntitiesCollection));
+      }
+    }
+  }
+}
+
+
+--- DeleteArchiveJobViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Archiving.DeleteArchiveJobViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Utils;
+using MSS.Core.Model.Archiving;
+using MSS.Core.Model.Reporting;
+using MSS.DTO.Archive;
+using MSS.DTO.Reporting;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Archiving
+{
+  internal class DeleteArchiveJobViewModel : ValidationViewModelBase
+  {
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly IRepository<ArchiveJob> _archiveJobRepository;
+    private readonly ArchiveJobDTO _archiveJob;
+    private int _selectedJobPeriodicityId;
+    private DateTime _startDateValue;
+    private string _archiveName = string.Empty;
+    private int _numberOfDaysToExport;
+    private bool _deleteAfterArchive;
+    private ViewModelBase _messageUserControl;
+    private string _archiveJobDialogTitle;
+    private List<ArchiveEntity> _archiveEntityCollection;
+
+    public DeleteArchiveJobViewModel(IRepositoryFactory repositoryFactory, ArchiveJobDTO archiveJob)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._archiveJobRepository = repositoryFactory.GetRepository<ArchiveJob>();
+      this.ArchiveJobDialogTitle = CultureResources.GetValue("MSS_Client_Archiving_DeleteArchiveJob");
+      this._archiveJob = archiveJob;
+      this.ArchiveName = archiveJob.ArchiveName;
+      this.StartDateValue = archiveJob.StartDate;
+      this.DeleteAfterArchive = archiveJob.DeleteAfterArchive;
+      this.ArchivedEntitiesCollection = archiveJob.ArchivedEntitiesList;
+      AutomatedExportJobPeriodicityDTO jobPeriodicityDto = this.GetJobPeriodicities.FirstOrDefault<AutomatedExportJobPeriodicityDTO>((Func<AutomatedExportJobPeriodicityDTO, bool>) (p => p.AutomatedExportPeriodicityEnum == archiveJob.Periodicity));
+      if (jobPeriodicityDto == null)
+        return;
+      this.SelectedJobPeriodicityId = jobPeriodicityDto.Id;
+    }
+
+    public IEnumerable<AutomatedExportJobPeriodicityDTO> GetJobPeriodicities
+    {
+      get
+      {
+        return MSSHelper.GetListOfObjectsFromEnum<AutomatedExportJobPeriodicityEnum, AutomatedExportJobPeriodicityDTO>();
+      }
+    }
+
+    public ICommand DeleteArchiveJobCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (_ =>
+        {
+          this._archiveJobRepository.Delete(this._archiveJobRepository.FirstOrDefault((Expression<Func<ArchiveJob, bool>>) (aj => aj.Id == this._archiveJob.Id)));
+          this.OnRequestClose(true);
+        }));
+      }
+    }
+
+    public int SelectedJobPeriodicityId
+    {
+      get => this._selectedJobPeriodicityId;
+      set
+      {
+        this._selectedJobPeriodicityId = value;
+        this.OnPropertyChanged(nameof (SelectedJobPeriodicityId));
+      }
+    }
+
+    public DateTime StartDateValue
+    {
+      get => this._startDateValue;
+      set
+      {
+        this._startDateValue = value;
+        this.OnPropertyChanged(nameof (StartDateValue));
+      }
+    }
+
+    public string ArchiveName
+    {
+      get => this._archiveName;
+      set
+      {
+        this._archiveName = value;
+        this.OnPropertyChanged(nameof (ArchiveName));
+      }
+    }
+
+    public int NumberOfDaysToExport
+    {
+      get => this._numberOfDaysToExport;
+      set
+      {
+        this._numberOfDaysToExport = value;
+        this.OnPropertyChanged(nameof (NumberOfDaysToExport));
+      }
+    }
+
+    public bool DeleteAfterArchive
+    {
+      get => this._deleteAfterArchive;
+      set
+      {
+        this._deleteAfterArchive = value;
+        this.OnPropertyChanged(nameof (DeleteAfterArchive));
+      }
+    }
+
+    public ViewModelBase MessageUserControl
+    {
+      get => this._messageUserControl;
+      set
+      {
+        this._messageUserControl = value;
+        this.OnPropertyChanged(nameof (MessageUserControl));
+      }
+    }
+
+    public string ArchiveJobDialogTitle
+    {
+      get => this._archiveJobDialogTitle;
+      set
+      {
+        this._archiveJobDialogTitle = value;
+        this.OnPropertyChanged(nameof (ArchiveJobDialogTitle));
+      }
+    }
+
+    public List<ArchiveEntity> ArchivedEntitiesCollection
+    {
+      get => this._archiveEntityCollection;
+      set
+      {
+        this._archiveEntityCollection = value;
+        this.OnPropertyChanged(nameof (ArchivedEntitiesCollection));
+      }
+    }
+  }
+}
+
+
+--- SearchLogsViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Archiving.SearchLogsViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Utils;
+using MSSArchive.Core.Model.Archiving;
+using MSSArchive.Core.Model.Reporting;
+using MVVM.ViewModel;
+using Ninject;
+using Telerik.Windows.Data;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Archiving
+{
+  internal class SearchLogsViewModel : ViewModelBase
+  {
+    public VirtualQueryableCollectionView<ArchiveJobLogs> _archiveJobLogsDTO;
+
+    private ArchiveInformation ArchiveInformation { get; set; }
+
+    [Inject]
+    public SearchLogsViewModel() => this.IntializeCollection();
+
+    private void IntializeCollection()
+    {
+      this.ArchiveJobLogsDTO = MSSHelper.LoadCollection<ArchiveJobLogs>();
+    }
+
+    public VirtualQueryableCollectionView<ArchiveJobLogs> ArchiveJobLogsDTO
+    {
+      get => this._archiveJobLogsDTO;
+      set
+      {
+        this._archiveJobLogsDTO = value;
+        this.OnPropertyChanged(nameof (ArchiveJobLogsDTO));
+      }
+    }
+  }
+}
+
+
+--- SearchMssReadingJobViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Archiving.SearchMssReadingJobViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Utils;
+using MSSArchive.Core.Model.Archiving;
+using MSSArchive.Core.Model.Jobs;
+using MVVM.ViewModel;
+using Ninject;
+using Telerik.Windows.Data;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Archiving
+{
+  public class SearchMssReadingJobViewModel : ViewModelBase
+  {
+    public VirtualQueryableCollectionView<ArchiveMssReadingJob> _archiveMssReadingJobDTO;
+
+    private ArchiveInformation ArchiveInformation { get; set; }
+
+    [Inject]
+    public SearchMssReadingJobViewModel(ArchiveInformation archiveInformation)
+    {
+      this.ArchiveInformation = archiveInformation;
+    }
+
+    private void IntializeCollection()
+    {
+      this.ArchiveMssReadingJobDTO = MSSHelper.LoadCollection<ArchiveMssReadingJob>();
+    }
+
+    public VirtualQueryableCollectionView<ArchiveMssReadingJob> ArchiveMssReadingJobDTO
+    {
+      get => this._archiveMssReadingJobDTO;
+      set
+      {
+        this._archiveMssReadingJobDTO = value;
+        this.OnPropertyChanged(nameof (ArchiveMssReadingJobDTO));
+      }
+    }
+  }
+}
+
+
+--- SearchOrdersViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Archiving.SearchOrdersViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Errors;
+using MSS.Business.Utils;
+using MSS.DTO.MessageHandler;
+using MSS.Utils.Utils;
+using MSSArchive.Core.Model.Archiving;
+using MSSArchive.Core.Model.Orders;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using Ninject;
+using System;
+using System.Linq.Expressions;
+using System.Windows.Input;
+using Telerik.Windows.Data;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Archiving
+{
+  public class SearchOrdersViewModel : ViewModelBase
+  {
+    public VirtualQueryableCollectionView<ArchiveOrder> _archiveOrdersDTO;
+
+    private ArchiveInformation ArchiveInformation { get; set; }
+
+    [Inject]
+    public SearchOrdersViewModel(ArchiveInformation archiveInformation)
+    {
+      this.ArchiveInformation = archiveInformation;
+    }
+
+    private void IntializeCollection()
+    {
+      this.ArchiveOrdersDTO = MSSHelper.LoadCollection<ArchiveOrder>();
+    }
+
+    public ICommand SearchOrderByInstallationNumberCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          string searchText = parameter as string;
+          this.ArchiveOrdersDTO = MSSHelper.LoadCollection<ArchiveOrder>((Expression<Func<ArchiveOrder, bool>>) (mrv => mrv.InstallationNumber.Contains(searchText)));
+          if (this.ArchiveOrdersDTO.Count != 0)
+            return;
+          MSS.DTO.Message.Message message = new MSS.DTO.Message.Message()
+          {
+            MessageType = MessageTypeEnum.Warning,
+            MessageText = MessageCodes.No_Item_found.GetStringValue()
+          };
+        }));
+      }
+    }
+
+    public VirtualQueryableCollectionView<ArchiveOrder> ArchiveOrdersDTO
+    {
+      get => this._archiveOrdersDTO;
+      set
+      {
+        this._archiveOrdersDTO = value;
+        this.OnPropertyChanged(nameof (ArchiveOrdersDTO));
+      }
+    }
+  }
+}
+
+
+--- SearchReadingValuesViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Archiving.SearchReadingValuesViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Errors;
+using MSS.Business.Events;
+using MSS.Business.Modules.Archiving;
+using MSS.Core.Model.Archiving;
+using MSS.DTO.Archive;
+using MSS.DTO.MessageHandler;
+using MSS.Interfaces;
+using MSS.Utils.Utils;
+using MSSArchive.Core.Model.Meters;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Linq;
+using NHibernate.Transform;
+using Ninject;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using Telerik.Windows.Data;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Archiving
+{
+  public class SearchReadingValuesViewModel : ValidationViewModelBase
+  {
+    private readonly IRepositoryFactory _repositoryFactory;
+    private bool _isBusy;
+    private int _archiveNumberOfRecords;
+    private string _searchString;
+    public VirtualQueryableCollectionView<ArchiveMeterReadingValueDTO> _archiveMeterReadingValuesDTO;
+
+    [Inject]
+    public SearchReadingValuesViewModel(IRepositoryFactory repositoryFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this.ArchiveNumberOfRecords = this.GetReadingValuesCount(ArchiveManagerNHibernate.GetSessionFactoryMSSArchive(), "");
+    }
+
+    public IList<ArchiveMeterReadingValueDTO> GetReadingValuesDTO(
+      ISessionFactory sessionFactory,
+      string searchText,
+      int startIndex,
+      int pageSize)
+    {
+      List<ArchiveMeterReadingValueDTO> readingValuesDto = new List<ArchiveMeterReadingValueDTO>();
+      using (IStatelessSession statelessSession = sessionFactory.OpenStatelessSession())
+        readingValuesDto = (List<ArchiveMeterReadingValueDTO>) statelessSession.CreateCriteria<ArchiveMeterReadingValue>("RV").Add((ICriterion) Restrictions.Like("RV.MeterSerialNumber", (object) ("%" + searchText + "%"))).SetProjection((IProjection) Projections.ProjectionList().Add((IProjection) Projections.Property<ArchiveMeterReadingValue>((Expression<Func<ArchiveMeterReadingValue, object>>) (r => (object) r.Id)), "Id").Add((IProjection) Projections.Property<ArchiveMeterReadingValue>((Expression<Func<ArchiveMeterReadingValue, object>>) (r => (object) r.MeterId)), "MeterId").Add((IProjection) Projections.Property<ArchiveMeterReadingValue>((Expression<Func<ArchiveMeterReadingValue, object>>) (r => r.MeterSerialNumber)), "MeterSerialNumber").Add((IProjection) Projections.Property<ArchiveMeterReadingValue>((Expression<Func<ArchiveMeterReadingValue, object>>) (r => (object) r.Date)), "Date").Add((IProjection) Projections.Property<ArchiveMeterReadingValue>((Expression<Func<ArchiveMeterReadingValue, object>>) (r => (object) r.Value)), "Value").Add((IProjection) Projections.Property<ArchiveMeterReadingValue>((Expression<Func<ArchiveMeterReadingValue, object>>) (r => (object) r.ValueId)), "ValueId").Add((IProjection) Projections.Property<ArchiveMeterReadingValue>((Expression<Func<ArchiveMeterReadingValue, object>>) (r => (object) r.CreatedOn)), "CreatedOn").Add((IProjection) Projections.Property<ArchiveMeterReadingValue>((Expression<Func<ArchiveMeterReadingValue, object>>) (r => (object) r.ExportedOn)), "ExportedOn").Add((IProjection) Projections.Property<ArchiveMeterReadingValue>((Expression<Func<ArchiveMeterReadingValue, object>>) (r => (object) r.UnitId)), "UnitId").Add((IProjection) Projections.Property<ArchiveMeterReadingValue>((Expression<Func<ArchiveMeterReadingValue, object>>) (r => (object) r.PhysicalQuantity)), "PhysicalQuantity").Add((IProjection) Projections.Property<ArchiveMeterReadingValue>((Expression<Func<ArchiveMeterReadingValue, object>>) (r => (object) r.MeterType)), "MeterType").Add((IProjection) Projections.Property<ArchiveMeterReadingValue>((Expression<Func<ArchiveMeterReadingValue, object>>) (r => (object) r.Calculation)), "Calculation").Add((IProjection) Projections.Property<ArchiveMeterReadingValue>((Expression<Func<ArchiveMeterReadingValue, object>>) (r => (object) r.CalculationStart)), "CalculationStart").Add((IProjection) Projections.Property<ArchiveMeterReadingValue>((Expression<Func<ArchiveMeterReadingValue, object>>) (r => (object) r.StorageInterval)), "StorageInterval").Add((IProjection) Projections.Property<ArchiveMeterReadingValue>((Expression<Func<ArchiveMeterReadingValue, object>>) (r => (object) r.Creation)), "Creation")).AddOrder(new Order("Date", false)).SetFirstResult(startIndex).SetMaxResults(pageSize).SetResultTransformer(Transformers.AliasToBean<ArchiveMeterReadingValueDTO>()).List<ArchiveMeterReadingValueDTO>();
+      return (IList<ArchiveMeterReadingValueDTO>) readingValuesDto;
+    }
+
+    private int GetReadingValuesCount(ISessionFactory sessionFactory, string searchText)
+    {
+      int readingValuesCount;
+      using (IStatelessSession statelessSession = sessionFactory.OpenStatelessSession())
+      {
+        if (!string.IsNullOrEmpty(searchText))
+          readingValuesCount = LinqExtensionMethods.Query<ArchiveMeterReadingValue>(statelessSession).Count<ArchiveMeterReadingValue>((Expression<Func<ArchiveMeterReadingValue, bool>>) (rv => rv.MeterSerialNumber.Contains(searchText)));
+        else
+          readingValuesCount = LinqExtensionMethods.Query<ArchiveMeterReadingValue>(statelessSession).Count<ArchiveMeterReadingValue>();
+      }
+      return readingValuesCount;
+    }
+
+    public VirtualQueryableCollectionView<ArchiveMeterReadingValueDTO> LoadCollection(
+      string searchText)
+    {
+      ISessionFactory sessionFactoryMSSArchive = ArchiveManagerNHibernate.GetSessionFactoryMSSArchive();
+      VirtualQueryableCollectionView<ArchiveMeterReadingValueDTO> queryableCollectionView = new VirtualQueryableCollectionView<ArchiveMeterReadingValueDTO>();
+      queryableCollectionView.LoadSize = MSS.Business.Utils.AppContext.Current.GetParameterValue<int>("LoadSizeForVirtualScrolling");
+      queryableCollectionView.VirtualItemCount = this.GetReadingValuesCount(sessionFactoryMSSArchive, searchText);
+      VirtualQueryableCollectionView<ArchiveMeterReadingValueDTO> collection = queryableCollectionView;
+      collection.ItemsLoading += (EventHandler<VirtualQueryableCollectionViewItemsLoadingEventArgs>) (async (s, args) =>
+      {
+        this.IsBusy = true;
+        IList<ArchiveMeterReadingValueDTO> archiveMeterReadingValueDtos = (IList<ArchiveMeterReadingValueDTO>) null;
+        await Task.Run((Action) (() => archiveMeterReadingValueDtos = this.GetReadingValuesDTO(sessionFactoryMSSArchive, searchText, args.StartIndex, args.ItemCount)));
+        collection.Load(args.StartIndex, (IEnumerable) archiveMeterReadingValueDtos);
+        this.IsBusy = false;
+      });
+      return collection;
+    }
+
+    public ICommand SearchReadingValueCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          if (!this.IsValid)
+            return;
+          string searchText = parameter as string;
+          EventPublisher.Publish<ArchiveSearched>(new ArchiveSearched()
+          {
+            SearchedText = searchText
+          }, (IViewModel) this);
+          if (string.IsNullOrEmpty(searchText))
+            return;
+          this.ArchiveMeterReadingValuesDTO = this.LoadCollection(searchText);
+          if (this.ArchiveMeterReadingValuesDTO.Count != 0)
+            return;
+          MSS.DTO.Message.Message message = new MSS.DTO.Message.Message()
+          {
+            MessageType = MessageTypeEnum.Warning,
+            MessageText = MessageCodes.No_Item_found.GetStringValue()
+          };
+        }));
+      }
+    }
+
+    private ArchiveJob ArchiveJob { get; set; }
+
+    public bool IsBusy
+    {
+      get => this._isBusy;
+      set
+      {
+        if (this._isBusy == value)
+          return;
+        this._isBusy = value;
+        this.OnPropertyChanged(nameof (IsBusy));
+      }
+    }
+
+    public int ArchiveNumberOfRecords
+    {
+      get => this._archiveNumberOfRecords;
+      set
+      {
+        this._archiveNumberOfRecords = value;
+        this.OnPropertyChanged(nameof (ArchiveNumberOfRecords));
+      }
+    }
+
+    [Required(ErrorMessage = "MSS_Client_Archiving_FilterSearch_SerialNumber")]
+    public string SearchString
+    {
+      get => this._searchString;
+      set
+      {
+        this._searchString = value;
+        this.OnPropertyChanged(nameof (SearchString));
+      }
+    }
+
+    public VirtualQueryableCollectionView<ArchiveMeterReadingValueDTO> ArchiveMeterReadingValuesDTO
+    {
+      get => this._archiveMeterReadingValuesDTO;
+      set
+      {
+        this._archiveMeterReadingValuesDTO = value;
+        this.OnPropertyChanged(nameof (ArchiveMeterReadingValuesDTO));
+      }
+    }
+  }
+}
+
+
+--- SearchStructuresViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Archiving.SearchStructuresViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Errors;
+using MSS.Business.Modules.Archiving;
+using MSS.DIConfiguration;
+using MSS.DTO.Archive;
+using MSS.DTO.MessageHandler;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MSS.Utils.Utils;
+using MSSArchive.Core.Model.Archiving;
+using MSSArchive.Core.Model.DataCollectors;
+using MSSArchive.Core.Model.Meters;
+using MSSArchive.Core.Model.Structures;
+using MVVM.Commands;
+using MVVM.ViewModel;
+using NHibernate;
+using NHibernate.Linq;
+using Ninject;
+using Ninject.Parameters;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Archiving
+{
+  internal class SearchStructuresViewModel : ViewModelBase
+  {
+    private readonly IWindowFactory _windowFactory;
+    private string _pageSize = string.Empty;
+    private List<ArchiveStructureNodeDTO> _archiveStructureNodeCollection;
+    private ArchiveStructureNodeDTO _selectedItem;
+    private string _viewButtonText;
+
+    [Inject]
+    public SearchStructuresViewModel(
+      ArchiveInformation archiveInformation,
+      IWindowFactory windowFactory)
+    {
+      this.ArchiveInformation = archiveInformation;
+      this.PageSize = MSS.Business.Utils.AppContext.Current.GetParameterValue<string>(nameof (PageSize));
+      this.ViewButtonText = CultureResources.GetValue("MSS_Client_Button_ViewEntity");
+      this._windowFactory = windowFactory;
+    }
+
+    private ArchiveInformation ArchiveInformation { get; set; }
+
+    public string PageSize
+    {
+      get => this._pageSize;
+      set
+      {
+        this._pageSize = value;
+        this.OnPropertyChanged(nameof (PageSize));
+      }
+    }
+
+    public List<ArchiveStructureNodeDTO> ArchiveStructureNodeCollection
+    {
+      get => this._archiveStructureNodeCollection;
+      set
+      {
+        this._archiveStructureNodeCollection = value;
+        this.OnPropertyChanged(nameof (ArchiveStructureNodeCollection));
+      }
+    }
+
+    public ArchiveStructureNodeDTO SelectedItem
+    {
+      get => this._selectedItem;
+      set
+      {
+        this._selectedItem = value;
+        this.OnPropertyChanged(nameof (SelectedItem));
+      }
+    }
+
+    public string ViewButtonText
+    {
+      get => this._viewButtonText;
+      set
+      {
+        this._viewButtonText = value;
+        this.OnPropertyChanged(nameof (ViewButtonText));
+      }
+    }
+
+    public ICommand SearchStrByNameCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          string searchText = parameter as string;
+          this.ArchiveStructureNodeCollection = this.GetArchiveStructureDTO(ArchiveManagerNHibernate.GetSessionFactoryMSSArchive(), searchText, this.ArchiveInformation.Id);
+          if (this.ArchiveStructureNodeCollection.Count != 0)
+            return;
+          MSS.DTO.Message.Message message = new MSS.DTO.Message.Message()
+          {
+            MessageType = MessageTypeEnum.Warning,
+            MessageText = MessageCodes.No_Item_found.GetStringValue()
+          };
+        }));
+      }
+    }
+
+    public ICommand ViewElementCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          switch (this.SelectedItem.Entity.GetType().Name)
+          {
+            case "ArchiveTenantDTO":
+              this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<ViewArchiveTenantViewModel>((IParameter) new ConstructorArgument("entity", this.SelectedItem.Entity)));
+              break;
+            case "ArchiveLocationDTO":
+              this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<ViewArchiveLocationViewModel>((IParameter) new ConstructorArgument("entity", this.SelectedItem.Entity)));
+              break;
+            case "ArchiveMeterDTO":
+              this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<ViewArchiveMeterViewModel>((IParameter) new ConstructorArgument("entity", this.SelectedItem.Entity)));
+              break;
+            case "ArchiveMinomatDTO":
+              this._windowFactory.CreateNewModalDialog((IViewModel) DIConfigurator.GetConfigurator().Get<ViewArchiveMinomatViewModel>((IParameter) new ConstructorArgument("entity", this.SelectedItem.Entity)));
+              break;
+          }
+        }));
+      }
+    }
+
+    public List<ArchiveStructureNodeDTO> GetArchiveStructureDTO(
+      ISessionFactory sessionFactoryMSSArchive,
+      string searchText,
+      Guid archiveInformationId)
+    {
+      List<ArchiveStructureNodeDTO> archiveStructureDto = new List<ArchiveStructureNodeDTO>();
+      using (IStatelessSession nhSession = sessionFactoryMSSArchive.OpenStatelessSession())
+      {
+        List<ArchiveStructureNodeDTO> structureCollection = ArchivingHelper.CreateArchiveStructureCollection(LinqExtensionMethods.Query<ArchiveStructureNodeLinks>(nhSession).Where<ArchiveStructureNodeLinks>((Expression<Func<ArchiveStructureNodeLinks, bool>>) (l => l.ArchiveInformation.Id == archiveInformationId && l.EndDate == new DateTime?())).ToList<ArchiveStructureNodeLinks>().OrderBy<ArchiveStructureNodeLinks, int>((Func<ArchiveStructureNodeLinks, int>) (l => l.OrderNr)), LinqExtensionMethods.Query<ArchiveStructureNode>(nhSession).Where<ArchiveStructureNode>((Expression<Func<ArchiveStructureNode, bool>>) (n => n.ArchiveInformation.Id == archiveInformationId && n.EndDate == new DateTime?())).ToList<ArchiveStructureNode>(), this.GetArchiveEntitiesDictionary(nhSession, archiveInformationId));
+        archiveStructureDto = ArchivingHelper.FilterArchiveStructureCollectionByName(searchText, structureCollection);
+      }
+      return archiveStructureDto;
+    }
+
+    public Dictionary<Guid, object> GetArchiveEntitiesDictionary(
+      IStatelessSession nhSession,
+      Guid archiveInformationId)
+    {
+      Dictionary<Guid, object> entitiesDictionary = new Dictionary<Guid, object>();
+      IList<ArchiveMeter> list1 = (IList<ArchiveMeter>) LinqExtensionMethods.Query<ArchiveMeter>(nhSession).Where<ArchiveMeter>((Expression<Func<ArchiveMeter, bool>>) (m => m.ArchiveInformation.Id == archiveInformationId)).ToList<ArchiveMeter>();
+      IList<ArchiveLocation> list2 = (IList<ArchiveLocation>) LinqExtensionMethods.Query<ArchiveLocation>(nhSession).Where<ArchiveLocation>((Expression<Func<ArchiveLocation, bool>>) (l => l.ArchiveInformation.Id == archiveInformationId)).ToList<ArchiveLocation>();
+      IList<ArchiveTenant> list3 = (IList<ArchiveTenant>) LinqExtensionMethods.Query<ArchiveTenant>(nhSession).Where<ArchiveTenant>((Expression<Func<ArchiveTenant, bool>>) (t => t.ArchiveInformation.Id == archiveInformationId)).ToList<ArchiveTenant>();
+      IList<ArchiveMinomat> list4 = (IList<ArchiveMinomat>) LinqExtensionMethods.Query<ArchiveMinomat>(nhSession).Where<ArchiveMinomat>((Expression<Func<ArchiveMinomat, bool>>) (m => m.ArchiveInformation.Id == archiveInformationId)).ToList<ArchiveMinomat>();
+      TypeHelperExtensionMethods.ForEach<ArchiveMeter>((IEnumerable<ArchiveMeter>) list1, (Action<ArchiveMeter>) (m => entitiesDictionary.Add(m.Id, (object) m)));
+      TypeHelperExtensionMethods.ForEach<ArchiveLocation>((IEnumerable<ArchiveLocation>) list2, (Action<ArchiveLocation>) (l => entitiesDictionary.Add(l.Id, (object) l)));
+      TypeHelperExtensionMethods.ForEach<ArchiveTenant>((IEnumerable<ArchiveTenant>) list3, (Action<ArchiveTenant>) (t => entitiesDictionary.Add(t.Id, (object) t)));
+      TypeHelperExtensionMethods.ForEach<ArchiveMinomat>((IEnumerable<ArchiveMinomat>) list4, (Action<ArchiveMinomat>) (m => entitiesDictionary.Add(m.Id, (object) m)));
+      return entitiesDictionary;
+    }
+  }
+}
+
+
+--- ViewArchiveEntityViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Archiving.ViewArchiveEntityViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MVVM.ViewModel;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Archiving
+{
+  internal class ViewArchiveEntityViewModel : ViewModelBase
+  {
+    private string _archiveViewEntityDialogTitle;
+
+    public string ArchiveViewEntityDialogTitle
+    {
+      get => this._archiveViewEntityDialogTitle;
+      set
+      {
+        this._archiveViewEntityDialogTitle = value;
+        this.OnPropertyChanged(nameof (ArchiveViewEntityDialogTitle));
+      }
+    }
+  }
+}
+
+
+--- ViewArchiveLocationViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Archiving.ViewArchiveLocationViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.DTO.Archive;
+using MSS.Localisation;
+using Ninject;
+using System;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Archiving
+{
+  internal class ViewArchiveLocationViewModel : ViewArchiveEntityViewModel
+  {
+    private ArchiveLocationDTO _Entity { get; }
+
+    [Inject]
+    public ViewArchiveLocationViewModel(ArchiveLocationDTO entity)
+    {
+      this._Entity = entity;
+      this.ArchiveViewEntityDialogTitle = CultureResources.GetValue("MSS_Client_Archiving_ViewLocation");
+      this.InitializeData(this._Entity);
+    }
+
+    private void InitializeData(ArchiveLocationDTO entity)
+    {
+      this.CityTextValue = entity.City;
+      this.StreetTextValue = entity.Street;
+      this.ZipCodeValue = entity.ZipCode;
+      this.BuildingNumberValue = entity.BuildingNr;
+      this.DescriptionValue = entity.Description;
+      this.DueDateValue = entity.DueDate;
+      this.GenerationValue = entity.Generation.ToString();
+      this.Scale = entity.Scale.ToString();
+      this.ScenarioCode = entity.ScenarioCode;
+    }
+
+    public string CityTextValue { get; set; }
+
+    public string StreetTextValue { get; set; }
+
+    public string DescriptionValue { get; set; }
+
+    public string ZipCodeValue { get; set; }
+
+    public string BuildingNumberValue { get; set; }
+
+    public DateTime DueDateValue { get; set; }
+
+    public string GenerationValue { get; set; }
+
+    public string Scale { get; set; }
+
+    public string ScenarioCode { get; set; }
+  }
+}
+
+
+--- ViewArchiveMeterViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Archiving.ViewArchiveMeterViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Core.Model.Meters;
+using MSS.DTO.Archive;
+using MSS.Localisation;
+using Ninject;
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Archiving
+{
+  internal class ViewArchiveMeterViewModel : ViewArchiveEntityViewModel
+  {
+    private ArchiveMeterDTO _Entity { get; }
+
+    [Inject]
+    public ViewArchiveMeterViewModel(ArchiveMeterDTO entity)
+    {
+      this._Entity = entity;
+      this.ArchiveViewEntityDialogTitle = CultureResources.GetValue("MSS_Client_Archiving_ViewMeter");
+      this.InitializeData(this._Entity);
+    }
+
+    private void InitializeData(ArchiveMeterDTO entity)
+    {
+      this.SerialNo = entity.SerialNumber;
+      this.ShortDeviceNo = entity.ShortDeviceNo;
+      this.CompleteDevice = entity.CompletDevice;
+      this.DecimalPlaces = entity.DecimalPlaces;
+      this.DeviceType = entity.DeviceType;
+      this.ChannelCode = entity.ChannelCode;
+      this.ConnectedDeviceTypeCode = entity.ConnectedDeviceTypeCode;
+      this.ReadingUnitCode = entity.ReadingUnitCode;
+      this.RoomTypeCode = entity.RoomTypeCode;
+      this.StartValue = entity.StartValue;
+    }
+
+    public string SerialNo { get; set; }
+
+    public string AnteriorSerialNumber { get; set; }
+
+    public List<string> SerialNumberList { get; set; }
+
+    public string ShortDeviceNo { get; set; }
+
+    public string CompleteDevice { get; set; }
+
+    public DeviceTypeEnum DeviceType { get; set; }
+
+    public string RoomTypeCode { get; set; }
+
+    public string ReadingUnitCode { get; set; }
+
+    public double? StartValue { get; set; }
+
+    public double? DecimalPlaces { get; set; }
+
+    public Guid SelectedImpulsUnitId { get; set; }
+
+    public string ChannelCode { get; set; }
+
+    public string ConnectedDeviceTypeCode { get; set; }
+  }
+}
+
+
+--- ViewArchiveMinomatViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Archiving.ViewArchiveMinomatViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.DTO.Archive;
+using MSS.Localisation;
+using Ninject;
+using System;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Archiving
+{
+  internal class ViewArchiveMinomatViewModel : ViewArchiveEntityViewModel
+  {
+    private ArchiveMinomatDTO _Entity { get; }
+
+    [Inject]
+    public ViewArchiveMinomatViewModel(ArchiveMinomatDTO entity)
+    {
+      this._Entity = entity;
+      this.ArchiveViewEntityDialogTitle = CultureResources.GetValue("MSS_Client_Archiving_ViewMinomat");
+      this.InitializeData(this._Entity);
+    }
+
+    private void InitializeData(ArchiveMinomatDTO entity)
+    {
+      this.MasterRadioId = entity.MasterRadioId;
+      this.IsMaster = entity.IsMaster;
+      this.IsInMasterPool = entity.IsInMasterPool;
+      this.ProviderName = entity.ProviderName;
+      this.SimPin = entity.SimPin;
+      this.AccessPoint = entity.AccessPoint;
+      this.UserId = entity.UserId;
+      this.UserPassword = entity.UserPassword;
+      this.Challenge = entity.Challenge;
+      this.GsmId = entity.GsmId;
+      this.SessionKey = entity.SessionKey;
+      this.Polling = new int?(entity.Polling);
+      this.HostAndPort = entity.HostAndPort;
+      this.Url = entity.Url;
+      this.Status = entity.Status;
+      this.StartDate = entity.StartDate;
+      this.EndDate = entity.EndDate;
+      this.Registered = entity.Registered;
+    }
+
+    public bool IsInMasterPool { get; set; }
+
+    public bool IsMaster { get; set; }
+
+    public string Status { get; set; }
+
+    public string MasterRadioId { get; set; }
+
+    public DateTime? StartDate { get; set; }
+
+    public DateTime? EndDate { get; set; }
+
+    public string SelectedProvider { get; set; }
+
+    public string SimPin { get; set; }
+
+    public string AccessPoint { get; set; }
+
+    public string UserId { get; set; }
+
+    public string UserPassword { get; set; }
+
+    public bool Registered { get; set; }
+
+    public string Challenge { get; set; }
+
+    public string GsmId { get; set; }
+
+    public int? Polling { get; set; }
+
+    public string HostAndPort { get; set; }
+
+    public string Url { get; set; }
+
+    public string SessionKey { get; set; }
+
+    public string ProviderName { get; set; }
+  }
+}
+
+
+--- ViewArchiveTenantViewModel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Archiving.ViewArchiveTenantViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.DTO.Archive;
+using MSS.Localisation;
+using Ninject;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Archiving
+{
+  internal class ViewArchiveTenantViewModel : ViewArchiveEntityViewModel
+  {
+    private string _floorNameValue = string.Empty;
+    private string _floorNrValue = string.Empty;
+    private string _apartmentNrValue = string.Empty;
+    private string _descriptionValue = string.Empty;
+    private string _customerTenantNo = string.Empty;
+    private bool _isGroupValue;
+
+    private ArchiveTenantDTO _Entity { get; }
+
+    [Inject]
+    public ViewArchiveTenantViewModel(ArchiveTenantDTO entity)
+    {
+      this._Entity = entity;
+      this.ArchiveViewEntityDialogTitle = CultureResources.GetValue("MSS_Client_Archiving_ViewTenant");
+      this.InitializeData(this._Entity);
+    }
+
+    private void InitializeData(ArchiveTenantDTO entity)
+    {
+      this.Name = entity.Name;
+      this.Description = entity.Description;
+      this.TenantNr = entity.TenantNr;
+      this.FloorNameValue = entity.FloorName;
+      this.FloorNrValue = entity.FloorNr;
+      this.ApartmentNrValue = entity.ApartmentNr;
+      this.CustomerTenantNo = entity.CustomerTenantNo;
+      this.IsGroup = entity.IsGroup;
+    }
+
+    public string Name { get; set; }
+
+    public string Description { get; set; }
+
+    public int TenantNr { get; set; }
+
+    public string FloorNameValue
+    {
+      get => this._floorNameValue;
+      set => this._floorNameValue = value;
+    }
+
+    public string FloorNrValue
+    {
+      get => this._floorNrValue;
+      set => this._floorNrValue = value;
+    }
+
+    public string ApartmentNrValue
+    {
+      get => this._apartmentNrValue;
+      set => this._apartmentNrValue = value;
+    }
+
+    public string DescriptionValue
+    {
+      get => this._descriptionValue;
+      set => this._descriptionValue = value;
+    }
+
+    public string CustomerTenantNo
+    {
+      get => this._customerTenantNo;
+      set => this._customerTenantNo = value;
+    }
+
+    public bool IsGroup
+    {
+      get => this._isGroupValue;
+      set => this._isGroupValue = value;
+    }
+  }
+}
+

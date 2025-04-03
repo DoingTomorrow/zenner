@@ -1,0 +1,309 @@
+
+--- Action.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Misc.Action
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime.Misc
+{
+  public delegate void Action();
+}
+
+
+--- FastQueue`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Misc.FastQueue`1
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+#nullable disable
+namespace Antlr.Runtime.Misc
+{
+  public class FastQueue<T>
+  {
+    internal List<T> _data = new List<T>();
+    internal int _p;
+
+    public virtual int Count => this._data.Count - this._p;
+
+    public virtual int Range { get; protected set; }
+
+    public virtual T this[int i]
+    {
+      get
+      {
+        int index = this._p + i;
+        if (index >= this._data.Count)
+          throw new ArgumentException(string.Format("queue index {0} > last index {1}", (object) index, (object) (this._data.Count - 1)));
+        if (index < 0)
+          throw new ArgumentException(string.Format("queue index {0} < 0", (object) index));
+        if (index > this.Range)
+          this.Range = index;
+        return this._data[index];
+      }
+    }
+
+    public virtual T Dequeue()
+    {
+      if (this.Count == 0)
+        throw new InvalidOperationException();
+      T obj = this[0];
+      ++this._p;
+      if (this._p == this._data.Count)
+        this.Clear();
+      return obj;
+    }
+
+    public virtual void Enqueue(T o) => this._data.Add(o);
+
+    public virtual T Peek() => this[0];
+
+    public virtual void Clear()
+    {
+      this._p = 0;
+      this._data.Clear();
+    }
+
+    public override string ToString()
+    {
+      StringBuilder stringBuilder = new StringBuilder();
+      int count = this.Count;
+      for (int i = 0; i < count; ++i)
+      {
+        stringBuilder.Append((object) this[i]);
+        if (i + 1 < count)
+          stringBuilder.Append(" ");
+      }
+      return stringBuilder.ToString();
+    }
+  }
+}
+
+
+--- Func`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Misc.Func`1
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime.Misc
+{
+  public delegate TResult Func<TResult>();
+}
+
+
+--- Func`2.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Misc.Func`2
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime.Misc
+{
+  public delegate TResult Func<T, TResult>(T arg);
+}
+
+
+--- ListStack`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Misc.ListStack`1
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace Antlr.Runtime.Misc
+{
+  public class ListStack<T> : List<T>
+  {
+    public T Peek() => this.Peek(0);
+
+    public T Peek(int depth)
+    {
+      T obj;
+      if (!this.TryPeek(depth, out obj))
+        throw new InvalidOperationException();
+      return obj;
+    }
+
+    public bool TryPeek(out T item) => this.TryPeek(0, out item);
+
+    public bool TryPeek(int depth, out T item)
+    {
+      if (depth >= this.Count)
+      {
+        item = default (T);
+        return false;
+      }
+      item = this[this.Count - depth - 1];
+      return true;
+    }
+
+    public T Pop()
+    {
+      T obj;
+      if (!this.TryPop(out obj))
+        throw new InvalidOperationException();
+      return obj;
+    }
+
+    public bool TryPop(out T item)
+    {
+      if (this.Count == 0)
+      {
+        item = default (T);
+        return false;
+      }
+      item = this[this.Count - 1];
+      this.RemoveAt(this.Count - 1);
+      return true;
+    }
+
+    public void Push(T item) => this.Add(item);
+  }
+}
+
+
+--- LookaheadStream`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Misc.LookaheadStream`1
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+
+#nullable disable
+namespace Antlr.Runtime.Misc
+{
+  public abstract class LookaheadStream<T> : FastQueue<T> where T : class
+  {
+    private int _currentElementIndex;
+    private T _previousElement;
+    private T _eof = default (T);
+    private int _lastMarker;
+    private int _markDepth;
+
+    public T EndOfFile
+    {
+      get => this._eof;
+      protected set => this._eof = value;
+    }
+
+    public T PreviousElement => this._previousElement;
+
+    public override void Clear()
+    {
+      base.Clear();
+      this._currentElementIndex = 0;
+      this._p = 0;
+      this._previousElement = default (T);
+    }
+
+    public abstract T NextElement();
+
+    public abstract bool IsEndOfFile(T o);
+
+    public override T Dequeue()
+    {
+      T obj = this[0];
+      ++this._p;
+      if (this._p == this._data.Count && this._markDepth == 0)
+        this.Clear();
+      return obj;
+    }
+
+    public virtual void Consume()
+    {
+      this.SyncAhead(1);
+      this._previousElement = this.Dequeue();
+      ++this._currentElementIndex;
+    }
+
+    protected virtual void SyncAhead(int need)
+    {
+      int n = this._p + need - 1 - this._data.Count + 1;
+      if (n <= 0)
+        return;
+      this.Fill(n);
+    }
+
+    public virtual void Fill(int n)
+    {
+      for (int index = 0; index < n; ++index)
+      {
+        T o = this.NextElement();
+        if (this.IsEndOfFile(o))
+          this._eof = o;
+        this._data.Add(o);
+      }
+    }
+
+    public override int Count => throw new NotSupportedException("streams are of unknown size");
+
+    public virtual T LT(int k)
+    {
+      if (k == 0)
+        return default (T);
+      if (k < 0)
+        return this.LB(-k);
+      this.SyncAhead(k);
+      return this._p + k - 1 > this._data.Count ? this._eof : this[k - 1];
+    }
+
+    public virtual int Index => this._currentElementIndex;
+
+    public virtual int Mark()
+    {
+      ++this._markDepth;
+      this._lastMarker = this._p;
+      return this._lastMarker;
+    }
+
+    public virtual void Release(int marker)
+    {
+      if (this._markDepth == 0)
+        throw new InvalidOperationException();
+      --this._markDepth;
+    }
+
+    public virtual void Rewind(int marker)
+    {
+      this.Seek(marker);
+      this.Release(marker);
+    }
+
+    public virtual void Rewind() => this.Rewind(this._lastMarker);
+
+    public virtual void Seek(int index) => this._p = index;
+
+    protected virtual T LB(int k)
+    {
+      if (k == 1)
+        return this._previousElement;
+      throw new ArgumentException("can't look backwards more than one token in this stream");
+    }
+  }
+}
+

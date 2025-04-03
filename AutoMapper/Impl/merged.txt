@@ -1,0 +1,578 @@
+
+--- FieldAccessor.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Impl.FieldAccessor
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System.Reflection;
+
+#nullable disable
+namespace AutoMapper.Impl
+{
+  public class FieldAccessor : 
+    FieldGetter,
+    IMemberAccessor,
+    IMemberGetter,
+    IMemberResolver,
+    IValueResolver
+  {
+    private readonly LateBoundFieldSet _lateBoundFieldSet;
+
+    public FieldAccessor(FieldInfo fieldInfo)
+      : base(fieldInfo)
+    {
+      this._lateBoundFieldSet = MemberGetter.DelegateFactory.CreateSet(fieldInfo);
+    }
+
+    public void SetValue(object destination, object value)
+    {
+      this._lateBoundFieldSet(destination, value);
+    }
+  }
+}
+
+
+--- FieldGetter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Impl.FieldGetter
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace AutoMapper.Impl
+{
+  public class FieldGetter : MemberGetter
+  {
+    private readonly FieldInfo _fieldInfo;
+    private readonly string _name;
+    private readonly Type _memberType;
+    private readonly LateBoundFieldGet _lateBoundFieldGet;
+
+    public FieldGetter(FieldInfo fieldInfo)
+    {
+      this._fieldInfo = fieldInfo;
+      this._name = fieldInfo.Name;
+      this._memberType = fieldInfo.FieldType;
+      this._lateBoundFieldGet = MemberGetter.DelegateFactory.CreateGet(fieldInfo);
+    }
+
+    public override MemberInfo MemberInfo => (MemberInfo) this._fieldInfo;
+
+    public override string Name => this._name;
+
+    public override Type MemberType => this._memberType;
+
+    public override object GetValue(object source) => this._lateBoundFieldGet(source);
+
+    public bool Equals(FieldGetter other)
+    {
+      if (object.ReferenceEquals((object) null, (object) other))
+        return false;
+      return object.ReferenceEquals((object) this, (object) other) || object.Equals((object) other._fieldInfo, (object) this._fieldInfo);
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (object.ReferenceEquals((object) null, obj))
+        return false;
+      if (object.ReferenceEquals((object) this, obj))
+        return true;
+      return (object) obj.GetType() == (object) typeof (FieldGetter) && this.Equals((FieldGetter) obj);
+    }
+
+    public override int GetHashCode() => this._fieldInfo.GetHashCode();
+
+    public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+    {
+      return this._fieldInfo.GetCustomAttributes(attributeType, inherit);
+    }
+
+    public override object[] GetCustomAttributes(bool inherit)
+    {
+      return this._fieldInfo.GetCustomAttributes(inherit);
+    }
+
+    public override bool IsDefined(Type attributeType, bool inherit)
+    {
+      return this._fieldInfo.IsDefined(attributeType, inherit);
+    }
+  }
+}
+
+
+--- MemberGetter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Impl.MemberGetter
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using AutoMapper.Internal;
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace AutoMapper.Impl
+{
+  public abstract class MemberGetter : IMemberGetter, IMemberResolver, IValueResolver
+  {
+    protected static readonly IDelegateFactory DelegateFactory = PlatformAdapter.Resolve<IDelegateFactory>();
+
+    public abstract MemberInfo MemberInfo { get; }
+
+    public abstract string Name { get; }
+
+    public abstract Type MemberType { get; }
+
+    public abstract object GetValue(object source);
+
+    public ResolutionResult Resolve(ResolutionResult source)
+    {
+      return source.Value != null ? source.New(this.GetValue(source.Value), this.MemberType) : source.New(source.Value, this.MemberType);
+    }
+
+    public abstract object[] GetCustomAttributes(Type attributeType, bool inherit);
+
+    public abstract object[] GetCustomAttributes(bool inherit);
+
+    public abstract bool IsDefined(Type attributeType, bool inherit);
+  }
+}
+
+
+--- MethodGetter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Impl.MethodGetter
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace AutoMapper.Impl
+{
+  public class MethodGetter : MemberGetter
+  {
+    private readonly MethodInfo _methodInfo;
+    private readonly string _name;
+    private readonly Type _memberType;
+    private readonly LateBoundMethod _lateBoundMethod;
+
+    public MethodGetter(MethodInfo methodInfo)
+    {
+      this._methodInfo = methodInfo;
+      this._name = this._methodInfo.Name;
+      this._memberType = this._methodInfo.ReturnType;
+      this._lateBoundMethod = MemberGetter.DelegateFactory.CreateGet(methodInfo);
+    }
+
+    public override MemberInfo MemberInfo => (MemberInfo) this._methodInfo;
+
+    public override string Name => this._name;
+
+    public override Type MemberType => this._memberType;
+
+    public override object GetValue(object source)
+    {
+      return (object) this._memberType != null ? this._lateBoundMethod(source, new object[0]) : (object) null;
+    }
+
+    public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+    {
+      return this._methodInfo.GetCustomAttributes(attributeType, inherit);
+    }
+
+    public override object[] GetCustomAttributes(bool inherit)
+    {
+      return this._methodInfo.GetCustomAttributes(inherit);
+    }
+
+    public override bool IsDefined(Type attributeType, bool inherit)
+    {
+      return this._methodInfo.IsDefined(attributeType, inherit);
+    }
+
+    public bool Equals(MethodGetter other)
+    {
+      if (object.ReferenceEquals((object) null, (object) other))
+        return false;
+      return object.ReferenceEquals((object) this, (object) other) || object.Equals((object) other._methodInfo, (object) this._methodInfo);
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (object.ReferenceEquals((object) null, obj))
+        return false;
+      if (object.ReferenceEquals((object) this, obj))
+        return true;
+      return (object) obj.GetType() == (object) typeof (MethodGetter) && this.Equals((MethodGetter) obj);
+    }
+
+    public override int GetHashCode() => this._methodInfo.GetHashCode();
+  }
+}
+
+
+--- PropertyAccessor.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Impl.PropertyAccessor
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System.Reflection;
+
+#nullable disable
+namespace AutoMapper.Impl
+{
+  public class PropertyAccessor : 
+    PropertyGetter,
+    IMemberAccessor,
+    IMemberGetter,
+    IMemberResolver,
+    IValueResolver
+  {
+    private readonly LateBoundPropertySet _lateBoundPropertySet;
+    private readonly bool _hasSetter;
+
+    public PropertyAccessor(PropertyInfo propertyInfo)
+      : base(propertyInfo)
+    {
+      this._hasSetter = (object) propertyInfo.GetSetMethod(true) != null;
+      if (!this._hasSetter)
+        return;
+      this._lateBoundPropertySet = MemberGetter.DelegateFactory.CreateSet(propertyInfo);
+    }
+
+    public bool HasSetter => this._hasSetter;
+
+    public virtual void SetValue(object destination, object value)
+    {
+      this._lateBoundPropertySet(destination, value);
+    }
+  }
+}
+
+
+--- PropertyGetter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Impl.PropertyGetter
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace AutoMapper.Impl
+{
+  public class PropertyGetter : MemberGetter
+  {
+    private readonly PropertyInfo _propertyInfo;
+    private readonly string _name;
+    private readonly Type _memberType;
+    private readonly LateBoundPropertyGet _lateBoundPropertyGet;
+
+    public PropertyGetter(PropertyInfo propertyInfo)
+    {
+      this._propertyInfo = propertyInfo;
+      this._name = this._propertyInfo.Name;
+      this._memberType = this._propertyInfo.PropertyType;
+      if ((object) this._propertyInfo.GetGetMethod(true) != null)
+        this._lateBoundPropertyGet = MemberGetter.DelegateFactory.CreateGet(propertyInfo);
+      else
+        this._lateBoundPropertyGet = (LateBoundPropertyGet) (src => (object) null);
+    }
+
+    public override MemberInfo MemberInfo => (MemberInfo) this._propertyInfo;
+
+    public override string Name => this._name;
+
+    public override Type MemberType => this._memberType;
+
+    public override object GetValue(object source) => this._lateBoundPropertyGet(source);
+
+    public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+    {
+      return this._propertyInfo.GetCustomAttributes(attributeType, inherit);
+    }
+
+    public override object[] GetCustomAttributes(bool inherit)
+    {
+      return this._propertyInfo.GetCustomAttributes(inherit);
+    }
+
+    public override bool IsDefined(Type attributeType, bool inherit)
+    {
+      return this._propertyInfo.IsDefined(attributeType, inherit);
+    }
+
+    public bool Equals(PropertyGetter other)
+    {
+      if (object.ReferenceEquals((object) null, (object) other))
+        return false;
+      return object.ReferenceEquals((object) this, (object) other) || object.Equals((object) other._propertyInfo, (object) this._propertyInfo);
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (object.ReferenceEquals((object) null, obj))
+        return false;
+      if (object.ReferenceEquals((object) this, obj))
+        return true;
+      return (object) obj.GetType() == (object) typeof (PropertyGetter) && this.Equals((PropertyGetter) obj);
+    }
+
+    public override int GetHashCode() => this._propertyInfo.GetHashCode();
+  }
+}
+
+
+--- ProxyBase.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Impl.ProxyBase
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System.ComponentModel;
+
+#nullable disable
+namespace AutoMapper.Impl
+{
+  public abstract class ProxyBase
+  {
+    protected void NotifyPropertyChanged(PropertyChangedEventHandler handler, string method)
+    {
+      if (handler == null)
+        return;
+      handler((object) this, new PropertyChangedEventArgs(method));
+    }
+  }
+}
+
+
+--- ReflectionHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Impl.ReflectionHelper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+using System.Linq.Expressions;
+using System.Reflection;
+
+#nullable disable
+namespace AutoMapper.Impl
+{
+  public static class ReflectionHelper
+  {
+    public static MemberInfo FindProperty(LambdaExpression lambdaExpression)
+    {
+      Expression expression = (Expression) lambdaExpression;
+      bool flag = false;
+      while (!flag)
+      {
+        switch (expression.NodeType)
+        {
+          case ExpressionType.Convert:
+            expression = ((UnaryExpression) expression).Operand;
+            continue;
+          case ExpressionType.Lambda:
+            expression = ((LambdaExpression) expression).Body;
+            continue;
+          case ExpressionType.MemberAccess:
+            MemberExpression memberExpression = (MemberExpression) expression;
+            if (memberExpression.Expression.NodeType != ExpressionType.Parameter && memberExpression.Expression.NodeType != ExpressionType.Convert)
+              throw new ArgumentException(string.Format("Expression '{0}' must resolve to top-level member and not any child object's properties. Use a custom resolver on the child type or the AfterMap option instead.", new object[1]
+              {
+                (object) lambdaExpression
+              }), nameof (lambdaExpression));
+            return memberExpression.Member;
+          default:
+            flag = true;
+            continue;
+        }
+      }
+      throw new AutoMapperConfigurationException("Custom configuration for members is only supported for top-level individual members on a type.");
+    }
+
+    public static Type GetMemberType(this MemberInfo memberInfo)
+    {
+      if ((object) (memberInfo as MethodInfo) != null)
+        return ((MethodInfo) memberInfo).ReturnType;
+      if ((object) (memberInfo as PropertyInfo) != null)
+        return ((PropertyInfo) memberInfo).PropertyType;
+      return (object) (memberInfo as FieldInfo) != null ? ((FieldInfo) memberInfo).FieldType : (Type) null;
+    }
+
+    public static IMemberGetter ToMemberGetter(this MemberInfo accessorCandidate)
+    {
+      if ((object) accessorCandidate == null)
+        return (IMemberGetter) null;
+      if ((object) (accessorCandidate as PropertyInfo) != null)
+        return (IMemberGetter) new PropertyGetter((PropertyInfo) accessorCandidate);
+      if ((object) (accessorCandidate as FieldInfo) != null)
+        return (IMemberGetter) new FieldGetter((FieldInfo) accessorCandidate);
+      return (object) (accessorCandidate as MethodInfo) != null ? (IMemberGetter) new MethodGetter((MethodInfo) accessorCandidate) : (IMemberGetter) null;
+    }
+
+    public static IMemberAccessor ToMemberAccessor(this MemberInfo accessorCandidate)
+    {
+      FieldInfo fieldInfo = accessorCandidate as FieldInfo;
+      if ((object) fieldInfo != null)
+        return !accessorCandidate.DeclaringType.IsValueType ? (IMemberAccessor) new FieldAccessor(fieldInfo) : (IMemberAccessor) new ValueTypeFieldAccessor(fieldInfo);
+      PropertyInfo propertyInfo = accessorCandidate as PropertyInfo;
+      if ((object) propertyInfo == null)
+        return (IMemberAccessor) null;
+      return !accessorCandidate.DeclaringType.IsValueType ? (IMemberAccessor) new PropertyAccessor(propertyInfo) : (IMemberAccessor) new ValueTypePropertyAccessor(propertyInfo);
+    }
+  }
+}
+
+
+--- TypePair.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Impl.TypePair
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+
+#nullable disable
+namespace AutoMapper.Impl
+{
+  public struct TypePair : IEquatable<TypePair>
+  {
+    private readonly Type _destinationType;
+    private readonly int _hashcode;
+    private readonly Type _sourceType;
+
+    public TypePair(Type sourceType, Type destinationType)
+      : this()
+    {
+      this._sourceType = sourceType;
+      this._destinationType = destinationType;
+      this._hashcode = this._sourceType.GetHashCode() * 397 ^ this._destinationType.GetHashCode();
+    }
+
+    public Type SourceType => this._sourceType;
+
+    public Type DestinationType => this._destinationType;
+
+    public bool Equals(TypePair other)
+    {
+      return object.Equals((object) other._sourceType, (object) this._sourceType) && object.Equals((object) other._destinationType, (object) this._destinationType);
+    }
+
+    public override bool Equals(object obj)
+    {
+      return !object.ReferenceEquals((object) null, obj) && (object) obj.GetType() == (object) typeof (TypePair) && this.Equals((TypePair) obj);
+    }
+
+    public override int GetHashCode() => this._hashcode;
+  }
+}
+
+
+--- ValueTypeFieldAccessor.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Impl.ValueTypeFieldAccessor
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System.Reflection;
+
+#nullable disable
+namespace AutoMapper.Impl
+{
+  public class ValueTypeFieldAccessor : 
+    FieldGetter,
+    IMemberAccessor,
+    IMemberGetter,
+    IMemberResolver,
+    IValueResolver
+  {
+    private readonly FieldInfo _lateBoundFieldSet;
+
+    public ValueTypeFieldAccessor(FieldInfo fieldInfo)
+      : base(fieldInfo)
+    {
+      this._lateBoundFieldSet = fieldInfo;
+    }
+
+    public void SetValue(object destination, object value)
+    {
+      this._lateBoundFieldSet.SetValue(destination, value);
+    }
+  }
+}
+
+
+--- ValueTypePropertyAccessor.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Impl.ValueTypePropertyAccessor
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System.Reflection;
+
+#nullable disable
+namespace AutoMapper.Impl
+{
+  public class ValueTypePropertyAccessor : 
+    PropertyGetter,
+    IMemberAccessor,
+    IMemberGetter,
+    IMemberResolver,
+    IValueResolver
+  {
+    private readonly MethodInfo _lateBoundPropertySet;
+    private readonly bool _hasSetter;
+
+    public ValueTypePropertyAccessor(PropertyInfo propertyInfo)
+      : base(propertyInfo)
+    {
+      MethodInfo setMethod = propertyInfo.GetSetMethod(true);
+      this._hasSetter = (object) setMethod != null;
+      if (!this._hasSetter)
+        return;
+      this._lateBoundPropertySet = setMethod;
+    }
+
+    public bool HasSetter => this._hasSetter;
+
+    public void SetValue(object destination, object value)
+    {
+      this._lateBoundPropertySet.Invoke(destination, new object[1]
+      {
+        value
+      });
+    }
+  }
+}
+

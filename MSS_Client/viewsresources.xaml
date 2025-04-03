@@ -1,0 +1,76 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:users1="clr-namespace:MSS_Client.ViewModel.Users"
+                    xmlns:meters1="clr-namespace:MSS_Client.ViewModel.Meters"
+                    xmlns:dataCollectors1="clr-namespace:MSS_Client.ViewModel.DataCollectors"
+                    xmlns:jobs1="clr-namespace:MSS_Client.ViewModel.Jobs"
+                    xmlns:archive1="clr-namespace:MSS_Client.ViewModel.Archiving"
+                    xmlns:archive="clr-namespace:MSS.Client.UI.Desktop.View.Archive;assembly=MSS.Client.UI.Desktop"
+                    xmlns:orders1="clr-namespace:MSS_Client.ViewModel.Orders"
+                    xmlns:orders="clr-namespace:MSS.Client.UI.Desktop.View.Orders;assembly=MSS.Client.UI.Desktop"
+                    xmlns:settings1="clr-namespace:MSS_Client.ViewModel.Settings"
+                    xmlns:reporting1="clr-namespace:MSS_Client.ViewModel.Reporting"
+                    xmlns:configuration1="clr-namespace:MSS_Client.ViewModel.Configuration"
+                    xmlns:configuration="clr-namespace:MSS.Client.UI.Desktop.View.Configuration;assembly=MSS.Client.UI.Desktop"
+                    xmlns:structures1="clr-namespace:MSS_Client.ViewModel.Structures"
+                    xmlns:jobs="clr-namespace:MSS.Client.UI.Desktop.View.Jobs;assembly=MSS.Client.UI.Desktop"
+                    xmlns:reporting="clr-namespace:MSS.Client.UI.Desktop.View.Reporting;assembly=MSS.Client.UI.Desktop"
+                    xmlns:dataCollectors="clr-namespace:MSS.Client.UI.Desktop.View.DataCollectors;assembly=MSS.Client.UI.Desktop"
+                    xmlns:settings="clr-namespace:MSS.Client.UI.Desktop.View.Settings;assembly=MSS.Client.UI.Desktop"
+                    xmlns:meters="clr-namespace:MSS.Client.UI.Desktop.View.Meters;assembly=MSS.Client.UI.Desktop"
+                    xmlns:structures="clr-namespace:MSS.Client.UI.Desktop.View.Structures;assembly=MSS.Client.UI.Desktop"
+                    xmlns:users="clr-namespace:MSS.Client.UI.Desktop.View.Users;assembly=MSS.Client.UI.Desktop"
+                    xmlns:exceptionMessageBox1="clr-namespace:MSS_Client.ViewModel.ExceptionMessageBox"
+                    xmlns:exceptionMessageBox="clr-namespace:MSS.Client.UI.Desktop.View.ExceptionMessageBox;assembly=MSS.Client.UI.Desktop">
+  <DataTemplate DataType="{Type users1:UsersViewModel}">
+    <users:UsersUserControl/>
+  </DataTemplate>
+  <DataTemplate DataType="{Type meters1:MetersViewModel}">
+    <meters:MetersUserControl/>
+  </DataTemplate>
+  <DataTemplate DataType="{Type dataCollectors1:DataCollectorsViewModel}">
+    <dataCollectors:DataCollectorsUserControl/>
+  </DataTemplate>
+  <DataTemplate DataType="{Type jobs1:JobsViewModel}">
+    <jobs:JobsUserControl/>
+  </DataTemplate>
+  <DataTemplate DataType="{Type jobs1:JobLogsForJobViewModel}">
+    <jobs:JobJogsForJobDialog/>
+  </DataTemplate>
+  <DataTemplate DataType="{Type archive1:ArchivingViewModel}">
+    <archive:ArchivingUserControl/>
+  </DataTemplate>
+  <DataTemplate DataType="{Type archive1:SearchReadingValuesViewModel}">
+    <archive:SearchReadingValuesUserControl/>
+  </DataTemplate>
+  <DataTemplate DataType="{Type archive1:SearchOrdersViewModel}">
+    <archive:SearchOrdersUserControl/>
+  </DataTemplate>
+  <DataTemplate DataType="{Type archive1:SearchStructuresViewModel}">
+    <archive:SearchStructuresUserControl/>
+  </DataTemplate>
+  <DataTemplate DataType="{Type archive1:SearchMssReadingJobViewModel}">
+    <archive:SearchMssReadingJobUserControl/>
+  </DataTemplate>
+  <DataTemplate DataType="{Type archive1:SearchLogsViewModel}">
+    <archive:SearchLogsUserControl/>
+  </DataTemplate>
+  <DataTemplate DataType="{Type orders1:OrdersViewModel}">
+    <orders:OrdersUserControl/>
+  </DataTemplate>
+  <DataTemplate DataType="{Type settings1:SettingsViewModel}">
+    <settings:SettingsUserControl/>
+  </DataTemplate>
+  <DataTemplate DataType="{Type reporting1:ReportingViewModel}">
+    <reporting:ReportingUserControl/>
+  </DataTemplate>
+  <DataTemplate DataType="{Type configuration1:ConfigurationViewModel}">
+    <configuration:ConfigurationUserControl/>
+  </DataTemplate>
+  <DataTemplate DataType="{Type structures1:StructuresViewModel}">
+    <structures:StructuresUserControl/>
+  </DataTemplate>
+  <DataTemplate DataType="{Type exceptionMessageBox1:MessageHandlerViewModel}">
+    <exceptionMessageBox:MessageHandlerUserControl/>
+  </DataTemplate>
+</ResourceDictionary>

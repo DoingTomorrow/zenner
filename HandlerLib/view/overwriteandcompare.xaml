@@ -1,0 +1,80 @@
+<Window x:Class="HandlerLib.OverwriteAndCompare"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Loaded="Window_Loaded" Title="Overwrite and Compare" Height="500" Width="950"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico"
+        WindowStartupLocation="CenterScreen">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="2"/>
+      <Setter Property="Control.Padding" Value="5,1,5,1"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <Grid>
+    <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="56"/>
+    <Grid Margin="0,56,0,0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="100*"/>
+        <ColumnDefinition Width="100*"/>
+      </Grid.ColumnDefinitions>
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="30*"/>
+          <RowDefinition Height="70*"/>
+        </Grid.RowDefinitions>
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100*"/>
+            <ColumnDefinition Width="30"/>
+            <ColumnDefinition Width="100*"/>
+          </Grid.ColumnDefinitions>
+          <DockPanel>
+            <Label DockPanel.Dock="Top" Content="Source object" Margin="5"/>
+            <ListBox SelectionChanged="ListBoxSourceOrDestination_SelectionChanged" Name="ListBoxSource" Margin="5"/>
+          </DockPanel>
+          <Label Grid.Column="1" Content="&gt;" Margin="0,40,0,0" VerticalAlignment="Top" FontSize="20"
+                 FontWeight="Bold" HorizontalAlignment="Center"/>
+          <DockPanel Grid.Column="2">
+            <Label DockPanel.Dock="Top" Content="Destination object" Margin="5"/>
+            <ListBox SelectionChanged="ListBoxSourceOrDestination_SelectionChanged" Name="ListBoxDestination" Margin="5"/>
+          </DockPanel>
+        </Grid>
+        <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="2" Height="5"/>
+        <DockPanel Grid.Row="1" Margin="0,10,0,0">
+          <Label Content="Overwrite groups" DockPanel.Dock="Top"/>
+          <ListBox SelectionChanged="ListBoxOverwriteGroups_SelectionChanged" Name="ListBoxOverwriteGroups"
+                   SelectionMode="Multiple" Margin="2" ScrollViewer.CanContentScroll="true"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+        </DockPanel>
+      </Grid>
+      <GridSplitter Grid.Column="1" HorizontalAlignment="Left" Margin="0,10" Width="5"/>
+      <StackPanel Grid.Column="1" Margin="5">
+        <Label Content="Group functions"/>
+        <Button Click="ButtonShowGroupInfo_Click" Name="ButtonShowGroupInfo" Content="Show group info"
+                IsEnabled="false"/>
+        <Button Click="ButtonOverwrite_Click" Name="ButtonOverwrite" Content="Overwrite all selected groups"
+                VerticalAlignment="Bottom" IsEnabled="false"/>
+        <Label Content="Diagnostic"/>
+        <GroupBox Header="Map Management">
+          <StackPanel>
+            <CheckBox Name="CheckBoxSuppressAddresses" Margin="3" Content="Suppress addresses"/>
+            <CheckBox Name="CheckBoxSuppressKnownDiffs" Margin="3" Content="Suppress known differences"/>
+            <CheckBox Name="CheckBoxOnlySelectedGroups" Margin="3" Content="Only selected groups"/>
+            <Button Click="ButtonSourceMap_Click" Name="ButtonSourceMap" Content="Show source map"/>
+            <Button Click="ButtonMapDiff_Click" Name="ButtonMapDiff" Content="Show map differences"/>
+          </StackPanel>
+        </GroupBox>
+        <Button Click="ButtonMemoryDiff_Click" Name="ButtonMemoryDiff" Content="Show memory differences"/>
+        <Button Click="ButtonDataDiff_Click" Name="ButtonDataDiff" Content="Show data differences"/>
+        <Label Content="Save data and search for saved data"/>
+        <Button Click="ButtonSaveSourceObject_Click" Name="ButtonSaveSourceObject"
+                Content="Save source object for compare later"
+                ToolTip="Copies the source meter object inside the handler to the SaveMeter object for later compare"/>
+        <Button Click="ButtonOpenCompareFileFolder_Click" Name="ButtonOpenCompareFileFolder"
+                Content="Open compare file folder"
+                ToolTip="Open the folder where all created compare files are to show and compare the files by hand."/>
+      </StackPanel>
+    </Grid>
+  </Grid>
+</Window>

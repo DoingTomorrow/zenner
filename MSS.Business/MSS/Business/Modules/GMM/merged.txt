@@ -1,0 +1,3886 @@
+
+--- BaseMinoConnectManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.BaseMinoConnectManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using GmmDbLib;
+using GmmDbLib.DataSets;
+using MSS.Business.Events;
+using MSS.Business.Modules.OrdersManagement;
+using MSS.Core.Model.Orders;
+using MSS.Core.Utils;
+using MSS.DTO.MessageHandler;
+using MSS.Interfaces;
+using MSS.Localisation;
+using NHibernate;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public abstract class BaseMinoConnectManager
+  {
+    protected IRepositoryFactory _repositoryFactory;
+    protected IRepository<Order> _orderRepository;
+    protected Guid _orderId;
+    protected ProfileType _profileType;
+
+    protected ReadingValuesManager GetReadingValuesManagerInstance()
+    {
+      return new ReadingValuesManager(this._repositoryFactory);
+    }
+
+    protected void SaveErrorMessage(
+      string errorMessage,
+      MessageLevelsEnum level,
+      string serialNumber)
+    {
+      MSS.Core.Model.Meters.Meter meter = this._repositoryFactory.GetRepository<MSS.Core.Model.Meters.Meter>().FirstOrDefault((Expression<Func<MSS.Core.Model.Meters.Meter, bool>>) (item => item.SerialNumber == serialNumber && !item.IsDeactivated));
+      Order order = this._orderRepository.FirstOrDefault((Expression<Func<Order, bool>>) (item => item.Id == this._orderId));
+      OrderMessage entity = new OrderMessage()
+      {
+        Level = level,
+        Message = errorMessage,
+        Meter = meter,
+        Order = order,
+        Timepoint = DateTime.Now
+      };
+      this._repositoryFactory.GetRepository<OrderMessage>().Insert(entity);
+    }
+
+    protected void ShowMessage(MessageTypeEnum messageType, string messageText)
+    {
+      MSS.DTO.Message.Message message = new MSS.DTO.Message.Message()
+      {
+        MessageType = messageType,
+        MessageText = messageText
+      };
+      EventPublisher.Publish<ActionSyncFinished>(new ActionSyncFinished()
+      {
+        Message = message
+      }, (object) this);
+    }
+
+    protected List<DriverTables.MeterValuesMSSRow> GetMeterValues(
+      List<DriverTables.MeterMSSRow> gmmMeterList)
+    {
+      List<DriverTables.MeterValuesMSSRow> meterValues = new List<DriverTables.MeterValuesMSSRow>();
+      if (gmmMeterList.Count > 0)
+      {
+        Guid meterId = gmmMeterList[0].MeterID;
+        if (MeterValuesMSS.LoadMeterValuesMSS(GmmInterface.Database.BaseDbConnection, meterId) != null)
+        {
+          meterValues.AddRange((IEnumerable<DriverTables.MeterValuesMSSRow>) MeterValuesMSS.LoadMeterValuesMSS(GmmInterface.Database.BaseDbConnection, meterId));
+          MeterValuesMSS.DeleteMeterValuesMSS(GmmInterface.Database.BaseDbConnection, meterId);
+        }
+      }
+      return meterValues;
+    }
+
+    protected bool SaveReadingValues(string serialNumber)
+    {
+      List<DriverTables.MeterValuesMSSRow> meterValues = this.GetMeterValues(MeterMSS.GetMeterMSS(GmmInterface.Database.BaseDbConnection, serialNumber));
+      bool db = this.SaveReadingValuesToDb(serialNumber, meterValues);
+      if (this.ContainsOnlyWarningNumber(meterValues))
+        return false;
+      if (!this.ContainsOnlySignalStrength(meterValues))
+        return db;
+      this.SaveErrorMessage(string.Format(Resources.MSS_NoValidReadingValuesReceived, (object) serialNumber), MessageLevelsEnum.Warning, serialNumber);
+      EventPublisher.Publish<ErrorDuringReading>(new ErrorDuringReading()
+      {
+        SerialNumber = serialNumber
+      }, (object) this);
+      return false;
+    }
+
+    private bool SaveReadingValuesToDb(
+      string serialNumber,
+      List<DriverTables.MeterValuesMSSRow> gmmMeterValues)
+    {
+      ISession session = this._repositoryFactory.GetSession();
+      session.BeginTransaction();
+      session.FlushMode = FlushMode.Commit;
+      Order byId = this._orderRepository.GetById((object) this._orderId);
+      bool db = this.GetReadingValuesManagerInstance().ConvertAndSaveReadingValues(serialNumber, gmmMeterValues, byId);
+      byId.Status = StatusOrderEnum.InProgress;
+      this._orderRepository.TransactionalUpdate(byId);
+      session.Transaction.Commit();
+      if (db)
+        EventPublisher.Publish<OrderReadingValuesSavedEvent>(new OrderReadingValuesSavedEvent()
+        {
+          SerialNumber = serialNumber
+        }, (object) this);
+      return db;
+    }
+
+    private bool ContainsOnlyWarningNumber(
+      List<DriverTables.MeterValuesMSSRow> gmmMeterValues)
+    {
+      return gmmMeterValues != null && gmmMeterValues.Count == 1 && gmmMeterValues[0].PhysicalQuantity == (byte) 22;
+    }
+
+    private bool ContainsOnlySignalStrength(
+      List<DriverTables.MeterValuesMSSRow> gmmMeterValues)
+    {
+      foreach (DriverTables.MeterValuesMSSRow gmmMeterValue in gmmMeterValues)
+      {
+        if (gmmMeterValue.PhysicalQuantity != (byte) 18)
+          return false;
+      }
+      return true;
+    }
+  }
+}
+
+
+--- DeviceConfigurator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.DeviceConfigurator
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Errors;
+using MSS.Business.Utils;
+using MSS.Core.Model.Meters;
+using MSS.DTO.Meters;
+using MSS.DTO.Structures;
+using MSS.Localisation;
+using ReadoutConfiguration;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public class DeviceConfigurator
+  {
+    public static async Task<ParamsReturnedUsingIrExpando> WriteParametersForDevice(
+      EquipmentModel equipment,
+      LocationDTO location,
+      MeterDTO device)
+    {
+      string radioId = (string) null;
+      ConfiguratorManager configManager = GmmInterface.ConfiguratorManager;
+      try
+      {
+        ZENNER.CommonLibrary.Entities.Meter meter;
+        ProfileType profileType;
+        DeviceConfigurator.InitializeGMMParameters(device.DeviceType, out meter, out profileType);
+        DeviceTypeEnum deviceType = device.DeviceType;
+        if (deviceType == DeviceTypeEnum.M7 || deviceType == DeviceTypeEnum.MinomessMicroRadio3 || deviceType == DeviceTypeEnum.MinotelContactRadio3 || deviceType == DeviceTypeEnum.C5Radio)
+        {
+          MessageHandler.LogDebug("Start read - " + (object) DateTime.Now);
+          int count = configManager.ReadDevice(equipment, meter, profileType);
+          MessageHandler.LogDebug("End read - " + (object) DateTime.Now);
+          if (count > 0)
+          {
+            SortedList<OverrideID, ConfigurationParameter> prms = configManager.GetConfigurationParameters(0);
+            if (prms.ContainsKey(OverrideID.SerialNumber))
+              radioId = prms[OverrideID.SerialNumber].GetStringValueDb();
+            int scenarioToBeWritten = location.Scenario.Code != 4 ? location.Scenario.Code : 1;
+            switch (deviceType)
+            {
+              case DeviceTypeEnum.C5Radio:
+                DeviceConfigurator.SetDueDateMonth(location.DueDate, prms);
+                DeviceConfigurator.SetConfigParam(prms, OverrideID.RadioProtocol, scenarioToBeWritten.ToString());
+                DeviceConfigurator.SetPulseStartValue(device, prms);
+                break;
+              case DeviceTypeEnum.M7:
+                DeviceConfigurator.SetDueDateValue(location.DueDate, prms);
+                DeviceConfigurator.SetConfigParam(prms, OverrideID.RadioProtocol, scenarioToBeWritten.ToString());
+                break;
+              case DeviceTypeEnum.MinomessMicroRadio3:
+                DeviceConfigurator.SetDueDateValue(location.DueDate, prms);
+                DeviceConfigurator.SetConfigParam(prms, OverrideID.RadioProtocol, scenarioToBeWritten.ToString());
+                DeviceConfigurator.SetPulseStartValue(device, prms);
+                break;
+              case DeviceTypeEnum.MinotelContactRadio3:
+                DeviceConfigurator.SetDueDateValue(location.DueDate, prms);
+                DeviceConfigurator.SetConfigParam(prms, OverrideID.RadioProtocol, scenarioToBeWritten.ToString());
+                int channelCount = int.Parse(device.Channel.Code);
+                SortedList<OverrideID, ConfigurationParameter> channelPms = configManager.GetConfigurationParameters(channelCount + 1);
+                DeviceConfigurator.SetPulseStartValue(device, channelPms);
+                if (channelPms.ContainsKey(OverrideID.SerialNumber))
+                {
+                  radioId = channelPms[OverrideID.SerialNumber].GetStringValueDb();
+                  break;
+                }
+                break;
+            }
+            MessageHandler.LogDebug("Start write - " + (object) DateTime.Now);
+            configManager.WriteDevice();
+            MessageHandler.LogDebug("End write - " + (object) DateTime.Now);
+            prms = (SortedList<OverrideID, ConfigurationParameter>) null;
+          }
+          else
+            return new ParamsReturnedUsingIrExpando()
+            {
+              IsSuccess = false,
+              Message = Resources.MSS_Client_Exception_Title
+            };
+        }
+        meter = (ZENNER.CommonLibrary.Entities.Meter) null;
+        profileType = (ProfileType) null;
+      }
+      catch (Exception ex)
+      {
+        return new ParamsReturnedUsingIrExpando()
+        {
+          IsSuccess = false,
+          Message = ex.Message
+        };
+      }
+      finally
+      {
+        configManager.CloseConnection();
+      }
+      ParamsReturnedUsingIrExpando result = new ParamsReturnedUsingIrExpando()
+      {
+        IsSuccess = true,
+        RadioId = radioId
+      };
+      return result;
+    }
+
+    private static void SetDueDateMonth(
+      DateTime? dueDate,
+      SortedList<OverrideID, ConfigurationParameter> prms)
+    {
+      if (!dueDate.HasValue)
+        return;
+      DeviceConfigurator.SetConfigParam(prms, OverrideID.DueDateMonth, dueDate.Value.Month.ToString((IFormatProvider) CultureInfo.InvariantCulture));
+    }
+
+    private static void SetDueDateValue(
+      DateTime? dueDate,
+      SortedList<OverrideID, ConfigurationParameter> prms)
+    {
+      if (!dueDate.HasValue)
+        return;
+      DeviceConfigurator.SetConfigParam(prms, OverrideID.DueDate, dueDate.Value.ToString((IFormatProvider) new CultureInfo("de-DE")));
+    }
+
+    private static void SetPulseStartValue(
+      MeterDTO meter,
+      SortedList<OverrideID, ConfigurationParameter> prms)
+    {
+      double? impulses = UnitConversionHelper.ConvertValueToImpulses(meter.StartValue, meter.ReadingUnit.Code, meter.ImpulsValue, meter.ImpulsUnit.Code);
+      if (!impulses.HasValue)
+        return;
+      DeviceConfigurator.SetConfigParam(prms, OverrideID.InputActualValue, impulses.Value.ToString((IFormatProvider) CultureInfo.InvariantCulture));
+    }
+
+    private static ParamsReturnedUsingIrExpando SetConfigParam(
+      SortedList<OverrideID, ConfigurationParameter> prms,
+      OverrideID key,
+      string value)
+    {
+      if (prms != null && prms.ContainsKey(key))
+      {
+        ConfigurationParameter prm = prms[key];
+        if (value != null)
+        {
+          prm.SetValueFromStringDb(value);
+          GmmInterface.ConfiguratorManager.SetConfigurationParameters(new SortedList<OverrideID, ConfigurationParameter>()
+          {
+            {
+              key,
+              prm
+            }
+          });
+          return new ParamsReturnedUsingIrExpando()
+          {
+            IsSuccess = true
+          };
+        }
+        return new ParamsReturnedUsingIrExpando()
+        {
+          IsSuccess = false,
+          Message = string.Format(Resources.MSS_Client_Exception_Title, (object) key)
+        };
+      }
+      return new ParamsReturnedUsingIrExpando()
+      {
+        IsSuccess = false,
+        Message = string.Format(Resources.MSS_Client_Exception_Title, (object) key)
+      };
+    }
+
+    private static void InitializeGMMParameters(
+      DeviceTypeEnum deviceType,
+      out ZENNER.CommonLibrary.Entities.Meter meter,
+      out ProfileType profileType)
+    {
+      DeviceManager deviceManager = GmmInterface.DeviceManager;
+      meter = new ZENNER.CommonLibrary.Entities.Meter()
+      {
+        DeviceModel = GMMHelper.GetDeviceModel(deviceType),
+        ID = Guid.NewGuid()
+      };
+      profileType = deviceManager.GetProfileTypes(meter).FirstOrDefault<ProfileType>((Func<ProfileType, bool>) (p => p.Name.Contains("IR")));
+    }
+  }
+}
+
+
+--- DeviceReaderManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.DeviceReaderManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using GmmDbLib.DataSets;
+using MSS.Business.Modules.OrdersManagement;
+using MSS.Core.Model.Meters;
+using MSS.Interfaces;
+using MSS.Localisation;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public class DeviceReaderManager
+  {
+    private readonly MeterReaderManager _reader;
+    private readonly IRepositoryFactory _repositoryFactory;
+    public EventHandler<List<MeterReadingValue>> OnMeterValuesReceivedHandler;
+    public EventHandler<Exception> OnErrorReceivedHandler;
+    public EventHandler<string> OnMissingTranslationRule;
+    public System.EventHandler OnReadingFinished;
+    private static bool _isDeviceReadingStarted;
+
+    public DeviceReaderManager(IRepositoryFactory repositoryFactory, bool storeResultsToDatabase = false)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._reader = GmmInterface.Reader;
+      this._reader.StoreResultsToDatabase = storeResultsToDatabase;
+      this._reader.ValueIdentSetReceived += new EventHandler<ValueIdentSet>(this.reader_ValueIdentSetReceived);
+      this._reader.OnError += new EventHandler<Exception>(this.reader_OnError);
+      DeviceReaderManager.IsDeviceReadingStarted = true;
+      TranslationRulesManager.Instance.MissedTranslationRules += new EventHandlerEx<string>(this.TranslationRulesManager_MissedTranslationRules);
+    }
+
+    ~DeviceReaderManager() => this.StopReadingValues();
+
+    private void reader_ValueIdentSetReceived(object sender, ValueIdentSet e)
+    {
+      this.StopReadingValues();
+      List<MeterReadingValue> readingValues = ReadingValuesHelper.ConvertValueIdentToReadingValues(e);
+      EventHandler<List<MeterReadingValue>> valuesReceivedHandler = this.OnMeterValuesReceivedHandler;
+      if (valuesReceivedHandler == null)
+        return;
+      valuesReceivedHandler((object) this, readingValues);
+    }
+
+    private void reader_OnError(object sender, Exception e)
+    {
+      this.StopReadingValues();
+      EventHandler<Exception> errorReceivedHandler = this.OnErrorReceivedHandler;
+      if (errorReceivedHandler == null)
+        return;
+      errorReceivedHandler(sender, e);
+    }
+
+    private void TranslationRulesManager_MissedTranslationRules(object sender, string e)
+    {
+      EventHandler<string> missingTranslationRule = this.OnMissingTranslationRule;
+      if (missingTranslationRule == null)
+        return;
+      missingTranslationRule((object) this, string.Format(Resources.MSS_ReaderManager_MissingTranslationRule, (object) e));
+    }
+
+    public void StartReadingValues(
+      ZENNER.CommonLibrary.Entities.Meter meter,
+      EquipmentModel equipmentModel,
+      ProfileType profileType)
+    {
+      this._reader.ReadMeter(meter, equipmentModel, profileType);
+      DeviceReaderManager.IsDeviceReadingStarted = true;
+    }
+
+    public void StopReadingValues()
+    {
+      this._reader.ValueIdentSetReceived -= new EventHandler<ValueIdentSet>(this.reader_ValueIdentSetReceived);
+      this._reader.OnError -= new EventHandler<Exception>(this.reader_OnError);
+      this._reader.CloseConnection();
+      DeviceReaderManager.IsDeviceReadingStarted = false;
+      TranslationRulesManager.Instance.MissedTranslationRules -= new EventHandlerEx<string>(this.TranslationRulesManager_MissedTranslationRules);
+    }
+
+    public static bool IsDeviceReadingStarted
+    {
+      get => DeviceReaderManager._isDeviceReadingStarted;
+      set
+      {
+        DeviceReaderManager._isDeviceReadingStarted = value;
+        DeviceReaderManager.OnStaticPropertyChanged("IsWalkByTestStarted");
+      }
+    }
+
+    public static event EventHandler<PropertyChangedEventArgs> StaticPropertyChanged;
+
+    private static void OnStaticPropertyChanged(string propertyName)
+    {
+      EventHandler<PropertyChangedEventArgs> staticPropertyChanged = DeviceReaderManager.StaticPropertyChanged;
+      if (staticPropertyChanged == null)
+        return;
+      PropertyChangedEventArgs e = new PropertyChangedEventArgs(propertyName);
+      staticPropertyChanged((object) null, e);
+    }
+
+    private MeterReadingValue ConvertReadingValues(
+      string serialNumber,
+      MSS.Core.Model.Meters.Meter mssMeter,
+      List<MeasureUnit> meaureUnits,
+      DriverTables.MeterValuesMSSRow gmmMeterValue)
+    {
+      MeterReadingValue meterReadingValue = new MeterReadingValue();
+      meterReadingValue.CreatedOn = DateTime.Now;
+      meterReadingValue.Date = gmmMeterValue.TimePoint;
+      meterReadingValue.MeterSerialNumber = serialNumber;
+      meterReadingValue.Value = gmmMeterValue.Value;
+      meterReadingValue.ValueId = Convert.ToInt64(ValueIdent.GetValueIdent(gmmMeterValue.ValueIdentIndex, gmmMeterValue.PhysicalQuantity, gmmMeterValue.MeterType, gmmMeterValue.Calculation, gmmMeterValue.CalculationStart, gmmMeterValue.StorageInterval, gmmMeterValue.Creation));
+      meterReadingValue.MeterId = mssMeter != null ? mssMeter.Id : Guid.Empty;
+      string unitName = ValueIdent.GetUnit(Convert.ToInt64(meterReadingValue.ValueId));
+      MeasureUnit measureUnit = meaureUnits.FirstOrDefault<MeasureUnit>((Func<MeasureUnit, bool>) (m => m.Code == unitName));
+      if (measureUnit == null && !string.IsNullOrEmpty(unitName))
+      {
+        measureUnit = new MeasureUnit() { Code = unitName };
+        meaureUnits.Add(measureUnit);
+      }
+      if (measureUnit != null)
+        meterReadingValue.Unit = measureUnit;
+      long valueId = meterReadingValue.ValueId;
+      ValueIdent.ValueIdPart_StorageInterval partStorageInterval = ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_StorageInterval>(valueId);
+      meterReadingValue.StorageInterval = (long) partStorageInterval;
+      meterReadingValue.PhysicalQuantity = (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_PhysicalQuantity>(valueId);
+      meterReadingValue.MeterType = (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_MeterType>(valueId);
+      meterReadingValue.CalculationStart = (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_CalculationStart>(valueId);
+      meterReadingValue.Creation = (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_Creation>(valueId);
+      meterReadingValue.Calculation = (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_Calculation>(valueId);
+      return meterReadingValue;
+    }
+  }
+}
+
+
+--- EDCConfigurator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.EDCConfigurator
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using EDC_Handler;
+using MSS.Business.Errors;
+using MSS.Business.Events;
+using MSS.DTO.MessageHandler;
+using MSS.Localisation;
+using System;
+using System.Collections.Generic;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public class EDCConfigurator : IFirmwareConfigurator, IDisposable
+  {
+    private EDC_HandlerFunctions handler;
+    private byte[] buffer;
+    private readonly EquipmentModel _equipmentModel;
+
+    public EDCConfigurator(EquipmentModel equipmentModel) => this._equipmentModel = equipmentModel;
+
+    public void InitializeFirmwareConfigurator(EDC_Handler.Firmware edcFirmware, PDC_Handler.Firmware pdcFirmware)
+    {
+      if (edcFirmware == null)
+        return;
+      this.buffer = EDC_Handler.FirmwareManager.ReadFirmwareFromText(edcFirmware.FirmwareText);
+      ConnectionProfile connectionProfile = GmmInterface.DeviceManager.GetConnectionProfile(1);
+      connectionProfile.EquipmentModel = this._equipmentModel;
+      this.handler = GmmInterface.HandlerManager.CreateInstance<EDC_HandlerFunctions>(connectionProfile);
+    }
+
+    public void UpgradeFirmWare()
+    {
+      try
+      {
+        if (!this.handler.ReadDevice())
+        {
+          MSS.Business.Errors.MessageHandler.LogGMMExceptionMessage(ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription);
+          throw new BaseApplicationException(Resources.MSS_Client_Configuration_ReadDeviceError);
+        }
+        if (!this.handler.SaveDevice())
+        {
+          MSS.Business.Errors.MessageHandler.LogGMMExceptionMessage(ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription);
+          throw new BaseApplicationException(Resources.MSS_Client_Configuration_UpgradeFirmware_CannotSaveDevice);
+        }
+        EDC_Meter edcMeter = this.handler.Meter.DeepCopy();
+        if (!this.handler.UpgradeFirmware(this.buffer))
+        {
+          MSS.Business.Errors.MessageHandler.LogGMMExceptionMessage(ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription);
+          throw new BaseApplicationException(Resources.MSS_Client_Configuration_UpgradeFirmware_CannotUpdateFirmware);
+        }
+        if (!this.handler.ReadDevice())
+        {
+          MSS.Business.Errors.MessageHandler.LogGMMExceptionMessage(ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription);
+          throw new BaseApplicationException(Resources.MSS_Client_Configuration_ReadDeviceError);
+        }
+        EDC_Meter meter1 = this.handler.Meter;
+        List<EDC_Handler.Parameter> parameter1 = EDC_MemoryMap.GetParameter(edcMeter.Version);
+        foreach (EDC_Handler.Parameter parameter2 in EDC_MemoryMap.GetParameter(meter1.Version))
+        {
+          EDC_Handler.Parameter p = parameter2;
+          if (!(p.Name == "cfg_crc") && !(p.Name == "cfg_version_major") && !(p.Name == "cfg_version_minor") && (p.Name.StartsWith("cfg_") || p.Name.StartsWith("Con_") || p.Name.StartsWith("Bak_")))
+          {
+            EDC_Handler.Parameter p1 = parameter1.Find((Predicate<EDC_Handler.Parameter>) (x => x.Name == p.Name));
+            if (p1 != null)
+            {
+              byte[] memoryBytes1 = edcMeter.Map.GetMemoryBytes(p1);
+              byte[] memoryBytes2 = meter1.Map.GetMemoryBytes(p);
+              if (!Util.ArraysEqual(memoryBytes1, memoryBytes2))
+              {
+                if (!meter1.Map.SetMemoryBytes(p.Address, memoryBytes1))
+                  throw new BaseApplicationException(string.Format(Resources.MSS_Client_Configuration_UpgradeFirmware_Success_DifferentParameter, (object) p.Name));
+                EventPublisher.Publish<ShowMessage>(new ShowMessage()
+                {
+                  Message = new MSS.DTO.Message.Message()
+                  {
+                    MessageType = MessageTypeEnum.Warning,
+                    MessageText = string.Format(Resources.MSS_Client_Configuration_UpgradeFirmware_Success_DifferentParameter, (object) p.Name, (object) Util.ByteArrayToString(memoryBytes1), (object) Util.ByteArrayToString(memoryBytes2))
+                  }
+                }, (object) this);
+              }
+            }
+          }
+        }
+        byte major = meter1.Version.Major;
+        meter1.SetParameterValue<byte>("cfg_version_major", major);
+        byte minor = meter1.Version.Minor;
+        meter1.SetParameterValue<byte>("cfg_version_minor", minor);
+        meter1.SetHardwareErrors((EDC_Handler.HardwareError) 0);
+        meter1.SetWarnings(~(EDC_Handler.Warning.APP_BUSY | EDC_Handler.Warning.ABNORMAL | EDC_Handler.Warning.BATT_LOW | EDC_Handler.Warning.PERMANENT_ERROR | EDC_Handler.Warning.TEMPORARY_ERROR | EDC_Handler.Warning.TAMPER_A | EDC_Handler.Warning.REMOVAL_A | EDC_Handler.Warning.LEAK | EDC_Handler.Warning.LEAK_A | EDC_Handler.Warning.UNDERSIZE | EDC_Handler.Warning.BLOCK_A | EDC_Handler.Warning.BACKFLOW | EDC_Handler.Warning.BACKFLOW_A | EDC_Handler.Warning.INTERFERE | EDC_Handler.Warning.OVERSIZE | EDC_Handler.Warning.BURST));
+        if (!this.handler.WriteDevice())
+        {
+          MSS.Business.Errors.MessageHandler.LogGMMExceptionMessage(ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription);
+          throw new BaseApplicationException(Resources.MSS_Client_Configuration_Write_Error);
+        }
+        if (!this.handler.SaveDevice())
+        {
+          MSS.Business.Errors.MessageHandler.LogGMMExceptionMessage(ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription);
+          throw new BaseApplicationException(Resources.MSS_Client_Configuration_UpgradeFirmware_CannotSaveDevice);
+        }
+        if (!this.handler.ReadDevice())
+        {
+          MSS.Business.Errors.MessageHandler.LogGMMExceptionMessage(ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription);
+          throw new BaseApplicationException(Resources.MSS_Client_Configuration_ReadDeviceError);
+        }
+        EDC_Meter meter2 = this.handler.Meter;
+        foreach (EDC_Handler.Parameter parameter3 in EDC_MemoryMap.GetParameter(meter2.Version))
+        {
+          EDC_Handler.Parameter p = parameter3;
+          if (!(p.Name == "cfg_crc") && !(p.Name == "cfg_version_major") && !(p.Name == "cfg_version_minor") && (p.Name.StartsWith("cfg_") || p.Name.StartsWith("Con_") || p.Name.StartsWith("Bak_")))
+          {
+            EDC_Handler.Parameter p2 = parameter1.Find((Predicate<EDC_Handler.Parameter>) (x => x.Name == p.Name));
+            if (p2 != null)
+            {
+              byte[] memoryBytes3 = edcMeter.Map.GetMemoryBytes(p2);
+              byte[] memoryBytes4 = meter2.Map.GetMemoryBytes(p);
+              if (!Util.ArraysEqual(memoryBytes3, memoryBytes4))
+                EventPublisher.Publish<ShowMessage>(new ShowMessage()
+                {
+                  Message = new MSS.DTO.Message.Message()
+                  {
+                    MessageType = MessageTypeEnum.Warning,
+                    MessageText = string.Format(Resources.MSS_Client_Configuration_UpgradeFirmware_Success_DifferentParameter, (object) p.Name, (object) Util.ByteArrayToString(memoryBytes3), (object) Util.ByteArrayToString(memoryBytes4))
+                  }
+                }, (object) this);
+            }
+          }
+        }
+      }
+      finally
+      {
+        this.handler?.GMM_Dispose();
+      }
+    }
+
+    void IDisposable.Dispose() => this.handler?.Dispose();
+
+    public event EventHandler<int> OnProgress
+    {
+      add => this.handler.OnProgress += (ValueEventHandler<int>) ((sender, e) => value(sender, e));
+      remove
+      {
+        this.handler.OnProgress -= (ValueEventHandler<int>) ((sender, e) => value(sender, e));
+      }
+    }
+  }
+}
+
+
+--- GMMHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.GMMHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+using MSS.Business.Errors;
+using MSS.Business.Modules.Configuration;
+using MSS.Business.Modules.GMMWrapper;
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.Structures;
+using MSS.Core.Utils;
+using MSS.DTO.Meters;
+using MSS.DTO.Orders;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public static class GMMHelper
+  {
+    private static List<ZENNER.CommonLibrary.Entities.Meter> meterList = new List<ZENNER.CommonLibrary.Entities.Meter>();
+    private static List<MeterDTO> meterDtoList = new List<MeterDTO>();
+
+    public static void GetDeviceGroupAndModelBasedOnDeviceType(
+      DeviceTypeEnum deviceTypeEnum,
+      ref DeviceGroup deviceGroup,
+      ref DeviceModel deviceModel)
+    {
+      string deviceModelId = deviceTypeEnum.GetGMMDeviceModelName();
+      foreach (DeviceGroup deviceGroup1 in GmmInterface.DeviceManager.GetDeviceGroups())
+      {
+        List<DeviceModel> deviceModels = GmmInterface.DeviceManager.GetDeviceModels(deviceGroup1);
+        if (deviceModels.Any<DeviceModel>((Func<DeviceModel, bool>) (m => m.Name == deviceModelId)))
+        {
+          deviceModel = deviceModels.Find((Predicate<DeviceModel>) (m => m.Name == deviceModelId));
+          deviceGroup = deviceGroup1;
+          if (!deviceModel.Parameters.ContainsKey(ConnectionProfileParameter.SystemDevice))
+            break;
+          deviceModel = (DeviceModel) null;
+          deviceGroup = (DeviceGroup) null;
+          break;
+        }
+      }
+    }
+
+    public static DeviceModel GetDeviceModel(DeviceTypeEnum deviceTypeEnum)
+    {
+      string deviceModelId = deviceTypeEnum.GetGMMDeviceModelName();
+      return GmmInterface.DeviceManager.GetDeviceModels().FirstOrDefault<DeviceModel>((Func<DeviceModel, bool>) (d => d.Name == deviceModelId));
+    }
+
+    public static DeviceModel GetDeviceModel(DeviceTypeEnum deviceTypeEnum, DeviceModelTags tags)
+    {
+      string deviceModelId = deviceTypeEnum.GetGMMDeviceModelName();
+      return GmmInterface.DeviceManager.GetDeviceModels(tags).FirstOrDefault<DeviceModel>((Func<DeviceModel, bool>) (d => d.Name == deviceModelId));
+    }
+
+    public static List<ZENNER.CommonLibrary.Entities.Meter> GetMeters(
+      ObservableCollection<ExecuteOrderStructureNode> devices,
+      List<long> filter,
+      StructureTypeEnum? structureType,
+      string scanParams = null)
+    {
+      List<ZENNER.CommonLibrary.Entities.Meter> meters = new List<ZENNER.CommonLibrary.Entities.Meter>();
+      List<string> deviceModelNameList = GMMHelper.GetDeviceModelNameList(GMMHelper.GetDeviceModelBasedOnStructureType(structureType));
+      foreach (ExecuteOrderStructureNode device in (Collection<ExecuteOrderStructureNode>) devices)
+      {
+        if (!string.IsNullOrEmpty(device.SerialNumber) && device.ReadingEnabled && GMMHelper.IsDeviceIncludedInLicense(device.DeviceType, deviceModelNameList))
+        {
+          ZENNER.CommonLibrary.Entities.Meter gmmMeter = GMMHelper.GetGMMMeter(device, filter, scanParams);
+          if (gmmMeter != null)
+            meters.Add(gmmMeter);
+        }
+      }
+      return meters;
+    }
+
+    public static bool IsDeviceIncludedInLicense(
+      DeviceTypeEnum? deviceType,
+      List<string> importableDeviceModelNameList)
+    {
+      return deviceType.HasValue && importableDeviceModelNameList.Contains(((Enum) (ValueType) deviceType).GetGMMDeviceModelName());
+    }
+
+    public static ZENNER.CommonLibrary.Entities.Meter GetGMMMeter(
+      ExecuteOrderStructureNode selectedItem,
+      List<long> filter,
+      string scanParams = null)
+    {
+      if (!selectedItem.DeviceType.HasValue)
+        return (ZENNER.CommonLibrary.Entities.Meter) null;
+      DeviceTypeEnum deviceTypeEnum = (DeviceTypeEnum) Enum.Parse(typeof (DeviceTypeEnum), selectedItem.DeviceType.ToString(), true);
+      DeviceGroup deviceGroup = new DeviceGroup();
+      DeviceModel deviceModel = new DeviceModel();
+      GMMHelper.GetDeviceGroupAndModelBasedOnDeviceType(deviceTypeEnum, ref deviceGroup, ref deviceModel);
+      ZENNER.CommonLibrary.Entities.Meter meter = new ZENNER.CommonLibrary.Entities.Meter()
+      {
+        DeviceModel = deviceModel,
+        ID = selectedItem.MeterId,
+        SerialNumber = selectedItem.SerialNumber,
+        Filter = filter,
+        AdditionalInfo = GMMHelper.ConstructMeterAdditionalInfo(selectedItem.Manufacturer, selectedItem.InputNumber, selectedItem.Generation, selectedItem.PrimaryAddres, selectedItem.Medium, selectedItem.DeviceInfo)
+      };
+      if (!string.IsNullOrEmpty(scanParams))
+        MSS.Business.Modules.AppParametersManagement.AppParametersManagement.UpdateDeviceWithSavedParams(meter, scanParams);
+      return meter;
+    }
+
+    public static List<ZENNER.CommonLibrary.Entities.Meter> GetGMMMetersFromStructureNodeDTO(
+      StructureNodeDTO structureNode,
+      out List<MeterDTO> meterDTOs)
+    {
+      GMMHelper.meterList.Clear();
+      GMMHelper.meterDtoList.Clear();
+      if (structureNode.NodeType.Name == "Meter")
+      {
+        GMMHelper.meterList.Add(GMMHelper.GetGMMMeter((MeterDTO) structureNode.Entity));
+        GMMHelper.meterDtoList.Add((MeterDTO) structureNode.Entity);
+      }
+      GMMHelper.WalkStructure(structureNode);
+      meterDTOs = GMMHelper.meterDtoList;
+      return GMMHelper.meterList;
+    }
+
+    private static void WalkStructure(StructureNodeDTO selectedNode)
+    {
+      foreach (StructureNodeDTO subNode in (Collection<StructureNodeDTO>) selectedNode.SubNodes)
+      {
+        if (subNode.NodeType.Name == "Meter" && subNode.Entity != null)
+        {
+          GMMHelper.meterList.Add(GMMHelper.GetGMMMeter((MeterDTO) subNode.Entity));
+          GMMHelper.meterDtoList.Add((MeterDTO) subNode.Entity);
+        }
+        GMMHelper.WalkStructure(subNode);
+      }
+    }
+
+    public static List<ZENNER.CommonLibrary.Entities.Meter> GetGMMMeters(List<MSS.Core.Model.Meters.Meter> mssMeters)
+    {
+      return mssMeters.Select<MSS.Core.Model.Meters.Meter, ZENNER.CommonLibrary.Entities.Meter>(new Func<MSS.Core.Model.Meters.Meter, ZENNER.CommonLibrary.Entities.Meter>(GMMHelper.GetGMMMeter)).ToList<ZENNER.CommonLibrary.Entities.Meter>();
+    }
+
+    public static ZENNER.CommonLibrary.Entities.Meter GetGMMMeter(MSS.Core.Model.Meters.Meter mssMeter)
+    {
+      return GMMHelper.GetGMMMeter(mssMeter.Id, mssMeter.SerialNumber, mssMeter.DeviceType);
+    }
+
+    public static ZENNER.CommonLibrary.Entities.Meter GetGMMMeter(MeterDTO meterDto)
+    {
+      return GMMHelper.GetGMMMeter(meterDto.Id, meterDto.SerialNumber, meterDto.DeviceType);
+    }
+
+    private static ZENNER.CommonLibrary.Entities.Meter GetGMMMeter(
+      Guid id,
+      string serialNumber,
+      DeviceTypeEnum deviceType)
+    {
+      return new ZENNER.CommonLibrary.Entities.Meter()
+      {
+        ID = id,
+        SerialNumber = serialNumber,
+        DeviceModel = GMMHelper.GetDeviceModel(deviceType)
+      };
+    }
+
+    private static Dictionary<AdditionalInfoKey, string> ConstructMeterAdditionalInfo(
+      string manufacturer,
+      string inputNumber,
+      string generation,
+      int? primaryAddress,
+      DeviceMediumEnum? deviceMedium,
+      string deviceInfo)
+    {
+      Dictionary<AdditionalInfoKey, string> dictionary = new Dictionary<AdditionalInfoKey, string>();
+      if (!string.IsNullOrWhiteSpace(manufacturer))
+        dictionary.Add(AdditionalInfoKey.Manufacturer, manufacturer);
+      if (!string.IsNullOrWhiteSpace(generation))
+        dictionary.Add(AdditionalInfoKey.Version, generation);
+      if (deviceMedium.HasValue)
+        dictionary.Add(AdditionalInfoKey.Medium, deviceMedium.Value.ToString());
+      if (!string.IsNullOrWhiteSpace(deviceInfo))
+      {
+        string propertyFromDeviceInfo1 = GMMHelper.GetPropertyFromDeviceInfo(deviceInfo, "ZDF:");
+        if (!string.IsNullOrWhiteSpace(propertyFromDeviceInfo1))
+          dictionary.Add(AdditionalInfoKey.ZDF, propertyFromDeviceInfo1);
+        string propertyFromDeviceInfo2 = GMMHelper.GetPropertyFromDeviceInfo(deviceInfo, "MainDeviceSecondaryAddress:");
+        if (!string.IsNullOrWhiteSpace(propertyFromDeviceInfo2))
+          dictionary.Add(AdditionalInfoKey.MainDeviceSecondaryAddress, propertyFromDeviceInfo2);
+      }
+      if (!string.IsNullOrWhiteSpace(inputNumber))
+        dictionary.Add(AdditionalInfoKey.InputNumber, inputNumber);
+      if (primaryAddress.HasValue)
+        dictionary.Add(AdditionalInfoKey.PrimaryAddress, primaryAddress.Value.ToString());
+      return dictionary;
+    }
+
+    public static List<ProfileType> GetProfileTypes(
+      IDeviceManager deviceManager,
+      ObservableCollection<ExecuteOrderStructureNode> devices,
+      List<long> filter,
+      EquipmentModel equipment,
+      StructureTypeEnum? structureType)
+    {
+      List<ZENNER.CommonLibrary.Entities.Meter> meters = GMMHelper.GetMeters(devices, filter, structureType);
+      meters.ForEach((Action<ZENNER.CommonLibrary.Entities.Meter>) (m => m.AdditionalInfo = (Dictionary<AdditionalInfoKey, string>) null));
+      return deviceManager.GetProfileTypes(meters, equipment, new ProfileTypeTags?(ProfileTypeTags.All));
+    }
+
+    public static List<ChangeableParameter> ReplaceValuesInChangeableParameters(
+      List<ChangeableParameter> changeableParameter,
+      List<Config> ConfigValues,
+      bool replaceOnlyChangeableParameters = false)
+    {
+      if (changeableParameter == null)
+        return (List<ChangeableParameter>) null;
+      if (ConfigValues == null)
+        return changeableParameter;
+      List<ChangeableParameter> changeableParameterList = new List<ChangeableParameter>();
+      foreach (ChangeableParameter changeableParameter1 in changeableParameter)
+      {
+        foreach (Config configValue1 in ConfigValues)
+        {
+          Config configValue = configValue1;
+          if (configValue.PropertyName == changeableParameter1.Key && (!replaceOnlyChangeableParameters || changeableParameter1.ParameterUsing != 0))
+          {
+            if (changeableParameter1.AvailableValues != null && changeableParameter1.AvailableValues.Count > 0)
+            {
+              ValueItem valueItem = changeableParameter1.AvailableValues.FirstOrDefault<ValueItem>((Func<ValueItem, bool>) (av => av.Value.ToString() == configValue.PropertyValue));
+              if (valueItem != null)
+                changeableParameter1.Value = valueItem.Value;
+            }
+            else
+              changeableParameter1.Value = configValue.PropertyValue;
+          }
+        }
+        changeableParameterList.Add(changeableParameter1);
+      }
+      return changeableParameterList;
+    }
+
+    public static List<DeviceModel> GetDeviceModelBasedOnStructureType(
+      StructureTypeEnum? structureType)
+    {
+      List<DeviceModel> basedOnStructureType = new List<DeviceModel>();
+      StructureTypeEnum? nullable = structureType;
+      if (nullable.HasValue)
+      {
+        switch (nullable.GetValueOrDefault())
+        {
+          case StructureTypeEnum.Physical:
+          case StructureTypeEnum.Logical:
+            basedOnStructureType = GmmInterface.DeviceManager.GetDeviceModels(DeviceModelTags.Undefined | DeviceModelTags.Radio2 | DeviceModelTags.Radio3 | DeviceModelTags.MBus | DeviceModelTags.wMBus | DeviceModelTags.LoRa).FindAll((Predicate<DeviceModel>) (_ => !_.Parameters.ContainsKey(ConnectionProfileParameter.SystemDevice)));
+            break;
+          case StructureTypeEnum.Fixed:
+            basedOnStructureType = GmmInterface.DeviceManager.GetDeviceModels(DeviceModelTags.Radio3);
+            break;
+        }
+      }
+      return basedOnStructureType;
+    }
+
+    public static List<string> GetDeviceModelNameList(List<DeviceModel> deviceModelList)
+    {
+      List<string> modelNames = new List<string>();
+      deviceModelList.ForEach((Action<DeviceModel>) (d => modelNames.Add(d.Name)));
+      return modelNames;
+    }
+
+    public static List<string> GetDeviceModelNameList(StructureTypeEnum? structureType)
+    {
+      return GMMHelper.GetDeviceModelNameList(GMMHelper.GetDeviceModelBasedOnStructureType(structureType));
+    }
+
+    public static bool UpdateAvailableValuesForParam(ChangeableParameter param)
+    {
+      try
+      {
+        return param.UpdateAvailableValues();
+      }
+      catch (Exception ex)
+      {
+        MessageHandler.LogException(ex);
+        return false;
+      }
+    }
+
+    public static string GetPropertyFromDeviceInfo(string deviceInfo, string property)
+    {
+      if (string.IsNullOrEmpty(deviceInfo))
+        return (string) null;
+      return ((IEnumerable<string>) deviceInfo.Split('\n')).FirstOrDefault<string>((Func<string, bool>) (s => s.StartsWith(property, StringComparison.CurrentCulture)))?.Replace(property, string.Empty);
+    }
+  }
+}
+
+
+--- GMMJobsLogger.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.GMMJobsLogger
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using NLog;
+using System;
+using System.Collections.Generic;
+using ZENNER.CommonLibrary.Entities;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public static class GMMJobsLogger
+  {
+    public static Logger GetLogger() => LogManager.GetCurrentClassLogger();
+
+    public static void WriteMessageToLogger(this Logger logger, NLog.LogLevel logLevel, string message)
+    {
+      logger.Log(logLevel, message);
+    }
+
+    public static void LogJobStarted(Job job)
+    {
+      GMMJobsLogger.GetLogger().Info<Guid>("Job started: Id={0}", job.JobID);
+    }
+
+    public static void LogJobCompleted(Job job)
+    {
+      GMMJobsLogger.GetLogger().Info<Guid>("Job completed: Id={0}", job.JobID);
+    }
+
+    public static void LogJobError(Exception ex)
+    {
+      GMMJobsLogger.GetLogger().LogException(NLog.LogLevel.Error, ex.Message, ex);
+    }
+
+    public static void LogGMMError(Exception ex)
+    {
+      GMMJobsLogger.GetLogger().LogException(NLog.LogLevel.Error, "GMM error: " + ex.Message, ex);
+    }
+
+    public static void LogJobValuesReceived(ValueIdentSet e)
+    {
+      if (e.Tag is Job tag)
+        GMMJobsLogger.GetLogger().Info<Guid>("Job values received for JobId = {0};", tag.JobID);
+      GMMJobsLogger.GetLogger().Info<string, string>("Reading values: SerialNumber={0}; Available values: {1}", e.SerialNumber, ValueIdent.ToString(e.AvailableValues, (Dictionary<long, Type>) null));
+    }
+
+    public static void LogMinomatConnected(MinomatDevice minomat)
+    {
+      Logger logger = GMMJobsLogger.GetLogger();
+      object[] objArray = new object[6];
+      uint? nullable = minomat.GsmID;
+      objArray[0] = (object) (uint) ((int) nullable ?? 0);
+      nullable = minomat.MinolID;
+      objArray[1] = (object) (uint) ((int) nullable ?? 0);
+      nullable = minomat.ScenarioNumber;
+      objArray[2] = (object) (uint) ((int) nullable ?? 0);
+      nullable = minomat.ChallengeKey;
+      objArray[3] = (object) (uint) ((int) nullable ?? 0);
+      objArray[4] = (object) (ulong) ((long) minomat.SessionKey ?? 0L);
+      objArray[5] = (object) minomat.IsKnown;
+      logger.Info("Minomat connected:GSMId={0}, MinolId={1}, SerialNumber={2}, ChallengeKey={3}, SessionKey={4}, IsKnown={5}", objArray);
+    }
+
+    public static void LogDebug(string message) => GMMJobsLogger.GetLogger().Debug(message);
+  }
+}
+
+
+--- GMMJobsManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.GMMJobsManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Events;
+using MSS.Business.Modules.JobsManagement;
+using MSS.Business.Modules.StructuresManagement;
+using MSS.Business.Utils;
+using MSS.Core.Model.DataCollectors;
+using MSS.Core.Model.Jobs;
+using MSS.Core.Model.Reporting;
+using MSS.Core.Model.Structures;
+using MSS.DTO.Jobs;
+using MSS.Interfaces;
+using NHibernate.Linq;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Linq.Expressions;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+using ZENNER.CommonLibrary.Exceptions;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public class GMMJobsManager
+  {
+    private IRepositoryFactoryCreator _repositoryFactoryCreator;
+    private bool _startListener;
+    private readonly JobManager _zennerJobManager;
+    private static GMMJobsManager _instance;
+
+    private GMMJobsManager(IRepositoryFactoryCreator repositoryFactoryCreator, bool startListener)
+    {
+      this._repositoryFactoryCreator = repositoryFactoryCreator;
+      this._startListener = startListener;
+      this._zennerJobManager = GmmInterface.JobManager;
+      this._zennerJobManager.OnError += new EventHandler<Exception>(this.JobManager_OnError);
+      this._zennerJobManager.OnJobStarted += new EventHandler<Job>(this.JobManager_JobStarted);
+      this._zennerJobManager.OnJobCompleted += new EventHandler<Job>(this.JobManager_JobCompleted);
+      this._zennerJobManager.ValueIdentSetReceived += new EventHandler<ValueIdentSet>(this.JobManager_ValueIdentSetReceived);
+      this._zennerJobManager.OnMinomatConnected += new EventHandler<MinomatDevice>(this.JobManager_OnMinomatConnected);
+      if (!startListener)
+        return;
+      GMMJobsLogger.LogDebug("START LISTENER FROM CONSTRUCTOR!");
+      this._zennerJobManager.StartListener();
+    }
+
+    ~GMMJobsManager()
+    {
+      this._zennerJobManager.OnError -= new EventHandler<Exception>(this.JobManager_OnError);
+      this._zennerJobManager.OnJobStarted -= new EventHandler<Job>(this.JobManager_JobStarted);
+      this._zennerJobManager.OnJobCompleted -= new EventHandler<Job>(this.JobManager_JobCompleted);
+      this._zennerJobManager.ValueIdentSetReceived -= new EventHandler<ValueIdentSet>(this.JobManager_ValueIdentSetReceived);
+      this._zennerJobManager.OnMinomatConnected -= new EventHandler<MinomatDevice>(this.JobManager_OnMinomatConnected);
+      if (!this._startListener)
+        return;
+      this._zennerJobManager.StopListener();
+    }
+
+    public static GMMJobsManager Instance(
+      IRepositoryFactoryCreator repositoryFactoryCreator,
+      bool startListener)
+    {
+      lock (typeof (GMMJobsManager))
+      {
+        if (GMMJobsManager._instance != null)
+          GMMJobsManager._instance._repositoryFactoryCreator = repositoryFactoryCreator;
+        else
+          GMMJobsManager._instance = new GMMJobsManager(repositoryFactoryCreator, startListener);
+        return GMMJobsManager._instance;
+      }
+    }
+
+    public void UpdateJobsRelatedToJobDefinition(Guid jobDefinition)
+    {
+      IRepositoryFactory repositoryFactory = this._repositoryFactoryCreator.CreateNewRepositoryFactory();
+      lock (repositoryFactory)
+      {
+        try
+        {
+          ManageMSSReadingJobs manageMssReadingJobs = new ManageMSSReadingJobs(repositoryFactory);
+          List<MssReadingJob> list = repositoryFactory.GetRepository<MssReadingJob>().SearchFor((Expression<Func<MssReadingJob, bool>>) (job => job.JobDefinition.Id == jobDefinition && job.EndDate == new DateTime?())).ToList<MssReadingJob>();
+          list.ForEach(new Action<MssReadingJob>(this.RemoveJob));
+          manageMssReadingJobs.UpdateJobsRelatedToJobDefinition(jobDefinition, list);
+        }
+        finally
+        {
+          repositoryFactory.GetSession().Close();
+        }
+      }
+    }
+
+    public void FinalizeJobs(IEnumerable<MssReadingJob> jobs, bool deleteJobs = false)
+    {
+      IRepositoryFactory repositoryFactory = this._repositoryFactoryCreator.CreateNewRepositoryFactory();
+      lock (repositoryFactory)
+      {
+        try
+        {
+          ManageMSSReadingJobs manageMssReadingJobs = new ManageMSSReadingJobs(repositoryFactory);
+          if (!(jobs is IList<MssReadingJob> mssReadingJobList1))
+            mssReadingJobList1 = (IList<MssReadingJob>) jobs.ToList<MssReadingJob>();
+          IList<MssReadingJob> mssReadingJobList2 = mssReadingJobList1;
+          List<MssReadingJob> refreshedJobs = new List<MssReadingJob>();
+          TypeHelperExtensionMethods.ForEach<MssReadingJob>((IEnumerable<MssReadingJob>) mssReadingJobList2, (Action<MssReadingJob>) (j => refreshedJobs.Add(repositoryFactory.GetRepository<MssReadingJob>().GetById((object) j.Id))));
+          manageMssReadingJobs.FinalizeJobs((IEnumerable<MssReadingJob>) refreshedJobs, deleteJobs);
+          refreshedJobs.ForEach(new Action<MssReadingJob>(this.RemoveJob));
+        }
+        finally
+        {
+          repositoryFactory.GetSession().Close();
+        }
+      }
+    }
+
+    public void AddActiveJobsToGMM()
+    {
+      IRepositoryFactory repositoryFactory = this._repositoryFactoryCreator.CreateNewRepositoryFactory();
+      if (this._zennerJobManager.Jobs != null && this._zennerJobManager.Jobs.Count > 0)
+      {
+        GMMJobsLogger.LogDebug("GMM active jobs:");
+        this._zennerJobManager.Jobs.ForEach((Action<Job>) (j => GMMJobsLogger.LogDebug("JobId = " + j.JobID.ToString())));
+      }
+      else
+        GMMJobsLogger.LogDebug("NO JOBS REGISTERED IN GMM!");
+      lock (repositoryFactory)
+      {
+        try
+        {
+          foreach (MssReadingJob activeJob in new JobsManager(repositoryFactory).GetActiveJobs())
+          {
+            MssReadingJob mssReadingJob = activeJob;
+            if (mssReadingJob.Minomat != null && mssReadingJob.Minomat.GsmId == null)
+            {
+              GMMJobsLogger.LogDebug("Job not sent to GMM because minomat has no GSMId");
+            }
+            else
+            {
+              if (mssReadingJob.IsUpdate && this._zennerJobManager.Jobs != null && this._zennerJobManager.Jobs.Any<Job>((Func<Job, bool>) (j => j.JobID == mssReadingJob.Id)))
+                this._zennerJobManager.RemoveJob(mssReadingJob.Id);
+              if (!this._zennerJobManager.Jobs.Any<Job>((Func<Job, bool>) (j => j.JobID == mssReadingJob.Id)))
+              {
+                List<MSS.Core.Model.Meters.Meter> source = (List<MSS.Core.Model.Meters.Meter>) null;
+                if (mssReadingJob.RootNode != null)
+                  source = new StructuresManager(repositoryFactory).LoadStructure(mssReadingJob.RootNode.Id).Meters;
+                this.AddJob(mssReadingJob, source != null ? source.Where<MSS.Core.Model.Meters.Meter>((Func<MSS.Core.Model.Meters.Meter, bool>) (item => item.ReadingEnabled)).ToList<MSS.Core.Model.Meters.Meter>() : (List<MSS.Core.Model.Meters.Meter>) null);
+                IRepository<MssReadingJob> repository = repositoryFactory.GetRepository<MssReadingJob>();
+                if (mssReadingJob.IsUpdate)
+                  mssReadingJob.IsUpdate = false;
+                mssReadingJob.Status = JobStatusEnum.Active;
+                repository.Update(mssReadingJob);
+                if (mssReadingJob.RootNode != null)
+                  JobCyclesCache.Instance.AddJobToCache(repositoryFactory, mssReadingJob, mssReadingJob.RootNode.Id);
+              }
+            }
+          }
+        }
+        finally
+        {
+          repositoryFactory.GetSession().Close();
+        }
+      }
+    }
+
+    public void RemoveDeletedJobsFromGMM()
+    {
+      IRepositoryFactory repositoryFactory = this._repositoryFactoryCreator.CreateNewRepositoryFactory();
+      lock (repositoryFactory)
+      {
+        try
+        {
+          TypeHelperExtensionMethods.ForEach<MssReadingJob>((IEnumerable<MssReadingJob>) repositoryFactory.GetRepository<MssReadingJob>().SearchFor((Expression<Func<MssReadingJob, bool>>) (x => x.IsDeactivated && x.IsUpdate)), (Action<MssReadingJob>) (job =>
+          {
+            JobCyclesCache.Instance.RemoveJobFromCache(job.Id);
+            this.RemoveJob(job);
+            GMMJobsLogger.LogDebug("Job removed from GMM: JobId=" + (object) job.Id);
+          }));
+        }
+        finally
+        {
+          repositoryFactory.GetSession().Close();
+        }
+      }
+    }
+
+    public void StartListener()
+    {
+      if (this._startListener)
+        return;
+      GMMJobsLogger.LogDebug("START LISTENER!");
+      this._zennerJobManager.StartListener();
+      this._startListener = true;
+    }
+
+    public void AddJob(MssReadingJob mssReadingJob, List<MSS.Core.Model.Meters.Meter> meters, Guid rootNodeId = default (Guid))
+    {
+      IRepositoryFactory repositoryFactory = this._repositoryFactoryCreator.CreateNewRepositoryFactory();
+      lock (repositoryFactory)
+      {
+        try
+        {
+          Dictionary<MSS.Core.Model.Meters.Meter, StructureNodeEquipmentSettings> readingParameters = this.GetMeterReadingParameters(meters, repositoryFactory);
+          Job gmmJob = new JobsManager(repositoryFactory).MapMssJobToGmmJob(mssReadingJob);
+          DateTime nextTriggerTime = gmmJob.Interval.GetNextTriggerTime();
+          if (nextTriggerTime > DateTime.Now && mssReadingJob.Minomat != null)
+            GMMJobsLogger.LogDebug(mssReadingJob.Minomat != null ? string.Format("Job {0} for minomat {1} is planned for execution on {2:F} and is not sent to GMM", (object) mssReadingJob.JobDefinition.Name, (object) mssReadingJob.Minomat.RadioId, (object) nextTriggerTime) : string.Format("Job {0} for structure {1} is planned for execution on {2:F} and is not sent to GMM", (object) mssReadingJob.JobDefinition.Name, (object) mssReadingJob.RootNode.Name, (object) nextTriggerTime));
+          else if (mssReadingJob.Minomat != null && mssReadingJob.LastExecutionDate.HasValue && mssReadingJob.LastExecutionDate.Value.Date == DateTime.Today)
+          {
+            GMMJobsLogger.LogDebug(string.Format("Job {0} for minomat {1} has already run and is not sent to GMM", (object) mssReadingJob.JobDefinition.Name, (object) mssReadingJob.Minomat.RadioId));
+          }
+          else
+          {
+            if (meters != null)
+            {
+              gmmJob.Meters = GMMHelper.GetGMMMeters(meters.Where<MSS.Core.Model.Meters.Meter>((Func<MSS.Core.Model.Meters.Meter, bool>) (item => item.ReadingEnabled)).ToList<MSS.Core.Model.Meters.Meter>());
+              if (readingParameters.Any<KeyValuePair<MSS.Core.Model.Meters.Meter, StructureNodeEquipmentSettings>>())
+              {
+                foreach (ZENNER.CommonLibrary.Entities.Meter meter in gmmJob.Meters)
+                {
+                  ZENNER.CommonLibrary.Entities.Meter meterZ = meter;
+                  MSS.Core.Model.Meters.Meter key = readingParameters.Keys.FirstOrDefault<MSS.Core.Model.Meters.Meter>((Func<MSS.Core.Model.Meters.Meter, bool>) (item => item.SerialNumber == meterZ.SerialNumber));
+                  if (key != null && readingParameters[key] != null)
+                    meterZ.DeviceModel = MSS.Business.Modules.AppParametersManagement.AppParametersManagement.UpdateDeviceModelWithSavedParams(meterZ.DeviceModel, readingParameters[key].DeviceModelReadingParams);
+                }
+              }
+              gmmJob.ProfileType = GmmInterface.DeviceManager.GetProfileTypes(gmmJob.Meters, gmmJob.Equipment, new ProfileTypeTags?(ProfileTypeTags.JobManager)).FirstOrDefault<ProfileType>();
+              if (gmmJob.ProfileType != null && !string.IsNullOrEmpty(mssReadingJob.JobDefinition.ProfileTypeParams))
+                MSS.Business.Modules.AppParametersManagement.AppParametersManagement.UpdateProfileTypeWithSavedParams(gmmJob.ProfileType, mssReadingJob.JobDefinition.ProfileTypeParams);
+            }
+            this._zennerJobManager.AddJob(gmmJob);
+            if (rootNodeId != new Guid())
+              JobCyclesCache.Instance.AddJobToCache(repositoryFactory, mssReadingJob, rootNodeId);
+            GMMJobsLogger.LogDebug(string.Format("Job added to GMM: JObId={0}, JobDefinition={1}, Entity={2}", (object) gmmJob.JobID, (object) mssReadingJob.JobDefinition.Name, mssReadingJob.Minomat != null ? (object) mssReadingJob.Minomat.RadioId : (object) mssReadingJob.RootNode.Name));
+          }
+        }
+        finally
+        {
+          repositoryFactory.GetSession().Close();
+        }
+      }
+    }
+
+    public void RemoveJob(MssReadingJob mssReadingJob)
+    {
+      if (!this._zennerJobManager.Jobs.Any<Job>((Func<Job, bool>) (j => j.JobID == mssReadingJob.Id)))
+        return;
+      this._zennerJobManager.RemoveJob(mssReadingJob.Id);
+      JobCyclesCache.Instance.RemoveJobFromCache(mssReadingJob.Id);
+    }
+
+    private void JobManager_JobStarted(object sender, Job job)
+    {
+      IRepositoryFactory repositoryFactory = this._repositoryFactoryCreator.CreateNewRepositoryFactory();
+      lock (repositoryFactory)
+      {
+        try
+        {
+          JobLogsManager jobLogsManager = new JobLogsManager(repositoryFactory);
+          GMMJobsLogger.LogJobStarted(job);
+          jobLogsManager.CreateJobLog(job, JobLogStatusEnum.Running, "Job started");
+        }
+        finally
+        {
+          repositoryFactory.GetSession().Close();
+          EventPublisher.Publish<JobStateModified>(new JobStateModified()
+          {
+            JobId = job.JobID
+          }, (object) this);
+          JobCyclesCache.Instance.UpdateJobCycles(new JobCacheUpdate()
+          {
+            JobId = job.JobID,
+            UpdateType = JobCacheUpdateEnum.JobStarted
+          });
+        }
+      }
+    }
+
+    private void JobManager_JobCompleted(object sender, Job job)
+    {
+      IRepositoryFactory repositoryFactory = this._repositoryFactoryCreator.CreateNewRepositoryFactory();
+      lock (repositoryFactory)
+      {
+        try
+        {
+          GMMJobsLogger.LogJobCompleted(job);
+          new JobLogsManager(repositoryFactory).CreateJobLog(job, JobLogStatusEnum.Finished, "Job completed");
+          IRepository<MssReadingJob> repository = repositoryFactory.GetRepository<MssReadingJob>();
+          MssReadingJob byId = repository.GetById((object) job.JobID);
+          if (byId != null)
+          {
+            IntervalDto intervalDto = JobsManager.DeserializeIntervals(byId.JobDefinition.Interval);
+            if (intervalDto != null && intervalDto.OneTimeDate.HasValue)
+              this.FinalizeJobs((IEnumerable<MssReadingJob>) new List<MssReadingJob>()
+              {
+                byId
+              });
+            byId.LastExecutionDate = new DateTime?(DateTime.Now);
+            repository.Update(byId);
+          }
+          if (this.IsMinomatJob(job))
+            return;
+          new MBusJobsManager(this._repositoryFactoryCreator).SaveReadingValues(job);
+        }
+        finally
+        {
+          repositoryFactory.GetSession().Close();
+          EventPublisher.Publish<JobStateModified>(new JobStateModified()
+          {
+            JobId = job.JobID
+          }, (object) this);
+          JobCyclesCache.Instance.UpdateJobCycles(new JobCacheUpdate()
+          {
+            JobId = job.JobID,
+            UpdateType = JobCacheUpdateEnum.JobCompleted
+          });
+        }
+      }
+    }
+
+    private void JobManager_OnError(object sender, Exception e)
+    {
+      GMMJobsLogger.LogGMMError(e);
+      IRepositoryFactory repositoryFactory = this._repositoryFactoryCreator.CreateNewRepositoryFactory();
+      lock (repositoryFactory)
+      {
+        try
+        {
+          switch (e)
+          {
+            case InvalidJobException _:
+              InvalidJobException invalidJobException = e as InvalidJobException;
+              new JobLogsManager(repositoryFactory).CreateJobLog(invalidJobException.Job, JobLogStatusEnum.Error, invalidJobException.Message);
+              string str = string.Empty;
+              if (invalidJobException.InnerException is InvalidMeterException)
+                str = (invalidJobException.InnerException as InvalidMeterException).Meter.SerialNumber;
+              JobCyclesCache.Instance.UpdateJobCycles(new JobCacheUpdate()
+              {
+                JobId = invalidJobException.Job.JobID,
+                SerialNumberToUpdate = str,
+                UpdateType = JobCacheUpdateEnum.JobError
+              });
+              break;
+            case InvalidMeterException _:
+              InvalidMeterException invalidMeterException = e as InvalidMeterException;
+              JobCyclesCache.Instance.UpdateJobCycles(new JobCacheUpdate()
+              {
+                JobId = Guid.Empty,
+                SerialNumberToUpdate = invalidMeterException.Meter.SerialNumber,
+                UpdateType = JobCacheUpdateEnum.JobError
+              });
+              break;
+          }
+        }
+        finally
+        {
+          repositoryFactory.GetSession().Close();
+        }
+      }
+    }
+
+    public void JobManager_ValueIdentSetReceived(object sender, ValueIdentSet e)
+    {
+      GMMJobsLogger.GetLogger().Debug("Received DEVICE value. Serial no:" + e.SerialNumber);
+      Job tag = e.Tag as Job;
+      if (this.IsMinomatJob(tag))
+        MinomatJobsManager.SaveReadingValues(e);
+      if (tag == null)
+        return;
+      JobCyclesCache.Instance.UpdateJobCycles(new JobCacheUpdate()
+      {
+        JobId = tag.JobID,
+        SerialNumberToUpdate = e.SerialNumber,
+        UpdateType = JobCacheUpdateEnum.JobValueIdentSetReceived
+      });
+    }
+
+    public void JobManager_OnMinomatConnected(object sender, MinomatDevice e)
+    {
+      GMMJobsLogger.LogMinomatConnected(e);
+      if (!e.GsmID.HasValue)
+      {
+        GMMJobsLogger.GetLogger().Debug("A minomat without GSMId was received. No action will be taken.");
+      }
+      else
+      {
+        IRepositoryFactory repositoryFactory = this._repositoryFactoryCreator.CreateNewRepositoryFactory();
+        lock (repositoryFactory)
+        {
+          try
+          {
+            IRepository<Minomat> repository1 = repositoryFactory.GetRepository<Minomat>();
+            IRepository<MSS.Core.Model.DataCollectors.MinomatConnectionLog> repository2 = repositoryFactory.GetRepository<MSS.Core.Model.DataCollectors.MinomatConnectionLog>();
+            IRepository<Scenario> repository3 = repositoryFactory.GetRepository<Scenario>();
+            Minomat minomat1 = repository1.FirstOrDefault((Expression<Func<Minomat, bool>>) (m => m.GsmId == e.GsmID.ToString()));
+            ManageMSSReadingJobs manageMssReadingJobs1 = new ManageMSSReadingJobs(repositoryFactory);
+            MSS.Core.Model.DataCollectors.MinomatConnectionLog minomatConnectionLog1 = new MSS.Core.Model.DataCollectors.MinomatConnectionLog();
+            MSS.Core.Model.DataCollectors.MinomatConnectionLog minomatConnectionLog2 = minomatConnectionLog1;
+            uint? nullable;
+            string str1;
+            if (e.MinolID.HasValue)
+            {
+              nullable = e.MinolID;
+              str1 = nullable.ToString();
+            }
+            else
+              str1 = (string) null;
+            minomatConnectionLog2.MinolId = str1;
+            MSS.Core.Model.DataCollectors.MinomatConnectionLog minomatConnectionLog3 = minomatConnectionLog1;
+            nullable = e.ChallengeKey;
+            string str2;
+            if (!nullable.HasValue)
+            {
+              str2 = (string) null;
+            }
+            else
+            {
+              nullable = e.ChallengeKey;
+              str2 = nullable.ToString();
+            }
+            minomatConnectionLog3.ChallengeKey = str2;
+            MSS.Core.Model.DataCollectors.MinomatConnectionLog minomatConnectionLog4 = minomatConnectionLog1;
+            nullable = e.GsmID;
+            string str3;
+            if (!nullable.HasValue)
+            {
+              str3 = (string) null;
+            }
+            else
+            {
+              nullable = e.GsmID;
+              str3 = nullable.ToString();
+            }
+            minomatConnectionLog4.GsmID = str3;
+            minomatConnectionLog1.IsTestConnection = e.IsTestConnection;
+            MSS.Core.Model.DataCollectors.MinomatConnectionLog minomatConnectionLog5 = minomatConnectionLog1;
+            ulong? sessionKey = e.SessionKey;
+            string str4;
+            if (!sessionKey.HasValue)
+            {
+              str4 = (string) null;
+            }
+            else
+            {
+              sessionKey = e.SessionKey;
+              str4 = sessionKey.ToString();
+            }
+            minomatConnectionLog5.SessionKey = str4;
+            minomatConnectionLog1.TimePoint = DateTime.Now;
+            minomatConnectionLog1.MinomatId = minomat1 == null ? new Guid?() : new Guid?(minomat1.Id);
+            MSS.Core.Model.DataCollectors.MinomatConnectionLog minomatConnectionLog6 = minomatConnectionLog1;
+            nullable = e.ScenarioNumber;
+            string str5;
+            if (!nullable.HasValue)
+            {
+              str5 = (string) null;
+            }
+            else
+            {
+              nullable = e.ScenarioNumber;
+              str5 = nullable.ToString();
+            }
+            minomatConnectionLog6.ScenarioNumber = str5;
+            MSS.Core.Model.DataCollectors.MinomatConnectionLog entity = minomatConnectionLog1;
+            repository2.Insert(entity);
+            if (minomat1 == null)
+            {
+              GMMJobsLogger.GetLogger().Debug("No minomat with the given GSM id exists");
+            }
+            else
+            {
+              if (minomat1.Scenario == null)
+              {
+                ManageMSSReadingJobs manageMssReadingJobs2 = manageMssReadingJobs1;
+                MinomatDevice e1 = e;
+                Minomat minomat2 = minomat1;
+                IRepository<Scenario> scenarioRepository = repository3;
+                nullable = e.ScenarioNumber;
+                int num = nullable.HasValue ? 1 : 0;
+                manageMssReadingJobs2.SetScenarioAndCreateJobs(e1, minomat2, scenarioRepository, num != 0);
+              }
+              else
+              {
+                nullable = e.ScenarioNumber;
+                if (nullable.HasValue)
+                {
+                  long code = (long) minomat1.Scenario.Code;
+                  nullable = e.ScenarioNumber;
+                  long num = (long) nullable.Value;
+                  if (code != num)
+                    manageMssReadingJobs1.SetScenarioAndRecreateJobs(e, minomat1, repository3);
+                }
+              }
+              sessionKey = e.SessionKey;
+              if (sessionKey.HasValue)
+              {
+                Minomat minomat3 = minomat1;
+                sessionKey = e.SessionKey;
+                string str6 = sessionKey.Value.ToString((IFormatProvider) CultureInfo.InvariantCulture);
+                minomat3.SessionKey = str6;
+              }
+              nullable = e.ChallengeKey;
+              if (nullable.HasValue)
+              {
+                Minomat minomat4 = minomat1;
+                nullable = e.ChallengeKey;
+                string str7 = nullable.Value.ToString((IFormatProvider) CultureInfo.InvariantCulture);
+                minomat4.Challenge = str7;
+              }
+              repository1.Update(minomat1);
+            }
+          }
+          finally
+          {
+            repositoryFactory.GetSession().Close();
+          }
+        }
+      }
+    }
+
+    private bool IsMinomatJob(Job job) => job.ProfileType != null && job.ProfileType.Name == "GSM";
+
+    private Dictionary<MSS.Core.Model.Meters.Meter, StructureNodeEquipmentSettings> GetMeterReadingParameters(
+      List<MSS.Core.Model.Meters.Meter> meters,
+      IRepositoryFactory repositoryFactory)
+    {
+      Dictionary<MSS.Core.Model.Meters.Meter, StructureNodeEquipmentSettings> readingParameters = new Dictionary<MSS.Core.Model.Meters.Meter, StructureNodeEquipmentSettings>();
+      IRepository<StructureNodeEquipmentSettings> repository = repositoryFactory.GetRepository<StructureNodeEquipmentSettings>();
+      List<Guid> meterIds = meters.Select<MSS.Core.Model.Meters.Meter, Guid>((Func<MSS.Core.Model.Meters.Meter, Guid>) (item => item.Id)).ToList<Guid>();
+      List<StructureNodeEquipmentSettings> list = repository.Where((Expression<Func<StructureNodeEquipmentSettings, bool>>) (item => meterIds.Contains(item.StructureNode.EntityId))).ToList<StructureNodeEquipmentSettings>();
+      if (list.Any<StructureNodeEquipmentSettings>())
+      {
+        foreach (MSS.Core.Model.Meters.Meter meter1 in meters)
+        {
+          MSS.Core.Model.Meters.Meter meter = meter1;
+          readingParameters.Add(meter, list.FirstOrDefault<StructureNodeEquipmentSettings>((Func<StructureNodeEquipmentSettings, bool>) (item => item.StructureNode.EntityId == meter.Id)));
+        }
+      }
+      return readingParameters;
+    }
+  }
+}
+
+
+--- GMMManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.GMMManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.DataFilters;
+using MSS.Core.Model.Orders;
+using MSS.Interfaces;
+using NHibernate.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public class GMMManager
+  {
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly IRepository<Order> _orderRepository;
+    private readonly IRepository<Rules> _rulesRepository;
+
+    public GMMManager(IRepositoryFactory repositoryFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._orderRepository = this._repositoryFactory.GetRepository<Order>();
+      this._rulesRepository = this._repositoryFactory.GetRepository<Rules>();
+    }
+
+    public List<long> GetFilterListForOrder(Guid selectedOrderId)
+    {
+      List<long> filter = (List<long>) null;
+      Order byId = this._orderRepository.GetById((object) selectedOrderId);
+      if (byId != null)
+      {
+        MSS.Core.Model.DataFilters.Filter orderFilter = byId.Filter;
+        IList<Rules> rulesList = this._rulesRepository.SearchFor((Expression<Func<Rules, bool>>) (r => r.Filter == orderFilter));
+        if (rulesList != null && rulesList.Count > 0)
+        {
+          filter = new List<long>();
+          TypeHelperExtensionMethods.ForEach<Rules>((IEnumerable<Rules>) rulesList, (Action<Rules>) (r => filter.Add(Convert.ToInt64(r.ValueId))));
+        }
+      }
+      return filter;
+    }
+  }
+}
+
+
+--- GMMMinomatConfigurator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.GMMMinomatConfigurator
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MinomatHandler;
+using MSS.Business.Errors;
+using MSS.Core.Model.DataCollectors;
+using MSS.DTO.Meters;
+using MSS.DTO.Structures;
+using MSS.Localisation;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public class GMMMinomatConfigurator
+  {
+    private const int waitTime = 5000;
+    private MinomatHandlerFunctions _minomatHandlerMaster;
+    private MinomatHandlerFunctions _minomatHandlerSlave;
+    private static GMMMinomatConfigurator _instance;
+    public EventHandler<GMMMinomatConfiguratorResult> OnError;
+    private bool _isMaster;
+    private bool _isConnectionMandatory;
+
+    private void InitializeMinomatHandler(bool isMaster, bool isConnectionMandatory)
+    {
+      this._isConnectionMandatory = isConnectionMandatory;
+      if (!isConnectionMandatory)
+        return;
+      string port = GMMMinomatConfigurator.GetPort();
+      DeviceModel deviceModel = GmmInterface.DeviceManager.GetDeviceModel(isMaster ? "Minomat V4 Master" : "Minomat V4 Slave");
+      List<ProfileType> profileTypes = GmmInterface.DeviceManager.GetProfileTypes(deviceModel, MSS.Business.Utils.AppContext.Current.DefaultEquipment);
+      ConnectionProfile connectionProfile = GmmInterface.DeviceManager.GetConnectionProfile(deviceModel, MSS.Business.Utils.AppContext.Current.DefaultEquipment, profileTypes[0]);
+      connectionProfile.EquipmentModel.ChangeableParameters.Find((Predicate<ChangeableParameter>) (x => x.Key == "Port")).Value = port;
+      if (isMaster)
+      {
+        this._minomatHandlerMaster = GmmInterface.HandlerManager.CreateInstance<MinomatHandlerFunctions>(connectionProfile);
+        this._minomatHandlerMaster.MyMinomatV4.OnError += new EventHandlerEx<Exception>(this.MyMinomatV4_OnError);
+        this._minomatHandlerMaster.MyMinomatV4.OnMeasurementDataReceived += new EventHandler<MeasurementData>(this.MyMinomatV4_OnMeasurementDataReceived);
+        this._minomatHandlerMaster.MyMinomatV4.OnMessage += new EventHandler<MinomatV4.StateEventArgs>(this.MyMinomatV4_OnMessage);
+        this._minomatHandlerMaster.MyMinomatV4.OnMinomatV4ParameterReceived += new EventHandler<MinomatV4Parameter>(this.MyMinomatV4_OnMinomatV4ParameterReceived);
+      }
+      else
+      {
+        this._minomatHandlerSlave = GmmInterface.HandlerManager.CreateInstance<MinomatHandlerFunctions>(connectionProfile);
+        this._minomatHandlerSlave.MyMinomatV4.OnError += new EventHandlerEx<Exception>(this.MyMinomatV4_OnError);
+        this._minomatHandlerSlave.MyMinomatV4.OnMeasurementDataReceived += new EventHandler<MeasurementData>(this.MyMinomatV4_OnMeasurementDataReceived);
+        this._minomatHandlerSlave.MyMinomatV4.OnMessage += new EventHandler<MinomatV4.StateEventArgs>(this.MyMinomatV4_OnMessage);
+        this._minomatHandlerSlave.MyMinomatV4.OnMinomatV4ParameterReceived += new EventHandler<MinomatV4Parameter>(this.MyMinomatV4_OnMinomatV4ParameterReceived);
+      }
+    }
+
+    private MinomatHandlerFunctions GetMinomatHandler()
+    {
+      return this._isMaster ? this._minomatHandlerMaster : this._minomatHandlerSlave;
+    }
+
+    public static GMMMinomatConfigurator GetInstance(bool isMaster, bool isConnectionMandatory)
+    {
+      lock (typeof (GMMJobsManager))
+      {
+        if (GMMMinomatConfigurator._instance == null)
+          GMMMinomatConfigurator._instance = new GMMMinomatConfigurator();
+        GMMMinomatConfigurator._instance._isMaster = isMaster;
+        if (isMaster)
+        {
+          if (GMMMinomatConfigurator._instance._minomatHandlerMaster == null)
+            GMMMinomatConfigurator._instance.InitializeMinomatHandler(true, isConnectionMandatory);
+        }
+        else if (GMMMinomatConfigurator._instance._minomatHandlerSlave == null)
+          GMMMinomatConfigurator._instance.InitializeMinomatHandler(false, isConnectionMandatory);
+        return GMMMinomatConfigurator._instance;
+      }
+    }
+
+    private void MyMinomatV4_OnMinomatV4ParameterReceived(object sender, MinomatV4Parameter e)
+    {
+    }
+
+    private void MyMinomatV4_OnMessage(object sender, MinomatV4.StateEventArgs e)
+    {
+    }
+
+    private void MyMinomatV4_OnMeasurementDataReceived(object sender, MeasurementData e)
+    {
+    }
+
+    private void MyMinomatV4_OnError(object sender, Exception e)
+    {
+      EventHandler<GMMMinomatConfiguratorResult> onError = this.OnError;
+      if (onError == null)
+        return;
+      onError((object) this, new GMMMinomatConfiguratorResult()
+      {
+        IsSuccess = false,
+        Message = e.Message
+      });
+    }
+
+    public string GetMinolID()
+    {
+      if (this._isConnectionMandatory)
+      {
+        MinomatHandlerFunctions minomatHandler = this.GetMinomatHandler();
+        try
+        {
+          if (!minomatHandler.MyMinomatV4.Connection.Open())
+            throw new Exception(ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription);
+          return (minomatHandler.MyMinomatV4.GetMinolId() ?? throw new Exception(ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription)).ToString();
+        }
+        finally
+        {
+          minomatHandler.MyMinomatV4.Connection.Close();
+        }
+      }
+      else
+      {
+        Thread.Sleep(5000);
+        return "47444444";
+      }
+    }
+
+    public bool ResetMinomat(Minomat minomat)
+    {
+      if (this._isConnectionMandatory)
+      {
+        MinomatHandlerFunctions minomatHandler = this.GetMinomatHandler();
+        try
+        {
+          return GMMMinomatConfigurator.CheckConnectionAndRadioId(minomatHandler, minomat.RadioId).IsSuccess && minomatHandler.MyMinomatV4.ResetConfiguration();
+        }
+        finally
+        {
+          minomatHandler.MyMinomatV4.Connection.Close();
+        }
+      }
+      else
+      {
+        Thread.Sleep(5000);
+        return true;
+      }
+    }
+
+    public GMMMinomatConfiguratorResult SetupMinomat(Minomat minomat, string installationNumber)
+    {
+      if (this._isConnectionMandatory)
+      {
+        MinomatHandlerFunctions minomatHandler = this.GetMinomatHandler();
+        try
+        {
+          MinomatV4 minomatV4_1 = minomatHandler.MyMinomatV4;
+          GMMMinomatConfiguratorResult configuratorResult = GMMMinomatConfigurator.CheckConnectionAndRadioId(minomatHandler, minomat.RadioId);
+          if (!configuratorResult.IsSuccess)
+            return configuratorResult;
+          if (minomat.IsMaster)
+          {
+            ulong num = ulong.Parse(minomat.SessionKey);
+            if (!minomatV4_1.SetAppInitialSettings(minomat.Challenge, minomat.GsmId, installationNumber, num.ToString("X16")))
+              return new GMMMinomatConfiguratorResult()
+              {
+                IsSuccess = false
+              };
+            minomatV4_1.SetAPN(minomat.AccessPoint);
+            minomatV4_1.SetSimPin(minomat.SimPin);
+            minomatV4_1.SetGPRSUserName(minomat.UserId);
+            minomatV4_1.SetGPRSPassword(minomat.UserPassword);
+            string[] strArray = minomat.HostAndPort.Split(':');
+            minomatV4_1.SetHttpServer(strArray[1], strArray[0]);
+            minomatV4_1.SetHttpResourceName(minomat.Url);
+            DateTime dateTime;
+            if (minomat.RadioDetails.DueDate.HasValue)
+            {
+              MinomatV4 minomatV4_2 = minomatV4_1;
+              DateTime? dueDate = minomat.RadioDetails.DueDate;
+              dateTime = dueDate.Value;
+              int month = dateTime.Month;
+              dueDate = minomat.RadioDetails.DueDate;
+              dateTime = dueDate.Value;
+              int day = dateTime.Day;
+              DateTime newDueDate = new DateTime(2000, month, day);
+              minomatV4_2.SetModemDueDate(newDueDate);
+            }
+            MinomatV4 minomatV4_3 = minomatV4_1;
+            dateTime = new DateTime(2001, 1, 1);
+            DateTime timepoint = dateTime.AddSeconds((double) minomat.Polling);
+            minomatV4_3.SetActionTimepoint(ActionMode.CreateHttp, ActionTimepointType.Interval, timepoint);
+          }
+          minomatV4_1.SetNodeId(minomat.RadioDetails.NodeId);
+          minomatV4_1.SetRadioChannel(minomat.RadioDetails.Channel);
+          minomatV4_1.SetNetworkId(minomat.RadioDetails.NetId);
+          minomatV4_1.SetScenario((Scenario) minomat.Scenario.Code);
+          return new GMMMinomatConfiguratorResult()
+          {
+            IsSuccess = true
+          };
+        }
+        catch (Exception ex)
+        {
+          return this.HandleException(ex);
+        }
+        finally
+        {
+          minomatHandler.MyMinomatV4.Connection.Close();
+        }
+      }
+      else
+      {
+        Thread.Sleep(5000);
+        return new GMMMinomatConfiguratorResult()
+        {
+          IsSuccess = true
+        };
+      }
+    }
+
+    public GMMMinomatConfiguratorResult GetRoutingTable(
+      MinomatSerializableDTO minomat,
+      out RoutingTable routingTable)
+    {
+      if (this._isConnectionMandatory)
+      {
+        MinomatHandlerFunctions minomatHandler = this.GetMinomatHandler();
+        try
+        {
+          routingTable = (RoutingTable) null;
+          GMMMinomatConfiguratorResult routingTable1 = GMMMinomatConfigurator.CheckConnectionAndRadioId(minomatHandler, minomat.RadioId);
+          if (!routingTable1.IsSuccess)
+            return routingTable1;
+          routingTable = minomatHandler.MyMinomatV4.GetRoutingTable();
+          return new GMMMinomatConfiguratorResult()
+          {
+            IsSuccess = true
+          };
+        }
+        catch (Exception ex)
+        {
+          routingTable = (RoutingTable) null;
+          return this.HandleException(ex);
+        }
+        finally
+        {
+          minomatHandler.MyMinomatV4.Connection.Close();
+        }
+      }
+      else
+      {
+        Thread.Sleep(5000);
+        routingTable = new RoutingTable();
+        RoutingRow routingRow1 = new RoutingRow();
+        routingRow1.HopCount = (byte) new Random().Next(1, (int) byte.MaxValue);
+        routingRow1.NodeId = (ushort) new Random().Next(1, 1000);
+        routingRow1.ParentNodeId = (ushort) new Random().Next(1, 1000);
+        routingRow1.RSSI = (byte) new Random().Next(1, (int) byte.MaxValue);
+        RoutingRow routingRow2 = new RoutingRow();
+        routingRow2.HopCount = (byte) new Random().Next(1, (int) byte.MaxValue);
+        routingRow2.NodeId = (ushort) new Random().Next(1, 1000);
+        routingRow2.ParentNodeId = (ushort) new Random().Next(1, 1000);
+        routingRow2.RSSI = (byte) new Random().Next(1, (int) byte.MaxValue);
+        RoutingRow routingRow3 = new RoutingRow();
+        routingRow3.HopCount = (byte) new Random().Next(1, (int) byte.MaxValue);
+        routingRow3.NodeId = (ushort) new Random().Next(1, 1000);
+        routingRow3.ParentNodeId = (ushort) new Random().Next(1, 1000);
+        routingRow3.RSSI = (byte) new Random().Next(1, (int) byte.MaxValue);
+        routingTable.Add(routingRow1);
+        routingTable.Add(routingRow2);
+        routingTable.Add(routingRow3);
+        return new GMMMinomatConfiguratorResult()
+        {
+          IsSuccess = true
+        };
+      }
+    }
+
+    public GMMMinomatConfiguratorResult NetworkOptimization(MinomatSerializableDTO minomat)
+    {
+      if (this._isConnectionMandatory)
+      {
+        MinomatHandlerFunctions minomatHandler = this.GetMinomatHandler();
+        try
+        {
+          GMMMinomatConfiguratorResult configuratorResult = GMMMinomatConfigurator.CheckConnectionAndRadioId(minomatHandler, minomat.RadioId);
+          if (!configuratorResult.IsSuccess)
+            return configuratorResult;
+          bool flag = minomatHandler.MyMinomatV4.StartNetworkOptimization();
+          return new GMMMinomatConfiguratorResult()
+          {
+            IsSuccess = flag
+          };
+        }
+        catch (Exception ex)
+        {
+          return this.HandleException(ex);
+        }
+        finally
+        {
+          minomatHandler.MyMinomatV4.Connection.Close();
+        }
+      }
+      else
+      {
+        Thread.Sleep(5000);
+        return new GMMMinomatConfiguratorResult()
+        {
+          IsSuccess = true
+        };
+      }
+    }
+
+    public bool StartNetworkTestReception(Minomat minomat)
+    {
+      if (this._isConnectionMandatory)
+      {
+        MinomatHandlerFunctions minomatHandler = this.GetMinomatHandler();
+        try
+        {
+          return GMMMinomatConfigurator.CheckConnectionAndRadioId(minomatHandler, minomat.RadioId).IsSuccess && minomatHandler.MyMinomatV4.StartTestReception(StartTestReceptionAction.Start, MinomatHandler.RadioProtocol.HCM_Radio3);
+        }
+        finally
+        {
+          minomatHandler.MyMinomatV4.Connection.Close();
+        }
+      }
+      else
+      {
+        Thread.Sleep(5000);
+        return true;
+      }
+    }
+
+    public TestReceptionResult ReadNetworkTestReception(Minomat minomat)
+    {
+      if (this._isConnectionMandatory)
+      {
+        MinomatHandlerFunctions minomatHandler = this.GetMinomatHandler();
+        try
+        {
+          if (!GMMMinomatConfigurator.CheckConnectionAndRadioId(minomatHandler, minomat.RadioId).IsSuccess)
+            return (TestReceptionResult) null;
+          TestReceptionResult testReceptionResult = minomatHandler.MyMinomatV4.GetTestReceptionResult();
+          if (testReceptionResult != null)
+            minomatHandler.MyMinomatV4.StartTestReception(StartTestReceptionAction.Commit, MinomatHandler.RadioProtocol.HCM_Radio3);
+          return testReceptionResult;
+        }
+        finally
+        {
+          minomatHandler.MyMinomatV4.Connection.Close();
+        }
+      }
+      else
+      {
+        Thread.Sleep(5000);
+        List<RadioDevice> foundDevices = new List<RadioDevice>();
+        RadioDevice radioDevice1 = new RadioDevice();
+        radioDevice1.RSSI = (byte) new Random().Next(1, (int) byte.MaxValue);
+        radioDevice1.LQI = (byte) new Random().Next(1, (int) byte.MaxValue);
+        radioDevice1.MUID = (uint) new Random().Next(1, 1000);
+        RadioDevice radioDevice2 = new RadioDevice();
+        radioDevice1.RSSI = (byte) new Random().Next(1, (int) byte.MaxValue);
+        radioDevice1.LQI = (byte) new Random().Next(1, (int) byte.MaxValue);
+        radioDevice1.MUID = (uint) new Random().Next(1, 1000);
+        foundDevices.Add(radioDevice1);
+        foundDevices.Add(radioDevice2);
+        return new TestReceptionResult(foundDevices);
+      }
+    }
+
+    public Dictionary<string, GMMMinomatConfiguratorResult> RegisterSlavesOnMinomat(
+      Dictionary<string, MinomatSerializableDTO> slaves,
+      MinomatSerializableDTO master,
+      out GMMMinomatConfiguratorResult canSlavesBeRegisteredOnMaster)
+    {
+      canSlavesBeRegisteredOnMaster = new GMMMinomatConfiguratorResult()
+      {
+        IsSuccess = false,
+        Message = Resources.MSS_Client_SlavesCannotBeRegisteredOnMaster
+      };
+      Dictionary<string, GMMMinomatConfiguratorResult> dictionary = new Dictionary<string, GMMMinomatConfiguratorResult>();
+      if (this._isConnectionMandatory)
+      {
+        MinomatHandlerFunctions minomatHandler = this.GetMinomatHandler();
+        try
+        {
+          GMMMinomatConfiguratorResult configuratorResult1 = GMMMinomatConfigurator.CheckConnectionAndRadioId(minomatHandler, master.RadioId);
+          if (configuratorResult1.IsSuccess)
+          {
+            foreach (KeyValuePair<string, MinomatSerializableDTO> slave in slaves)
+            {
+              GMMMinomatConfiguratorResult configuratorResult2 = this.RegisterOneSlaveOnMinomat(minomatHandler, slave.Key, slave.Value, master);
+              dictionary.Add(slave.Key, configuratorResult2);
+            }
+          }
+          canSlavesBeRegisteredOnMaster = configuratorResult1;
+        }
+        finally
+        {
+          minomatHandler.MyMinomatV4.Connection.Close();
+        }
+      }
+      else
+      {
+        foreach (KeyValuePair<string, MinomatSerializableDTO> slave in slaves)
+        {
+          Thread.Sleep(5000);
+          dictionary.Add(slave.Key, new GMMMinomatConfiguratorResult()
+          {
+            IsSuccess = true
+          });
+          canSlavesBeRegisteredOnMaster = new GMMMinomatConfiguratorResult()
+          {
+            IsSuccess = true
+          };
+        }
+      }
+      return dictionary;
+    }
+
+    public GMMMinomatConfiguratorResult RegisterOneSlaveOnMinomat(
+      MinomatHandlerFunctions minomatHandler,
+      string slaveNodeId,
+      MinomatSerializableDTO slave,
+      MinomatSerializableDTO master)
+    {
+      try
+      {
+        bool flag = minomatHandler.MyMinomatV4.RegisterSlave((object) slaveNodeId, (object) Convert.ToUInt32(slave.RadioId));
+        return new GMMMinomatConfiguratorResult()
+        {
+          IsSuccess = flag
+        };
+      }
+      catch (Exception ex)
+      {
+        return this.HandleException(ex);
+      }
+    }
+
+    public GMMMinomatConfiguratorResult RegisterDevicesOnMinomat(
+      List<MeterDTO> foundDevices,
+      Minomat minomat)
+    {
+      if (this._isConnectionMandatory)
+      {
+        MinomatHandlerFunctions minomatHandler = this.GetMinomatHandler();
+        try
+        {
+          GMMMinomatConfiguratorResult configuratorResult = GMMMinomatConfigurator.CheckConnectionAndRadioId(minomatHandler, minomat.RadioId);
+          if (!configuratorResult.IsSuccess)
+            return configuratorResult;
+          foreach (MeterDTO foundDevice in foundDevices)
+          {
+            bool flag1 = Convert.ToInt32(foundDevice.SerialNumber) > 80000000 && Convert.ToInt32(foundDevice.SerialNumber) < 89999999;
+            bool flag2 = Convert.ToInt32(foundDevice.SerialNumber) > 30000000 && Convert.ToInt32(foundDevice.SerialNumber) < 36999999;
+            minomatHandler.MyMinomatV4.RegisterMessUnit(Convert.ToUInt32(foundDevice.SerialNumber), flag2 ? MeasurementCategory.B : MeasurementCategory.A, flag2 | flag1 ? MeasurementValueType.Slow_2Byte : MeasurementValueType.Fast_4Byte, MinomatHandler.RadioProtocol.HCM_Radio3);
+          }
+          return new GMMMinomatConfiguratorResult()
+          {
+            IsSuccess = true
+          };
+        }
+        catch (Exception ex)
+        {
+          return this.HandleException(ex);
+        }
+        finally
+        {
+          minomatHandler.MyMinomatV4.Connection.Close();
+        }
+      }
+      else
+      {
+        Thread.Sleep(5000);
+        return new GMMMinomatConfiguratorResult()
+        {
+          IsSuccess = true
+        };
+      }
+    }
+
+    public bool DeregisterDevicesOnMinomat(List<RadioDevice> foundDevices, Minomat minomat)
+    {
+      if (this._isConnectionMandatory)
+      {
+        MinomatHandlerFunctions minomatHandler = this.GetMinomatHandler();
+        try
+        {
+          if (!GMMMinomatConfigurator.CheckConnectionAndRadioId(minomatHandler, minomat.RadioId).IsSuccess)
+            return false;
+          foreach (RadioDevice foundDevice in foundDevices)
+            minomatHandler.MyMinomatV4.DeleteMessUnit(foundDevice.MUID);
+          return true;
+        }
+        finally
+        {
+          minomatHandler.MyMinomatV4.Connection.Close();
+        }
+      }
+      else
+      {
+        Thread.Sleep(5000);
+        return true;
+      }
+    }
+
+    public GMMMinomatConfiguratorResult StartMinomatMaster(MinomatSerializableDTO minomat)
+    {
+      if (this._isConnectionMandatory)
+      {
+        MinomatHandlerFunctions minomatHandler = this.GetMinomatHandler();
+        try
+        {
+          GMMMinomatConfiguratorResult configuratorResult = GMMMinomatConfigurator.CheckConnectionAndRadioId(minomatHandler, minomat.RadioId);
+          if (!configuratorResult.IsSuccess)
+            return configuratorResult;
+          minomatHandler.MyMinomatV4.StartNetworkSetup(NetworkSetupMode.StartNormal);
+          return new GMMMinomatConfiguratorResult()
+          {
+            IsSuccess = true
+          };
+        }
+        catch (Exception ex)
+        {
+          return this.HandleException(ex);
+        }
+        finally
+        {
+          minomatHandler.MyMinomatV4.Connection.Close();
+        }
+      }
+      else
+      {
+        Thread.Sleep(5000);
+        return new GMMMinomatConfiguratorResult()
+        {
+          IsSuccess = true
+        };
+      }
+    }
+
+    public GMMMinomatConfiguratorResult StartMinomatSlave(MinomatSerializableDTO minomat)
+    {
+      if (this._isConnectionMandatory)
+      {
+        MinomatHandlerFunctions minomatHandler = this.GetMinomatHandler();
+        try
+        {
+          GMMMinomatConfiguratorResult configuratorResult = GMMMinomatConfigurator.CheckConnectionAndRadioId(minomatHandler, minomat.RadioId);
+          if (!configuratorResult.IsSuccess)
+            return configuratorResult;
+          minomatHandler.MyMinomatV4.StartNetworkSetup(NetworkSetupMode.StartNormal);
+          return new GMMMinomatConfiguratorResult()
+          {
+            IsSuccess = true
+          };
+        }
+        catch (Exception ex)
+        {
+          return this.HandleException(ex);
+        }
+        finally
+        {
+          minomatHandler.MyMinomatV4.Connection.Close();
+        }
+      }
+      else
+      {
+        Thread.Sleep(5000);
+        return new GMMMinomatConfiguratorResult()
+        {
+          IsSuccess = true
+        };
+      }
+    }
+
+    public GMMMinomatConfiguratorResult StartMasterGSMTestReception(MinomatSerializableDTO minomat)
+    {
+      if (this._isConnectionMandatory)
+      {
+        MinomatHandlerFunctions minomatHandler = this.GetMinomatHandler();
+        try
+        {
+          GMMMinomatConfiguratorResult configuratorResult = GMMMinomatConfigurator.CheckConnectionAndRadioId(minomatHandler, minomat.RadioId);
+          if (!configuratorResult.IsSuccess)
+            return configuratorResult;
+          bool flag = minomatHandler.MyMinomatV4.StartGSMTestReception();
+          return new GMMMinomatConfiguratorResult()
+          {
+            IsSuccess = flag
+          };
+        }
+        catch (Exception ex)
+        {
+          return this.HandleException(ex);
+        }
+        finally
+        {
+          minomatHandler.MyMinomatV4.Connection.Close();
+        }
+      }
+      else
+      {
+        Thread.Sleep(5000);
+        return new GMMMinomatConfiguratorResult()
+        {
+          IsSuccess = true
+        };
+      }
+    }
+
+    public GSMTestReceptionState ReadMasterGSMTestReception(MinomatSerializableDTO minomat)
+    {
+      if (this._isConnectionMandatory)
+      {
+        MinomatHandlerFunctions minomatHandler = this.GetMinomatHandler();
+        try
+        {
+          return GMMMinomatConfigurator.CheckConnectionAndRadioId(minomatHandler, minomat.RadioId).IsSuccess ? minomatHandler.MyMinomatV4.GetGSMTestReceptionState() : GSMTestReceptionState.Failed;
+        }
+        finally
+        {
+          minomatHandler.MyMinomatV4.Connection.Close();
+        }
+      }
+      else
+      {
+        Thread.Sleep(5000);
+        return GSMTestReceptionState.Successful;
+      }
+    }
+
+    private GMMMinomatConfiguratorResult HandleException(Exception ex)
+    {
+      MessageHandler.LogException(ex);
+      return new GMMMinomatConfiguratorResult()
+      {
+        IsSuccess = false,
+        Message = ex.Message
+      };
+    }
+
+    private static string GetPort()
+    {
+      try
+      {
+        if (MSS.Business.Utils.AppContext.Current.DefaultEquipment == null)
+          return string.Empty;
+        ChangeableParameter changeableParameter = MSS.Business.Utils.AppContext.Current.DefaultEquipment.ChangeableParameters.FirstOrDefault<ChangeableParameter>((Func<ChangeableParameter, bool>) (x => x.Key == "Port"));
+        return changeableParameter != null ? changeableParameter.Value : string.Empty;
+      }
+      catch (Exception ex)
+      {
+        MessageHandler.LogException(ex);
+        return string.Empty;
+      }
+    }
+
+    private static GMMMinomatConfiguratorResult CheckConnectionAndRadioId(
+      MinomatHandlerFunctions minomatHandler,
+      string radioId)
+    {
+      if (!minomatHandler.MyMinomatV4.Connection.Open())
+      {
+        string errorDescription = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+        return new GMMMinomatConfiguratorResult()
+        {
+          IsSuccess = false,
+          Message = errorDescription
+        };
+      }
+      uint? minolId = minomatHandler.MyMinomatV4.GetMinolId();
+      if (!minolId.HasValue)
+      {
+        string errorDescription = ZR_ClassLibMessages.GetLastErrorAndClearError().LastErrorDescription;
+        return new GMMMinomatConfiguratorResult()
+        {
+          IsSuccess = false,
+          Message = errorDescription
+        };
+      }
+      if (minolId.ToString() == radioId)
+        return new GMMMinomatConfiguratorResult()
+        {
+          IsSuccess = true
+        };
+      return new GMMMinomatConfiguratorResult()
+      {
+        IsSuccess = false,
+        Message = "Different Radio Id!"
+      };
+    }
+  }
+}
+
+
+--- GMMMinomatConfiguratorResult.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.GMMMinomatConfiguratorResult
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public struct GMMMinomatConfiguratorResult
+  {
+    public bool IsSuccess;
+    public string Message;
+  }
+}
+
+
+--- IFirmwareConfigurator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.IFirmwareConfigurator
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public interface IFirmwareConfigurator : IDisposable
+  {
+    void InitializeFirmwareConfigurator(EDC_Handler.Firmware edcFirmware, PDC_Handler.Firmware pdcFirmware);
+
+    void UpgradeFirmWare();
+
+    event EventHandler<int> OnProgress;
+  }
+}
+
+
+--- IGMMReading.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.IGMMReading
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public interface IGMMReading
+  {
+    bool StartReadingValues();
+
+    void StopReadingValues();
+  }
+}
+
+
+--- ListenerManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.ListenerManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public class ListenerManager
+  {
+  }
+}
+
+
+--- MBusJobsManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.MBusJobsManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using GmmDbLib;
+using GmmDbLib.DataSets;
+using MSS.Business.Modules.OrdersManagement;
+using MSS.Core.Model.Jobs;
+using MSS.Core.Model.Meters;
+using MSS.Interfaces;
+using NHibernate;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public class MBusJobsManager
+  {
+    private readonly IRepositoryFactoryCreator _repositoryFactoryCreator;
+
+    public MBusJobsManager(IRepositoryFactoryCreator repositoryFactoryCreator)
+    {
+      this._repositoryFactoryCreator = repositoryFactoryCreator;
+    }
+
+    public void SaveReadingValues(Job job)
+    {
+      IRepositoryFactory repositoryFactory = this._repositoryFactoryCreator.CreateNewRepositoryFactory();
+      ISession session = repositoryFactory.GetSession();
+      session.BeginTransaction();
+      session.FlushMode = FlushMode.Commit;
+      job.Meters?.ForEach((Action<ZENNER.CommonLibrary.Entities.Meter>) (x =>
+      {
+        if (string.IsNullOrEmpty(x.SerialNumber))
+          return;
+        List<DriverTables.MeterMSSRow> meterMss = MeterMSS.GetMeterMSS(GmmInterface.Database.BaseDbConnection, x.SerialNumber);
+        if (meterMss != null)
+        {
+          Guid meterId = meterMss[0].MeterID;
+          List<DriverTables.MeterValuesMSSRow> gmmMeterValues = new List<DriverTables.MeterValuesMSSRow>();
+          List<DriverTables.MeterValuesMSSRow> collection = MeterValuesMSS.LoadMeterValuesMSS(GmmInterface.Database.BaseDbConnection, meterId);
+          if (collection != null)
+          {
+            gmmMeterValues.AddRange((IEnumerable<DriverTables.MeterValuesMSSRow>) collection);
+            MeterValuesMSS.DeleteMeterValuesMSS(GmmInterface.Database.BaseDbConnection, meterId);
+          }
+          else
+            GMMJobsLogger.GetLogger().Info(string.Format("No meter values were found for meter with serial number {0}", (object) x.SerialNumber));
+          new ReadingValuesManager(repositoryFactory).ConvertAndSaveReadingValues(x.SerialNumber, repositoryFactory.GetRepository<MSS.Core.Model.Meters.Meter>().GetById((object) x.ID), gmmMeterValues, repositoryFactory.GetRepository<MssReadingJob>().GetById((object) job.JobID), repositoryFactory.GetRepository<MeasureUnit>().GetAll().ToList<MeasureUnit>());
+        }
+        else
+          GMMJobsLogger.GetLogger().Info(string.Format("Meter with serial number {0} was not found in GMM.", (object) x.SerialNumber));
+      }));
+      session.Transaction.Commit();
+    }
+  }
+}
+
+
+--- MeasureUnitsHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.MeasureUnitsHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.Meters;
+using MSS.DTO.Meters;
+using MSS.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public static class MeasureUnitsHelper
+  {
+    public static IEnumerable<MeasureUnitDTO> GetMeasureUnits(
+      IRepository<MeasureUnit> measureUnitsRepository)
+    {
+      ObservableCollection<MeasureUnitDTO> source = new ObservableCollection<MeasureUnitDTO>();
+      foreach (MeasureUnit measureUnit in measureUnitsRepository.GetAll().OrderBy<MeasureUnit, string>((Func<MeasureUnit, string>) (mu => mu.Code)).ToList<MeasureUnit>())
+      {
+        MeasureUnit currentMeasureUnit = measureUnit;
+        char[] charArray = currentMeasureUnit.Code.ToCharArray();
+        if (charArray.Length != 0 && charArray[0] == '˚')
+        {
+          charArray[0] = '°';
+          currentMeasureUnit.Code = string.Concat<char>((IEnumerable<char>) charArray);
+        }
+        if (charArray.Length > 1 && charArray[1] == '3')
+        {
+          charArray[1] = '\u00B3';
+          currentMeasureUnit.Code = string.Concat<char>((IEnumerable<char>) charArray);
+        }
+        if (source.FirstOrDefault<MeasureUnitDTO>((Func<MeasureUnitDTO, bool>) (item => item.Code == currentMeasureUnit.Code)) == null)
+          source.Add(new MeasureUnitDTO()
+          {
+            Id = currentMeasureUnit.Id,
+            Code = currentMeasureUnit.Code,
+            Name = currentMeasureUnit.Code
+          });
+      }
+      return (IEnumerable<MeasureUnitDTO>) source.OrderBy<MeasureUnitDTO, string>((Func<MeasureUnitDTO, string>) (x => x.Name)).ToList<MeasureUnitDTO>();
+    }
+  }
+}
+
+
+--- MinomatJobsManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.MinomatJobsManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Common.Library.NHibernate.Data;
+using MSS.Business.Modules.JobsManagement;
+using MSS.Business.Utils;
+using MSS.Core.Model.DataCollectors;
+using MSS.Core.Model.Jobs;
+using MSS.Interfaces;
+using NHibernate;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Linq;
+using System.Linq.Expressions;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public class MinomatJobsManager
+  {
+    private readonly IRepositoryFactoryCreator _repositoryFactoryCreator;
+
+    public MinomatJobsManager(IRepositoryFactoryCreator repositoryFactoryCreator)
+    {
+      this._repositoryFactoryCreator = repositoryFactoryCreator;
+    }
+
+    public static void AddMinomat(Minomat mssMinomat, uint? challengeold = null, ulong? sessionKeyOld = null)
+    {
+      if (string.IsNullOrEmpty(mssMinomat.GsmId) || MeterListenerManager.GetMinomat(Convert.ToUInt32(mssMinomat.GsmId)) != null)
+        return;
+      MinomatDevice minomatDevice = new MinomatDevice()
+      {
+        GsmID = new uint?(Convert.ToUInt32(mssMinomat.GsmId)),
+        MinolID = new uint?(Convert.ToUInt32(mssMinomat.RadioId)),
+        SessionKey = new ulong?(Convert.ToUInt64(mssMinomat.SessionKey)),
+        ChallengeKey = new uint?(Convert.ToUInt32(mssMinomat.Challenge)),
+        ChallengeKeyOld = challengeold,
+        SessionKeyOld = sessionKeyOld
+      };
+      MeterListenerManager.AddMinomat(minomatDevice);
+      GMMJobsLogger.LogDebug(string.Format("New minomat added to GMM: RadioId={0}, GSMId={1}", (object) minomatDevice.MinolID, (object) minomatDevice.GsmID));
+    }
+
+    public void CheckMinomats()
+    {
+      IRepositoryFactory repositoryFactory = this._repositoryFactoryCreator.CreateNewRepositoryFactory();
+      lock (repositoryFactory)
+      {
+        try
+        {
+          List<Minomat> list = repositoryFactory.GetRepository<Minomat>().SearchFor((Expression<System.Func<Minomat, bool>>) (x => !x.IsDeactivated && x.IsMaster && x.GsmId != default (string))).ToList<Minomat>();
+          IJobRepository jobsRepository = repositoryFactory.GetJobRepository();
+          list.ForEach((Action<Minomat>) (minomat => MinomatJobsManager.AddMinomat(minomat)));
+          jobsRepository.GetMinomatsWithMissingJobs().ForEach((Action<Minomat>) (minomat =>
+          {
+            if (minomat.Scenario == null)
+              return;
+            Guid scenarioId = minomat.Scenario.Id;
+            repositoryFactory.GetRepository<ScenarioJobDefinition>().SearchFor((Expression<System.Func<ScenarioJobDefinition, bool>>) (x => x.Scenario.Id == scenarioId)).Select<ScenarioJobDefinition, Guid>((System.Func<ScenarioJobDefinition, Guid>) (x => x.JobDefinition.Id)).ToList<Guid>().ForEach((Action<Guid>) (jd =>
+            {
+              // ISSUE: reference to a compiler-generated field
+              // ISSUE: reference to a compiler-generated field
+              // ISSUE: reference to a compiler-generated field
+              if (jobsRepository.Exists((Expression<System.Func<MssReadingJob, bool>>) (x => !x.IsDeactivated && x.EndDate == new DateTime?() && x.Scenario != default (object) && x.Scenario.Id == this.scenarioId && x.JobDefinition != default (object) && x.JobDefinition.Id == jd && x.Minomat.Id == this.CS\u0024\u003C\u003E8__locals3.minomat.Id)))
+                return;
+              new ManageMSSReadingJobs(repositoryFactory).CreateJob(minomat.Id, jd, scenarioId);
+            }));
+          }));
+        }
+        finally
+        {
+          repositoryFactory.GetSession().Close();
+        }
+      }
+    }
+
+    public static void SaveReadingValues(ValueIdentSet e)
+    {
+      SortedList<long, SortedList<DateTime, ReadingValue>> availableValues = e.AvailableValues;
+      Job tag = e.Tag as Job;
+      DataTable dt = new DataTable();
+      dt.Columns.Add("MeterSerialNumber", typeof (string));
+      dt.Columns.Add("JobId", typeof (Guid));
+      dt.Columns.Add("CreatedOn", typeof (DateTime));
+      dt.Columns.Add("Date", typeof (DateTime));
+      dt.Columns.Add("Value", typeof (double));
+      dt.Columns.Add("ValueId", typeof (long));
+      dt.Columns.Add("StorageInterval", typeof (long));
+      dt.Columns.Add("PhysicalQuantity", typeof (long));
+      dt.Columns.Add("MeterType", typeof (long));
+      dt.Columns.Add("CalculationStart", typeof (long));
+      dt.Columns.Add("Creation", typeof (long));
+      dt.Columns.Add("Calculation", typeof (long));
+      dt.Columns.Add("UnitName", typeof (string));
+      foreach (KeyValuePair<long, SortedList<DateTime, ReadingValue>> keyValuePair1 in availableValues)
+      {
+        long key = keyValuePair1.Key;
+        foreach (KeyValuePair<DateTime, ReadingValue> keyValuePair2 in keyValuePair1.Value)
+        {
+          DataRow row = dt.NewRow();
+          row["MeterSerialNumber"] = (object) e.SerialNumber;
+          row["JobId"] = (object) (tag != null ? tag.JobID : Guid.Empty);
+          row["CreatedOn"] = (object) DateTime.Now;
+          row["Date"] = (object) keyValuePair2.Key;
+          row["Value"] = (object) keyValuePair2.Value.value;
+          row["ValueId"] = (object) key;
+          row["StorageInterval"] = (object) (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_StorageInterval>(key);
+          row["PhysicalQuantity"] = (object) (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_PhysicalQuantity>(key);
+          row["MeterType"] = (object) (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_MeterType>(key);
+          row["CalculationStart"] = (object) (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_CalculationStart>(key);
+          row["Creation"] = (object) (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_Creation>(key);
+          row["Calculation"] = (object) (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_Calculation>(key);
+          row["UnitName"] = (object) ValueIdent.GetUnit(Convert.ToInt64(key));
+          dt.Rows.Add(row);
+        }
+      }
+      lock (dt)
+      {
+        string appSetting = ConfigurationManager.AppSettings["DatabaseEngine"];
+        HibernateMultipleDatabasesManager.Initialize(appSetting);
+        using (IStatelessSession statelessSession = HibernateMultipleDatabasesManager.DataSessionFactory(appSetting).OpenStatelessSession())
+          statelessSession.CreateSQLQuery("exec sp_ProcessAndInsertReadingValues @readingValueFromGMM = :data ").SetStructuredForReadingValues("data", dt).ExecuteUpdate();
+      }
+      dt.Dispose();
+    }
+  }
+}
+
+
+--- ParamsReturnedUsingIrExpando.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.ParamsReturnedUsingIrExpando
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public class ParamsReturnedUsingIrExpando
+  {
+    public bool IsSuccess { get; set; }
+
+    public string RadioId { get; set; }
+
+    public double? StartValue { get; set; }
+
+    public string Message { get; set; }
+  }
+}
+
+
+--- PDCConfigurator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.PDCConfigurator
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Errors;
+using MSS.Business.Modules.GMMWrapper;
+using MSS.Localisation;
+using PDC_Handler;
+using System;
+using ZENNER.CommonLibrary.Entities;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public class PDCConfigurator : IFirmwareConfigurator, IDisposable
+  {
+    private PDC_HandlerFunctions handler;
+    private byte[] buffer;
+    private readonly EquipmentModel _equipmentModel;
+    private readonly IHandlerManager _handlerManager;
+    private readonly IDeviceManager _deviceManager;
+
+    public PDCConfigurator(
+      EquipmentModel equipmentModel,
+      IHandlerManager handlerManager,
+      IDeviceManager deviceManager)
+    {
+      this._equipmentModel = equipmentModel;
+      this._handlerManager = handlerManager;
+      this._deviceManager = deviceManager;
+    }
+
+    public void InitializeFirmwareConfigurator(EDC_Handler.Firmware edcFirmware, PDC_Handler.Firmware pdcFirmware)
+    {
+      this.buffer = pdcFirmware != null ? PDC_Handler.FirmwareManager.ReadFirmwareFromText(pdcFirmware.FirmwareText) : throw new BaseApplicationException(Resources.MSS_Client_Configuration_FirmwareUpgrade_DbHasNoFirmware);
+      ConnectionProfile connectionProfile = this._deviceManager.GetConnectionProfile(77);
+      connectionProfile.EquipmentModel = this._equipmentModel;
+      this.handler = this._handlerManager.CreateInstance<PDC_HandlerFunctions>(connectionProfile);
+    }
+
+    public void UpgradeFirmWare()
+    {
+      try
+      {
+        PDC_Meter pdcMeter1 = this.handler.ReadDevice() ? this.handler.Meter.DeepCopy() : throw new BaseApplicationException(Resources.MSS_Client_Configuration_ReadDeviceError);
+        if (!this.handler.RunRAMBackup())
+          throw new BaseApplicationException(Resources.MSS_Client_Configuration_UpgradeFirmware_CannotSaveConfiguration);
+        if (!this.handler.UpgradeFirmware(this.buffer))
+          throw new BaseApplicationException(Resources.MSS_Client_Configuration_UpgradeFirmware_CannotUpdateFirmware);
+        PDC_Meter pdcMeter2 = this.handler.ReadDevice() ? this.handler.Meter.DeepCopy() : throw new BaseApplicationException(Resources.MSS_Client_Configuration_ReadDeviceError);
+        foreach (PDC_Handler.Parameter p in PDC_MemoryMap.GetParameter(pdcMeter2.Version))
+        {
+          if (p.Name.StartsWith("cfg_") || p.Name.StartsWith("Con_") || p.Name.StartsWith("Bak_"))
+          {
+            byte[] memoryBytes1 = pdcMeter1.Map.GetMemoryBytes(p);
+            byte[] memoryBytes2 = pdcMeter2.Map.GetMemoryBytes(p);
+            if (!Util.ArraysEqual(memoryBytes1, memoryBytes2))
+              throw new BaseApplicationException(string.Format(Resources.MSS_Client_Configuration_UpgradeFirmware_Success_DifferentParameter, (object) p.Name, (object) Util.ByteArrayToString(memoryBytes1), (object) Util.ByteArrayToString(memoryBytes2)));
+          }
+        }
+      }
+      finally
+      {
+        this.handler?.GMM_Dispose();
+      }
+    }
+
+    public event EventHandler<int> OnProgress
+    {
+      add => this.handler.OnProgress += (ValueEventHandler<int>) ((sender, e) => value(sender, e));
+      remove
+      {
+        this.handler.OnProgress -= (ValueEventHandler<int>) ((sender, e) => value(sender, e));
+      }
+    }
+
+    void IDisposable.Dispose() => this.handler?.Dispose();
+  }
+}
+
+
+--- ReaderMinoConnectManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.ReaderMinoConnectManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Events;
+using MSS.Business.Modules.GMMWrapper;
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.Orders;
+using MSS.Core.Model.Structures;
+using MSS.Core.Utils;
+using MSS.DTO.MessageHandler;
+using MSS.DTO.Orders;
+using MSS.Interfaces;
+using MSS.Localisation;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+using ZENNER.CommonLibrary.Exceptions;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public class ReaderMinoConnectManager : BaseMinoConnectManager
+  {
+    private readonly MeterReaderManager _reader;
+    private ObservableCollection<ExecuteOrderStructureNode> _meters;
+    private IDeviceManager _deviceManager;
+    private const string IR_MINOMAT_V4 = "IR Minomat V4";
+    private List<string> metersSerialNumberRead;
+    private List<string> metersSerialNumberWithoutValues = new List<string>();
+    public EventHandler<string> OnMissingTranslationRule;
+    public System.EventHandler OnReadingFinished;
+    public EventHandler<string> OnError;
+    public System.EventHandler OnBatterieLow;
+
+    public ReaderMinoConnectManager(
+      IRepositoryFactory repositoryFactory,
+      IDeviceManager deviceManager)
+    {
+      this._deviceManager = deviceManager;
+      this._reader = GmmInterface.Reader;
+      this._reader.DontCloseConnectionAfterRead = true;
+      this._reader.ValueIdentSetReceived += new EventHandler<ValueIdentSet>(this.Reader_ValueIdentSetReceived);
+      this._reader.OnError += new EventHandler<Exception>(this.Reader_OnError);
+      this._reader.OnProgress += new EventHandler<int>(this._reader_OnProgress);
+      this._reader.OnReadFinished += new EventHandler<ReadSettings>(this._reader_OnReadFinished);
+      this._reader.StoreResultsToDatabase = true;
+      this._reader.BatterieLow += new System.EventHandler(this.Reader_BatterieLow);
+      TranslationRulesManager.Instance.MissedTranslationRules += new EventHandlerEx<string>(this.TranslationRulesManager_MissedTranslationRules);
+      this._repositoryFactory = repositoryFactory;
+      this._orderRepository = this._repositoryFactory.GetRepository<Order>();
+    }
+
+    private void ReinitializeParams(
+      ObservableCollection<ExecuteOrderStructureNode> meterList,
+      OrderDTO order,
+      ProfileType profileType)
+    {
+      this._meters = meterList;
+      this._orderId = order.Id;
+      this._profileType = profileType;
+    }
+
+    ~ReaderMinoConnectManager()
+    {
+      this._reader.ValueIdentSetReceived -= new EventHandler<ValueIdentSet>(this.Reader_ValueIdentSetReceived);
+      this._reader.OnError -= new EventHandler<Exception>(this.Reader_OnError);
+      this._reader.OnProgress -= new EventHandler<int>(this._reader_OnProgress);
+      this._reader.OnReadFinished -= new EventHandler<ReadSettings>(this._reader_OnReadFinished);
+      this._reader.BatterieLow -= new System.EventHandler(this.Reader_BatterieLow);
+      this._reader.CloseConnection();
+      TranslationRulesManager.Instance.MissedTranslationRules -= new EventHandlerEx<string>(this.TranslationRulesManager_MissedTranslationRules);
+    }
+
+    private void TranslationRulesManager_MissedTranslationRules(object sender, string e)
+    {
+      string parameter = ParameterService.GetParameter(e, "SID");
+      if (this.metersSerialNumberRead.Contains(parameter))
+        return;
+      this.metersSerialNumberRead.Add(parameter);
+      this.SaveErrorMessage(string.Format(Resources.MSS_ReaderManager_MissingTranslationRule, (object) parameter), MessageLevelsEnum.Warning, parameter);
+      EventPublisher.Publish<ErrorDuringReading>(new ErrorDuringReading()
+      {
+        SerialNumber = parameter,
+        ErrorMessage = ReadingValueStatusEnum.MissingTranslationRules.ToString()
+      }, (object) this);
+      EventHandler<string> missingTranslationRule = this.OnMissingTranslationRule;
+      if (missingTranslationRule != null)
+        missingTranslationRule((object) this, string.Format(Resources.MSS_ReaderManager_MissingTranslationRule, (object) parameter));
+    }
+
+    private void _reader_OnProgress(object sender, int e) => this.UpdateProgressBar(e);
+
+    private void _reader_OnReadFinished(object sender, ReadSettings e)
+    {
+      this.StopReadingValues();
+      System.EventHandler onReadingFinished = this.OnReadingFinished;
+      if (onReadingFinished == null)
+        return;
+      onReadingFinished((object) this, (EventArgs) null);
+    }
+
+    private void UpdateProgressBar(int progress)
+    {
+      if (this._meters.Count <= 0)
+        return;
+      if (this._profileType.Name == "IR Minomat V4" && this._meters.Count<ExecuteOrderStructureNode>() > 1 && this.metersSerialNumberRead.Count > 0)
+      {
+        int num = this.metersSerialNumberRead.Count * 100 / this._meters.Count;
+        EventPublisher.Publish<ProgressEvent>(new ProgressEvent()
+        {
+          Value = Convert.ToInt32(num)
+        }, (object) this);
+      }
+      else
+        EventPublisher.Publish<ProgressEvent>(new ProgressEvent()
+        {
+          Value = progress
+        }, (object) this);
+    }
+
+    private void Reader_ValueIdentSetReceived(object sender, ValueIdentSet e)
+    {
+      if (e.AvailableValues == null || e.AvailableValues.Count == 0)
+        return;
+      ExecuteOrderStructureNode orderStructureNode = this._meters.FirstOrDefault<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (m => m.SerialNumber == e.SerialNumber));
+      Guid guid = Guid.Empty;
+      if (orderStructureNode != null)
+        guid = orderStructureNode.MeterId;
+      bool flag = this.SaveReadingValues(e.SerialNumber);
+      if (flag)
+      {
+        EventPublisher.Publish<StructureBytesUpdated>(new StructureBytesUpdated()
+        {
+          SerialNumberRead = e.SerialNumber,
+          AnyReadingValuesRead = flag,
+          IsConfigured = true
+        }, (object) this);
+        if (this.metersSerialNumberWithoutValues.Contains(e.SerialNumber))
+          this.metersSerialNumberWithoutValues.Remove(e.SerialNumber);
+      }
+      else if (!this.metersSerialNumberWithoutValues.Contains(e.SerialNumber))
+        this.metersSerialNumberWithoutValues.Add(e.SerialNumber);
+      if (this.metersSerialNumberRead.Contains(e.SerialNumber))
+        return;
+      this.metersSerialNumberRead.Add(e.SerialNumber);
+      this.UpdateProgressBar(this.metersSerialNumberRead.Count);
+    }
+
+    private void Reader_OnError(object sender, Exception e)
+    {
+      if (e == null)
+        return;
+      if (e is InvalidMeterException)
+      {
+        string serialNumber = (e as InvalidMeterException).Meter.SerialNumber;
+        string str = string.Format(Resources.MSS_InvalidMeter, (object) serialNumber);
+        if (serialNumber != string.Empty)
+          this.SaveErrorMessage(str, MessageLevelsEnum.Error, serialNumber);
+        if (!this.metersSerialNumberRead.Contains(serialNumber))
+        {
+          this.metersSerialNumberRead.Add(serialNumber);
+          EventPublisher.Publish<ErrorDuringReading>(new ErrorDuringReading()
+          {
+            SerialNumber = serialNumber
+          }, (object) this);
+          EventHandler<string> onError = this.OnError;
+          if (onError != null)
+            onError(sender, str);
+        }
+      }
+      if (e is FailedToReadException)
+      {
+        string serialnumber = (e as FailedToReadException).Serialnumber;
+        string str = string.Format(Resources.MSS_FailedToRead, (object) serialnumber);
+        if (serialnumber != string.Empty)
+          this.SaveErrorMessage(str, MessageLevelsEnum.Error, serialnumber);
+        if (!this.metersSerialNumberRead.Contains(serialnumber) || this.metersSerialNumberWithoutValues.Contains(serialnumber))
+        {
+          if (!this.metersSerialNumberRead.Contains(serialnumber))
+            this.metersSerialNumberRead.Add(serialnumber);
+          EventPublisher.Publish<ErrorDuringReading>(new ErrorDuringReading()
+          {
+            SerialNumber = serialnumber
+          }, (object) this);
+          EventHandler<string> onError = this.OnError;
+          if (onError != null)
+            onError(sender, str);
+        }
+      }
+    }
+
+    private void Reader_BatterieLow(object sender, EventArgs e)
+    {
+      this.ShowMessage(MessageTypeEnum.Warning, Resources.MSS_MinoConnect_Battery_Low);
+      System.EventHandler onBatterieLow = this.OnBatterieLow;
+      if (onBatterieLow == null)
+        return;
+      onBatterieLow((object) this, e);
+    }
+
+    public bool StartReadingValues(
+      ObservableCollection<ExecuteOrderStructureNode> meterList,
+      OrderDTO order,
+      ProfileType profileName,
+      EquipmentModel equipment,
+      string scanParams = null)
+    {
+      return this.StartReadingValues(meterList, order, profileName, equipment, (Dictionary<Guid, StructureNodeEquipmentSettings>) null, scanParams);
+    }
+
+    public bool StartReadingValues(
+      ObservableCollection<ExecuteOrderStructureNode> meterList,
+      OrderDTO order,
+      ProfileType profileName,
+      EquipmentModel equipment,
+      Dictionary<Guid, StructureNodeEquipmentSettings> equipmentSettingsForMeters,
+      string scanParams = null)
+    {
+      if (meterList.Count == 0)
+        return false;
+      this.ReinitializeParams(meterList, order, profileName);
+      List<ZENNER.CommonLibrary.Entities.Meter> meters = GMMHelper.GetMeters(this._meters, this.GetGMMManagerInstance().GetFilterListForOrder(this._orderId), order.StructureType, scanParams);
+      if (this._profileType != null)
+      {
+        this.metersSerialNumberRead = new List<string>();
+        foreach (ZENNER.CommonLibrary.Entities.Meter meterZ in meters)
+        {
+          this.UpdateEquipmentSettings(meterZ, meterList, equipmentSettingsForMeters);
+          this.UpdateConnectionAdjuster(meterZ, profileName, equipment);
+          this._reader.ReadMeter(meters, equipment, this._profileType);
+        }
+      }
+      return true;
+    }
+
+    public void UpdateEquipmentSettings(
+      ZENNER.CommonLibrary.Entities.Meter meterZ,
+      ObservableCollection<ExecuteOrderStructureNode> meterList,
+      Dictionary<Guid, StructureNodeEquipmentSettings> equipmentSettingsForMeters)
+    {
+      if (equipmentSettingsForMeters == null || equipmentSettingsForMeters.Count == 0)
+        return;
+      Guid? meterId = meterList.FirstOrDefault<ExecuteOrderStructureNode>((Func<ExecuteOrderStructureNode, bool>) (item => item.SerialNumber == meterZ.SerialNumber))?.MeterId;
+      StructureNodeEquipmentSettings settingsForMeter = !meterId.HasValue || !equipmentSettingsForMeters.ContainsKey(meterId.Value) ? (StructureNodeEquipmentSettings) null : equipmentSettingsForMeters[meterId.Value];
+      if (settingsForMeter == null)
+        return;
+      meterZ.DeviceModel = MSS.Business.Modules.AppParametersManagement.AppParametersManagement.UpdateDeviceModelWithSavedParams(meterZ.DeviceModel, settingsForMeter.DeviceModelReadingParams);
+    }
+
+    public void UpdateConnectionAdjuster(
+      ZENNER.CommonLibrary.Entities.Meter meterZ,
+      ProfileType profileName,
+      EquipmentModel equipment)
+    {
+      meterZ.ConnectionAdjuster = this._deviceManager.GetConnectionAdjuster(meterZ.DeviceModel, equipment, profileName);
+    }
+
+    public void StopReadingValues()
+    {
+      this._reader.ValueIdentSetReceived -= new EventHandler<ValueIdentSet>(this.Reader_ValueIdentSetReceived);
+      this._reader.OnError -= new EventHandler<Exception>(this.Reader_OnError);
+      this._reader.OnProgress -= new EventHandler<int>(this._reader_OnProgress);
+      this._reader.OnReadFinished -= new EventHandler<ReadSettings>(this._reader_OnReadFinished);
+      this._reader.CancelRead();
+    }
+
+    protected GMMManager GetGMMManagerInstance() => new GMMManager(this._repositoryFactory);
+
+    public void CloseConnection() => this._reader.CloseConnection();
+  }
+}
+
+
+--- ReceiverMinoConnectManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.ReceiverMinoConnectManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Events;
+using MSS.Business.Modules.StructuresManagement;
+using MSS.Core.Model.Orders;
+using MSS.DTO.MessageHandler;
+using MSS.DTO.Meters;
+using MSS.DTO.Orders;
+using MSS.Interfaces;
+using MSS.Localisation;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public class ReceiverMinoConnectManager : BaseMinoConnectManager
+  {
+    private readonly MeterReceiverManager _receiver;
+    private List<ZENNER.CommonLibrary.Entities.Meter> _gmmMeters;
+    private List<MeterSerializableDTO> metersInStructure = new List<MeterSerializableDTO>();
+    private List<MeterSerializableDTO> metersRead = new List<MeterSerializableDTO>();
+    public EventHandler<string> OnMeterValuesReceivedHandler;
+    public System.EventHandler OnJobFinished;
+
+    public ReceiverMinoConnectManager(
+      IRepositoryFactory repositoryFactory,
+      OrderDTO selectedOrder,
+      Guid selectedStructureNodeId,
+      ProfileType profileType)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._profileType = profileType;
+      this._orderRepository = this._repositoryFactory.GetRepository<Order>();
+      this._orderId = selectedOrder.Id;
+      this.metersInStructure = StructuresHelper.DeserializeStructure(selectedOrder.StructureBytes).meterList;
+      this._receiver = GmmInterface.Receiver;
+      this._receiver.StoreResultsToDatabase = true;
+      this._receiver.ValueIdentSetReceived += new EventHandler<ValueIdentSet>(this.receiver_ValueIdentSetReceived);
+      this._receiver.OnError += new EventHandler<Exception>(this.receiver_OnError);
+      this._receiver.ConnectionLost += new System.EventHandler(this._receiver_ConnectionLost);
+    }
+
+    ~ReceiverMinoConnectManager()
+    {
+      this._receiver.ValueIdentSetReceived -= new EventHandler<ValueIdentSet>(this.receiver_ValueIdentSetReceived);
+      this._receiver.OnError -= new EventHandler<Exception>(this.receiver_OnError);
+      this._receiver.ConnectionLost -= new System.EventHandler(this._receiver_ConnectionLost);
+    }
+
+    private void _receiver_ConnectionLost(object sender, EventArgs e)
+    {
+      this.ShowMessage(MessageTypeEnum.Warning, Resources.MSS_ReceiverManager_ConnectionLost);
+    }
+
+    private void _receiver_OnJobCompleted(object sender, Job e)
+    {
+      this.StopReadingValues();
+      System.EventHandler onJobFinished = this.OnJobFinished;
+      if (onJobFinished != null)
+        onJobFinished((object) this, (EventArgs) null);
+      this.ShowMessage(MessageTypeEnum.Success, Resources.MSS_Client_ExecuteReadingOrder_Succedded);
+    }
+
+    private void receiver_ValueIdentSetReceived(object sender, ValueIdentSet e)
+    {
+      if (e.AvailableValues == null || e.AvailableValues.Count == 0)
+        return;
+      MeterSerializableDTO meterSerializableDto = this.metersInStructure.FirstOrDefault<MeterSerializableDTO>((Func<MeterSerializableDTO, bool>) (m => m.SerialNumber == e.SerialNumber));
+      if (this.metersRead.Contains(meterSerializableDto) || meterSerializableDto == null)
+        return;
+      bool flag = this.SaveReadingValues(e.SerialNumber);
+      if (flag)
+        EventPublisher.Publish<StructureBytesUpdated>(new StructureBytesUpdated()
+        {
+          MeterReadByWalkBy = meterSerializableDto.Id,
+          SerialNumberRead = e.SerialNumber,
+          AnyReadingValuesRead = flag
+        }, (object) this);
+      if (this.metersRead.Contains(meterSerializableDto))
+        return;
+      this.metersRead.Add(meterSerializableDto);
+    }
+
+    private void receiver_OnError(object sender, Exception e)
+    {
+      this.StopReadingValues();
+      this.ShowMessage(MessageTypeEnum.Warning, e.Message);
+    }
+
+    public bool StartReadingValues(
+      ObservableCollection<ExecuteOrderStructureNode> meterList,
+      OrderDTO selectedOrder,
+      ProfileType profileType,
+      EquipmentModel equipment)
+    {
+      this._profileType = profileType;
+      this._orderId = selectedOrder.Id;
+      List<long> filterListForOrder = new GMMManager(this._repositoryFactory).GetFilterListForOrder(this._orderId);
+      this._gmmMeters = GMMHelper.GetMeters(meterList, filterListForOrder, selectedOrder.StructureType);
+      DeviceModel system = GmmInterface.DeviceManager.GetDeviceModels(DeviceModelTags.SystemDevice, TransceiverType.Receiver).FirstOrDefault<DeviceModel>((Func<DeviceModel, bool>) (s => GmmInterface.DeviceManager.GetProfileTypes(s, equipment).Any<ProfileType>((Func<ProfileType, bool>) (p => p.Name == this._profileType.Name))));
+      if (equipment == null)
+        return false;
+      if (system != null && this._profileType != null)
+      {
+        foreach (ZENNER.CommonLibrary.Entities.Meter gmmMeter in this._gmmMeters)
+          gmmMeter.ConnectionAdjuster = GmmInterface.DeviceManager.GetConnectionAdjuster(gmmMeter.DeviceModel, equipment, this._profileType);
+        this._receiver.StartRead(system, this._gmmMeters, equipment, this._profileType);
+        EventPublisher.Publish<ProgressEvent>(new ProgressEvent()
+        {
+          Value = 1
+        }, (object) this);
+      }
+      return true;
+    }
+
+    public void StopReadingValues()
+    {
+      this._receiver.ValueIdentSetReceived -= new EventHandler<ValueIdentSet>(this.receiver_ValueIdentSetReceived);
+      this._receiver.OnError -= new EventHandler<Exception>(this.receiver_OnError);
+      EventPublisher.Publish<ProgressEvent>(new ProgressEvent()
+      {
+        Value = 100
+      }, (object) this);
+      this._receiver.StopRead();
+    }
+  }
+}
+
+
+--- SaveGMMValuesLogger.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.SaveGMMValuesLogger
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Errors;
+using MSS.Utils.Utils;
+using NLog;
+using System;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public static class SaveGMMValuesLogger
+  {
+    private static Logger logger = LogManager.GetCurrentClassLogger();
+
+    public static string GetMessage(MessageCodes errorCode, params object[] values)
+    {
+      return string.Format(errorCode.GetStringValue(), values);
+    }
+
+    public static string LogException(Exception ex, MessageCodes messageCode)
+    {
+      string message = string.Format("Error message: {0} Error code: {1}. Exception is :'{2}'. Stack trace: {3}", (object) ex.Message, (object) messageCode, (object) ex.GetBaseException().GetType().ToString(), (object) ex.StackTrace);
+      SaveGMMValuesLogger.logger.Log(NLog.LogLevel.Error, message);
+      return message;
+    }
+
+    public static string LogException(Exception ex)
+    {
+      if (ex == null)
+        return string.Empty;
+      string message = string.Format("Error occured. Exception is :'{0}'. Message: {1} Stack trace: {2}", (object) ex.GetBaseException().GetType().ToString(), (object) ex.GetBaseException().Message, (object) ex.GetBaseException().StackTrace);
+      SaveGMMValuesLogger.logger.Log(NLog.LogLevel.Error, message);
+      return message;
+    }
+
+    public static void LogDebug(string message)
+    {
+      SaveGMMValuesLogger.logger.Log(NLog.LogLevel.Debug, message);
+    }
+
+    public static void LogError(MessageCodes messageCode)
+    {
+      SaveGMMValuesLogger.logger.Log(NLog.LogLevel.Error, "Error code: " + messageCode.ToString());
+    }
+
+    public static void LogException(string messageCode)
+    {
+      SaveGMMValuesLogger.logger.Log(NLog.LogLevel.Error, "Error code: " + messageCode);
+    }
+  }
+}
+
+
+--- ScanMinoConnectManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.ScanMinoConnectManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Modules.GMMWrapper;
+using MSS.Core.Model.ApplicationParamenters;
+using MSS.Core.Model.Structures;
+using MSS.DTO.MessageHandler;
+using MSS.Interfaces;
+using MSS.Localisation;
+using System;
+using System.ComponentModel;
+using System.Linq;
+using System.Linq.Expressions;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public class ScanMinoConnectManager : BaseMinoConnectManager
+  {
+    private readonly ScannerManager _scanner;
+    private readonly IRepository<ApplicationParameter> _appParamRepository;
+    private readonly StructureNodeEquipmentSettings _structureNodeEquipmentSettings;
+    public EventHandler<string> OnMissingTranslationRule;
+    public System.EventHandler OnBatterieLow;
+    private string _systemParam;
+    private readonly IDeviceManager _deviceManager;
+    private static bool _isScanningStarted;
+
+    public event EventHandler<int> OnProgressChanged;
+
+    public event EventHandler<string> OnProgressMessage;
+
+    public event EventHandler<ZENNER.CommonLibrary.Entities.Meter> OnMeterFound;
+
+    public string SystemName => this._systemParam;
+
+    public ScanMinoConnectManager(
+      IRepositoryFactory repositoryFactory,
+      StructureNodeEquipmentSettings structureNodeEquipmentSettings,
+      IDeviceManager deviceManager)
+    {
+      this._scanner = GmmInterface.ScannerManager;
+      this._deviceManager = deviceManager;
+      this._structureNodeEquipmentSettings = structureNodeEquipmentSettings;
+      this._appParamRepository = repositoryFactory.GetRepository<ApplicationParameter>();
+      this._scanner.OnMeterFound += new EventHandler<ZENNER.CommonLibrary.Entities.Meter>(this._scanner_OnMeterFound);
+      this._scanner.OnError += new EventHandler<Exception>(this._scanner_OnError);
+      this._scanner.OnProgress += new EventHandler<int>(this._scanner_OnProgress);
+      this._scanner.OnProgressMessage += new EventHandler<string>(this._scanner_OnProgressMessage);
+      this._scanner.BatterieLow += new System.EventHandler(this.BatterieLow);
+      TranslationRulesManager.Instance.MissedTranslationRules += new EventHandlerEx<string>(this.TranslationRulesManager_MissedTranslationRules);
+    }
+
+    private void BatterieLow(object sender, EventArgs e)
+    {
+      this.ShowMessage(MessageTypeEnum.Warning, Resources.MSS_MinoConnect_Battery_Low);
+      System.EventHandler onBatterieLow = this.OnBatterieLow;
+      if (onBatterieLow == null)
+        return;
+      onBatterieLow((object) this, e);
+    }
+
+    public ScanMinoConnectManager()
+    {
+    }
+
+    ~ScanMinoConnectManager()
+    {
+      if (this._scanner == null)
+        return;
+      this._scanner.OnMeterFound -= new EventHandler<ZENNER.CommonLibrary.Entities.Meter>(this._scanner_OnMeterFound);
+      this._scanner.OnError -= new EventHandler<Exception>(this._scanner_OnError);
+      this._scanner.OnProgress -= new EventHandler<int>(this._scanner_OnProgress);
+      this._scanner.OnProgressMessage -= new EventHandler<string>(this._scanner_OnProgressMessage);
+      TranslationRulesManager.Instance.MissedTranslationRules -= new EventHandlerEx<string>(this.TranslationRulesManager_MissedTranslationRules);
+      this._scanner.CancelScan();
+    }
+
+    private void _scanner_OnProgressMessage(object sender, string e)
+    {
+      EventHandler<string> onProgressMessage = this.OnProgressMessage;
+      if (onProgressMessage == null)
+        return;
+      onProgressMessage((object) this, e);
+    }
+
+    private void _scanner_OnProgress(object sender, int e)
+    {
+      EventHandler<int> onProgressChanged = this.OnProgressChanged;
+      if (e == 100 && string.IsNullOrEmpty(this._systemParam) && this._systemParam == "M-Bus")
+        MSS.Business.Errors.MessageHandler.LogDebug("M-Bus scanning - 100% - automatically stop scanning");
+      if (onProgressChanged == null)
+        return;
+      onProgressChanged((object) this, e);
+    }
+
+    private void _scanner_OnError(object sender, Exception e)
+    {
+      MSS.Business.Errors.MessageHandler.LogException(e);
+      this._scanner.OnMeterFound -= new EventHandler<ZENNER.CommonLibrary.Entities.Meter>(this._scanner_OnMeterFound);
+      this._scanner.OnError -= new EventHandler<Exception>(this._scanner_OnError);
+      this._scanner.CancelScan();
+      this.ShowMessage(MessageTypeEnum.Warning, e.Message);
+    }
+
+    private void _scanner_OnMeterFound(object sender, ZENNER.CommonLibrary.Entities.Meter e)
+    {
+      MSS.Business.Errors.MessageHandler.LogDebug(string.Format("Scanning - Meter found: {0}, {1}", (object) (e.SerialNumber ?? string.Empty), (object) (e.DeviceModel.Name ?? string.Empty)));
+      EventHandler<ZENNER.CommonLibrary.Entities.Meter> onMeterFound = this.OnMeterFound;
+      if (onMeterFound == null)
+        return;
+      onMeterFound((object) this, e);
+    }
+
+    public bool StartScan()
+    {
+      MSS.Business.Errors.MessageHandler.LogDebug("Start scanning");
+      EquipmentModel equipment = MSS.Business.Modules.AppParametersManagement.AppParametersManagement.UpdateEquipmentWithSavedParams(this._deviceManager.GetEquipmentModels().FirstOrDefault<EquipmentModel>((Func<EquipmentModel, bool>) (d => d.Name == this._structureNodeEquipmentSettings.EquipmentName)), this._structureNodeEquipmentSettings.EquipmentParams);
+      if (equipment == null)
+        return false;
+      string scanMode = this._structureNodeEquipmentSettings.ScanMode;
+      if (string.IsNullOrEmpty(scanMode))
+      {
+        MSS.Business.Errors.MessageHandler.LogDebug("Scanning - scanMode is not set");
+        return false;
+      }
+      this._appParamRepository.Refresh((object) this._appParamRepository.FirstOrDefault((Expression<Func<ApplicationParameter, bool>>) (x => x.Parameter == "System")).Id);
+      this._systemParam = this._structureNodeEquipmentSettings.SystemName;
+      if (string.IsNullOrEmpty(this._systemParam))
+      {
+        MSS.Business.Errors.MessageHandler.LogDebug("Scanning - systemParam is not set");
+        return false;
+      }
+      DeviceModel system = this._deviceManager.GetDeviceModels(DeviceModelTags.SystemDevice).FirstOrDefault<DeviceModel>((Func<DeviceModel, bool>) (e => e.Name == this._systemParam));
+      ProfileType profileType = this.LoadProfileType(equipment, system, scanMode);
+      this._scanner.BeginScan(equipment, system, profileType);
+      return true;
+    }
+
+    private ProfileType LoadProfileType(
+      EquipmentModel equipment,
+      DeviceModel system,
+      string scanModeName)
+    {
+      ProfileType profileType = this._deviceManager.GetProfileTypes(system, equipment).FirstOrDefault<ProfileType>((Func<ProfileType, bool>) (e => e.Name == scanModeName));
+      MSS.Business.Modules.AppParametersManagement.AppParametersManagement.UpdateProfileTypeWithSavedParams(profileType, this._structureNodeEquipmentSettings.ScanParams);
+      return profileType;
+    }
+
+    public void StopScan()
+    {
+      this._scanner.OnMeterFound -= new EventHandler<ZENNER.CommonLibrary.Entities.Meter>(this._scanner_OnMeterFound);
+      this._scanner.OnError -= new EventHandler<Exception>(this._scanner_OnError);
+      this._scanner.OnProgress -= new EventHandler<int>(this._scanner_OnProgress);
+      this._scanner.OnProgressMessage -= new EventHandler<string>(this._scanner_OnProgressMessage);
+      this._scanner.CancelScan();
+    }
+
+    public static bool IsScanningStarted
+    {
+      get => ScanMinoConnectManager._isScanningStarted;
+      set
+      {
+        ScanMinoConnectManager._isScanningStarted = value;
+        ScanMinoConnectManager.OnStaticPropertyChanged(nameof (IsScanningStarted));
+      }
+    }
+
+    public static event EventHandler<PropertyChangedEventArgs> StaticPropertyChanged;
+
+    private static void OnStaticPropertyChanged(string propertyName)
+    {
+      EventHandler<PropertyChangedEventArgs> staticPropertyChanged = ScanMinoConnectManager.StaticPropertyChanged;
+      if (staticPropertyChanged == null)
+        return;
+      PropertyChangedEventArgs e = new PropertyChangedEventArgs(propertyName);
+      staticPropertyChanged((object) null, e);
+    }
+
+    private void TranslationRulesManager_MissedTranslationRules(object sender, string e)
+    {
+      string parameter = ParameterService.GetParameter(e, "SID");
+      EventHandler<string> missingTranslationRule = this.OnMissingTranslationRule;
+      if (missingTranslationRule == null)
+        return;
+      missingTranslationRule((object) this, parameter);
+    }
+  }
+}
+
+
+--- SpecialTranslationsEnum.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.SpecialTranslationsEnum
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public enum SpecialTranslationsEnum
+  {
+    None,
+    DigiInput,
+    ErrorBit,
+    ErrorBitMask,
+    Serialnumber,
+    MeterType,
+  }
+}
+
+
+--- TimepointEnum.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.TimepointEnum
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Utils.Utils;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public enum TimepointEnum
+  {
+    [StringEnum("TIMP")] TIMP,
+    [StringEnum("TIMP[1]")] TIMP_1,
+    [StringEnum("TIMP[2]")] TIMP_2,
+    [StringEnum("TIMP[3]")] TIMP_3,
+    [StringEnum("TIMP[4]")] TIMP_4,
+    [StringEnum("TIMP[8]")] TIMP_8,
+    [StringEnum("TIMP[9]")] TIMP_9,
+    [StringEnum("TIMP[10]")] TIMP_10,
+    [StringEnum("TIMP[11]")] TIMP_11,
+    [StringEnum("TIMP[12]")] TIMP_12,
+    [StringEnum("TIMP[13]")] TIMP_13,
+    [StringEnum("TIMP[14]")] TIMP_14,
+    [StringEnum("TIMP[15]")] TIMP_15,
+    [StringEnum("TIMP[16]")] TIMP_16,
+    [StringEnum("TIMP[17]")] TIMP_17,
+    [StringEnum("TIMP[18]")] TIMP_18,
+    [StringEnum("TIMP[19]")] TIMP_19,
+    [StringEnum("TIMP[20]")] TIMP_20,
+    [StringEnum("TIMP[32]")] TIMP_32,
+    [StringEnum("TIMP[33]")] TIMP_33,
+    [StringEnum("TIMP[34]")] TIMP_34,
+    [StringEnum("TIMP[35]")] TIM_35,
+    [StringEnum("TIMP[36]")] TIMP_36,
+    [StringEnum("TIMP[37]")] TIMP_37,
+    [StringEnum("TIMP[38]")] TIMP_38,
+    [StringEnum("TIMP[39]")] TIMP_39,
+    [StringEnum("TIMP[40]")] TIMP_40,
+    [StringEnum("TIMP[41]")] TIMP_41,
+    [StringEnum("TIMP[42]")] TIMP_42,
+    [StringEnum("TIMP[43]")] TIMP_43,
+    [StringEnum("TIMP[44]")] TIMP_44,
+    [StringEnum("TIMP[45]")] TIMP_45,
+    [StringEnum("TIMP[46]")] TIMP_46,
+    [StringEnum("TIMP[47]")] TIMP_47,
+    [StringEnum("TIMP[48]")] TIMP_48,
+    [StringEnum("TIMP[49]")] TIMP_49,
+    [StringEnum("TIMP[50]")] TIMP_50,
+    [StringEnum("TIMP[51]")] TIMP_51,
+    [StringEnum("TIMP[52]")] TIMP_52,
+    [StringEnum("TIMP[53]")] TIMP_53,
+    [StringEnum("TIMP[54]")] TIMP_54,
+    [StringEnum("TIMP[55]")] TIMP_55,
+    [StringEnum("TIMP[1]_TAR[1]")] TIMP_1_TAR_1,
+    [StringEnum("TIMP[8]_TAR[1]")] TIMP_8_TAR_1,
+    [StringEnum("TIMP[20]_TAR[1]")] TIMP_20_TAR_1,
+  }
+}
+
+
+--- ValueIdentHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.ValueIdentHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Utils;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public static class ValueIdentHelper
+  {
+    public static IEnumerable<string> GetPhysicalQuantitiesEnumerable()
+    {
+      return (IEnumerable<string>) EnumHelper.GetEnumElements<ValueIdent.ValueIdPart_PhysicalQuantity>().Keys.OrderBy<string, string>((Func<string, string>) (s => s));
+    }
+
+    public static IEnumerable<string> GetMeterTypeEnumerable()
+    {
+      return (IEnumerable<string>) EnumHelper.GetEnumElements<ValueIdent.ValueIdPart_MeterType>().Keys.OrderBy<string, string>((Func<string, string>) (s => s));
+    }
+
+    public static IEnumerable<string> GetCalculationEnumerable()
+    {
+      return (IEnumerable<string>) EnumHelper.GetEnumElements<ValueIdent.ValueIdPart_Calculation>().Keys.OrderBy<string, string>((Func<string, string>) (s => s));
+    }
+
+    public static IEnumerable<string> GetCalculationStartEnumerable()
+    {
+      return (IEnumerable<string>) EnumHelper.GetEnumElements<ValueIdent.ValueIdPart_CalculationStart>().Keys.OrderBy<string, string>((Func<string, string>) (s => s));
+    }
+
+    public static IEnumerable<string> GetStorageIntervalEnumerable()
+    {
+      return (IEnumerable<string>) EnumHelper.GetEnumElements<ValueIdent.ValueIdPart_StorageInterval>().Keys.OrderBy<string, string>((Func<string, string>) (s => s));
+    }
+
+    public static IEnumerable<string> GetCreationEnumerable()
+    {
+      return (IEnumerable<string>) EnumHelper.GetEnumElements<ValueIdent.ValueIdPart_Creation>().Keys.OrderBy<string, string>((Func<string, string>) (s => s));
+    }
+
+    public static IEnumerable<ValueIdent.ValueIdPart_PhysicalQuantity> GetPhysicalQuantitiesEnumerableAsValueIdPart()
+    {
+      return (IEnumerable<ValueIdent.ValueIdPart_PhysicalQuantity>) Enum.GetValues(typeof (ValueIdent.ValueIdPart_PhysicalQuantity)).Cast<ValueIdent.ValueIdPart_PhysicalQuantity>().OrderBy<ValueIdent.ValueIdPart_PhysicalQuantity, ValueIdent.ValueIdPart_PhysicalQuantity>((Func<ValueIdent.ValueIdPart_PhysicalQuantity, ValueIdent.ValueIdPart_PhysicalQuantity>) (s => s));
+    }
+
+    public static IEnumerable<ValueIdent.ValueIdPart_MeterType> GetMeterTypeEnumerableAsValueIdPart()
+    {
+      return (IEnumerable<ValueIdent.ValueIdPart_MeterType>) Enum.GetValues(typeof (ValueIdent.ValueIdPart_MeterType)).Cast<ValueIdent.ValueIdPart_MeterType>().OrderBy<ValueIdent.ValueIdPart_MeterType, ValueIdent.ValueIdPart_MeterType>((Func<ValueIdent.ValueIdPart_MeterType, ValueIdent.ValueIdPart_MeterType>) (s => s));
+    }
+
+    public static IEnumerable<ValueIdent.ValueIdPart_Calculation> GetCalculationEnumerableAsValueIdPart()
+    {
+      return (IEnumerable<ValueIdent.ValueIdPart_Calculation>) Enum.GetValues(typeof (ValueIdent.ValueIdPart_Calculation)).Cast<ValueIdent.ValueIdPart_Calculation>().OrderBy<ValueIdent.ValueIdPart_Calculation, ValueIdent.ValueIdPart_Calculation>((Func<ValueIdent.ValueIdPart_Calculation, ValueIdent.ValueIdPart_Calculation>) (s => s));
+    }
+
+    public static IEnumerable<ValueIdent.ValueIdPart_CalculationStart> GetCalculationStartEnumerableAsValueIdPart()
+    {
+      return (IEnumerable<ValueIdent.ValueIdPart_CalculationStart>) Enum.GetValues(typeof (ValueIdent.ValueIdPart_CalculationStart)).Cast<ValueIdent.ValueIdPart_CalculationStart>().OrderBy<ValueIdent.ValueIdPart_CalculationStart, ValueIdent.ValueIdPart_CalculationStart>((Func<ValueIdent.ValueIdPart_CalculationStart, ValueIdent.ValueIdPart_CalculationStart>) (s => s));
+    }
+
+    public static IEnumerable<ValueIdent.ValueIdPart_StorageInterval> GetStorageIntervalEnumerableAsValueIdPart()
+    {
+      return (IEnumerable<ValueIdent.ValueIdPart_StorageInterval>) Enum.GetValues(typeof (ValueIdent.ValueIdPart_StorageInterval)).Cast<ValueIdent.ValueIdPart_StorageInterval>().OrderBy<ValueIdent.ValueIdPart_StorageInterval, ValueIdent.ValueIdPart_StorageInterval>((Func<ValueIdent.ValueIdPart_StorageInterval, ValueIdent.ValueIdPart_StorageInterval>) (s => s));
+    }
+
+    public static IEnumerable<ValueIdent.ValueIdPart_Creation> GetCreationEnumerableAsValueIdPart()
+    {
+      return (IEnumerable<ValueIdent.ValueIdPart_Creation>) Enum.GetValues(typeof (ValueIdent.ValueIdPart_Creation)).Cast<ValueIdent.ValueIdPart_Creation>().OrderBy<ValueIdent.ValueIdPart_Creation, ValueIdent.ValueIdPart_Creation>((Func<ValueIdent.ValueIdPart_Creation, ValueIdent.ValueIdPart_Creation>) (s => s));
+    }
+
+    public static string GetValueId(
+      ValueIdent.ValueIdPart_PhysicalQuantity physicalQuantity,
+      ValueIdent.ValueIdPart_MeterType meterType,
+      ValueIdent.ValueIdPart_Calculation calculation,
+      ValueIdent.ValueIdPart_CalculationStart calculationStart,
+      ValueIdent.ValueIdPart_StorageInterval storageInterval,
+      ValueIdent.ValueIdPart_Creation creation,
+      int ruleIndex)
+    {
+      return ((long) (physicalQuantity + (long) meterType + (long) calculation + (long) calculationStart + (long) storageInterval + (long) creation + (long) ruleIndex * 2147483648L)).ToString((IFormatProvider) CultureInfo.InvariantCulture);
+    }
+
+    public static string GetValueId(
+      string physicalQuantity,
+      string meterType,
+      string calculation,
+      string calculationStart,
+      string storageInterval,
+      string creation,
+      int ruleIndex)
+    {
+      return ((physicalQuantity != null ? (long) Enum.Parse(typeof (ValueIdent.ValueIdPart_PhysicalQuantity), physicalQuantity) : 0L) + (meterType != null ? (long) Enum.Parse(typeof (ValueIdent.ValueIdPart_MeterType), meterType) : 0L) + (calculation != null ? (long) Enum.Parse(typeof (ValueIdent.ValueIdPart_Calculation), calculation) : 0L) + (calculationStart != null ? (long) Enum.Parse(typeof (ValueIdent.ValueIdPart_CalculationStart), calculationStart) : 0L) + (storageInterval != null ? (long) Enum.Parse(typeof (ValueIdent.ValueIdPart_StorageInterval), storageInterval) : 0L) + (creation != null ? (long) Enum.Parse(typeof (ValueIdent.ValueIdPart_Creation), creation) : 0L) + (long) ruleIndex * 2147483648L).ToString((IFormatProvider) CultureInfo.InvariantCulture);
+    }
+  }
+}
+
+
+--- WalkByTestManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.WalkByTestManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+using MSS.Business.Events;
+using MSS.Business.Modules.OrdersManagement;
+using MSS.Business.Modules.StructuresManagement;
+using MSS.Core.Model.Meters;
+using MSS.DTO.MessageHandler;
+using MSS.DTO.Meters;
+using MSS.Interfaces;
+using MSS.Localisation;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using ZENNER;
+using ZENNER.CommonLibrary.Entities;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public class WalkByTestManager
+  {
+    private readonly IRepositoryFactory _repositoryFactory;
+    private ProfileType _profileType;
+    private StructuresManager _structuresManager;
+    private readonly MeterReceiverManager _receiver;
+    private List<ZENNER.CommonLibrary.Entities.Meter> _gmmMeters;
+    private List<MeterDTO> _meterDTOsInStructure;
+    public EventHandler<MSS.Core.Model.Meters.Meter> OnMeterValuesReceivedHandler;
+    public System.EventHandler OnErrorReceivedHandler;
+    private static bool _isWalkByTestStarted;
+
+    public WalkByTestManager(
+      IRepositoryFactory repositoryFactory,
+      Guid selectedStructureNodeId,
+      ProfileType profileType)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._profileType = profileType;
+      this._structuresManager = this.GetStructureManagerInstance();
+      this._receiver = GmmInterface.Receiver;
+      this._receiver.StoreResultsToDatabase = true;
+      this._receiver.ValueIdentSetReceived += new EventHandler<ValueIdentSet>(this.receiver_ValueIdentSetReceived);
+      this._receiver.OnError += new EventHandler<Exception>(this.receiver_OnError);
+      this._receiver.ConnectionLost += new System.EventHandler(this._receiver_ConnectionLost);
+      WalkByTestManager.IsWalkByTestStarted = true;
+    }
+
+    ~WalkByTestManager()
+    {
+      this._receiver.ValueIdentSetReceived -= new EventHandler<ValueIdentSet>(this.receiver_ValueIdentSetReceived);
+      this._receiver.OnError -= new EventHandler<Exception>(this.receiver_OnError);
+      this._receiver.ConnectionLost += new System.EventHandler(this._receiver_ConnectionLost);
+      WalkByTestManager.IsWalkByTestStarted = false;
+    }
+
+    private StructuresManager GetStructureManagerInstance()
+    {
+      return new StructuresManager(this._repositoryFactory);
+    }
+
+    private ReadingValuesManager GetReadingValuesManagerInstance()
+    {
+      return new ReadingValuesManager(this._repositoryFactory);
+    }
+
+    private void _receiver_ConnectionLost(object sender, EventArgs e)
+    {
+      this.ShowMessage(MessageTypeEnum.Warning, Resources.MSS_ReceiverManager_ConnectionLost);
+    }
+
+    private void _receiver_OnJobCompleted(object sender, Job e)
+    {
+      this.ShowMessage(MessageTypeEnum.Success, Resources.MSS_Client_ExecuteReadingOrder_Succedded);
+    }
+
+    private void receiver_ValueIdentSetReceived(object sender, ValueIdentSet e)
+    {
+      MeterDTO meterDTO = this._meterDTOsInStructure.First<MeterDTO>((Func<MeterDTO, bool>) (meter => meter.SerialNumber == e.SerialNumber));
+      if (meterDTO.DeviceType != DeviceTypeEnum.Minoprotect3)
+        ;
+      meterDTO.IsReceived = true;
+      MSS.Core.Model.Meters.Meter e1 = this._structuresManager.TransactionalSaveOrUpdateMeter(meterDTO);
+      EventHandler<MSS.Core.Model.Meters.Meter> valuesReceivedHandler = this.OnMeterValuesReceivedHandler;
+      if (valuesReceivedHandler == null)
+        return;
+      valuesReceivedHandler((object) this, e1);
+    }
+
+    private void receiver_OnError(object sender, Exception e)
+    {
+      this._receiver.ValueIdentSetReceived -= new EventHandler<ValueIdentSet>(this.receiver_ValueIdentSetReceived);
+      this._receiver.OnError -= new EventHandler<Exception>(this.receiver_OnError);
+      this._receiver.StopRead();
+      WalkByTestManager.IsWalkByTestStarted = false;
+      this.ShowMessage(MessageTypeEnum.Warning, e.Message);
+      System.EventHandler errorReceivedHandler = this.OnErrorReceivedHandler;
+      if (errorReceivedHandler == null)
+        return;
+      errorReceivedHandler((object) this, (EventArgs) null);
+    }
+
+    public bool StartReadingValues(StructureNodeDTO selectedStructureNode, ProfileType profileType)
+    {
+      this._profileType = profileType;
+      this._gmmMeters = new List<ZENNER.CommonLibrary.Entities.Meter>();
+      this._gmmMeters = GMMHelper.GetGMMMetersFromStructureNodeDTO(selectedStructureNode, out this._meterDTOsInStructure);
+      EquipmentModel defaultEquipment = MSS.Business.Utils.AppContext.Current.DefaultEquipment;
+      DeviceModel deviceModel = GmmInterface.DeviceManager.GetDeviceModels(DeviceModelTags.SystemDevice, TransceiverType.Receiver).FirstOrDefault<DeviceModel>((Func<DeviceModel, bool>) (s => s.Name == "Radio3"));
+      if (defaultEquipment == null)
+        return false;
+      if (deviceModel != null)
+      {
+        List<ProfileType> profileTypes = GmmInterface.DeviceManager.GetProfileTypes(deviceModel, defaultEquipment);
+        if (profileTypes != null)
+        {
+          this._profileType = profileTypes.FirstOrDefault<ProfileType>((Func<ProfileType, bool>) (p => p.Name == "WalkBy Radio3"));
+          if (this._profileType != null)
+          {
+            this._receiver.StartRead(deviceModel, this._gmmMeters, defaultEquipment, this._profileType);
+            WalkByTestManager.IsWalkByTestStarted = true;
+          }
+        }
+      }
+      return true;
+    }
+
+    public void StopReadingValues()
+    {
+      this._receiver.ValueIdentSetReceived -= new EventHandler<ValueIdentSet>(this.receiver_ValueIdentSetReceived);
+      this._receiver.OnError -= new EventHandler<Exception>(this.receiver_OnError);
+      EventPublisher.Publish<ProgressEvent>(new ProgressEvent()
+      {
+        Value = 0
+      }, (object) this);
+      this._receiver.StopRead();
+      WalkByTestManager.IsWalkByTestStarted = false;
+    }
+
+    private void ShowMessage(MessageTypeEnum messageType, string messageText)
+    {
+      MSS.DTO.Message.Message message = new MSS.DTO.Message.Message()
+      {
+        MessageType = messageType,
+        MessageText = messageText
+      };
+      EventPublisher.Publish<ActionSyncFinished>(new ActionSyncFinished()
+      {
+        Message = message
+      }, (object) this);
+    }
+
+    public static bool IsWalkByTestStarted
+    {
+      get => WalkByTestManager._isWalkByTestStarted;
+      set
+      {
+        WalkByTestManager._isWalkByTestStarted = value;
+        WalkByTestManager.OnStaticPropertyChanged(nameof (IsWalkByTestStarted));
+      }
+    }
+
+    public static event EventHandler<PropertyChangedEventArgs> StaticPropertyChanged;
+
+    private static void OnStaticPropertyChanged(string propertyName)
+    {
+      EventHandler<PropertyChangedEventArgs> staticPropertyChanged = WalkByTestManager.StaticPropertyChanged;
+      if (staticPropertyChanged == null)
+        return;
+      PropertyChangedEventArgs e = new PropertyChangedEventArgs(propertyName);
+      staticPropertyChanged((object) null, e);
+    }
+  }
+}
+
+
+--- ZDFKeyEnum.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.GMM.ZDFKeyEnum
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Utils.Utils;
+
+#nullable disable
+namespace MSS.Business.Modules.GMM
+{
+  public enum ZDFKeyEnum
+  {
+    [StringEnum("READ_ENABLED")] READ_ENABLED,
+    [StringEnum("READOUT_TYPE")] READOUT_TYPE,
+    [StringEnum("MWH")] MWH,
+    [StringEnum("MWH[8]")] MWH_8,
+    [StringEnum("MWH[32]")] MWH_32,
+    [StringEnum("QM")] QM,
+    [StringEnum("TF")] TF,
+    [StringEnum("TR")] TR,
+    [StringEnum("TD")] TD,
+    [StringEnum("QMPH")] QMPH,
+    [StringEnum("kW")] kW,
+    [StringEnum("OpHours")] OpHours,
+    [StringEnum("MWH_TAR[1]")] MWH_TAR_1,
+    [StringEnum("MWH[8]_TAR[1]")] MWH_8_TAR_1,
+    [StringEnum("MWH[32]_TAR[1]")] MWH_32_TAR_1,
+    [StringEnum("QM[0][1]")] QM_0_1,
+    [StringEnum("QM[8][1]")] QM_8_1,
+    [StringEnum("QM[32][1]")] QM_32_1,
+    [StringEnum("QM[0][2]")] QM_0_2,
+    [StringEnum("QM[8][2]")] QM_8_2,
+    [StringEnum("QM[32][2]")] QM_32_2,
+    [StringEnum("QM[0][3]")] QM_0_3,
+    [StringEnum("QM[8][3]")] QM_8_3,
+    [StringEnum("QM[32][3]")] QM_32_3,
+  }
+}
+

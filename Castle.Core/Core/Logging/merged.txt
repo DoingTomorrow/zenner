@@ -1,0 +1,1604 @@
+
+--- AbstractExtendedLoggerFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.AbstractExtendedLoggerFactory
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.IO;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  public abstract class AbstractExtendedLoggerFactory : 
+    MarshalByRefObject,
+    IExtendedLoggerFactory,
+    ILoggerFactory
+  {
+    public virtual IExtendedLogger Create(Type type)
+    {
+      return type != null ? this.Create(type.FullName) : throw new ArgumentNullException(nameof (type));
+    }
+
+    public abstract IExtendedLogger Create(string name);
+
+    public virtual IExtendedLogger Create(Type type, LoggerLevel level)
+    {
+      if (type == null)
+        throw new ArgumentNullException(nameof (type));
+      return this.Create(type.FullName, level);
+    }
+
+    public abstract IExtendedLogger Create(string name, LoggerLevel level);
+
+    ILogger ILoggerFactory.Create(Type type) => (ILogger) this.Create(type);
+
+    ILogger ILoggerFactory.Create(string name) => (ILogger) this.Create(name);
+
+    ILogger ILoggerFactory.Create(Type type, LoggerLevel level)
+    {
+      return (ILogger) this.Create(type, level);
+    }
+
+    ILogger ILoggerFactory.Create(string name, LoggerLevel level)
+    {
+      return (ILogger) this.Create(name, level);
+    }
+
+    protected static FileInfo GetConfigFile(string fileName)
+    {
+      return !Path.IsPathRooted(fileName) ? new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName)) : new FileInfo(fileName);
+    }
+  }
+}
+
+
+--- AbstractLoggerFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.AbstractLoggerFactory
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.IO;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  [Serializable]
+  public abstract class AbstractLoggerFactory : MarshalByRefObject, ILoggerFactory
+  {
+    public virtual ILogger Create(Type type)
+    {
+      return type != null ? this.Create(type.FullName) : throw new ArgumentNullException(nameof (type));
+    }
+
+    public virtual ILogger Create(Type type, LoggerLevel level)
+    {
+      if (type == null)
+        throw new ArgumentNullException(nameof (type));
+      return this.Create(type.FullName, level);
+    }
+
+    public abstract ILogger Create(string name);
+
+    public abstract ILogger Create(string name, LoggerLevel level);
+
+    protected static FileInfo GetConfigFile(string fileName)
+    {
+      return !Path.IsPathRooted(fileName) ? new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName)) : new FileInfo(fileName);
+    }
+  }
+}
+
+
+--- ConsoleFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.ConsoleFactory
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  [Serializable]
+  public class ConsoleFactory : MarshalByRefObject, ILoggerFactory
+  {
+    public ILogger Create(Type type) => (ILogger) new ConsoleLogger(type.FullName);
+
+    public ILogger Create(string name) => (ILogger) new ConsoleLogger(name);
+
+    public ILogger Create(Type type, LoggerLevel level)
+    {
+      return (ILogger) new ConsoleLogger(type.Name, level);
+    }
+
+    public ILogger Create(string name, LoggerLevel level)
+    {
+      return (ILogger) new ConsoleLogger(name, level);
+    }
+  }
+}
+
+
+--- ConsoleLogger.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.ConsoleLogger
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Globalization;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  [Serializable]
+  public class ConsoleLogger(string name, LoggerLevel logLevel) : LevelFilteredLogger(name, logLevel)
+  {
+    public ConsoleLogger()
+      : this(string.Empty, LoggerLevel.Debug)
+    {
+    }
+
+    public ConsoleLogger(LoggerLevel logLevel)
+      : this(string.Empty, logLevel)
+    {
+    }
+
+    public ConsoleLogger(string name)
+      : this(name, LoggerLevel.Debug)
+    {
+    }
+
+    protected override void Log(
+      LoggerLevel loggerLevel,
+      string loggerName,
+      string message,
+      Exception exception)
+    {
+      Console.Out.WriteLine("[{0}] '{1}' {2}", (object) loggerLevel, (object) loggerName, (object) message);
+      if (exception == null)
+        return;
+      Console.Out.WriteLine("[{0}] '{1}' {2}: {3} {4}", (object) loggerLevel.ToString(), (object) loggerName, (object) exception.GetType().FullName, (object) exception.Message, (object) exception.StackTrace);
+    }
+
+    public override ILogger CreateChildLogger(string loggerName)
+    {
+      if (loggerName == null)
+        throw new ArgumentNullException(nameof (loggerName), "To create a child logger you must supply a non null name");
+      return (ILogger) new ConsoleLogger(string.Format((IFormatProvider) CultureInfo.CurrentCulture, "{0}.{1}", (object) this.Name, (object) loggerName), this.Level);
+    }
+  }
+}
+
+
+--- DiagnosticsLogger.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.DiagnosticsLogger
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Diagnostics;
+using System.Globalization;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  [Serializable]
+  public class DiagnosticsLogger : LevelFilteredLogger, IDisposable
+  {
+    [NonSerialized]
+    private EventLog eventLog;
+
+    public DiagnosticsLogger(string logName)
+      : this(logName, "default")
+    {
+    }
+
+    public DiagnosticsLogger(string logName, string source)
+      : base(LoggerLevel.Debug)
+    {
+      if (!EventLog.SourceExists(source))
+        EventLog.CreateEventSource(source, logName);
+      this.eventLog = new EventLog(logName);
+      this.eventLog.Source = source;
+    }
+
+    public DiagnosticsLogger(string logName, string machineName, string source)
+    {
+      if (!EventLog.SourceExists(source, machineName))
+        EventLog.CreateEventSource(new EventSourceCreationData(source, logName)
+        {
+          MachineName = machineName
+        });
+      this.eventLog = new EventLog(logName, machineName, source);
+    }
+
+    ~DiagnosticsLogger() => this.Dispose(false);
+
+    public void Dispose()
+    {
+      this.Dispose(true);
+      GC.SuppressFinalize((object) this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposing || this.eventLog == null)
+        return;
+      this.eventLog.Close();
+      this.eventLog = (EventLog) null;
+    }
+
+    public override ILogger CreateChildLogger(string loggerName)
+    {
+      return (ILogger) new DiagnosticsLogger(this.eventLog.Log, this.eventLog.MachineName, this.eventLog.Source);
+    }
+
+    protected override void Log(
+      LoggerLevel loggerLevel,
+      string loggerName,
+      string message,
+      Exception exception)
+    {
+      if (this.eventLog == null)
+        return;
+      EventLogEntryType type = DiagnosticsLogger.TranslateLevel(loggerLevel);
+      string message1;
+      if (exception == null)
+        message1 = string.Format((IFormatProvider) CultureInfo.CurrentCulture, "[{0}] '{1}' message: {2}", (object) loggerLevel.ToString(), (object) loggerName, (object) message);
+      else
+        message1 = string.Format((IFormatProvider) CultureInfo.CurrentCulture, "[{0}] '{1}' message: {2} exception: {3} {4} {5}", (object) loggerLevel.ToString(), (object) loggerName, (object) message, (object) exception.GetType(), (object) exception.Message, (object) exception.StackTrace);
+      this.eventLog.WriteEntry(message1, type);
+    }
+
+    private static EventLogEntryType TranslateLevel(LoggerLevel level)
+    {
+      switch (level)
+      {
+        case LoggerLevel.Fatal:
+        case LoggerLevel.Error:
+          return EventLogEntryType.Error;
+        case LoggerLevel.Warn:
+          return EventLogEntryType.Warning;
+        default:
+          return EventLogEntryType.Information;
+      }
+    }
+  }
+}
+
+
+--- DiagnosticsLoggerFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.DiagnosticsLoggerFactory
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  [Serializable]
+  public class DiagnosticsLoggerFactory : AbstractLoggerFactory
+  {
+    private const string DefaultLogName = "CastleDefaultLogger";
+
+    public override ILogger Create(string name)
+    {
+      return (ILogger) new DiagnosticsLogger("CastleDefaultLogger", name);
+    }
+
+    public override ILogger Create(string name, LoggerLevel level)
+    {
+      DiagnosticsLogger diagnosticsLogger = new DiagnosticsLogger("CastleDefaultLogger", name);
+      diagnosticsLogger.Level = level;
+      return (ILogger) diagnosticsLogger;
+    }
+  }
+}
+
+
+--- IContextProperties.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.IContextProperties
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  public interface IContextProperties
+  {
+    object this[string key] { get; set; }
+  }
+}
+
+
+--- IContextStack.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.IContextStack
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  public interface IContextStack
+  {
+    int Count { get; }
+
+    void Clear();
+
+    string Pop();
+
+    IDisposable Push(string message);
+  }
+}
+
+
+--- IContextStacks.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.IContextStacks
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  public interface IContextStacks
+  {
+    IContextStack this[string key] { get; }
+  }
+}
+
+
+--- IExtendedLogger.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.IExtendedLogger
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  public interface IExtendedLogger : ILogger
+  {
+    IContextProperties GlobalProperties { get; }
+
+    IContextProperties ThreadProperties { get; }
+
+    IContextStacks ThreadStacks { get; }
+  }
+}
+
+
+--- IExtendedLoggerFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.IExtendedLoggerFactory
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  public interface IExtendedLoggerFactory : ILoggerFactory
+  {
+    IExtendedLogger Create(Type type);
+
+    IExtendedLogger Create(string name);
+
+    IExtendedLogger Create(Type type, LoggerLevel level);
+
+    IExtendedLogger Create(string name, LoggerLevel level);
+  }
+}
+
+
+--- ILogger.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.ILogger
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  public interface ILogger
+  {
+    void Debug(string message);
+
+    void Debug(string message, Exception exception);
+
+    void Debug(string format, params object[] args);
+
+    void DebugFormat(string format, params object[] args);
+
+    void DebugFormat(Exception exception, string format, params object[] args);
+
+    void DebugFormat(IFormatProvider formatProvider, string format, params object[] args);
+
+    void DebugFormat(
+      Exception exception,
+      IFormatProvider formatProvider,
+      string format,
+      params object[] args);
+
+    bool IsDebugEnabled { get; }
+
+    void Info(string message);
+
+    void Info(string message, Exception exception);
+
+    void Info(string format, params object[] args);
+
+    void InfoFormat(string format, params object[] args);
+
+    void InfoFormat(Exception exception, string format, params object[] args);
+
+    void InfoFormat(IFormatProvider formatProvider, string format, params object[] args);
+
+    void InfoFormat(
+      Exception exception,
+      IFormatProvider formatProvider,
+      string format,
+      params object[] args);
+
+    bool IsInfoEnabled { get; }
+
+    void Warn(string message);
+
+    void Warn(string message, Exception exception);
+
+    void Warn(string format, params object[] args);
+
+    void WarnFormat(string format, params object[] args);
+
+    void WarnFormat(Exception exception, string format, params object[] args);
+
+    void WarnFormat(IFormatProvider formatProvider, string format, params object[] args);
+
+    void WarnFormat(
+      Exception exception,
+      IFormatProvider formatProvider,
+      string format,
+      params object[] args);
+
+    bool IsWarnEnabled { get; }
+
+    void Error(string message);
+
+    void Error(string message, Exception exception);
+
+    void Error(string format, params object[] args);
+
+    void ErrorFormat(string format, params object[] args);
+
+    void ErrorFormat(Exception exception, string format, params object[] args);
+
+    void ErrorFormat(IFormatProvider formatProvider, string format, params object[] args);
+
+    void ErrorFormat(
+      Exception exception,
+      IFormatProvider formatProvider,
+      string format,
+      params object[] args);
+
+    bool IsErrorEnabled { get; }
+
+    void Fatal(string message);
+
+    void Fatal(string message, Exception exception);
+
+    void Fatal(string format, params object[] args);
+
+    void FatalFormat(string format, params object[] args);
+
+    void FatalFormat(Exception exception, string format, params object[] args);
+
+    void FatalFormat(IFormatProvider formatProvider, string format, params object[] args);
+
+    void FatalFormat(
+      Exception exception,
+      IFormatProvider formatProvider,
+      string format,
+      params object[] args);
+
+    bool IsFatalEnabled { get; }
+
+    [Obsolete("Use Fatal instead")]
+    void FatalError(string message);
+
+    [Obsolete("Use Fatal instead")]
+    void FatalError(string message, Exception exception);
+
+    [Obsolete("Use Fatal or FatalFormat instead")]
+    void FatalError(string format, params object[] args);
+
+    [Obsolete("Use IsFatalEnabled instead")]
+    bool IsFatalErrorEnabled { get; }
+
+    ILogger CreateChildLogger(string loggerName);
+  }
+}
+
+
+--- ILoggerFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.ILoggerFactory
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  public interface ILoggerFactory
+  {
+    ILogger Create(Type type);
+
+    ILogger Create(string name);
+
+    ILogger Create(Type type, LoggerLevel level);
+
+    ILogger Create(string name, LoggerLevel level);
+  }
+}
+
+
+--- LevelFilteredLogger.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.LevelFilteredLogger
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Globalization;
+using System.Security.Permissions;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  [Serializable]
+  public abstract class LevelFilteredLogger : MarshalByRefObject, ILogger
+  {
+    private LoggerLevel level;
+    private string name = "unnamed";
+
+    protected LevelFilteredLogger()
+    {
+    }
+
+    protected LevelFilteredLogger(string name) => this.ChangeName(name);
+
+    protected LevelFilteredLogger(LoggerLevel loggerLevel) => this.level = loggerLevel;
+
+    protected LevelFilteredLogger(string loggerName, LoggerLevel loggerLevel)
+      : this(loggerLevel)
+    {
+      this.ChangeName(loggerName);
+    }
+
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
+    public override object InitializeLifetimeService() => (object) null;
+
+    public abstract ILogger CreateChildLogger(string loggerName);
+
+    public LoggerLevel Level
+    {
+      get => this.level;
+      set => this.level = value;
+    }
+
+    public string Name => this.name;
+
+    public void Debug(string message)
+    {
+      if (!this.IsDebugEnabled)
+        return;
+      this.Log(LoggerLevel.Debug, message, (Exception) null);
+    }
+
+    public void Debug(string message, Exception exception)
+    {
+      if (!this.IsDebugEnabled)
+        return;
+      this.Log(LoggerLevel.Debug, message, exception);
+    }
+
+    public void DebugFormat(string format, params object[] args)
+    {
+      if (!this.IsDebugEnabled)
+        return;
+      this.Log(LoggerLevel.Debug, string.Format((IFormatProvider) CultureInfo.CurrentCulture, format, args), (Exception) null);
+    }
+
+    public void DebugFormat(Exception exception, string format, params object[] args)
+    {
+      if (!this.IsDebugEnabled)
+        return;
+      this.Log(LoggerLevel.Debug, string.Format((IFormatProvider) CultureInfo.CurrentCulture, format, args), exception);
+    }
+
+    public void DebugFormat(IFormatProvider formatProvider, string format, params object[] args)
+    {
+      if (!this.IsDebugEnabled)
+        return;
+      this.Log(LoggerLevel.Debug, string.Format(formatProvider, format, args), (Exception) null);
+    }
+
+    public void DebugFormat(
+      Exception exception,
+      IFormatProvider formatProvider,
+      string format,
+      params object[] args)
+    {
+      if (!this.IsDebugEnabled)
+        return;
+      this.Log(LoggerLevel.Debug, string.Format(formatProvider, format, args), exception);
+    }
+
+    public void Debug(string format, params object[] args)
+    {
+      if (!this.IsDebugEnabled)
+        return;
+      this.Log(LoggerLevel.Debug, string.Format((IFormatProvider) CultureInfo.CurrentCulture, format, args), (Exception) null);
+    }
+
+    public void Info(string message)
+    {
+      if (!this.IsInfoEnabled)
+        return;
+      this.Log(LoggerLevel.Info, message, (Exception) null);
+    }
+
+    public void Info(string message, Exception exception)
+    {
+      if (!this.IsInfoEnabled)
+        return;
+      this.Log(LoggerLevel.Info, message, exception);
+    }
+
+    public void InfoFormat(string format, params object[] args)
+    {
+      if (!this.IsInfoEnabled)
+        return;
+      this.Log(LoggerLevel.Info, string.Format((IFormatProvider) CultureInfo.CurrentCulture, format, args), (Exception) null);
+    }
+
+    public void InfoFormat(Exception exception, string format, params object[] args)
+    {
+      if (!this.IsInfoEnabled)
+        return;
+      this.Log(LoggerLevel.Info, string.Format((IFormatProvider) CultureInfo.CurrentCulture, format, args), exception);
+    }
+
+    public void InfoFormat(IFormatProvider formatProvider, string format, params object[] args)
+    {
+      if (!this.IsInfoEnabled)
+        return;
+      this.Log(LoggerLevel.Info, string.Format(formatProvider, format, args), (Exception) null);
+    }
+
+    public void InfoFormat(
+      Exception exception,
+      IFormatProvider formatProvider,
+      string format,
+      params object[] args)
+    {
+      if (!this.IsInfoEnabled)
+        return;
+      this.Log(LoggerLevel.Info, string.Format(formatProvider, format, args), exception);
+    }
+
+    public void Info(string format, params object[] args)
+    {
+      if (!this.IsInfoEnabled)
+        return;
+      this.Log(LoggerLevel.Info, string.Format((IFormatProvider) CultureInfo.CurrentCulture, format, args), (Exception) null);
+    }
+
+    public void Warn(string message)
+    {
+      if (!this.IsWarnEnabled)
+        return;
+      this.Log(LoggerLevel.Warn, message, (Exception) null);
+    }
+
+    public void Warn(string message, Exception exception)
+    {
+      if (!this.IsWarnEnabled)
+        return;
+      this.Log(LoggerLevel.Warn, message, exception);
+    }
+
+    public void WarnFormat(string format, params object[] args)
+    {
+      if (!this.IsWarnEnabled)
+        return;
+      this.Log(LoggerLevel.Warn, string.Format((IFormatProvider) CultureInfo.CurrentCulture, format, args), (Exception) null);
+    }
+
+    public void WarnFormat(Exception exception, string format, params object[] args)
+    {
+      if (!this.IsWarnEnabled)
+        return;
+      this.Log(LoggerLevel.Warn, string.Format((IFormatProvider) CultureInfo.CurrentCulture, format, args), exception);
+    }
+
+    public void WarnFormat(IFormatProvider formatProvider, string format, params object[] args)
+    {
+      if (!this.IsWarnEnabled)
+        return;
+      this.Log(LoggerLevel.Warn, string.Format(formatProvider, format, args), (Exception) null);
+    }
+
+    public void WarnFormat(
+      Exception exception,
+      IFormatProvider formatProvider,
+      string format,
+      params object[] args)
+    {
+      if (!this.IsWarnEnabled)
+        return;
+      this.Log(LoggerLevel.Warn, string.Format(formatProvider, format, args), exception);
+    }
+
+    public void Warn(string format, params object[] args)
+    {
+      if (!this.IsWarnEnabled)
+        return;
+      this.Log(LoggerLevel.Warn, string.Format((IFormatProvider) CultureInfo.CurrentCulture, format, args), (Exception) null);
+    }
+
+    public void Error(string message)
+    {
+      if (!this.IsErrorEnabled)
+        return;
+      this.Log(LoggerLevel.Error, message, (Exception) null);
+    }
+
+    public void Error(string message, Exception exception)
+    {
+      if (!this.IsErrorEnabled)
+        return;
+      this.Log(LoggerLevel.Error, message, exception);
+    }
+
+    public void ErrorFormat(string format, params object[] args)
+    {
+      if (!this.IsErrorEnabled)
+        return;
+      this.Log(LoggerLevel.Error, string.Format((IFormatProvider) CultureInfo.CurrentCulture, format, args), (Exception) null);
+    }
+
+    public void ErrorFormat(Exception exception, string format, params object[] args)
+    {
+      if (!this.IsErrorEnabled)
+        return;
+      this.Log(LoggerLevel.Error, string.Format((IFormatProvider) CultureInfo.CurrentCulture, format, args), exception);
+    }
+
+    public void ErrorFormat(IFormatProvider formatProvider, string format, params object[] args)
+    {
+      if (!this.IsErrorEnabled)
+        return;
+      this.Log(LoggerLevel.Error, string.Format(formatProvider, format, args), (Exception) null);
+    }
+
+    public void ErrorFormat(
+      Exception exception,
+      IFormatProvider formatProvider,
+      string format,
+      params object[] args)
+    {
+      if (!this.IsErrorEnabled)
+        return;
+      this.Log(LoggerLevel.Error, string.Format(formatProvider, format, args), exception);
+    }
+
+    public void Error(string format, params object[] args)
+    {
+      if (!this.IsErrorEnabled)
+        return;
+      this.Log(LoggerLevel.Error, string.Format((IFormatProvider) CultureInfo.CurrentCulture, format, args), (Exception) null);
+    }
+
+    public void Fatal(string message)
+    {
+      if (!this.IsFatalEnabled)
+        return;
+      this.Log(LoggerLevel.Fatal, message, (Exception) null);
+    }
+
+    public void Fatal(string message, Exception exception)
+    {
+      if (!this.IsFatalEnabled)
+        return;
+      this.Log(LoggerLevel.Fatal, message, exception);
+    }
+
+    public void FatalFormat(string format, params object[] args)
+    {
+      if (!this.IsFatalEnabled)
+        return;
+      this.Log(LoggerLevel.Fatal, string.Format((IFormatProvider) CultureInfo.CurrentCulture, format, args), (Exception) null);
+    }
+
+    public void FatalFormat(Exception exception, string format, params object[] args)
+    {
+      if (!this.IsFatalEnabled)
+        return;
+      this.Log(LoggerLevel.Fatal, string.Format((IFormatProvider) CultureInfo.CurrentCulture, format, args), exception);
+    }
+
+    public void FatalFormat(IFormatProvider formatProvider, string format, params object[] args)
+    {
+      if (!this.IsFatalEnabled)
+        return;
+      this.Log(LoggerLevel.Fatal, string.Format(formatProvider, format, args), (Exception) null);
+    }
+
+    public void FatalFormat(
+      Exception exception,
+      IFormatProvider formatProvider,
+      string format,
+      params object[] args)
+    {
+      if (!this.IsFatalEnabled)
+        return;
+      this.Log(LoggerLevel.Fatal, string.Format(formatProvider, format, args), exception);
+    }
+
+    public void Fatal(string format, params object[] args)
+    {
+      if (!this.IsFatalEnabled)
+        return;
+      this.Log(LoggerLevel.Fatal, string.Format((IFormatProvider) CultureInfo.CurrentCulture, format, args), (Exception) null);
+    }
+
+    [Obsolete("Use Fatal instead")]
+    public void FatalError(string message)
+    {
+      if (!this.IsFatalEnabled)
+        return;
+      this.Log(LoggerLevel.Fatal, message, (Exception) null);
+    }
+
+    [Obsolete("Use Fatal instead")]
+    public void FatalError(string message, Exception exception)
+    {
+      if (!this.IsFatalEnabled)
+        return;
+      this.Log(LoggerLevel.Fatal, message, exception);
+    }
+
+    [Obsolete("Use Fatal or FatalFormat instead")]
+    public void FatalError(string format, params object[] args)
+    {
+      if (!this.IsFatalEnabled)
+        return;
+      this.Log(LoggerLevel.Fatal, string.Format((IFormatProvider) CultureInfo.CurrentCulture, format, args), (Exception) null);
+    }
+
+    public bool IsDebugEnabled => this.Level >= LoggerLevel.Debug;
+
+    public bool IsInfoEnabled => this.Level >= LoggerLevel.Info;
+
+    public bool IsWarnEnabled => this.Level >= LoggerLevel.Warn;
+
+    public bool IsErrorEnabled => this.Level >= LoggerLevel.Error;
+
+    public bool IsFatalEnabled => this.Level >= LoggerLevel.Fatal;
+
+    [Obsolete("Use IsFatalEnabled instead")]
+    public bool IsFatalErrorEnabled => this.Level >= LoggerLevel.Fatal;
+
+    protected abstract void Log(
+      LoggerLevel loggerLevel,
+      string loggerName,
+      string message,
+      Exception exception);
+
+    protected void ChangeName(string newName)
+    {
+      this.name = newName != null ? newName : throw new ArgumentNullException(nameof (newName));
+    }
+
+    private void Log(LoggerLevel loggerLevel, string message, Exception exception)
+    {
+      this.Log(loggerLevel, this.Name, message, exception);
+    }
+  }
+}
+
+
+--- LoggerException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.LoggerException
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  [Serializable]
+  public class LoggerException : Exception
+  {
+    public LoggerException()
+    {
+    }
+
+    public LoggerException(string message)
+      : base(message)
+    {
+    }
+
+    public LoggerException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+
+    protected LoggerException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+    }
+  }
+}
+
+
+--- LoggerLevel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.LoggerLevel
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  public enum LoggerLevel
+  {
+    Off,
+    Fatal,
+    Error,
+    Warn,
+    Info,
+    Debug,
+  }
+}
+
+
+--- NullLogFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.NullLogFactory
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  [Serializable]
+  public class NullLogFactory : AbstractLoggerFactory
+  {
+    public override ILogger Create(string name) => (ILogger) NullLogger.Instance;
+
+    public override ILogger Create(string name, LoggerLevel level) => (ILogger) NullLogger.Instance;
+  }
+}
+
+
+--- NullLogger.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.NullLogger
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  public class NullLogger : IExtendedLogger, ILogger
+  {
+    public static readonly NullLogger Instance = new NullLogger();
+
+    public void Debug(string message)
+    {
+    }
+
+    public void Debug(string message, Exception exception)
+    {
+    }
+
+    public void Debug(string format, params object[] args)
+    {
+    }
+
+    public void DebugFormat(string format, params object[] args)
+    {
+    }
+
+    public void DebugFormat(Exception exception, string format, params object[] args)
+    {
+    }
+
+    public void DebugFormat(IFormatProvider formatProvider, string format, params object[] args)
+    {
+    }
+
+    public void DebugFormat(
+      Exception exception,
+      IFormatProvider formatProvider,
+      string format,
+      params object[] args)
+    {
+    }
+
+    public bool IsDebugEnabled => false;
+
+    public void Info(string message)
+    {
+    }
+
+    public void Info(string message, Exception exception)
+    {
+    }
+
+    public void Info(string format, params object[] args)
+    {
+    }
+
+    public void InfoFormat(string format, params object[] args)
+    {
+    }
+
+    public void InfoFormat(Exception exception, string format, params object[] args)
+    {
+    }
+
+    public void InfoFormat(IFormatProvider formatProvider, string format, params object[] args)
+    {
+    }
+
+    public void InfoFormat(
+      Exception exception,
+      IFormatProvider formatProvider,
+      string format,
+      params object[] args)
+    {
+    }
+
+    public bool IsInfoEnabled => false;
+
+    public void Warn(string message)
+    {
+    }
+
+    public void Warn(string message, Exception exception)
+    {
+    }
+
+    public void Warn(string format, params object[] args)
+    {
+    }
+
+    public void WarnFormat(string format, params object[] args)
+    {
+    }
+
+    public void WarnFormat(Exception exception, string format, params object[] args)
+    {
+    }
+
+    public void WarnFormat(IFormatProvider formatProvider, string format, params object[] args)
+    {
+    }
+
+    public void WarnFormat(
+      Exception exception,
+      IFormatProvider formatProvider,
+      string format,
+      params object[] args)
+    {
+    }
+
+    public bool IsWarnEnabled => false;
+
+    public void Error(string message)
+    {
+    }
+
+    public void Error(string message, Exception exception)
+    {
+    }
+
+    public void Error(string format, params object[] args)
+    {
+    }
+
+    public void ErrorFormat(string format, params object[] args)
+    {
+    }
+
+    public void ErrorFormat(Exception exception, string format, params object[] args)
+    {
+    }
+
+    public void ErrorFormat(IFormatProvider formatProvider, string format, params object[] args)
+    {
+    }
+
+    public void ErrorFormat(
+      Exception exception,
+      IFormatProvider formatProvider,
+      string format,
+      params object[] args)
+    {
+    }
+
+    public bool IsErrorEnabled => false;
+
+    public void Fatal(string message)
+    {
+    }
+
+    public void Fatal(string message, Exception exception)
+    {
+    }
+
+    public void Fatal(string format, params object[] args)
+    {
+    }
+
+    public void FatalFormat(string format, params object[] args)
+    {
+    }
+
+    public void FatalFormat(Exception exception, string format, params object[] args)
+    {
+    }
+
+    public void FatalFormat(IFormatProvider formatProvider, string format, params object[] args)
+    {
+    }
+
+    public void FatalFormat(
+      Exception exception,
+      IFormatProvider formatProvider,
+      string format,
+      params object[] args)
+    {
+    }
+
+    public bool IsFatalEnabled => false;
+
+    [Obsolete("Use Fatal instead")]
+    public void FatalError(string message)
+    {
+    }
+
+    [Obsolete("Use Fatal instead")]
+    public void FatalError(string message, Exception exception)
+    {
+    }
+
+    [Obsolete("Use Fatal or FatalFormat instead")]
+    public void FatalError(string format, params object[] args)
+    {
+    }
+
+    [Obsolete("Use IsFatalEnabled instead")]
+    public bool IsFatalErrorEnabled => false;
+
+    public ILogger CreateChildLogger(string loggerName) => (ILogger) this;
+
+    public IContextProperties GlobalProperties
+    {
+      get => (IContextProperties) NullLogger.NullContextProperties.Instance;
+    }
+
+    public IContextProperties ThreadProperties
+    {
+      get => (IContextProperties) NullLogger.NullContextProperties.Instance;
+    }
+
+    public IContextStacks ThreadStacks => (IContextStacks) NullLogger.NullContextStacks.Instance;
+
+    private class NullContextProperties : IContextProperties
+    {
+      public static readonly NullLogger.NullContextProperties Instance = new NullLogger.NullContextProperties();
+
+      public object this[string key]
+      {
+        get => (object) null;
+        set
+        {
+        }
+      }
+    }
+
+    private class NullContextStack : IContextStack, IDisposable
+    {
+      public static readonly NullLogger.NullContextStack Instance = new NullLogger.NullContextStack();
+
+      public int Count => 0;
+
+      public void Clear()
+      {
+      }
+
+      public string Pop() => (string) null;
+
+      public IDisposable Push(string message) => (IDisposable) this;
+
+      public void Dispose() => GC.SuppressFinalize((object) this);
+    }
+
+    private class NullContextStacks : IContextStacks
+    {
+      public static readonly NullLogger.NullContextStacks Instance = new NullLogger.NullContextStacks();
+
+      public IContextStack this[string key] => (IContextStack) NullLogger.NullContextStack.Instance;
+    }
+  }
+}
+
+
+--- StreamLogger.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.StreamLogger
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.IO;
+using System.Text;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  [Serializable]
+  public class StreamLogger : LevelFilteredLogger, IDisposable
+  {
+    private StreamWriter writer;
+
+    public StreamLogger(string name, Stream stream)
+      : this(name, new StreamWriter(stream))
+    {
+    }
+
+    public StreamLogger(string name, Stream stream, Encoding encoding)
+      : this(name, new StreamWriter(stream, encoding))
+    {
+    }
+
+    public StreamLogger(string name, Stream stream, Encoding encoding, int bufferSize)
+      : this(name, new StreamWriter(stream, encoding, bufferSize))
+    {
+    }
+
+    ~StreamLogger() => this.Dispose(false);
+
+    public void Dispose()
+    {
+      this.Dispose(true);
+      GC.SuppressFinalize((object) this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!disposing || this.writer == null)
+        return;
+      this.writer.Close();
+      this.writer = (StreamWriter) null;
+    }
+
+    protected StreamLogger(string name, StreamWriter writer)
+      : base(name, LoggerLevel.Debug)
+    {
+      this.writer = writer;
+      writer.AutoFlush = true;
+    }
+
+    protected override void Log(
+      LoggerLevel loggerLevel,
+      string loggerName,
+      string message,
+      Exception exception)
+    {
+      if (this.writer == null)
+        return;
+      this.writer.WriteLine("[{0}] '{1}' {2}", (object) loggerLevel.ToString(), (object) loggerName, (object) message);
+      if (exception == null)
+        return;
+      this.writer.WriteLine("[{0}] '{1}' {2}: {3} {4}", (object) loggerLevel.ToString(), (object) loggerName, (object) exception.GetType().FullName, (object) exception.Message, (object) exception.StackTrace);
+    }
+
+    public override ILogger CreateChildLogger(string loggerName)
+    {
+      throw new NotSupportedException("A streamlogger does not support child loggers");
+    }
+  }
+}
+
+
+--- StreamLoggerFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.StreamLoggerFactory
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.IO;
+using System.Text;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  [Serializable]
+  public class StreamLoggerFactory : AbstractLoggerFactory
+  {
+    public override ILogger Create(string name)
+    {
+      return (ILogger) new StreamLogger(name, (Stream) new FileStream(name + ".log", FileMode.Append, FileAccess.Write), Encoding.Default);
+    }
+
+    public override ILogger Create(string name, LoggerLevel level)
+    {
+      StreamLogger streamLogger = new StreamLogger(name, (Stream) new FileStream(name + ".log", FileMode.Append, FileAccess.Write), Encoding.Default);
+      streamLogger.Level = level;
+      return (ILogger) streamLogger;
+    }
+  }
+}
+
+
+--- TraceLogger.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.TraceLogger
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  public class TraceLogger : LevelFilteredLogger
+  {
+    private static readonly Dictionary<string, TraceSource> cache = new Dictionary<string, TraceSource>();
+    private TraceSource traceSource;
+
+    public TraceLogger(string name)
+      : base(name)
+    {
+      this.Initialize();
+      this.Level = TraceLogger.MapLoggerLevel(this.traceSource.Switch.Level);
+    }
+
+    public TraceLogger(string name, LoggerLevel level)
+      : base(name, level)
+    {
+      this.Initialize();
+      this.Level = TraceLogger.MapLoggerLevel(this.traceSource.Switch.Level);
+    }
+
+    public override ILogger CreateChildLogger(string loggerName)
+    {
+      return this.InternalCreateChildLogger(loggerName);
+    }
+
+    private ILogger InternalCreateChildLogger(string loggerName)
+    {
+      return (ILogger) new TraceLogger(this.Name + "." + loggerName, this.Level);
+    }
+
+    protected override void Log(
+      LoggerLevel loggerLevel,
+      string loggerName,
+      string message,
+      Exception exception)
+    {
+      if (exception == null)
+        this.traceSource.TraceEvent(TraceLogger.MapTraceEventType(loggerLevel), 0, message);
+      else
+        this.traceSource.TraceData(TraceLogger.MapTraceEventType(loggerLevel), 0, (object) message, (object) exception);
+    }
+
+    private void Initialize()
+    {
+      lock (TraceLogger.cache)
+      {
+        if (TraceLogger.cache.TryGetValue(this.Name, out this.traceSource))
+          return;
+        SourceLevels defaultLevel = TraceLogger.MapSourceLevels(this.Level);
+        this.traceSource = new TraceSource(this.Name, defaultLevel);
+        if (TraceLogger.IsSourceConfigured(this.traceSource))
+        {
+          TraceLogger.cache.Add(this.Name, this.traceSource);
+        }
+        else
+        {
+          TraceSource traceSource = new TraceSource("Default", defaultLevel);
+          for (string name = TraceLogger.ShortenName(this.Name); !string.IsNullOrEmpty(name); name = TraceLogger.ShortenName(name))
+          {
+            TraceSource source = new TraceSource(name, defaultLevel);
+            if (TraceLogger.IsSourceConfigured(source))
+            {
+              traceSource = source;
+              break;
+            }
+          }
+          this.traceSource.Switch = traceSource.Switch;
+          this.traceSource.Listeners.Clear();
+          foreach (TraceListener listener in traceSource.Listeners)
+            this.traceSource.Listeners.Add(listener);
+          TraceLogger.cache.Add(this.Name, this.traceSource);
+        }
+      }
+    }
+
+    private static string ShortenName(string name)
+    {
+      int length = name.LastIndexOf('.');
+      return length != -1 ? name.Substring(0, length) : (string) null;
+    }
+
+    private static bool IsSourceConfigured(TraceSource source)
+    {
+      return source.Listeners.Count != 1 || !(source.Listeners[0] is DefaultTraceListener) || !(source.Listeners[0].Name == "Default");
+    }
+
+    private static LoggerLevel MapLoggerLevel(SourceLevels level)
+    {
+      switch (level)
+      {
+        case SourceLevels.All:
+          return LoggerLevel.Debug;
+        case SourceLevels.Critical:
+          return LoggerLevel.Fatal;
+        case SourceLevels.Error:
+          return LoggerLevel.Error;
+        case SourceLevels.Warning:
+          return LoggerLevel.Warn;
+        case SourceLevels.Information:
+          return LoggerLevel.Info;
+        case SourceLevels.Verbose:
+          return LoggerLevel.Debug;
+        default:
+          return LoggerLevel.Off;
+      }
+    }
+
+    private static SourceLevels MapSourceLevels(LoggerLevel level)
+    {
+      switch (level)
+      {
+        case LoggerLevel.Fatal:
+          return SourceLevels.Critical;
+        case LoggerLevel.Error:
+          return SourceLevels.Error;
+        case LoggerLevel.Warn:
+          return SourceLevels.Warning;
+        case LoggerLevel.Info:
+          return SourceLevels.Information;
+        case LoggerLevel.Debug:
+          return SourceLevels.Verbose;
+        default:
+          return SourceLevels.Off;
+      }
+    }
+
+    private static TraceEventType MapTraceEventType(LoggerLevel level)
+    {
+      switch (level)
+      {
+        case LoggerLevel.Fatal:
+          return TraceEventType.Critical;
+        case LoggerLevel.Error:
+          return TraceEventType.Error;
+        case LoggerLevel.Warn:
+          return TraceEventType.Warning;
+        case LoggerLevel.Info:
+          return TraceEventType.Information;
+        case LoggerLevel.Debug:
+          return TraceEventType.Verbose;
+        default:
+          return TraceEventType.Verbose;
+      }
+    }
+  }
+}
+
+
+--- TraceLoggerFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Logging.TraceLoggerFactory
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.Core.Logging
+{
+  public class TraceLoggerFactory : AbstractLoggerFactory
+  {
+    public override ILogger Create(string name) => this.InternalCreate(name);
+
+    private ILogger InternalCreate(string name) => (ILogger) new TraceLogger(name);
+
+    public override ILogger Create(string name, LoggerLevel level)
+    {
+      return this.InternalCreate(name, level);
+    }
+
+    private ILogger InternalCreate(string name, LoggerLevel level)
+    {
+      return (ILogger) new TraceLogger(name, level);
+    }
+  }
+}
+

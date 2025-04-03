@@ -1,0 +1,70 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: ZR_ClassLibrary.MeterResources
+// Assembly: ZR_ClassLibrary, Version=6.16.22.24524, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: EF8F26C8-41DE-4472-B020-D54F7F8B6357
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\ZR_ClassLibrary.dll
+
+#nullable disable
+namespace ZR_ClassLibrary
+{
+  public enum MeterResources
+  {
+    Zelsius,
+    Energy,
+    CEnergy,
+    LCDZ1,
+    opto,
+    seriell,
+    PT500,
+    NoResource,
+    CustomerIdFunction,
+    CustomerId,
+    Out1,
+    Out2,
+    Inp1,
+    Inp2,
+    InOut1,
+    InOut2,
+    Inp1On,
+    Inp2On,
+    Out1On,
+    Out2On,
+    Inp1Factor,
+    Inp2Factor,
+    Inp1IdNumber,
+    Inp2IdNumber,
+    EnToOut1,
+    SpecialToOut1,
+    EnToOut2,
+    CEnToOut2,
+    VolToOut2,
+    ErrToOut2,
+    SpecialToOut2,
+    Inp1MUnit,
+    Inp2MUnit,
+    Inp1Type,
+    Inp2Type,
+    DueDateFunction,
+    DueDate,
+    DueDateEnergy,
+    DueDateEnergyConsumtion,
+    DueDateLastEnergy,
+    DueDateCEnergy,
+    DueDateLastCEnergy,
+    DueDateVolume,
+    DueDateLastVolume,
+    DueDateInp1Value,
+    DueDateInp1LastValue,
+    DueDateInp2Value,
+    DueDateInp2LastValue,
+    MBus,
+    ZRBus,
+    RS232,
+    ZMOD,
+    TAR_Energy,
+    NeedEndOfBattery,
+    NeedEndOfCalibration,
+    EndOfBattery,
+    EndOfCalibration,
+  }
+}

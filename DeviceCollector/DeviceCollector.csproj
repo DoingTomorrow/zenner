@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\DeviceCollector.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3A21768F-64F5-489D-AF79-A4872364FC51}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>DeviceCollector</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>2.0.1.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>DeviceCollector</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AsyncCom">
+      <HintPath>lib\AsyncCom.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="CommunicationPort">
+      <HintPath>lib\CommunicationPort.dll</HintPath>
+    </Reference>
+    <Reference Include="CorporateDesign">
+      <HintPath>lib\CorporateDesign.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="HandlerLib">
+      <HintPath>lib\HandlerLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="StartupLib">
+      <HintPath>lib\StartupLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xml" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AddDevice.cs" />
+    <Compile Include="ListElement.cs" />
+    <Compile Include="AddressReader.cs" />
+    <Compile Include="OpticalInterfaceState.cs" />
+    <Compile Include="BusDevice.cs" />
+    <Compile Include="BusRes.cs" />
+    <Compile Include="RadioTestMode.cs" />
+    <Compile Include="IDeviceCollector.cs" />
+    <Compile Include="DeviceCollectorFunctions.cs" />
+    <Compile Include="BusInfo.cs" />
+    <Compile Include="DeviceCollectorWindow.cs" />
+    <Compile Include="DeviceList.cs" />
+    <Compile Include="BusStatusClass.cs" />
+    <Compile Include="DeviceInfo.cs" />
+    <Compile Include="MinoConnectTest.cs" />
+    <Compile Include="PDC.cs" />
+    <Compile Include="EDC.cs" />
+    <Compile Include="EHCA_MBus.cs" />
+    <Compile Include="RadioPacketRadio3SmokeDetector.cs" />
+    <Compile Include="RadioTestPacket.cs" />
+    <Compile Include="SmokeDetectorEvent.cs" />
+    <Compile Include="SmokeDetector.cs" />
+    <Compile Include="ListSelectWindow.cs" />
+    <Compile Include="MBusConverterDiagnostic.cs" />
+    <Compile Include="FunctionFiled.cs" />
+    <Compile Include="MBusDifVif.cs" />
+    <Compile Include="MBusParserWindow.cs" />
+    <Compile Include="MemoryAccess.cs" />
+    <Compile Include="MinolDevice.cs" />
+    <Compile Include="IdentDevice.cs" />
+    <Compile Include="IO_Test.cs" />
+    <Compile Include="MBusList.cs" />
+    <Compile Include="Minomat.cs" />
+    <Compile Include="MinomatDevice.cs" />
+    <Compile Include="MBusDeviceState.cs" />
+    <Compile Include="MBusDevice.cs" />
+    <Compile Include="MBusParameter.cs" />
+    <Compile Include="MinomatList.cs" />
+    <Compile Include="MinomatV2.cs" />
+    <Compile Include="PlugInAnchor.cs" />
+    <Compile Include="RadioDataSet.cs" />
+    <Compile Include="RadioPacketMinomatV4.cs" />
+    <Compile Include="RadioDevicePacket.cs" />
+    <Compile Include="RDM_Bus.cs" />
+    <Compile Include="Receiver.cs" />
+    <Compile Include="MbusTelegramCollection.cs" />
+    <Compile Include="MBusTelegramSet.cs" />
+    <Compile Include="MbusTelegram.cs" />
+    <Compile Include="RelayAsyncFunctions.cs" />
+    <Compile Include="RelayDevice.cs" />
+    <Compile Include="RelayList.cs" />
+    <Compile Include="RuntimeThread.cs" />
+    <Compile Include="ThreadStarter.cs" />
+    <Compile Include="Serie1MBus.cs" />
+    <Compile Include="Serie2MBus.cs" />
+    <Compile Include="IoTestFunctions.cs" />
+    <Compile Include="Serie3MBus.cs" />
+    <Compile Include="ReadVersionData.cs" />
+    <Compile Include="ImpulseInputCounters.cs" />
+    <Compile Include="WR4_VOL_INPUT_STATE.cs" />
+    <Compile Include="SetupProfiles.cs" />
+    <Compile Include="RadioScannerForm.cs" />
+    <Compile Include="RadioPacket.cs" />
+    <Compile Include="RadioDevice.cs" />
+    <Compile Include="RadioList.cs" />
+    <Compile Include="RadioPacketRadio2.cs" />
+    <Compile Include="RadioPacketRadio3.cs" />
+    <Compile Include="RadioReader.cs" />
+    <Compile Include="RadioPacketWirelessMBus.cs" />
+    <Compile Include="WaveFlowDevice.cs" />
+    <Compile Include="WaveFlowList.cs" />
+    <Compile Include="WavePortConnector.cs" />
+    <Compile Include="WFParameterEntry.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="AddDevice.resx" />
+    <EmbeddedResource Include="AddressReader.resx" />
+    <EmbeddedResource Include="BusRes.resx" />
+    <EmbeddedResource Include="DeviceCollectorWindow.resx" />
+    <EmbeddedResource Include="IO_Test.resx" />
+    <EmbeddedResource Include="ListSelectWindow.resx" />
+    <EmbeddedResource Include="MBusConverterDiagnostic.resx" />
+    <EmbeddedResource Include="MBusParserWindow.resx" />
+    <EmbeddedResource Include="MemoryAccess.resx" />
+    <EmbeddedResource Include="MinoConnectTest.resx" />
+    <EmbeddedResource Include="RadioScannerForm.resx" />
+    <EmbeddedResource Include="SetupProfiles.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

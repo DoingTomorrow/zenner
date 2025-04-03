@@ -1,0 +1,78 @@
+<Window x:Class="HandlerLib.View.MBus_IO_Management"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico" Title="MBus_IO_Management"
+        Height="300" Width="511">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="2"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+    </Style>
+    <Style TargetType="{x:Type CheckBox}">
+      <Setter Property="FrameworkElement.Margin" Value="7"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+    </Style>
+    <Style TargetType="{x:Type Border}">
+      <Setter Property="FrameworkElement.Margin" Value="7"/>
+      <Setter Property="Border.Padding" Value="5"/>
+      <Setter Property="Border.BorderThickness" Value="2"/>
+      <Setter Property="Border.BorderBrush" Value="Black"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StartupLib:GmmCorporateControl DockPanel.Dock="Top" HorizontalAlignment="Stretch"/>
+    <DockPanel>
+      <StackPanel DockPanel.Dock="Right" VerticalAlignment="Bottom">
+        <Button Click="ButtonSingleAccess_Click" Name="ButtonSingleAccess" Content="Single access"/>
+        <Button Name="ButtonBreak" Content="Break"/>
+      </StackPanel>
+      <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Orientation="Horizontal">
+        <Label Content="Ok counts:" VerticalAlignment="Center"/>
+        <TextBlock Name="TextBlockOkCounts" Text="0" VerticalAlignment="Center"/>
+        <Label Content="Error counts:" VerticalAlignment="Center" Margin="20,0,0,0"/>
+        <TextBlock Name="TextBlockErrorCounts" Text="0" VerticalAlignment="Center"/>
+      </StackPanel>
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Border>
+          <StackPanel>
+            <Label Content="Input / Output 1"/>
+            <Separator/>
+            <CheckBox Name="CheckBoxInputState1" Content="Input state" IsEnabled="false"/>
+            <CheckBox Name="CheckBoxOutputState1" Content="Output state" IsEnabled="false"/>
+            <Separator/>
+            <CheckBox Name="CheckBoxOutputSet1" Content="Output set"/>
+            <CheckBox Name="CheckBoxOutputMask1" Content="Output mask"/>
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="1">
+          <StackPanel>
+            <Label Content="Input / Output 2"/>
+            <Separator/>
+            <CheckBox Name="CheckBoxInputState2" Content="Input state" IsEnabled="false"/>
+            <CheckBox Name="CheckBoxOutputState2" Content="Output state" IsEnabled="false"/>
+            <Separator/>
+            <CheckBox Name="CheckBoxOutputSet2" Content="Output set"/>
+            <CheckBox Name="CheckBoxOutputMask2" Content="Output mask"/>
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="2">
+          <StackPanel>
+            <Label Content="Input / Output 3"/>
+            <Separator/>
+            <CheckBox Name="CheckBoxInputState3" Content="Input state" IsEnabled="false"/>
+            <CheckBox Name="CheckBoxOutputState3" Content="Output state" IsEnabled="false"/>
+            <Separator/>
+            <CheckBox Name="CheckBoxOutputSet3" Content="Output set"/>
+            <CheckBox Name="CheckBoxOutputMask3" Content="Output mask"/>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </DockPanel>
+  </DockPanel>
+</Window>

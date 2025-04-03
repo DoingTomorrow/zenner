@@ -1,0 +1,3267 @@
+
+--- ApplicationOfflineContext.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.ApplicationOfflineContext
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.Common;
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class ApplicationOfflineContext(string cachePath, Uri serviceUri) : SQLiteContext(ApplicationOfflineContext.GetSchema(), "Application", cachePath, serviceUri)
+  {
+    private const string SyncScopeName = "Application";
+
+    private static OfflineSchema GetSchema()
+    {
+      OfflineSchema schema = new OfflineSchema();
+      schema.AddCollection<t_Minomat>();
+      schema.AddCollection<t_MinomatRadioDetails>();
+      schema.AddCollection<t_StructureNode>();
+      schema.AddCollection<t_StructureNodeLinks>();
+      schema.AddCollection<t_Meter>();
+      schema.AddCollection<t_MeterRadioDetails>();
+      schema.AddCollection<t_Order>();
+      schema.AddCollection<t_OrderUser>();
+      schema.AddCollection<t_Location>();
+      schema.AddCollection<t_Tenant>();
+      schema.AddCollection<t_MeterReplacementHistory>();
+      schema.AddCollection<t_OrderMessages>();
+      schema.AddCollection<t_MeterMbusRadio>();
+      schema.AddCollection<t_MinomatMeters>();
+      schema.AddCollection<t_StructureNodeEquipmentSettings>();
+      schema.AddCollection<t_Note>();
+      return schema;
+    }
+  }
+}
+
+
+--- t_Location.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.t_Location
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class t_Location : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _City;
+    private string _Street;
+    private string _ZipCode;
+    private string _BuildingNr;
+    private string _Description;
+    private DateTime _DueDate;
+    private string _Generation;
+    private string _Scale;
+    private bool _HasMaster;
+    private bool? _IsDeactivated;
+    private string _Office;
+    private string _CreatedBy;
+    private string _UpdatedBy;
+    private DateTime? _LastUpdateBuildingNo;
+    private Guid _ScenarioId;
+    private Guid? _CountryId;
+    private DateTime? _LastChangedOn;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(25)]
+    public string City
+    {
+      get => this._City;
+      set
+      {
+        this.OnPropertyChanging(nameof (City));
+        this._City = value;
+        this.OnPropertyChanged(nameof (City));
+      }
+    }
+
+    [MaxLength(90)]
+    public string Street
+    {
+      get => this._Street;
+      set
+      {
+        this.OnPropertyChanging(nameof (Street));
+        this._Street = value;
+        this.OnPropertyChanged(nameof (Street));
+      }
+    }
+
+    [MaxLength(10)]
+    public string ZipCode
+    {
+      get => this._ZipCode;
+      set
+      {
+        this.OnPropertyChanging(nameof (ZipCode));
+        this._ZipCode = value;
+        this.OnPropertyChanged(nameof (ZipCode));
+      }
+    }
+
+    [MaxLength(13)]
+    public string BuildingNr
+    {
+      get => this._BuildingNr;
+      set
+      {
+        this.OnPropertyChanging(nameof (BuildingNr));
+        this._BuildingNr = value;
+        this.OnPropertyChanged(nameof (BuildingNr));
+      }
+    }
+
+    [MaxLength(250)]
+    public string Description
+    {
+      get => this._Description;
+      set
+      {
+        this.OnPropertyChanging(nameof (Description));
+        this._Description = value;
+        this.OnPropertyChanged(nameof (Description));
+      }
+    }
+
+    public DateTime DueDate
+    {
+      get => this._DueDate;
+      set
+      {
+        this.OnPropertyChanging(nameof (DueDate));
+        this._DueDate = value;
+        this.OnPropertyChanged(nameof (DueDate));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Generation
+    {
+      get => this._Generation;
+      set
+      {
+        this.OnPropertyChanging(nameof (Generation));
+        this._Generation = value;
+        this.OnPropertyChanged(nameof (Generation));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Scale
+    {
+      get => this._Scale;
+      set
+      {
+        this.OnPropertyChanging(nameof (Scale));
+        this._Scale = value;
+        this.OnPropertyChanged(nameof (Scale));
+      }
+    }
+
+    public bool HasMaster
+    {
+      get => this._HasMaster;
+      set
+      {
+        this.OnPropertyChanging(nameof (HasMaster));
+        this._HasMaster = value;
+        this.OnPropertyChanged(nameof (HasMaster));
+      }
+    }
+
+    public bool? IsDeactivated
+    {
+      get => this._IsDeactivated;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsDeactivated));
+        this._IsDeactivated = value;
+        this.OnPropertyChanged(nameof (IsDeactivated));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Office
+    {
+      get => this._Office;
+      set
+      {
+        this.OnPropertyChanging(nameof (Office));
+        this._Office = value;
+        this.OnPropertyChanged(nameof (Office));
+      }
+    }
+
+    [MaxLength(255)]
+    public string CreatedBy
+    {
+      get => this._CreatedBy;
+      set
+      {
+        this.OnPropertyChanging(nameof (CreatedBy));
+        this._CreatedBy = value;
+        this.OnPropertyChanged(nameof (CreatedBy));
+      }
+    }
+
+    [MaxLength(255)]
+    public string UpdatedBy
+    {
+      get => this._UpdatedBy;
+      set
+      {
+        this.OnPropertyChanging(nameof (UpdatedBy));
+        this._UpdatedBy = value;
+        this.OnPropertyChanged(nameof (UpdatedBy));
+      }
+    }
+
+    public DateTime? LastUpdateBuildingNo
+    {
+      get => this._LastUpdateBuildingNo;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastUpdateBuildingNo));
+        this._LastUpdateBuildingNo = value;
+        this.OnPropertyChanged(nameof (LastUpdateBuildingNo));
+      }
+    }
+
+    public Guid ScenarioId
+    {
+      get => this._ScenarioId;
+      set
+      {
+        this.OnPropertyChanging(nameof (ScenarioId));
+        this._ScenarioId = value;
+        this.OnPropertyChanged(nameof (ScenarioId));
+      }
+    }
+
+    public Guid? CountryId
+    {
+      get => this._CountryId;
+      set
+      {
+        this.OnPropertyChanging(nameof (CountryId));
+        this._CountryId = value;
+        this.OnPropertyChanged(nameof (CountryId));
+      }
+    }
+
+    public DateTime? LastChangedOn
+    {
+      get => this._LastChangedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastChangedOn));
+        this._LastChangedOn = value;
+        this.OnPropertyChanged(nameof (LastChangedOn));
+      }
+    }
+  }
+}
+
+
+--- t_Meter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.t_Meter
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class t_Meter : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private double? _ImpulsValue;
+    private double? _StartValue;
+    private string _SerialNumber;
+    private string _ShortDeviceNo;
+    private string _CompletDevice;
+    private double? _EvaluationFactor;
+    private string _DeviceType;
+    private double? _DecimalPlaces;
+    private bool? _IsDeactivated;
+    private bool? _IsConfigured;
+    private string _CreatedBy;
+    private string _UpdatedBy;
+    private DateTime? _LastChangedOn;
+    private int? _NrOfImpulses;
+    private string _StartValueImpulses;
+    private byte[] _GMMParameters;
+    private DateTime? _ConfigDate;
+    private bool? _IsReplaced;
+    private string _AES;
+    private int? _PrimaryAddress;
+    private string _Manufacturer;
+    private string _Medium;
+    private string _Generation;
+    private Guid? _RoomTypeId;
+    private Guid? _ChannelId;
+    private Guid? _ImpulsUnitId;
+    private Guid? _ReadingUnitId;
+    private Guid? _ConnectedDeviceTypeId;
+    private string _InputNumber;
+    private bool? _IsReceived;
+    private bool? _IsError;
+    private bool _ReadingEnabled;
+    private string _GMMAdditionalInfo;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    public double? ImpulsValue
+    {
+      get => this._ImpulsValue;
+      set
+      {
+        this.OnPropertyChanging(nameof (ImpulsValue));
+        this._ImpulsValue = value;
+        this.OnPropertyChanged(nameof (ImpulsValue));
+      }
+    }
+
+    public double? StartValue
+    {
+      get => this._StartValue;
+      set
+      {
+        this.OnPropertyChanging(nameof (StartValue));
+        this._StartValue = value;
+        this.OnPropertyChanged(nameof (StartValue));
+      }
+    }
+
+    [MaxLength(200)]
+    public string SerialNumber
+    {
+      get => this._SerialNumber;
+      set
+      {
+        this.OnPropertyChanging(nameof (SerialNumber));
+        this._SerialNumber = value;
+        this.OnPropertyChanged(nameof (SerialNumber));
+      }
+    }
+
+    [MaxLength(255)]
+    public string ShortDeviceNo
+    {
+      get => this._ShortDeviceNo;
+      set
+      {
+        this.OnPropertyChanging(nameof (ShortDeviceNo));
+        this._ShortDeviceNo = value;
+        this.OnPropertyChanged(nameof (ShortDeviceNo));
+      }
+    }
+
+    [MaxLength(255)]
+    public string CompletDevice
+    {
+      get => this._CompletDevice;
+      set
+      {
+        this.OnPropertyChanging(nameof (CompletDevice));
+        this._CompletDevice = value;
+        this.OnPropertyChanged(nameof (CompletDevice));
+      }
+    }
+
+    public double? EvaluationFactor
+    {
+      get => this._EvaluationFactor;
+      set
+      {
+        this.OnPropertyChanging(nameof (EvaluationFactor));
+        this._EvaluationFactor = value;
+        this.OnPropertyChanged(nameof (EvaluationFactor));
+      }
+    }
+
+    [MaxLength(255)]
+    public string DeviceType
+    {
+      get => this._DeviceType;
+      set
+      {
+        this.OnPropertyChanging(nameof (DeviceType));
+        this._DeviceType = value;
+        this.OnPropertyChanged(nameof (DeviceType));
+      }
+    }
+
+    public double? DecimalPlaces
+    {
+      get => this._DecimalPlaces;
+      set
+      {
+        this.OnPropertyChanging(nameof (DecimalPlaces));
+        this._DecimalPlaces = value;
+        this.OnPropertyChanged(nameof (DecimalPlaces));
+      }
+    }
+
+    public bool? IsDeactivated
+    {
+      get => this._IsDeactivated;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsDeactivated));
+        this._IsDeactivated = value;
+        this.OnPropertyChanged(nameof (IsDeactivated));
+      }
+    }
+
+    public bool? IsConfigured
+    {
+      get => this._IsConfigured;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsConfigured));
+        this._IsConfigured = value;
+        this.OnPropertyChanged(nameof (IsConfigured));
+      }
+    }
+
+    [MaxLength(255)]
+    public string CreatedBy
+    {
+      get => this._CreatedBy;
+      set
+      {
+        this.OnPropertyChanging(nameof (CreatedBy));
+        this._CreatedBy = value;
+        this.OnPropertyChanged(nameof (CreatedBy));
+      }
+    }
+
+    [MaxLength(255)]
+    public string UpdatedBy
+    {
+      get => this._UpdatedBy;
+      set
+      {
+        this.OnPropertyChanging(nameof (UpdatedBy));
+        this._UpdatedBy = value;
+        this.OnPropertyChanged(nameof (UpdatedBy));
+      }
+    }
+
+    public DateTime? LastChangedOn
+    {
+      get => this._LastChangedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastChangedOn));
+        this._LastChangedOn = value;
+        this.OnPropertyChanged(nameof (LastChangedOn));
+      }
+    }
+
+    public int? NrOfImpulses
+    {
+      get => this._NrOfImpulses;
+      set
+      {
+        this.OnPropertyChanging(nameof (NrOfImpulses));
+        this._NrOfImpulses = value;
+        this.OnPropertyChanged(nameof (NrOfImpulses));
+      }
+    }
+
+    [MaxLength(255)]
+    public string StartValueImpulses
+    {
+      get => this._StartValueImpulses;
+      set
+      {
+        this.OnPropertyChanging(nameof (StartValueImpulses));
+        this._StartValueImpulses = value;
+        this.OnPropertyChanged(nameof (StartValueImpulses));
+      }
+    }
+
+    [MaxLength(8000)]
+    public byte[] GMMParameters
+    {
+      get => this._GMMParameters;
+      set
+      {
+        this.OnPropertyChanging(nameof (GMMParameters));
+        this._GMMParameters = value;
+        this.OnPropertyChanged(nameof (GMMParameters));
+      }
+    }
+
+    public DateTime? ConfigDate
+    {
+      get => this._ConfigDate;
+      set
+      {
+        this.OnPropertyChanging(nameof (ConfigDate));
+        this._ConfigDate = value;
+        this.OnPropertyChanged(nameof (ConfigDate));
+      }
+    }
+
+    public bool? IsReplaced
+    {
+      get => this._IsReplaced;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsReplaced));
+        this._IsReplaced = value;
+        this.OnPropertyChanged(nameof (IsReplaced));
+      }
+    }
+
+    [MaxLength(50)]
+    public string AES
+    {
+      get => this._AES;
+      set
+      {
+        this.OnPropertyChanging(nameof (AES));
+        this._AES = value;
+        this.OnPropertyChanged(nameof (AES));
+      }
+    }
+
+    public int? PrimaryAddress
+    {
+      get => this._PrimaryAddress;
+      set
+      {
+        this.OnPropertyChanging(nameof (PrimaryAddress));
+        this._PrimaryAddress = value;
+        this.OnPropertyChanged(nameof (PrimaryAddress));
+      }
+    }
+
+    [MaxLength(50)]
+    public string Manufacturer
+    {
+      get => this._Manufacturer;
+      set
+      {
+        this.OnPropertyChanging(nameof (Manufacturer));
+        this._Manufacturer = value;
+        this.OnPropertyChanged(nameof (Manufacturer));
+      }
+    }
+
+    [MaxLength(50)]
+    public string Medium
+    {
+      get => this._Medium;
+      set
+      {
+        this.OnPropertyChanging(nameof (Medium));
+        this._Medium = value;
+        this.OnPropertyChanged(nameof (Medium));
+      }
+    }
+
+    [MaxLength(50)]
+    public string Generation
+    {
+      get => this._Generation;
+      set
+      {
+        this.OnPropertyChanging(nameof (Generation));
+        this._Generation = value;
+        this.OnPropertyChanged(nameof (Generation));
+      }
+    }
+
+    public Guid? RoomTypeId
+    {
+      get => this._RoomTypeId;
+      set
+      {
+        this.OnPropertyChanging(nameof (RoomTypeId));
+        this._RoomTypeId = value;
+        this.OnPropertyChanged(nameof (RoomTypeId));
+      }
+    }
+
+    public Guid? ChannelId
+    {
+      get => this._ChannelId;
+      set
+      {
+        this.OnPropertyChanging(nameof (ChannelId));
+        this._ChannelId = value;
+        this.OnPropertyChanged(nameof (ChannelId));
+      }
+    }
+
+    public Guid? ImpulsUnitId
+    {
+      get => this._ImpulsUnitId;
+      set
+      {
+        this.OnPropertyChanging(nameof (ImpulsUnitId));
+        this._ImpulsUnitId = value;
+        this.OnPropertyChanged(nameof (ImpulsUnitId));
+      }
+    }
+
+    public Guid? ReadingUnitId
+    {
+      get => this._ReadingUnitId;
+      set
+      {
+        this.OnPropertyChanging(nameof (ReadingUnitId));
+        this._ReadingUnitId = value;
+        this.OnPropertyChanged(nameof (ReadingUnitId));
+      }
+    }
+
+    public Guid? ConnectedDeviceTypeId
+    {
+      get => this._ConnectedDeviceTypeId;
+      set
+      {
+        this.OnPropertyChanging(nameof (ConnectedDeviceTypeId));
+        this._ConnectedDeviceTypeId = value;
+        this.OnPropertyChanged(nameof (ConnectedDeviceTypeId));
+      }
+    }
+
+    [MaxLength(255)]
+    public string InputNumber
+    {
+      get => this._InputNumber;
+      set
+      {
+        this.OnPropertyChanging(nameof (InputNumber));
+        this._InputNumber = value;
+        this.OnPropertyChanged(nameof (InputNumber));
+      }
+    }
+
+    public bool? IsReceived
+    {
+      get => this._IsReceived;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsReceived));
+        this._IsReceived = value;
+        this.OnPropertyChanged(nameof (IsReceived));
+      }
+    }
+
+    public bool? IsError
+    {
+      get => this._IsError;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsError));
+        this._IsError = value;
+        this.OnPropertyChanged(nameof (IsError));
+      }
+    }
+
+    public bool ReadingEnabled
+    {
+      get => this._ReadingEnabled;
+      set
+      {
+        this.OnPropertyChanging(nameof (ReadingEnabled));
+        this._ReadingEnabled = value;
+        this.OnPropertyChanged(nameof (ReadingEnabled));
+      }
+    }
+
+    [MaxLength(255)]
+    public string GMMAdditionalInfo
+    {
+      get => this._GMMAdditionalInfo;
+      set
+      {
+        this.OnPropertyChanging(nameof (GMMAdditionalInfo));
+        this._GMMAdditionalInfo = value;
+        this.OnPropertyChanged(nameof (GMMAdditionalInfo));
+      }
+    }
+  }
+}
+
+
+--- t_MeterMbusRadio.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.t_MeterMbusRadio
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class t_MeterMbusRadio : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _City;
+    private string _Street;
+    private string _HouseNumber;
+    private string _HouseNumberSupplement;
+    private string _ApartmentNumber;
+    private string _ZipCode;
+    private string _FirstName;
+    private string _LastName;
+    private string _Location;
+    private string _RadioSerialNumber;
+    private Guid? _MeterId;
+    private DateTime? _LastChangedOn;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    public string City
+    {
+      get => this._City;
+      set
+      {
+        this.OnPropertyChanging(nameof (City));
+        this._City = value;
+        this.OnPropertyChanged(nameof (City));
+      }
+    }
+
+    public string Street
+    {
+      get => this._Street;
+      set
+      {
+        this.OnPropertyChanging(nameof (Street));
+        this._Street = value;
+        this.OnPropertyChanged(nameof (Street));
+      }
+    }
+
+    public string HouseNumber
+    {
+      get => this._HouseNumber;
+      set
+      {
+        this.OnPropertyChanging(nameof (HouseNumber));
+        this._HouseNumber = value;
+        this.OnPropertyChanged(nameof (HouseNumber));
+      }
+    }
+
+    public string HouseNumberSupplement
+    {
+      get => this._HouseNumberSupplement;
+      set
+      {
+        this.OnPropertyChanging(nameof (HouseNumberSupplement));
+        this._HouseNumberSupplement = value;
+        this.OnPropertyChanged(nameof (HouseNumberSupplement));
+      }
+    }
+
+    public string ApartmentNumber
+    {
+      get => this._ApartmentNumber;
+      set
+      {
+        this.OnPropertyChanging(nameof (ApartmentNumber));
+        this._ApartmentNumber = value;
+        this.OnPropertyChanged(nameof (ApartmentNumber));
+      }
+    }
+
+    public string ZipCode
+    {
+      get => this._ZipCode;
+      set
+      {
+        this.OnPropertyChanging(nameof (ZipCode));
+        this._ZipCode = value;
+        this.OnPropertyChanged(nameof (ZipCode));
+      }
+    }
+
+    public string FirstName
+    {
+      get => this._FirstName;
+      set
+      {
+        this.OnPropertyChanging(nameof (FirstName));
+        this._FirstName = value;
+        this.OnPropertyChanged(nameof (FirstName));
+      }
+    }
+
+    public string LastName
+    {
+      get => this._LastName;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastName));
+        this._LastName = value;
+        this.OnPropertyChanged(nameof (LastName));
+      }
+    }
+
+    public string Location
+    {
+      get => this._Location;
+      set
+      {
+        this.OnPropertyChanging(nameof (Location));
+        this._Location = value;
+        this.OnPropertyChanged(nameof (Location));
+      }
+    }
+
+    public string RadioSerialNumber
+    {
+      get => this._RadioSerialNumber;
+      set
+      {
+        this.OnPropertyChanging(nameof (RadioSerialNumber));
+        this._RadioSerialNumber = value;
+        this.OnPropertyChanged(nameof (RadioSerialNumber));
+      }
+    }
+
+    public Guid? MeterId
+    {
+      get => this._MeterId;
+      set
+      {
+        this.OnPropertyChanging(nameof (MeterId));
+        this._MeterId = value;
+        this.OnPropertyChanged(nameof (MeterId));
+      }
+    }
+
+    public DateTime? LastChangedOn
+    {
+      get => this._LastChangedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastChangedOn));
+        this._LastChangedOn = value;
+        this.OnPropertyChanged(nameof (LastChangedOn));
+      }
+    }
+  }
+}
+
+
+--- t_MeterRadioDetails.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.t_MeterRadioDetails
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class t_MeterRadioDetails : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _dgMessbereich;
+    private string _dgRealErfasser;
+    private string _dgReg1DakonSerNr;
+    private string _dgReg1Flag;
+    private string _dgReg1Mode;
+    private string _dgReg1Signal;
+    private string _dgReg2DakonSerNr;
+    private string _dgReg2Flag;
+    private string _dgReg2Mode;
+    private string _dgReg2Signal;
+    private string _dgReg3DakonSernr;
+    private string _dgReg3Flag;
+    private string _dgReg3Mode;
+    private string _dgReg3Signal;
+    private string _dgZaehlerNr;
+    private string _Street;
+    private string _GemSerialNumber;
+    private string _Scenario;
+    private Guid? _MeterId;
+    private DateTime? _LastChangedOn;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(20)]
+    public string dgMessbereich
+    {
+      get => this._dgMessbereich;
+      set
+      {
+        this.OnPropertyChanging(nameof (dgMessbereich));
+        this._dgMessbereich = value;
+        this.OnPropertyChanged(nameof (dgMessbereich));
+      }
+    }
+
+    [MaxLength(10)]
+    public string dgRealErfasser
+    {
+      get => this._dgRealErfasser;
+      set
+      {
+        this.OnPropertyChanging(nameof (dgRealErfasser));
+        this._dgRealErfasser = value;
+        this.OnPropertyChanged(nameof (dgRealErfasser));
+      }
+    }
+
+    [MaxLength(12)]
+    public string dgReg1DakonSerNr
+    {
+      get => this._dgReg1DakonSerNr;
+      set
+      {
+        this.OnPropertyChanging(nameof (dgReg1DakonSerNr));
+        this._dgReg1DakonSerNr = value;
+        this.OnPropertyChanged(nameof (dgReg1DakonSerNr));
+      }
+    }
+
+    [MaxLength(5)]
+    public string dgReg1Flag
+    {
+      get => this._dgReg1Flag;
+      set
+      {
+        this.OnPropertyChanging(nameof (dgReg1Flag));
+        this._dgReg1Flag = value;
+        this.OnPropertyChanged(nameof (dgReg1Flag));
+      }
+    }
+
+    [MaxLength(20)]
+    public string dgReg1Mode
+    {
+      get => this._dgReg1Mode;
+      set
+      {
+        this.OnPropertyChanging(nameof (dgReg1Mode));
+        this._dgReg1Mode = value;
+        this.OnPropertyChanged(nameof (dgReg1Mode));
+      }
+    }
+
+    [MaxLength(3)]
+    public string dgReg1Signal
+    {
+      get => this._dgReg1Signal;
+      set
+      {
+        this.OnPropertyChanging(nameof (dgReg1Signal));
+        this._dgReg1Signal = value;
+        this.OnPropertyChanged(nameof (dgReg1Signal));
+      }
+    }
+
+    [MaxLength(12)]
+    public string dgReg2DakonSerNr
+    {
+      get => this._dgReg2DakonSerNr;
+      set
+      {
+        this.OnPropertyChanging(nameof (dgReg2DakonSerNr));
+        this._dgReg2DakonSerNr = value;
+        this.OnPropertyChanged(nameof (dgReg2DakonSerNr));
+      }
+    }
+
+    [MaxLength(5)]
+    public string dgReg2Flag
+    {
+      get => this._dgReg2Flag;
+      set
+      {
+        this.OnPropertyChanging(nameof (dgReg2Flag));
+        this._dgReg2Flag = value;
+        this.OnPropertyChanged(nameof (dgReg2Flag));
+      }
+    }
+
+    [MaxLength(20)]
+    public string dgReg2Mode
+    {
+      get => this._dgReg2Mode;
+      set
+      {
+        this.OnPropertyChanging(nameof (dgReg2Mode));
+        this._dgReg2Mode = value;
+        this.OnPropertyChanged(nameof (dgReg2Mode));
+      }
+    }
+
+    [MaxLength(3)]
+    public string dgReg2Signal
+    {
+      get => this._dgReg2Signal;
+      set
+      {
+        this.OnPropertyChanging(nameof (dgReg2Signal));
+        this._dgReg2Signal = value;
+        this.OnPropertyChanged(nameof (dgReg2Signal));
+      }
+    }
+
+    [MaxLength(12)]
+    public string dgReg3DakonSernr
+    {
+      get => this._dgReg3DakonSernr;
+      set
+      {
+        this.OnPropertyChanging(nameof (dgReg3DakonSernr));
+        this._dgReg3DakonSernr = value;
+        this.OnPropertyChanged(nameof (dgReg3DakonSernr));
+      }
+    }
+
+    [MaxLength(5)]
+    public string dgReg3Flag
+    {
+      get => this._dgReg3Flag;
+      set
+      {
+        this.OnPropertyChanging(nameof (dgReg3Flag));
+        this._dgReg3Flag = value;
+        this.OnPropertyChanged(nameof (dgReg3Flag));
+      }
+    }
+
+    [MaxLength(20)]
+    public string dgReg3Mode
+    {
+      get => this._dgReg3Mode;
+      set
+      {
+        this.OnPropertyChanging(nameof (dgReg3Mode));
+        this._dgReg3Mode = value;
+        this.OnPropertyChanged(nameof (dgReg3Mode));
+      }
+    }
+
+    [MaxLength(3)]
+    public string dgReg3Signal
+    {
+      get => this._dgReg3Signal;
+      set
+      {
+        this.OnPropertyChanging(nameof (dgReg3Signal));
+        this._dgReg3Signal = value;
+        this.OnPropertyChanged(nameof (dgReg3Signal));
+      }
+    }
+
+    [MaxLength(16)]
+    public string dgZaehlerNr
+    {
+      get => this._dgZaehlerNr;
+      set
+      {
+        this.OnPropertyChanging(nameof (dgZaehlerNr));
+        this._dgZaehlerNr = value;
+        this.OnPropertyChanged(nameof (dgZaehlerNr));
+      }
+    }
+
+    [MaxLength(320)]
+    public string Street
+    {
+      get => this._Street;
+      set
+      {
+        this.OnPropertyChanging(nameof (Street));
+        this._Street = value;
+        this.OnPropertyChanged(nameof (Street));
+      }
+    }
+
+    [MaxLength(255)]
+    public string GemSerialNumber
+    {
+      get => this._GemSerialNumber;
+      set
+      {
+        this.OnPropertyChanging(nameof (GemSerialNumber));
+        this._GemSerialNumber = value;
+        this.OnPropertyChanged(nameof (GemSerialNumber));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Scenario
+    {
+      get => this._Scenario;
+      set
+      {
+        this.OnPropertyChanging(nameof (Scenario));
+        this._Scenario = value;
+        this.OnPropertyChanged(nameof (Scenario));
+      }
+    }
+
+    public Guid? MeterId
+    {
+      get => this._MeterId;
+      set
+      {
+        this.OnPropertyChanging(nameof (MeterId));
+        this._MeterId = value;
+        this.OnPropertyChanged(nameof (MeterId));
+      }
+    }
+
+    public DateTime? LastChangedOn
+    {
+      get => this._LastChangedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastChangedOn));
+        this._LastChangedOn = value;
+        this.OnPropertyChanged(nameof (LastChangedOn));
+      }
+    }
+  }
+}
+
+
+--- t_MeterReplacementHistory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.t_MeterReplacementHistory
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class t_MeterReplacementHistory : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private DateTime? _ReplacementDate;
+    private Guid? _CurrentMeterId;
+    private Guid? _ReplacedMeterId;
+    private Guid? _ReplacedById;
+    private DateTime? _LastChangedOn;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    public DateTime? ReplacementDate
+    {
+      get => this._ReplacementDate;
+      set
+      {
+        this.OnPropertyChanging(nameof (ReplacementDate));
+        this._ReplacementDate = value;
+        this.OnPropertyChanged(nameof (ReplacementDate));
+      }
+    }
+
+    public Guid? CurrentMeterId
+    {
+      get => this._CurrentMeterId;
+      set
+      {
+        this.OnPropertyChanging(nameof (CurrentMeterId));
+        this._CurrentMeterId = value;
+        this.OnPropertyChanged(nameof (CurrentMeterId));
+      }
+    }
+
+    public Guid? ReplacedMeterId
+    {
+      get => this._ReplacedMeterId;
+      set
+      {
+        this.OnPropertyChanging(nameof (ReplacedMeterId));
+        this._ReplacedMeterId = value;
+        this.OnPropertyChanged(nameof (ReplacedMeterId));
+      }
+    }
+
+    public Guid? ReplacedById
+    {
+      get => this._ReplacedById;
+      set
+      {
+        this.OnPropertyChanging(nameof (ReplacedById));
+        this._ReplacedById = value;
+        this.OnPropertyChanged(nameof (ReplacedById));
+      }
+    }
+
+    public DateTime? LastChangedOn
+    {
+      get => this._LastChangedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastChangedOn));
+        this._LastChangedOn = value;
+        this.OnPropertyChanged(nameof (LastChangedOn));
+      }
+    }
+  }
+}
+
+
+--- t_Minomat.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.t_Minomat
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class t_Minomat : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _RadioId;
+    private string _Status;
+    private bool? _Registered;
+    private string _HostAndPort;
+    private string _Url;
+    private string _CreatedBy;
+    private DateTime? _CreatedOn;
+    private string _LastUpdatedBy;
+    private DateTime? _LastChangedOn;
+    private string _Challenge;
+    private string _GsmId;
+    private bool? _IsDeactivated;
+    private DateTime? _StartDate;
+    private DateTime? _EndDate;
+    private int? _Polling;
+    private bool? _IsMaster;
+    private bool? _IsInMasterPool;
+    private string _ProviderName;
+    private string _SimPin;
+    private string _AccessPoint;
+    private string _UserId;
+    private string _UserPassword;
+    private string _SessionKey;
+    private string _CommParameter;
+    private string _CreatedByName;
+    private Guid? _ScenarioId;
+    private Guid? _ProviderId;
+    private Guid? _CountryId;
+    private bool? _LoggingEnabled;
+    private string _MinomatMasterId;
+    private string _SimCardNumber;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(255)]
+    public string RadioId
+    {
+      get => this._RadioId;
+      set
+      {
+        this.OnPropertyChanging(nameof (RadioId));
+        this._RadioId = value;
+        this.OnPropertyChanged(nameof (RadioId));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Status
+    {
+      get => this._Status;
+      set
+      {
+        this.OnPropertyChanging(nameof (Status));
+        this._Status = value;
+        this.OnPropertyChanged(nameof (Status));
+      }
+    }
+
+    public bool? Registered
+    {
+      get => this._Registered;
+      set
+      {
+        this.OnPropertyChanging(nameof (Registered));
+        this._Registered = value;
+        this.OnPropertyChanged(nameof (Registered));
+      }
+    }
+
+    [MaxLength(255)]
+    public string HostAndPort
+    {
+      get => this._HostAndPort;
+      set
+      {
+        this.OnPropertyChanging(nameof (HostAndPort));
+        this._HostAndPort = value;
+        this.OnPropertyChanged(nameof (HostAndPort));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Url
+    {
+      get => this._Url;
+      set
+      {
+        this.OnPropertyChanging(nameof (Url));
+        this._Url = value;
+        this.OnPropertyChanged(nameof (Url));
+      }
+    }
+
+    [MaxLength(255)]
+    public string CreatedBy
+    {
+      get => this._CreatedBy;
+      set
+      {
+        this.OnPropertyChanging(nameof (CreatedBy));
+        this._CreatedBy = value;
+        this.OnPropertyChanged(nameof (CreatedBy));
+      }
+    }
+
+    public DateTime? CreatedOn
+    {
+      get => this._CreatedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (CreatedOn));
+        this._CreatedOn = value;
+        this.OnPropertyChanged(nameof (CreatedOn));
+      }
+    }
+
+    [MaxLength(255)]
+    public string LastUpdatedBy
+    {
+      get => this._LastUpdatedBy;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastUpdatedBy));
+        this._LastUpdatedBy = value;
+        this.OnPropertyChanged(nameof (LastUpdatedBy));
+      }
+    }
+
+    public DateTime? LastChangedOn
+    {
+      get => this._LastChangedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastChangedOn));
+        this._LastChangedOn = value;
+        this.OnPropertyChanged(nameof (LastChangedOn));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Challenge
+    {
+      get => this._Challenge;
+      set
+      {
+        this.OnPropertyChanging(nameof (Challenge));
+        this._Challenge = value;
+        this.OnPropertyChanged(nameof (Challenge));
+      }
+    }
+
+    [MaxLength(255)]
+    public string GsmId
+    {
+      get => this._GsmId;
+      set
+      {
+        this.OnPropertyChanging(nameof (GsmId));
+        this._GsmId = value;
+        this.OnPropertyChanged(nameof (GsmId));
+      }
+    }
+
+    public bool? IsDeactivated
+    {
+      get => this._IsDeactivated;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsDeactivated));
+        this._IsDeactivated = value;
+        this.OnPropertyChanged(nameof (IsDeactivated));
+      }
+    }
+
+    public DateTime? StartDate
+    {
+      get => this._StartDate;
+      set
+      {
+        this.OnPropertyChanging(nameof (StartDate));
+        this._StartDate = value;
+        this.OnPropertyChanged(nameof (StartDate));
+      }
+    }
+
+    public DateTime? EndDate
+    {
+      get => this._EndDate;
+      set
+      {
+        this.OnPropertyChanging(nameof (EndDate));
+        this._EndDate = value;
+        this.OnPropertyChanged(nameof (EndDate));
+      }
+    }
+
+    public int? Polling
+    {
+      get => this._Polling;
+      set
+      {
+        this.OnPropertyChanging(nameof (Polling));
+        this._Polling = value;
+        this.OnPropertyChanged(nameof (Polling));
+      }
+    }
+
+    public bool? IsMaster
+    {
+      get => this._IsMaster;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsMaster));
+        this._IsMaster = value;
+        this.OnPropertyChanged(nameof (IsMaster));
+      }
+    }
+
+    public bool? IsInMasterPool
+    {
+      get => this._IsInMasterPool;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsInMasterPool));
+        this._IsInMasterPool = value;
+        this.OnPropertyChanged(nameof (IsInMasterPool));
+      }
+    }
+
+    [MaxLength(255)]
+    public string ProviderName
+    {
+      get => this._ProviderName;
+      set
+      {
+        this.OnPropertyChanging(nameof (ProviderName));
+        this._ProviderName = value;
+        this.OnPropertyChanged(nameof (ProviderName));
+      }
+    }
+
+    [MaxLength(255)]
+    public string SimPin
+    {
+      get => this._SimPin;
+      set
+      {
+        this.OnPropertyChanging(nameof (SimPin));
+        this._SimPin = value;
+        this.OnPropertyChanged(nameof (SimPin));
+      }
+    }
+
+    [MaxLength(255)]
+    public string AccessPoint
+    {
+      get => this._AccessPoint;
+      set
+      {
+        this.OnPropertyChanging(nameof (AccessPoint));
+        this._AccessPoint = value;
+        this.OnPropertyChanged(nameof (AccessPoint));
+      }
+    }
+
+    [MaxLength(255)]
+    public string UserId
+    {
+      get => this._UserId;
+      set
+      {
+        this.OnPropertyChanging(nameof (UserId));
+        this._UserId = value;
+        this.OnPropertyChanged(nameof (UserId));
+      }
+    }
+
+    [MaxLength(255)]
+    public string UserPassword
+    {
+      get => this._UserPassword;
+      set
+      {
+        this.OnPropertyChanging(nameof (UserPassword));
+        this._UserPassword = value;
+        this.OnPropertyChanged(nameof (UserPassword));
+      }
+    }
+
+    [MaxLength(255)]
+    public string SessionKey
+    {
+      get => this._SessionKey;
+      set
+      {
+        this.OnPropertyChanging(nameof (SessionKey));
+        this._SessionKey = value;
+        this.OnPropertyChanged(nameof (SessionKey));
+      }
+    }
+
+    [MaxLength(255)]
+    public string CommParameter
+    {
+      get => this._CommParameter;
+      set
+      {
+        this.OnPropertyChanging(nameof (CommParameter));
+        this._CommParameter = value;
+        this.OnPropertyChanged(nameof (CommParameter));
+      }
+    }
+
+    [MaxLength(255)]
+    public string CreatedByName
+    {
+      get => this._CreatedByName;
+      set
+      {
+        this.OnPropertyChanging(nameof (CreatedByName));
+        this._CreatedByName = value;
+        this.OnPropertyChanged(nameof (CreatedByName));
+      }
+    }
+
+    public Guid? ScenarioId
+    {
+      get => this._ScenarioId;
+      set
+      {
+        this.OnPropertyChanging(nameof (ScenarioId));
+        this._ScenarioId = value;
+        this.OnPropertyChanged(nameof (ScenarioId));
+      }
+    }
+
+    public Guid? ProviderId
+    {
+      get => this._ProviderId;
+      set
+      {
+        this.OnPropertyChanging(nameof (ProviderId));
+        this._ProviderId = value;
+        this.OnPropertyChanged(nameof (ProviderId));
+      }
+    }
+
+    public Guid? CountryId
+    {
+      get => this._CountryId;
+      set
+      {
+        this.OnPropertyChanging(nameof (CountryId));
+        this._CountryId = value;
+        this.OnPropertyChanged(nameof (CountryId));
+      }
+    }
+
+    public bool? LoggingEnabled
+    {
+      get => this._LoggingEnabled;
+      set
+      {
+        this.OnPropertyChanging(nameof (LoggingEnabled));
+        this._LoggingEnabled = value;
+        this.OnPropertyChanged(nameof (LoggingEnabled));
+      }
+    }
+
+    [MaxLength(255)]
+    public string MinomatMasterId
+    {
+      get => this._MinomatMasterId;
+      set
+      {
+        this.OnPropertyChanging(nameof (MinomatMasterId));
+        this._MinomatMasterId = value;
+        this.OnPropertyChanged(nameof (MinomatMasterId));
+      }
+    }
+
+    public string SimCardNumber
+    {
+      get => this._SimCardNumber;
+      set
+      {
+        this.OnPropertyChanging(nameof (SimCardNumber));
+        this._SimCardNumber = value;
+        this.OnPropertyChanged(nameof (SimCardNumber));
+      }
+    }
+  }
+}
+
+
+--- t_MinomatMeters.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.t_MinomatMeters
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class t_MinomatMeters : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private int? _SignalStrength;
+    private string _Status;
+    private Guid? _MinomatId;
+    private Guid? _MeterId;
+    private DateTime? _LastChangedOn;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    public int? SignalStrength
+    {
+      get => this._SignalStrength;
+      set
+      {
+        this.OnPropertyChanging(nameof (SignalStrength));
+        this._SignalStrength = value;
+        this.OnPropertyChanged(nameof (SignalStrength));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Status
+    {
+      get => this._Status;
+      set
+      {
+        this.OnPropertyChanging(nameof (Status));
+        this._Status = value;
+        this.OnPropertyChanged(nameof (Status));
+      }
+    }
+
+    public Guid? MinomatId
+    {
+      get => this._MinomatId;
+      set
+      {
+        this.OnPropertyChanging(nameof (MinomatId));
+        this._MinomatId = value;
+        this.OnPropertyChanged(nameof (MinomatId));
+      }
+    }
+
+    public Guid? MeterId
+    {
+      get => this._MeterId;
+      set
+      {
+        this.OnPropertyChanging(nameof (MeterId));
+        this._MeterId = value;
+        this.OnPropertyChanged(nameof (MeterId));
+      }
+    }
+
+    public DateTime? LastChangedOn
+    {
+      get => this._LastChangedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastChangedOn));
+        this._LastChangedOn = value;
+        this.OnPropertyChanged(nameof (LastChangedOn));
+      }
+    }
+  }
+}
+
+
+--- t_MinomatRadioDetails.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.t_MinomatRadioDetails
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class t_MinomatRadioDetails : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _Location;
+    private string _Entrance;
+    private bool? _IsConfigured;
+    private DateTime? _DueDate;
+    private bool? _CanRegiesterMoreThanOne;
+    private int? _ReservedPlaces;
+    private DateTime? _InstalledOn;
+    private DateTime? _LastConnection;
+    private string _Channel;
+    private string _NrOfReceivedDevices;
+    private string _NrOfAssignedDevices;
+    private string _NrOfRegisteredDevices;
+    private int? _NetExtensionMode;
+    private Guid? _MinomatId;
+    private string _NodeId;
+    private string _Description;
+    private string _NetId;
+    private string _StatusDevices;
+    private string _StatusNetwork;
+    private DateTime? _LastStartOn;
+    private DateTime? _LastChangedOn;
+    private DateTime? _LastRegisteredOn;
+    private string _GSMStatus;
+    private DateTime? _GSMStatusDate;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Location
+    {
+      get => this._Location;
+      set
+      {
+        this.OnPropertyChanging(nameof (Location));
+        this._Location = value;
+        this.OnPropertyChanged(nameof (Location));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Entrance
+    {
+      get => this._Entrance;
+      set
+      {
+        this.OnPropertyChanging(nameof (Entrance));
+        this._Entrance = value;
+        this.OnPropertyChanged(nameof (Entrance));
+      }
+    }
+
+    public bool? IsConfigured
+    {
+      get => this._IsConfigured;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsConfigured));
+        this._IsConfigured = value;
+        this.OnPropertyChanged(nameof (IsConfigured));
+      }
+    }
+
+    public DateTime? DueDate
+    {
+      get => this._DueDate;
+      set
+      {
+        this.OnPropertyChanging(nameof (DueDate));
+        this._DueDate = value;
+        this.OnPropertyChanged(nameof (DueDate));
+      }
+    }
+
+    public bool? CanRegiesterMoreThanOne
+    {
+      get => this._CanRegiesterMoreThanOne;
+      set
+      {
+        this.OnPropertyChanging(nameof (CanRegiesterMoreThanOne));
+        this._CanRegiesterMoreThanOne = value;
+        this.OnPropertyChanged(nameof (CanRegiesterMoreThanOne));
+      }
+    }
+
+    public int? ReservedPlaces
+    {
+      get => this._ReservedPlaces;
+      set
+      {
+        this.OnPropertyChanging(nameof (ReservedPlaces));
+        this._ReservedPlaces = value;
+        this.OnPropertyChanged(nameof (ReservedPlaces));
+      }
+    }
+
+    public DateTime? InstalledOn
+    {
+      get => this._InstalledOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (InstalledOn));
+        this._InstalledOn = value;
+        this.OnPropertyChanged(nameof (InstalledOn));
+      }
+    }
+
+    public DateTime? LastConnection
+    {
+      get => this._LastConnection;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastConnection));
+        this._LastConnection = value;
+        this.OnPropertyChanged(nameof (LastConnection));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Channel
+    {
+      get => this._Channel;
+      set
+      {
+        this.OnPropertyChanging(nameof (Channel));
+        this._Channel = value;
+        this.OnPropertyChanged(nameof (Channel));
+      }
+    }
+
+    [MaxLength(255)]
+    public string NrOfReceivedDevices
+    {
+      get => this._NrOfReceivedDevices;
+      set
+      {
+        this.OnPropertyChanging(nameof (NrOfReceivedDevices));
+        this._NrOfReceivedDevices = value;
+        this.OnPropertyChanged(nameof (NrOfReceivedDevices));
+      }
+    }
+
+    [MaxLength(255)]
+    public string NrOfAssignedDevices
+    {
+      get => this._NrOfAssignedDevices;
+      set
+      {
+        this.OnPropertyChanging(nameof (NrOfAssignedDevices));
+        this._NrOfAssignedDevices = value;
+        this.OnPropertyChanged(nameof (NrOfAssignedDevices));
+      }
+    }
+
+    [MaxLength(255)]
+    public string NrOfRegisteredDevices
+    {
+      get => this._NrOfRegisteredDevices;
+      set
+      {
+        this.OnPropertyChanging(nameof (NrOfRegisteredDevices));
+        this._NrOfRegisteredDevices = value;
+        this.OnPropertyChanged(nameof (NrOfRegisteredDevices));
+      }
+    }
+
+    public int? NetExtensionMode
+    {
+      get => this._NetExtensionMode;
+      set
+      {
+        this.OnPropertyChanging(nameof (NetExtensionMode));
+        this._NetExtensionMode = value;
+        this.OnPropertyChanged(nameof (NetExtensionMode));
+      }
+    }
+
+    public Guid? MinomatId
+    {
+      get => this._MinomatId;
+      set
+      {
+        this.OnPropertyChanging(nameof (MinomatId));
+        this._MinomatId = value;
+        this.OnPropertyChanged(nameof (MinomatId));
+      }
+    }
+
+    [MaxLength(255)]
+    public string NodeId
+    {
+      get => this._NodeId;
+      set
+      {
+        this.OnPropertyChanging(nameof (NodeId));
+        this._NodeId = value;
+        this.OnPropertyChanged(nameof (NodeId));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Description
+    {
+      get => this._Description;
+      set
+      {
+        this.OnPropertyChanging(nameof (Description));
+        this._Description = value;
+        this.OnPropertyChanged(nameof (Description));
+      }
+    }
+
+    [MaxLength(255)]
+    public string NetId
+    {
+      get => this._NetId;
+      set
+      {
+        this.OnPropertyChanging(nameof (NetId));
+        this._NetId = value;
+        this.OnPropertyChanged(nameof (NetId));
+      }
+    }
+
+    [MaxLength(255)]
+    public string StatusDevices
+    {
+      get => this._StatusDevices;
+      set
+      {
+        this.OnPropertyChanging(nameof (StatusDevices));
+        this._StatusDevices = value;
+        this.OnPropertyChanged(nameof (StatusDevices));
+      }
+    }
+
+    [MaxLength(255)]
+    public string StatusNetwork
+    {
+      get => this._StatusNetwork;
+      set
+      {
+        this.OnPropertyChanging(nameof (StatusNetwork));
+        this._StatusNetwork = value;
+        this.OnPropertyChanged(nameof (StatusNetwork));
+      }
+    }
+
+    public DateTime? LastStartOn
+    {
+      get => this._LastStartOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastStartOn));
+        this._LastStartOn = value;
+        this.OnPropertyChanged(nameof (LastStartOn));
+      }
+    }
+
+    public DateTime? LastChangedOn
+    {
+      get => this._LastChangedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastChangedOn));
+        this._LastChangedOn = value;
+        this.OnPropertyChanged(nameof (LastChangedOn));
+      }
+    }
+
+    public DateTime? LastRegisteredOn
+    {
+      get => this._LastRegisteredOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastRegisteredOn));
+        this._LastRegisteredOn = value;
+        this.OnPropertyChanged(nameof (LastRegisteredOn));
+      }
+    }
+
+    [MaxLength(255)]
+    public string GSMStatus
+    {
+      get => this._GSMStatus;
+      set
+      {
+        this.OnPropertyChanging(nameof (GSMStatus));
+        this._GSMStatus = value;
+        this.OnPropertyChanged(nameof (GSMStatus));
+      }
+    }
+
+    public DateTime? GSMStatusDate
+    {
+      get => this._GSMStatusDate;
+      set
+      {
+        this.OnPropertyChanging(nameof (GSMStatusDate));
+        this._GSMStatusDate = value;
+        this.OnPropertyChanged(nameof (GSMStatusDate));
+      }
+    }
+  }
+}
+
+
+--- t_Note.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.t_Note
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class t_Note : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _NoteDescription;
+    private Guid? _NoteTypeId;
+    private DateTime? _LastChangedOn;
+    private Guid? _StructureNodeId;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(255)]
+    public string NoteDescription
+    {
+      get => this._NoteDescription;
+      set
+      {
+        this.OnPropertyChanging(nameof (NoteDescription));
+        this._NoteDescription = value;
+        this.OnPropertyChanged(nameof (NoteDescription));
+      }
+    }
+
+    public Guid? NoteTypeId
+    {
+      get => this._NoteTypeId;
+      set
+      {
+        this.OnPropertyChanging(nameof (NoteTypeId));
+        this._NoteTypeId = value;
+        this.OnPropertyChanged(nameof (NoteTypeId));
+      }
+    }
+
+    public DateTime? LastChangedOn
+    {
+      get => this._LastChangedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastChangedOn));
+        this._LastChangedOn = value;
+        this.OnPropertyChanged(nameof (LastChangedOn));
+      }
+    }
+
+    public Guid? StructureNodeId
+    {
+      get => this._StructureNodeId;
+      set
+      {
+        this.OnPropertyChanging(nameof (StructureNodeId));
+        this._StructureNodeId = value;
+        this.OnPropertyChanged(nameof (StructureNodeId));
+      }
+    }
+  }
+}
+
+
+--- t_Order.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.t_Order
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class t_Order : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _InstallationNumber;
+    private Guid? _RootStructureNodeId;
+    private string _Details;
+    private bool? _Exported;
+    private string _Status;
+    private string _DeviceNumber;
+    private byte[] _TestConfig;
+    private DateTime? _DueDate;
+    private bool? _IsDeactivated;
+    private string _OrderType;
+    private string _CloseOrderReason;
+    private Guid? _LockedBy;
+    private byte[] _StructureBytes;
+    private string _StructureType;
+    private DateTime? _CreatedOn;
+    private DateTime? _LastChangedOn;
+    private Guid? _FilterId;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(255)]
+    public string InstallationNumber
+    {
+      get => this._InstallationNumber;
+      set
+      {
+        this.OnPropertyChanging(nameof (InstallationNumber));
+        this._InstallationNumber = value;
+        this.OnPropertyChanged(nameof (InstallationNumber));
+      }
+    }
+
+    public Guid? RootStructureNodeId
+    {
+      get => this._RootStructureNodeId;
+      set
+      {
+        this.OnPropertyChanging(nameof (RootStructureNodeId));
+        this._RootStructureNodeId = value;
+        this.OnPropertyChanged(nameof (RootStructureNodeId));
+      }
+    }
+
+    [MaxLength(1000)]
+    public string Details
+    {
+      get => this._Details;
+      set
+      {
+        this.OnPropertyChanging(nameof (Details));
+        this._Details = value;
+        this.OnPropertyChanged(nameof (Details));
+      }
+    }
+
+    public bool? Exported
+    {
+      get => this._Exported;
+      set
+      {
+        this.OnPropertyChanging(nameof (Exported));
+        this._Exported = value;
+        this.OnPropertyChanged(nameof (Exported));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Status
+    {
+      get => this._Status;
+      set
+      {
+        this.OnPropertyChanging(nameof (Status));
+        this._Status = value;
+        this.OnPropertyChanged(nameof (Status));
+      }
+    }
+
+    [MaxLength(255)]
+    public string DeviceNumber
+    {
+      get => this._DeviceNumber;
+      set
+      {
+        this.OnPropertyChanging(nameof (DeviceNumber));
+        this._DeviceNumber = value;
+        this.OnPropertyChanged(nameof (DeviceNumber));
+      }
+    }
+
+    [MaxLength(8000)]
+    public byte[] TestConfig
+    {
+      get => this._TestConfig;
+      set
+      {
+        this.OnPropertyChanging(nameof (TestConfig));
+        this._TestConfig = value;
+        this.OnPropertyChanged(nameof (TestConfig));
+      }
+    }
+
+    public DateTime? DueDate
+    {
+      get => this._DueDate;
+      set
+      {
+        this.OnPropertyChanging(nameof (DueDate));
+        this._DueDate = value;
+        this.OnPropertyChanged(nameof (DueDate));
+      }
+    }
+
+    public bool? IsDeactivated
+    {
+      get => this._IsDeactivated;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsDeactivated));
+        this._IsDeactivated = value;
+        this.OnPropertyChanged(nameof (IsDeactivated));
+      }
+    }
+
+    [MaxLength(255)]
+    public string OrderType
+    {
+      get => this._OrderType;
+      set
+      {
+        this.OnPropertyChanging(nameof (OrderType));
+        this._OrderType = value;
+        this.OnPropertyChanged(nameof (OrderType));
+      }
+    }
+
+    [MaxLength(255)]
+    public string CloseOrderReason
+    {
+      get => this._CloseOrderReason;
+      set
+      {
+        this.OnPropertyChanging(nameof (CloseOrderReason));
+        this._CloseOrderReason = value;
+        this.OnPropertyChanged(nameof (CloseOrderReason));
+      }
+    }
+
+    public Guid? LockedBy
+    {
+      get => this._LockedBy;
+      set
+      {
+        this.OnPropertyChanging(nameof (LockedBy));
+        this._LockedBy = value;
+        this.OnPropertyChanged(nameof (LockedBy));
+      }
+    }
+
+    [MaxLength(8000)]
+    public byte[] StructureBytes
+    {
+      get => this._StructureBytes;
+      set
+      {
+        this.OnPropertyChanging(nameof (StructureBytes));
+        this._StructureBytes = value;
+        this.OnPropertyChanged(nameof (StructureBytes));
+      }
+    }
+
+    [MaxLength(255)]
+    public string StructureType
+    {
+      get => this._StructureType;
+      set
+      {
+        this.OnPropertyChanging(nameof (StructureType));
+        this._StructureType = value;
+        this.OnPropertyChanged(nameof (StructureType));
+      }
+    }
+
+    public DateTime? CreatedOn
+    {
+      get => this._CreatedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (CreatedOn));
+        this._CreatedOn = value;
+        this.OnPropertyChanged(nameof (CreatedOn));
+      }
+    }
+
+    public DateTime? LastChangedOn
+    {
+      get => this._LastChangedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastChangedOn));
+        this._LastChangedOn = value;
+        this.OnPropertyChanged(nameof (LastChangedOn));
+      }
+    }
+
+    public Guid? FilterId
+    {
+      get => this._FilterId;
+      set
+      {
+        this.OnPropertyChanging(nameof (FilterId));
+        this._FilterId = value;
+        this.OnPropertyChanged(nameof (FilterId));
+      }
+    }
+  }
+}
+
+
+--- t_OrderMessages.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.t_OrderMessages
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class t_OrderMessages : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private Guid? _OrderId;
+    private Guid? _MeterId;
+    private string _Level;
+    private DateTime? _Timepoint;
+    private string _Message;
+    private DateTime? _LastChangedOn;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    public Guid? OrderId
+    {
+      get => this._OrderId;
+      set
+      {
+        this.OnPropertyChanging(nameof (OrderId));
+        this._OrderId = value;
+        this.OnPropertyChanged(nameof (OrderId));
+      }
+    }
+
+    public Guid? MeterId
+    {
+      get => this._MeterId;
+      set
+      {
+        this.OnPropertyChanging(nameof (MeterId));
+        this._MeterId = value;
+        this.OnPropertyChanged(nameof (MeterId));
+      }
+    }
+
+    public string Level
+    {
+      get => this._Level;
+      set
+      {
+        this.OnPropertyChanging(nameof (Level));
+        this._Level = value;
+        this.OnPropertyChanged(nameof (Level));
+      }
+    }
+
+    public DateTime? Timepoint
+    {
+      get => this._Timepoint;
+      set
+      {
+        this.OnPropertyChanging(nameof (Timepoint));
+        this._Timepoint = value;
+        this.OnPropertyChanged(nameof (Timepoint));
+      }
+    }
+
+    public string Message
+    {
+      get => this._Message;
+      set
+      {
+        this.OnPropertyChanging(nameof (Message));
+        this._Message = value;
+        this.OnPropertyChanged(nameof (Message));
+      }
+    }
+
+    public DateTime? LastChangedOn
+    {
+      get => this._LastChangedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastChangedOn));
+        this._LastChangedOn = value;
+        this.OnPropertyChanged(nameof (LastChangedOn));
+      }
+    }
+  }
+}
+
+
+--- t_OrderUser.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.t_OrderUser
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class t_OrderUser : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private Guid? _OrderId;
+    private Guid? _UserId;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    public Guid? OrderId
+    {
+      get => this._OrderId;
+      set
+      {
+        this.OnPropertyChanging(nameof (OrderId));
+        this._OrderId = value;
+        this.OnPropertyChanged(nameof (OrderId));
+      }
+    }
+
+    public Guid? UserId
+    {
+      get => this._UserId;
+      set
+      {
+        this.OnPropertyChanging(nameof (UserId));
+        this._UserId = value;
+        this.OnPropertyChanged(nameof (UserId));
+      }
+    }
+  }
+}
+
+
+--- t_StructureNode.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.t_StructureNode
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class t_StructureNode : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _Name;
+    private string _Description;
+    private Guid? _EntityId;
+    private string _EntityName;
+    private DateTime? _StartDate;
+    private DateTime? _EndDate;
+    private Guid? _NodeTypeId;
+    private DateTime? _LastChangedOn;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(200)]
+    public string Name
+    {
+      get => this._Name;
+      set
+      {
+        this.OnPropertyChanging(nameof (Name));
+        this._Name = value;
+        this.OnPropertyChanged(nameof (Name));
+      }
+    }
+
+    [MaxLength(1000)]
+    public string Description
+    {
+      get => this._Description;
+      set
+      {
+        this.OnPropertyChanging(nameof (Description));
+        this._Description = value;
+        this.OnPropertyChanged(nameof (Description));
+      }
+    }
+
+    public Guid? EntityId
+    {
+      get => this._EntityId;
+      set
+      {
+        this.OnPropertyChanging(nameof (EntityId));
+        this._EntityId = value;
+        this.OnPropertyChanged(nameof (EntityId));
+      }
+    }
+
+    [MaxLength(200)]
+    public string EntityName
+    {
+      get => this._EntityName;
+      set
+      {
+        this.OnPropertyChanging(nameof (EntityName));
+        this._EntityName = value;
+        this.OnPropertyChanged(nameof (EntityName));
+      }
+    }
+
+    public DateTime? StartDate
+    {
+      get => this._StartDate;
+      set
+      {
+        this.OnPropertyChanging(nameof (StartDate));
+        this._StartDate = value;
+        this.OnPropertyChanged(nameof (StartDate));
+      }
+    }
+
+    public DateTime? EndDate
+    {
+      get => this._EndDate;
+      set
+      {
+        this.OnPropertyChanging(nameof (EndDate));
+        this._EndDate = value;
+        this.OnPropertyChanged(nameof (EndDate));
+      }
+    }
+
+    public Guid? NodeTypeId
+    {
+      get => this._NodeTypeId;
+      set
+      {
+        this.OnPropertyChanging(nameof (NodeTypeId));
+        this._NodeTypeId = value;
+        this.OnPropertyChanged(nameof (NodeTypeId));
+      }
+    }
+
+    public DateTime? LastChangedOn
+    {
+      get => this._LastChangedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastChangedOn));
+        this._LastChangedOn = value;
+        this.OnPropertyChanged(nameof (LastChangedOn));
+      }
+    }
+  }
+}
+
+
+--- t_StructureNodeEquipmentSettings.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.t_StructureNodeEquipmentSettings
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class t_StructureNodeEquipmentSettings : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private string _EquipmentName;
+    private string _EquipmentParams;
+    private string _SystemName;
+    private string _ScanMode;
+    private string _ScanParams;
+    private string _ReadingProfileName;
+    private Guid? _StructureNodeId;
+    private DateTime? _LastChangedOn;
+    private string _ReadingProfileParams;
+    private string _DeviceModelReadingParams;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    [MaxLength(255)]
+    public string EquipmentName
+    {
+      get => this._EquipmentName;
+      set
+      {
+        this.OnPropertyChanging(nameof (EquipmentName));
+        this._EquipmentName = value;
+        this.OnPropertyChanged(nameof (EquipmentName));
+      }
+    }
+
+    [MaxLength(255)]
+    public string EquipmentParams
+    {
+      get => this._EquipmentParams;
+      set
+      {
+        this.OnPropertyChanging(nameof (EquipmentParams));
+        this._EquipmentParams = value;
+        this.OnPropertyChanged(nameof (EquipmentParams));
+      }
+    }
+
+    [MaxLength(255)]
+    public string SystemName
+    {
+      get => this._SystemName;
+      set
+      {
+        this.OnPropertyChanging(nameof (SystemName));
+        this._SystemName = value;
+        this.OnPropertyChanged(nameof (SystemName));
+      }
+    }
+
+    [MaxLength(255)]
+    public string ScanMode
+    {
+      get => this._ScanMode;
+      set
+      {
+        this.OnPropertyChanging(nameof (ScanMode));
+        this._ScanMode = value;
+        this.OnPropertyChanged(nameof (ScanMode));
+      }
+    }
+
+    [MaxLength(255)]
+    public string ScanParams
+    {
+      get => this._ScanParams;
+      set
+      {
+        this.OnPropertyChanging(nameof (ScanParams));
+        this._ScanParams = value;
+        this.OnPropertyChanged(nameof (ScanParams));
+      }
+    }
+
+    [MaxLength(255)]
+    public string ReadingProfileName
+    {
+      get => this._ReadingProfileName;
+      set
+      {
+        this.OnPropertyChanging(nameof (ReadingProfileName));
+        this._ReadingProfileName = value;
+        this.OnPropertyChanged(nameof (ReadingProfileName));
+      }
+    }
+
+    public Guid? StructureNodeId
+    {
+      get => this._StructureNodeId;
+      set
+      {
+        this.OnPropertyChanging(nameof (StructureNodeId));
+        this._StructureNodeId = value;
+        this.OnPropertyChanged(nameof (StructureNodeId));
+      }
+    }
+
+    public DateTime? LastChangedOn
+    {
+      get => this._LastChangedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastChangedOn));
+        this._LastChangedOn = value;
+        this.OnPropertyChanged(nameof (LastChangedOn));
+      }
+    }
+
+    [MaxLength(8000)]
+    public string ReadingProfileParams
+    {
+      get => this._ReadingProfileParams;
+      set
+      {
+        this.OnPropertyChanging(nameof (ReadingProfileParams));
+        this._ReadingProfileParams = value;
+        this.OnPropertyChanged(nameof (ReadingProfileParams));
+      }
+    }
+
+    public string DeviceModelReadingParams
+    {
+      get => this._DeviceModelReadingParams;
+      set
+      {
+        this.OnPropertyChanging(nameof (DeviceModelReadingParams));
+        this._DeviceModelReadingParams = value;
+        this.OnPropertyChanged(nameof (DeviceModelReadingParams));
+      }
+    }
+  }
+}
+
+
+--- t_StructureNodeLinks.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.t_StructureNodeLinks
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class t_StructureNodeLinks : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private Guid? _NodeId;
+    private Guid? _ParentNodeId;
+    private Guid? _RootNodeId;
+    private string _StructureType;
+    private DateTime? _StartDate;
+    private DateTime? _EndDate;
+    private int? _OrderNr;
+    private DateTime? _LastChangedOn;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    public Guid? NodeId
+    {
+      get => this._NodeId;
+      set
+      {
+        this.OnPropertyChanging(nameof (NodeId));
+        this._NodeId = value;
+        this.OnPropertyChanged(nameof (NodeId));
+      }
+    }
+
+    public Guid? ParentNodeId
+    {
+      get => this._ParentNodeId;
+      set
+      {
+        this.OnPropertyChanging(nameof (ParentNodeId));
+        this._ParentNodeId = value;
+        this.OnPropertyChanged(nameof (ParentNodeId));
+      }
+    }
+
+    public Guid? RootNodeId
+    {
+      get => this._RootNodeId;
+      set
+      {
+        this.OnPropertyChanging(nameof (RootNodeId));
+        this._RootNodeId = value;
+        this.OnPropertyChanged(nameof (RootNodeId));
+      }
+    }
+
+    [MaxLength(20)]
+    public string StructureType
+    {
+      get => this._StructureType;
+      set
+      {
+        this.OnPropertyChanging(nameof (StructureType));
+        this._StructureType = value;
+        this.OnPropertyChanged(nameof (StructureType));
+      }
+    }
+
+    public DateTime? StartDate
+    {
+      get => this._StartDate;
+      set
+      {
+        this.OnPropertyChanging(nameof (StartDate));
+        this._StartDate = value;
+        this.OnPropertyChanged(nameof (StartDate));
+      }
+    }
+
+    public DateTime? EndDate
+    {
+      get => this._EndDate;
+      set
+      {
+        this.OnPropertyChanging(nameof (EndDate));
+        this._EndDate = value;
+        this.OnPropertyChanged(nameof (EndDate));
+      }
+    }
+
+    public int? OrderNr
+    {
+      get => this._OrderNr;
+      set
+      {
+        this.OnPropertyChanging(nameof (OrderNr));
+        this._OrderNr = value;
+        this.OnPropertyChanged(nameof (OrderNr));
+      }
+    }
+
+    public DateTime? LastChangedOn
+    {
+      get => this._LastChangedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastChangedOn));
+        this._LastChangedOn = value;
+        this.OnPropertyChanged(nameof (LastChangedOn));
+      }
+    }
+  }
+}
+
+
+--- t_Tenant.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ApplicationScope.t_Tenant
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.Synchronization.ClientServices.SQLite;
+using System;
+
+#nullable disable
+namespace ApplicationScope
+{
+  public class t_Tenant : SQLiteOfflineEntity
+  {
+    private Guid _Id;
+    private int _TenantNr;
+    private string _Name;
+    private string _FloorNr;
+    private string _FloorName;
+    private string _ApartmentNr;
+    private string _Direction;
+    private string _Description;
+    private string _CustomerTenantNo;
+    private int? _RealTenantNo;
+    private bool? _IsDeactivated;
+    private string _CreatedBy;
+    private string _UpdatedBy;
+    private DateTime? _LastChangedOn;
+    private string _Entrance;
+
+    [PrimaryKey]
+    public Guid Id
+    {
+      get => this._Id;
+      set
+      {
+        this.OnPropertyChanging(nameof (Id));
+        this._Id = value;
+        this.OnPropertyChanged(nameof (Id));
+      }
+    }
+
+    public int TenantNr
+    {
+      get => this._TenantNr;
+      set
+      {
+        this.OnPropertyChanging(nameof (TenantNr));
+        this._TenantNr = value;
+        this.OnPropertyChanged(nameof (TenantNr));
+      }
+    }
+
+    [MaxLength(30)]
+    public string Name
+    {
+      get => this._Name;
+      set
+      {
+        this.OnPropertyChanging(nameof (Name));
+        this._Name = value;
+        this.OnPropertyChanged(nameof (Name));
+      }
+    }
+
+    [MaxLength(3)]
+    public string FloorNr
+    {
+      get => this._FloorNr;
+      set
+      {
+        this.OnPropertyChanging(nameof (FloorNr));
+        this._FloorNr = value;
+        this.OnPropertyChanged(nameof (FloorNr));
+      }
+    }
+
+    [MaxLength(10)]
+    public string FloorName
+    {
+      get => this._FloorName;
+      set
+      {
+        this.OnPropertyChanging(nameof (FloorName));
+        this._FloorName = value;
+        this.OnPropertyChanged(nameof (FloorName));
+      }
+    }
+
+    [MaxLength(3)]
+    public string ApartmentNr
+    {
+      get => this._ApartmentNr;
+      set
+      {
+        this.OnPropertyChanging(nameof (ApartmentNr));
+        this._ApartmentNr = value;
+        this.OnPropertyChanged(nameof (ApartmentNr));
+      }
+    }
+
+    [MaxLength(10)]
+    public string Direction
+    {
+      get => this._Direction;
+      set
+      {
+        this.OnPropertyChanging(nameof (Direction));
+        this._Direction = value;
+        this.OnPropertyChanged(nameof (Direction));
+      }
+    }
+
+    [MaxLength(500)]
+    public string Description
+    {
+      get => this._Description;
+      set
+      {
+        this.OnPropertyChanging(nameof (Description));
+        this._Description = value;
+        this.OnPropertyChanged(nameof (Description));
+      }
+    }
+
+    [MaxLength(30)]
+    public string CustomerTenantNo
+    {
+      get => this._CustomerTenantNo;
+      set
+      {
+        this.OnPropertyChanging(nameof (CustomerTenantNo));
+        this._CustomerTenantNo = value;
+        this.OnPropertyChanged(nameof (CustomerTenantNo));
+      }
+    }
+
+    public int? RealTenantNo
+    {
+      get => this._RealTenantNo;
+      set
+      {
+        this.OnPropertyChanging(nameof (RealTenantNo));
+        this._RealTenantNo = value;
+        this.OnPropertyChanged(nameof (RealTenantNo));
+      }
+    }
+
+    public bool? IsDeactivated
+    {
+      get => this._IsDeactivated;
+      set
+      {
+        this.OnPropertyChanging(nameof (IsDeactivated));
+        this._IsDeactivated = value;
+        this.OnPropertyChanged(nameof (IsDeactivated));
+      }
+    }
+
+    [MaxLength(255)]
+    public string CreatedBy
+    {
+      get => this._CreatedBy;
+      set
+      {
+        this.OnPropertyChanging(nameof (CreatedBy));
+        this._CreatedBy = value;
+        this.OnPropertyChanged(nameof (CreatedBy));
+      }
+    }
+
+    [MaxLength(255)]
+    public string UpdatedBy
+    {
+      get => this._UpdatedBy;
+      set
+      {
+        this.OnPropertyChanging(nameof (UpdatedBy));
+        this._UpdatedBy = value;
+        this.OnPropertyChanged(nameof (UpdatedBy));
+      }
+    }
+
+    public DateTime? LastChangedOn
+    {
+      get => this._LastChangedOn;
+      set
+      {
+        this.OnPropertyChanging(nameof (LastChangedOn));
+        this._LastChangedOn = value;
+        this.OnPropertyChanged(nameof (LastChangedOn));
+      }
+    }
+
+    [MaxLength(255)]
+    public string Entrance
+    {
+      get => this._Entrance;
+      set
+      {
+        this.OnPropertyChanging(nameof (Entrance));
+        this._Entrance = value;
+        this.OnPropertyChanged(nameof (Entrance));
+      }
+    }
+  }
+}
+

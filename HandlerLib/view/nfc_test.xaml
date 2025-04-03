@@ -1,0 +1,88 @@
+<Window x:Class="HandlerLib.NFC_Test"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="NFC" Height="387" Width="838.068" WindowStartupLocation="CenterOwner">
+  <Grid Margin="0,0,0,-6">
+    <GroupBox Header="MiConConnector" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top"
+              Height="241" Width="147">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="38*"/>
+          <ColumnDefinition Width="15*"/>
+          <ColumnDefinition Width="60*"/>
+        </Grid.ColumnDefinitions>
+        <Button Click="ButtonX_Click" Name="BtnCouplerEcho" Content="Echo" HorizontalAlignment="Left"
+                VerticalAlignment="Top" Width="125" Margin="0,33,0,0" Grid.ColumnSpan="3"/>
+        <Button Click="ButtonX_Click" Name="BtnCouplerIdent" Content="Get Ident" HorizontalAlignment="Left"
+                VerticalAlignment="Top" Width="125" Margin="0,58,0,0" Grid.ColumnSpan="3"/>
+        <Button Click="ButtonX_Click" Name="BtnCouplerRfOff" Content="RF Off" HorizontalAlignment="Left"
+                VerticalAlignment="Top" Width="125" Margin="0,83,0,0" Grid.ColumnSpan="3"/>
+        <Button Click="ButtonX_Click" Name="BtnResetDevice" Content="Reset Device" HorizontalAlignment="Left"
+                Margin="0,7,0,0" VerticalAlignment="Top" Width="125" Grid.ColumnSpan="3"/>
+        <Button Click="ButtonX_Click" Name="BtnCouplerRfOn" Content="RF On" HorizontalAlignment="Left"
+                VerticalAlignment="Top" Width="125" Margin="0,108,0,0" Grid.ColumnSpan="3"/>
+        <Button Click="ButtonX_Click" Name="BtnNDCUSBStartBootloader" Content="NDC-USB 
+Start Bootloader"
+                HorizontalAlignment="Left" VerticalAlignment="Top" Width="125" Margin="0,133,0,0"
+                Grid.ColumnSpan="3" Height="45"/>
+      </Grid>
+    </GroupBox>
+    <GroupBox Header="NFC-Tag" HorizontalAlignment="Left" Margin="152,143,0,0" VerticalAlignment="Top"
+              Height="108" Width="122">
+      <Grid>
+        <Button Click="ButtonX_Click" Name="BtnNfcAntiCol" Content="AntiCollision" HorizontalAlignment="Left"
+                VerticalAlignment="Top" Width="111" Margin="0,5,0,0"/>
+        <Button Click="ButtonX_Click" Name="BtnNfcGetTagIdent" Content="Get Tag Ident" HorizontalAlignment="Left"
+                VerticalAlignment="Top" Width="111" Margin="2,32,0,0"/>
+        <Button Click="ButtonX_Click" Name="BtnGetTagStatus" Content="Get Status" HorizontalAlignment="Left"
+                VerticalAlignment="Top" Width="111" Margin="0,57,0,0"/>
+      </Grid>
+    </GroupBox>
+    <GroupBox Header="Raw-Data" Margin="0,0,13,10" Height="101" VerticalAlignment="Bottom">
+      <Grid Margin="0,10,0,2">
+        <Button Click="ButtonX_Click" Name="BtnSend" Content="Send" Margin="0,20,23,0" Height="45"
+                VerticalAlignment="Top" IsEnabled="true" HorizontalAlignment="Right" Width="85"/>
+        <TextBox Name="TxBxTxDataLen" HorizontalAlignment="Left" Margin="27,20,0,0" TextWrapping="Wrap" Text="0"
+                 Width="31" IsEnabled="false" Height="20" VerticalAlignment="Top"/>
+        <TextBox TextChanged="TxBxTxData_TextChanged" KeyDown="TxBxTxData_KeyDown" Name="TxBxTxData"
+                 Margin="63,21,165,0" TextWrapping="Wrap" Text="TextBox" Height="20" VerticalAlignment="Top"/>
+        <TextBox Name="TxBxCRCData" Margin="0,21,113,0" TextWrapping="Wrap" Height="20" VerticalAlignment="Top"
+                 HorizontalAlignment="Right" Width="47"/>
+        <TextBox Name="TxBxRxData" Margin="63,46,165,0" TextWrapping="Wrap" Text="TextBox" Height="20"
+                 VerticalAlignment="Top"/>
+        <TextBox Name="TxBxRxDataLen" HorizontalAlignment="Left" Margin="27,45,0,0" TextWrapping="Wrap" Text="0"
+                 Width="31" IsEnabled="false" Height="20" VerticalAlignment="Top"/>
+        <TextBox Name="TxBxRxCRCData" Margin="0,46,113,0" TextWrapping="Wrap" HorizontalAlignment="Right" Width="47"
+                 Height="20" VerticalAlignment="Top"/>
+        <Label Content="Rx:" HorizontalAlignment="Left" Margin="0,40,0,0" Height="26" VerticalAlignment="Top"/>
+        <Label Content="Tx:" HorizontalAlignment="Left" Margin="2,17,0,0" Height="26" VerticalAlignment="Top"/>
+        <Label Content="Len" Margin="27,-3,0,0" HorizontalAlignment="Left" Width="29" Height="26"
+               VerticalAlignment="Top"/>
+        <Label Content="Data" Margin="0,-3,415,0" HorizontalAlignment="Right" Width="35" Height="26"
+               VerticalAlignment="Top"/>
+        <Label Content="CRC" Margin="0,-3,122,0" Height="26" VerticalAlignment="Top" HorizontalAlignment="Right"
+               Width="32"/>
+      </Grid>
+    </GroupBox>
+    <GroupBox Header="Extended Test" HorizontalAlignment="Left" Margin="152,10,0,0" VerticalAlignment="Top"
+              Height="128" Width="122">
+      <Grid>
+        <Button Click="ButtonX_Click" Name="BtnToggleRf" Content="Toggle RF" HorizontalAlignment="Left"
+                VerticalAlignment="Top" Width="111" Margin="0,78,0,0"/>
+        <CheckBox Name="CheckLoop" Content="Loop" HorizontalAlignment="Left" Margin="62,57,0,0"
+                  VerticalAlignment="Top" RenderTransformOrigin="0.273,-0.75" FlowDirection="RightToLeft"/>
+        <TextBox Name="TxtBxTimeRFOn" HorizontalAlignment="Left" Height="23" Margin="0,6,0,0" TextWrapping="Wrap"
+                 Text="200" VerticalAlignment="Top" Width="56" TextAlignment="Right"/>
+        <TextBox Name="TxtBxTimeRFOff" HorizontalAlignment="Left" Height="23" Margin="0,34,0,0" TextWrapping="Wrap"
+                 Text="200" VerticalAlignment="Top" Width="56" TextAlignment="Right"/>
+        <Label Content="ms ON" HorizontalAlignment="Left" Margin="61,6,0,0" VerticalAlignment="Top" Width="50"/>
+        <Label Content="ms OFF" HorizontalAlignment="Left" Margin="61,31,0,0" VerticalAlignment="Top" Width="50"/>
+      </Grid>
+    </GroupBox>
+    <TextBox Name="TxBxResult" Margin="279,36,0,111" TextWrapping="Wrap" Text="Result:"
+             HorizontalAlignment="Left" Width="218"/>
+    <TextBox Name="TxBxResult_HEX" Margin="502,36,13,111" TextWrapping="Wrap" Text="Result:"/>
+    <Label Content="Result:" HorizontalAlignment="Left" Height="26" Margin="279,10,0,0"
+           VerticalAlignment="Top" Width="73"/>
+  </Grid>
+</Window>

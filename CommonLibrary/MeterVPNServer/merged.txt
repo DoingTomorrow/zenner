@@ -1,0 +1,278 @@
+
+--- COMserver.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.MeterVPNServer.COMserver
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Xml.Serialization;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.MeterVPNServer
+{
+  [GeneratedCode("System.Xml", "4.8.4084.0")]
+  [DebuggerStepThrough]
+  [DesignerCategory("code")]
+  [SoapType(Namespace = "urn:MeterVPN")]
+  [Serializable]
+  public class COMserver : INotifyPropertyChanged
+  {
+    private string nameField;
+    private string ipField;
+    private bool onlineField;
+    private string certField;
+    private string lastSeenField;
+    private string trafficField;
+
+    public string Name
+    {
+      get => this.nameField;
+      set
+      {
+        this.nameField = value;
+        this.RaisePropertyChanged(nameof (Name));
+      }
+    }
+
+    public string IP
+    {
+      get => this.ipField;
+      set
+      {
+        this.ipField = value;
+        this.RaisePropertyChanged(nameof (IP));
+      }
+    }
+
+    public bool Online
+    {
+      get => this.onlineField;
+      set
+      {
+        this.onlineField = value;
+        this.RaisePropertyChanged(nameof (Online));
+      }
+    }
+
+    public string Cert
+    {
+      get => this.certField;
+      set
+      {
+        this.certField = value;
+        this.RaisePropertyChanged(nameof (Cert));
+      }
+    }
+
+    public string LastSeen
+    {
+      get => this.lastSeenField;
+      set
+      {
+        this.lastSeenField = value;
+        this.RaisePropertyChanged(nameof (LastSeen));
+      }
+    }
+
+    public string Traffic
+    {
+      get => this.trafficField;
+      set
+      {
+        this.trafficField = value;
+        this.RaisePropertyChanged(nameof (Traffic));
+      }
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected void RaisePropertyChanged(string propertyName)
+    {
+      PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+      if (propertyChanged == null)
+        return;
+      propertyChanged((object) this, new PropertyChangedEventArgs(propertyName));
+    }
+  }
+}
+
+
+--- MeterVPNPort.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.MeterVPNServer.MeterVPNPort
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System.CodeDom.Compiler;
+using System.ServiceModel;
+using System.Threading.Tasks;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.MeterVPNServer
+{
+  [GeneratedCode("System.ServiceModel", "4.0.0.0")]
+  [ServiceContract(Namespace = "urn:MeterVPN", ConfigurationName = "MeterVPNServer.MeterVPNPort")]
+  public interface MeterVPNPort
+  {
+    [OperationContract(Action = "urn:MeterVPNAction", ReplyAction = "*")]
+    [XmlSerializerFormat(Style = OperationFormatStyle.Rpc, SupportFaults = true, Use = OperationFormatUse.Encoded)]
+    [ServiceKnownType(typeof (COMserver))]
+    [return: MessageParameter(Name = "COMservers")]
+    COMserver[] GetCOMservers(string Login);
+
+    [OperationContract(Action = "urn:MeterVPNAction", ReplyAction = "*")]
+    [return: MessageParameter(Name = "COMservers")]
+    Task<COMserver[]> GetCOMserversAsync(string Login);
+
+    [OperationContract(Action = "urn:MeterVPNAction", ReplyAction = "*")]
+    [XmlSerializerFormat(Style = OperationFormatStyle.Rpc, SupportFaults = true, Use = OperationFormatUse.Encoded)]
+    [ServiceKnownType(typeof (COMserver))]
+    [return: MessageParameter(Name = "Result")]
+    string AddCOMserverToCustomer(string Cert, string Name, string Password);
+
+    [OperationContract(Action = "urn:MeterVPNAction", ReplyAction = "*")]
+    [return: MessageParameter(Name = "Result")]
+    Task<string> AddCOMserverToCustomerAsync(string Cert, string Name, string Password);
+
+    [OperationContract(Action = "urn:MeterVPNAction", ReplyAction = "*")]
+    [XmlSerializerFormat(Style = OperationFormatStyle.Rpc, SupportFaults = true, Use = OperationFormatUse.Encoded)]
+    [ServiceKnownType(typeof (COMserver))]
+    [return: MessageParameter(Name = "Result")]
+    string DelCOMserverFromCustomer(string Cert);
+
+    [OperationContract(Action = "urn:MeterVPNAction", ReplyAction = "*")]
+    [return: MessageParameter(Name = "Result")]
+    Task<string> DelCOMserverFromCustomerAsync(string Cert);
+
+    [OperationContract(Action = "urn:MeterVPNAction", ReplyAction = "*")]
+    [XmlSerializerFormat(Style = OperationFormatStyle.Rpc, SupportFaults = true, Use = OperationFormatUse.Encoded)]
+    [ServiceKnownType(typeof (COMserver))]
+    [return: MessageParameter(Name = "Result")]
+    string ModCOMserver(string Cert, string Name);
+
+    [OperationContract(Action = "urn:MeterVPNAction", ReplyAction = "*")]
+    [return: MessageParameter(Name = "Result")]
+    Task<string> ModCOMserverAsync(string Cert, string Name);
+  }
+}
+
+
+--- MeterVPNPortChannel.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.MeterVPNServer.MeterVPNPortChannel
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.CodeDom.Compiler;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.MeterVPNServer
+{
+  [GeneratedCode("System.ServiceModel", "4.0.0.0")]
+  public interface MeterVPNPortChannel : 
+    MeterVPNPort,
+    IClientChannel,
+    IContextChannel,
+    IChannel,
+    ICommunicationObject,
+    IExtensibleObject<IContextChannel>,
+    IDisposable
+  {
+  }
+}
+
+
+--- MeterVPNPortClient.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.MeterVPNServer.MeterVPNPortClient
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System.CodeDom.Compiler;
+using System.Diagnostics;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
+using System.Threading.Tasks;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.MeterVPNServer
+{
+  [DebuggerStepThrough]
+  [GeneratedCode("System.ServiceModel", "4.0.0.0")]
+  public class MeterVPNPortClient : ClientBase<MeterVPNPort>, MeterVPNPort
+  {
+    public MeterVPNPortClient()
+    {
+    }
+
+    public MeterVPNPortClient(string endpointConfigurationName)
+      : base(endpointConfigurationName)
+    {
+    }
+
+    public MeterVPNPortClient(string endpointConfigurationName, string remoteAddress)
+      : base(endpointConfigurationName, remoteAddress)
+    {
+    }
+
+    public MeterVPNPortClient(string endpointConfigurationName, EndpointAddress remoteAddress)
+      : base(endpointConfigurationName, remoteAddress)
+    {
+    }
+
+    public MeterVPNPortClient(Binding binding, EndpointAddress remoteAddress)
+      : base(binding, remoteAddress)
+    {
+    }
+
+    public COMserver[] GetCOMservers(string Login) => this.Channel.GetCOMservers(Login);
+
+    public Task<COMserver[]> GetCOMserversAsync(string Login)
+    {
+      return this.Channel.GetCOMserversAsync(Login);
+    }
+
+    public string AddCOMserverToCustomer(string Cert, string Name, string Password)
+    {
+      return this.Channel.AddCOMserverToCustomer(Cert, Name, Password);
+    }
+
+    public Task<string> AddCOMserverToCustomerAsync(string Cert, string Name, string Password)
+    {
+      return this.Channel.AddCOMserverToCustomerAsync(Cert, Name, Password);
+    }
+
+    public string DelCOMserverFromCustomer(string Cert)
+    {
+      return this.Channel.DelCOMserverFromCustomer(Cert);
+    }
+
+    public Task<string> DelCOMserverFromCustomerAsync(string Cert)
+    {
+      return this.Channel.DelCOMserverFromCustomerAsync(Cert);
+    }
+
+    public string ModCOMserver(string Cert, string Name) => this.Channel.ModCOMserver(Cert, Name);
+
+    public Task<string> ModCOMserverAsync(string Cert, string Name)
+    {
+      return this.Channel.ModCOMserverAsync(Cert, Name);
+    }
+  }
+}
+

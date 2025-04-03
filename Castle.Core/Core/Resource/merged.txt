@@ -1,0 +1,822 @@
+
+--- AbstractResource.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.AbstractResource
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.IO;
+using System.Text;
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  public abstract class AbstractResource : IResource, IDisposable
+  {
+    protected static readonly string DefaultBasePath = AppDomain.CurrentDomain.BaseDirectory;
+
+    public virtual string FileBasePath => AbstractResource.DefaultBasePath;
+
+    public abstract TextReader GetStreamReader();
+
+    public abstract TextReader GetStreamReader(Encoding encoding);
+
+    public abstract IResource CreateRelative(string relativePath);
+
+    public void Dispose()
+    {
+      this.Dispose(true);
+      GC.SuppressFinalize((object) this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+    }
+  }
+}
+
+
+--- AbstractStreamResource.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.AbstractStreamResource
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.IO;
+using System.Text;
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  public abstract class AbstractStreamResource : AbstractResource
+  {
+    private StreamFactory createStream;
+
+    ~AbstractStreamResource() => this.Dispose(false);
+
+    public StreamFactory CreateStream
+    {
+      get => this.createStream;
+      set => this.createStream = value;
+    }
+
+    public override TextReader GetStreamReader()
+    {
+      return (TextReader) new StreamReader(this.CreateStream());
+    }
+
+    public override TextReader GetStreamReader(Encoding encoding)
+    {
+      return (TextReader) new StreamReader(this.CreateStream(), encoding);
+    }
+  }
+}
+
+
+--- AssemblyBundleResource.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.AssemblyBundleResource
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Resources;
+using System.Text;
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  public class AssemblyBundleResource : AbstractResource
+  {
+    private readonly CustomUri resource;
+
+    public AssemblyBundleResource(CustomUri resource) => this.resource = resource;
+
+    public override TextReader GetStreamReader()
+    {
+      Assembly assembly = AssemblyBundleResource.ObtainAssembly(this.resource.Host);
+      string[] strArray = this.resource.Path.Split(new char[1]
+      {
+        '/'
+      }, StringSplitOptions.RemoveEmptyEntries);
+      return strArray.Length == 2 ? (TextReader) new StringReader(new ResourceManager(strArray[0], assembly).GetString(strArray[1])) : throw new ResourceException("AssemblyBundleResource does not support paths with more than 2 levels in depth. See " + this.resource.Path);
+    }
+
+    public override TextReader GetStreamReader(Encoding encoding) => this.GetStreamReader();
+
+    public override IResource CreateRelative(string relativePath)
+    {
+      throw new NotImplementedException();
+    }
+
+    private static Assembly ObtainAssembly(string assemblyName)
+    {
+      try
+      {
+        return Assembly.Load(assemblyName);
+      }
+      catch (Exception ex)
+      {
+        throw new ResourceException(string.Format((IFormatProvider) CultureInfo.InvariantCulture, "The assembly {0} could not be loaded", (object) assemblyName), ex);
+      }
+    }
+  }
+}
+
+
+--- AssemblyResource.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.AssemblyResource
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  public class AssemblyResource : AbstractStreamResource
+  {
+    private string assemblyName;
+    private string resourcePath;
+    private string basePath;
+
+    public AssemblyResource(CustomUri resource)
+    {
+      AssemblyResource assemblyResource = this;
+      this.CreateStream = (StreamFactory) (() => assemblyResource.CreateResourceFromUri(resource, (string) null));
+    }
+
+    public AssemblyResource(CustomUri resource, string basePath)
+    {
+      AssemblyResource assemblyResource = this;
+      this.CreateStream = (StreamFactory) (() => assemblyResource.CreateResourceFromUri(resource, basePath));
+    }
+
+    public AssemblyResource(string resource)
+    {
+      AssemblyResource assemblyResource = this;
+      this.CreateStream = (StreamFactory) (() => assemblyResource.CreateResourceFromPath(resource, assemblyResource.basePath));
+    }
+
+    public override IResource CreateRelative(string relativePath)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override string ToString()
+    {
+      return string.Format((IFormatProvider) CultureInfo.CurrentCulture, "AssemblyResource: [{0}] [{1}]", (object) this.assemblyName, (object) this.resourcePath);
+    }
+
+    private Stream CreateResourceFromPath(string resource, string path)
+    {
+      if (!resource.StartsWith("assembly" + CustomUri.SchemeDelimiter, StringComparison.CurrentCulture))
+        resource = "assembly" + CustomUri.SchemeDelimiter + resource;
+      return this.CreateResourceFromUri(new CustomUri(resource), path);
+    }
+
+    private Stream CreateResourceFromUri(CustomUri resourcex, string path)
+    {
+      this.assemblyName = resourcex != null ? resourcex.Host : throw new ArgumentNullException(nameof (resourcex));
+      this.resourcePath = this.ConvertToResourceName(this.assemblyName, resourcex.Path);
+      Assembly assembly = AssemblyResource.ObtainAssembly(this.assemblyName);
+      string[] manifestResourceNames = assembly.GetManifestResourceNames();
+      string nameFound = this.GetNameFound(manifestResourceNames);
+      if (nameFound == null)
+      {
+        this.resourcePath = resourcex.Path.Replace('/', '.').Substring(1);
+        nameFound = this.GetNameFound(manifestResourceNames);
+      }
+      if (nameFound == null)
+        throw new ResourceException(string.Format((IFormatProvider) CultureInfo.InvariantCulture, "The assembly resource {0} could not be located", (object) this.resourcePath));
+      this.basePath = this.ConvertToPath(this.resourcePath);
+      return assembly.GetManifestResourceStream(nameFound);
+    }
+
+    private string GetNameFound(string[] names)
+    {
+      string nameFound = (string) null;
+      foreach (string name in names)
+      {
+        if (string.Compare(this.resourcePath, name, StringComparison.OrdinalIgnoreCase) == 0)
+        {
+          nameFound = name;
+          break;
+        }
+      }
+      return nameFound;
+    }
+
+    private string ConvertToResourceName(string assembly, string resource)
+    {
+      assembly = this.GetSimpleName(assembly);
+      return string.Format((IFormatProvider) CultureInfo.CurrentCulture, "{0}{1}", (object) assembly, (object) resource.Replace('/', '.'));
+    }
+
+    private string GetSimpleName(string assembly)
+    {
+      int length = assembly.IndexOf(',');
+      return length < 0 ? assembly : assembly.Substring(0, length);
+    }
+
+    private string ConvertToPath(string resource)
+    {
+      string path = resource.Replace('.', '/');
+      if (path[0] != '/')
+        path = string.Format((IFormatProvider) CultureInfo.CurrentCulture, "/{0}", (object) path);
+      return path;
+    }
+
+    private static Assembly ObtainAssembly(string assemblyName)
+    {
+      try
+      {
+        return Assembly.Load(assemblyName);
+      }
+      catch (Exception ex)
+      {
+        throw new ResourceException(string.Format((IFormatProvider) CultureInfo.InvariantCulture, "The assembly {0} could not be loaded", (object) assemblyName), ex);
+      }
+    }
+  }
+}
+
+
+--- AssemblyResourceFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.AssemblyResourceFactory
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  public class AssemblyResourceFactory : IResourceFactory
+  {
+    public bool Accept(CustomUri uri) => "assembly".Equals(uri.Scheme);
+
+    public IResource Create(CustomUri uri) => this.Create(uri, (string) null);
+
+    public IResource Create(CustomUri uri, string basePath)
+    {
+      return basePath == null ? (IResource) new AssemblyResource(uri) : (IResource) new AssemblyResource(uri, basePath);
+    }
+  }
+}
+
+
+--- ConfigResource.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.ConfigResource
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Configuration;
+using System.Globalization;
+using System.IO;
+using System.Text;
+using System.Xml;
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  public class ConfigResource : AbstractResource
+  {
+    private readonly XmlNode configSectionNode;
+    private readonly string sectionName;
+
+    public ConfigResource()
+      : this("castle")
+    {
+    }
+
+    public ConfigResource(CustomUri uri)
+      : this(uri.Host)
+    {
+    }
+
+    public ConfigResource(string sectionName)
+    {
+      this.sectionName = sectionName;
+      this.configSectionNode = (XmlNode) ConfigurationManager.GetSection(sectionName) ?? throw new ConfigurationErrorsException(string.Format((IFormatProvider) CultureInfo.InvariantCulture, "Could not find section '{0}' in the configuration file associated with this domain.", (object) sectionName));
+    }
+
+    public override TextReader GetStreamReader()
+    {
+      return (TextReader) new StringReader(this.configSectionNode.OuterXml);
+    }
+
+    public override TextReader GetStreamReader(Encoding encoding)
+    {
+      throw new NotSupportedException("Encoding is not supported");
+    }
+
+    public override IResource CreateRelative(string relativePath)
+    {
+      return (IResource) new ConfigResource(relativePath);
+    }
+
+    public override string ToString()
+    {
+      return string.Format((IFormatProvider) CultureInfo.CurrentCulture, "ConfigResource: [{0}]", (object) this.sectionName);
+    }
+  }
+}
+
+
+--- ConfigResourceFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.ConfigResourceFactory
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  public class ConfigResourceFactory : IResourceFactory
+  {
+    public bool Accept(CustomUri uri) => "config".Equals(uri.Scheme);
+
+    public IResource Create(CustomUri uri) => (IResource) new ConfigResource(uri);
+
+    public IResource Create(CustomUri uri, string basePath) => this.Create(uri);
+  }
+}
+
+
+--- CustomUri.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.CustomUri
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Text;
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  [Serializable]
+  public sealed class CustomUri
+  {
+    public static readonly string SchemeDelimiter = "://";
+    public static readonly string UriSchemeFile = "file";
+    public static readonly string UriSchemeAssembly = "assembly";
+    private string scheme;
+    private string host;
+    private string path;
+    private bool isUnc;
+    private bool isFile;
+    private bool isAssembly;
+
+    public CustomUri(string resourceIdentifier)
+    {
+      if (resourceIdentifier == null)
+        throw new ArgumentNullException(nameof (resourceIdentifier));
+      if (resourceIdentifier == string.Empty)
+        throw new ArgumentException("Empty resource identifier is not allowed", nameof (resourceIdentifier));
+      this.ParseIdentifier(resourceIdentifier);
+    }
+
+    public bool IsUnc => this.isUnc;
+
+    public bool IsFile => this.isFile;
+
+    public bool IsAssembly => this.isAssembly;
+
+    public string Scheme => this.scheme;
+
+    public string Host => this.host;
+
+    public string Path => this.path;
+
+    private void ParseIdentifier(string identifier)
+    {
+      int length = identifier.IndexOf(':');
+      if (length == -1 && (identifier[0] != '\\' || identifier[1] != '\\') && identifier[0] != '/')
+        throw new ArgumentException("Invalid Uri: no scheme delimiter found on " + identifier);
+      bool flag = true;
+      if (identifier[0] == '\\' && identifier[1] == '\\')
+      {
+        this.isUnc = true;
+        this.isFile = true;
+        this.scheme = CustomUri.UriSchemeFile;
+        flag = false;
+      }
+      else if (identifier[length + 1] == '/' && identifier[length + 2] == '/')
+      {
+        this.scheme = identifier.Substring(0, length);
+        this.isFile = this.scheme == CustomUri.UriSchemeFile;
+        this.isAssembly = this.scheme == CustomUri.UriSchemeAssembly;
+        identifier = identifier.Substring(length + CustomUri.SchemeDelimiter.Length);
+      }
+      else
+      {
+        this.isFile = true;
+        this.scheme = CustomUri.UriSchemeFile;
+      }
+      StringBuilder stringBuilder = new StringBuilder();
+      foreach (char ch in identifier.ToCharArray())
+      {
+        if (flag && (ch == '\\' || ch == '/'))
+        {
+          if (this.host == null && !this.IsFile)
+          {
+            this.host = stringBuilder.ToString();
+            stringBuilder.Length = 0;
+          }
+          stringBuilder.Append('/');
+        }
+        else
+          stringBuilder.Append(ch);
+      }
+      this.path = Environment.ExpandEnvironmentVariables(stringBuilder.ToString());
+    }
+  }
+}
+
+
+--- FileResource.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.FileResource
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Globalization;
+using System.IO;
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  public class FileResource : AbstractStreamResource
+  {
+    private string filePath;
+    private string basePath;
+
+    public FileResource(CustomUri resource)
+    {
+      FileResource fileResource = this;
+      this.CreateStream = (StreamFactory) (() => fileResource.CreateStreamFromUri(resource, AbstractResource.DefaultBasePath));
+    }
+
+    public FileResource(CustomUri resource, string basePath)
+    {
+      FileResource fileResource = this;
+      this.CreateStream = (StreamFactory) (() => fileResource.CreateStreamFromUri(resource, basePath));
+    }
+
+    public FileResource(string resourceName)
+    {
+      FileResource fileResource = this;
+      this.CreateStream = (StreamFactory) (() => fileResource.CreateStreamFromPath(resourceName, AbstractResource.DefaultBasePath));
+    }
+
+    public FileResource(string resourceName, string basePath)
+    {
+      FileResource fileResource = this;
+      this.CreateStream = (StreamFactory) (() => fileResource.CreateStreamFromPath(resourceName, basePath));
+    }
+
+    public override string ToString()
+    {
+      return string.Format((IFormatProvider) CultureInfo.CurrentCulture, "FileResource: [{0}] [{1}]", (object) this.filePath, (object) this.basePath);
+    }
+
+    public override string FileBasePath => this.basePath;
+
+    public override IResource CreateRelative(string relativePath)
+    {
+      return (IResource) new FileResource(relativePath, this.basePath);
+    }
+
+    private Stream CreateStreamFromUri(CustomUri resource, string rootPath)
+    {
+      if (resource == null)
+        throw new ArgumentNullException(nameof (resource));
+      if (rootPath == null)
+        throw new ArgumentNullException(nameof (rootPath));
+      if (!resource.IsFile)
+        throw new ArgumentException("The specified resource is not a file", nameof (resource));
+      return this.CreateStreamFromPath(resource.Path, rootPath);
+    }
+
+    private Stream CreateStreamFromPath(string resourcePath, string rootPath)
+    {
+      if (resourcePath == null)
+        throw new ArgumentNullException(nameof (resourcePath));
+      if (rootPath == null)
+        throw new ArgumentNullException(nameof (rootPath));
+      if (!Path.IsPathRooted(resourcePath) || !File.Exists(resourcePath))
+        resourcePath = Path.Combine(rootPath, resourcePath);
+      FileResource.CheckFileExists(resourcePath);
+      this.filePath = Path.GetFileName(resourcePath);
+      this.basePath = Path.GetDirectoryName(resourcePath);
+      return (Stream) File.OpenRead(resourcePath);
+    }
+
+    private static void CheckFileExists(string path)
+    {
+      if (!File.Exists(path))
+        throw new ResourceException(string.Format((IFormatProvider) CultureInfo.InvariantCulture, "File {0} could not be found", (object) new FileInfo(path).FullName));
+    }
+  }
+}
+
+
+--- FileResourceFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.FileResourceFactory
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  public class FileResourceFactory : IResourceFactory
+  {
+    public bool Accept(CustomUri uri) => "file".Equals(uri.Scheme);
+
+    public IResource Create(CustomUri uri) => this.Create(uri, (string) null);
+
+    public IResource Create(CustomUri uri, string basePath)
+    {
+      return basePath != null ? (IResource) new FileResource(uri, basePath) : (IResource) new FileResource(uri);
+    }
+  }
+}
+
+
+--- IResource.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.IResource
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.IO;
+using System.Text;
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  public interface IResource : IDisposable
+  {
+    string FileBasePath { get; }
+
+    TextReader GetStreamReader();
+
+    TextReader GetStreamReader(Encoding encoding);
+
+    IResource CreateRelative(string relativePath);
+  }
+}
+
+
+--- IResourceFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.IResourceFactory
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  public interface IResourceFactory
+  {
+    bool Accept(CustomUri uri);
+
+    IResource Create(CustomUri uri);
+
+    IResource Create(CustomUri uri, string basePath);
+  }
+}
+
+
+--- ResourceException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.ResourceException
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  [Serializable]
+  public class ResourceException : Exception
+  {
+    public ResourceException()
+    {
+    }
+
+    public ResourceException(string message)
+      : base(message)
+    {
+    }
+
+    public ResourceException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+
+    protected ResourceException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+    }
+  }
+}
+
+
+--- StaticContentResource.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.StaticContentResource
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.IO;
+using System.Text;
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  public class StaticContentResource : AbstractResource
+  {
+    private readonly string contents;
+
+    public StaticContentResource(string contents) => this.contents = contents;
+
+    public override TextReader GetStreamReader() => (TextReader) new StringReader(this.contents);
+
+    public override TextReader GetStreamReader(Encoding encoding)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override IResource CreateRelative(string relativePath)
+    {
+      throw new NotImplementedException();
+    }
+  }
+}
+
+
+--- StreamFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.StreamFactory
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.IO;
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  public delegate Stream StreamFactory();
+}
+
+
+--- UncResource.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.UncResource
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Globalization;
+using System.IO;
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  public class UncResource : AbstractStreamResource
+  {
+    private string basePath;
+    private string filePath;
+
+    public UncResource(CustomUri resource)
+    {
+      UncResource uncResource = this;
+      this.CreateStream = (StreamFactory) (() => uncResource.CreateStreamFromUri(resource, AbstractResource.DefaultBasePath));
+    }
+
+    public UncResource(CustomUri resource, string basePath)
+    {
+      UncResource uncResource = this;
+      this.CreateStream = (StreamFactory) (() => uncResource.CreateStreamFromUri(resource, basePath));
+    }
+
+    public UncResource(string resourceName)
+      : this(new CustomUri(resourceName))
+    {
+    }
+
+    public UncResource(string resourceName, string basePath)
+      : this(new CustomUri(resourceName), basePath)
+    {
+    }
+
+    public override string FileBasePath => this.basePath;
+
+    public override IResource CreateRelative(string relativePath)
+    {
+      return (IResource) new UncResource(Path.Combine(this.basePath, relativePath));
+    }
+
+    public override string ToString()
+    {
+      return string.Format((IFormatProvider) CultureInfo.CurrentCulture, "UncResource: [{0}] [{1}]", (object) this.filePath, (object) this.basePath);
+    }
+
+    private Stream CreateStreamFromUri(CustomUri resource, string rootPath)
+    {
+      if (resource == null)
+        throw new ArgumentNullException(nameof (resource));
+      if (!resource.IsUnc)
+        throw new ArgumentException("Resource must be an Unc", nameof (resource));
+      string str = resource.IsFile ? resource.Path : throw new ArgumentException("The specified resource is not a file", nameof (resource));
+      if (!File.Exists(str) && rootPath != null)
+        str = Path.Combine(rootPath, str);
+      this.filePath = Path.GetFileName(str);
+      this.basePath = Path.GetDirectoryName(str);
+      UncResource.CheckFileExists(str);
+      return (Stream) File.OpenRead(str);
+    }
+
+    private static void CheckFileExists(string path)
+    {
+      if (!File.Exists(path))
+        throw new ResourceException(string.Format((IFormatProvider) CultureInfo.InvariantCulture, "File {0} could not be found", (object) path));
+    }
+  }
+}
+
+
+--- UncResourceFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.Core.Resource.UncResourceFactory
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.Core.Resource
+{
+  public class UncResourceFactory : IResourceFactory
+  {
+    public bool Accept(CustomUri uri) => uri.IsUnc;
+
+    public IResource Create(CustomUri uri) => (IResource) new UncResource(uri);
+
+    public IResource Create(CustomUri uri, string basePath)
+    {
+      return (IResource) new UncResource(uri, basePath);
+    }
+  }
+}
+

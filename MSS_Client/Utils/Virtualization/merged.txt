@@ -1,0 +1,481 @@
+
+--- CreateLambdaExpressionAsStringExtension.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.Utils.Virtualization.CreateLambdaExpressionAsStringExtension
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using System;
+using Telerik.Windows.Controls.GridView;
+using Telerik.Windows.Data;
+
+#nullable disable
+namespace MSS_Client.Utils.Virtualization
+{
+  public static class CreateLambdaExpressionAsStringExtension
+  {
+    public static string CreateLambdaExpressionAsString(
+      this CompositeFilterDescriptorCollection collection)
+    {
+      string str = "1==1";
+      if (collection.Count > 0)
+        str += " && ";
+      return str + collection.CreateFilterExpressionAsString();
+    }
+
+    private static string CreateFilterExpressionAsString(this IFilterDescriptor filter)
+    {
+      string expressionAsString = "";
+      if (filter.GetType() == typeof (FilterDescriptor))
+      {
+        FilterDescriptor filterDescriptor1 = (FilterDescriptor) filter;
+        if (filterDescriptor1.Value == OperatorValueFilterDescriptorBase.UnsetValue)
+          return "";
+        FilterDescriptor filterDescriptor2 = new FilterDescriptor();
+        filterDescriptor2.IsCaseSensitive = filterDescriptor1.IsCaseSensitive;
+        filterDescriptor2.Member = filterDescriptor1.Member;
+        filterDescriptor2.MemberType = filterDescriptor1.MemberType;
+        filterDescriptor2.Operator = filterDescriptor1.Operator;
+        filterDescriptor2.Value = filterDescriptor1.Value;
+        FilterDescriptor fx = filterDescriptor2;
+        expressionAsString += CreateLambdaExpressionAsStringExtension.GenerateExpressionString(fx);
+      }
+      else
+      {
+        if (filter.GetType() == typeof (MemberColumnFilterDescriptor))
+        {
+          MemberColumnFilterDescriptor filterDescriptor3 = (MemberColumnFilterDescriptor) filter;
+          IColumnFilterDescriptor filterDescriptor4 = (IColumnFilterDescriptor) filterDescriptor3;
+          if (filterDescriptor4.FieldFilter.Filter1?.Value != null && filterDescriptor4.FieldFilter.Filter1.Value.ToString() != "")
+          {
+            FilterDescriptor filterDescriptor5 = new FilterDescriptor();
+            filterDescriptor5.IsCaseSensitive = filterDescriptor4.FieldFilter.Filter1.IsCaseSensitive;
+            filterDescriptor5.Member = filterDescriptor3.Member;
+            filterDescriptor5.MemberType = filterDescriptor3.MemberType;
+            filterDescriptor5.Operator = filterDescriptor4.FieldFilter.Filter1.Operator;
+            filterDescriptor5.Value = filterDescriptor4.FieldFilter.Filter1.Value;
+            FilterDescriptor fx = filterDescriptor5;
+            expressionAsString += CreateLambdaExpressionAsStringExtension.GenerateExpressionString(fx);
+          }
+          if (filterDescriptor4.FieldFilter.Filter2 != null && filterDescriptor4.FieldFilter.Filter2.Value != null && filterDescriptor4.FieldFilter.Filter2.Value.ToString() != "")
+          {
+            if (!string.IsNullOrWhiteSpace(expressionAsString))
+              expressionAsString += filterDescriptor4.FieldFilter.LogicalOperator == FilterCompositionLogicalOperator.And ? " && " : " || ";
+            FilterDescriptor filterDescriptor6 = new FilterDescriptor();
+            filterDescriptor6.IsCaseSensitive = filterDescriptor4.FieldFilter.Filter2.IsCaseSensitive;
+            filterDescriptor6.Member = filterDescriptor3.Member;
+            filterDescriptor6.MemberType = filterDescriptor3.MemberType;
+            filterDescriptor6.Operator = filterDescriptor4.FieldFilter.Filter2.Operator;
+            filterDescriptor6.Value = filterDescriptor4.FieldFilter.Filter2.Value;
+            FilterDescriptor fx = filterDescriptor6;
+            expressionAsString += CreateLambdaExpressionAsStringExtension.GenerateExpressionString(fx);
+          }
+          return expressionAsString;
+        }
+        if (!(filter is ICompositeFilterDescriptor filterDescriptor))
+          return expressionAsString;
+        for (int index = 0; index < filterDescriptor.FilterDescriptors.Count; ++index)
+        {
+          string str = " (" + filterDescriptor.FilterDescriptors[index].CreateFilterExpressionAsString() + ") ";
+          if (index < filterDescriptor.FilterDescriptors.Count - 1 && !string.IsNullOrWhiteSpace(str))
+            str += filterDescriptor.LogicalOperator == FilterCompositionLogicalOperator.And ? " && " : " || ";
+          expressionAsString = expressionAsString + " " + str;
+        }
+      }
+      return expressionAsString;
+    }
+
+    private static string GenerateExpressionString(FilterDescriptor fx)
+    {
+      string str1 = "null";
+      if (fx.Value != null)
+        str1 = !(fx.MemberType == typeof (DateTime)) && !(fx.MemberType == typeof (DateTime?)) ? (!(fx.MemberType == typeof (string)) && !(fx.MemberType == typeof (char)) ? fx.Value.ToString() : "\"" + fx.Value + "\"") : "\"" + ((DateTime) fx.Value).ToString("yyyy/MM/dd") + "\"";
+      string member = fx.Member;
+      string str2 = fx.Member + "!=null && ";
+      if (!fx.IsCaseSensitive && (fx.MemberType == typeof (string) || fx.MemberType == typeof (char)))
+      {
+        member += ".ToLower()";
+        str1 += ".ToLower()";
+      }
+      string str3 = fx.Operator < FilterOperator.StartsWith || fx.Operator > FilterOperator.IsNotContainedIn ? member + CreateLambdaExpressionAsStringExtension.TranslateOperator(fx.Operator) + str1 : member + string.Format(CreateLambdaExpressionAsStringExtension.TranslateOperator(fx.Operator), (object) str1);
+      return str2 + str3;
+    }
+
+    private static string TranslateOperator(FilterOperator op)
+    {
+      switch (op)
+      {
+        case FilterOperator.IsLessThan:
+          return "<";
+        case FilterOperator.IsLessThanOrEqualTo:
+          return "<=";
+        case FilterOperator.IsEqualTo:
+          return "==";
+        case FilterOperator.IsNotEqualTo:
+          return "!=";
+        case FilterOperator.IsGreaterThanOrEqualTo:
+          return ">=";
+        case FilterOperator.IsGreaterThan:
+          return ">";
+        case FilterOperator.StartsWith:
+          return ".StartsWith({0})";
+        case FilterOperator.EndsWith:
+          return ".EndsWith({0})";
+        case FilterOperator.Contains:
+          return ".Contains({0})";
+        case FilterOperator.DoesNotContain:
+          return ".Contains({0})==false";
+        case FilterOperator.IsContainedIn:
+          return ".Contains({0})";
+        case FilterOperator.IsNotContainedIn:
+          return ".Contains({0})==false";
+        case FilterOperator.IsNull:
+          return "==null";
+        case FilterOperator.IsNotNull:
+          return "!=null";
+        case FilterOperator.IsEmpty:
+          return "==\"\"";
+        case FilterOperator.IsNotEmpty:
+          return "!=\"\"";
+        default:
+          return "==";
+      }
+    }
+  }
+}
+
+
+--- ServerOperationProcessor`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.Utils.Virtualization.ServerOperationProcessor`1
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using Common.Library.NHibernate.Data.Extensions;
+using MSS.DTO.Users;
+using MSS.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Linq.Expressions;
+using Telerik.Windows.Controls.GridView;
+using Telerik.Windows.Data;
+
+#nullable disable
+namespace MSS_Client.Utils.Virtualization
+{
+  public static class ServerOperationProcessor<T> where T : class
+  {
+    public static IEnumerable<T> ProcessQueryByCommand(
+      IRepository<T> repository,
+      int startIndex,
+      int pageSize,
+      VirtualQueryableCollectionView<UserDTO> collection,
+      Expression<Func<T, bool>> condition,
+      out int totalCount)
+    {
+      IEnumerable<OrderClauseInfo> orderClauses = ServerOperationProcessor<T>.ProcessOrderConditions((IList<ISortDescriptor>) collection.SortDescriptors);
+      string expressionAsString = collection.FilterDescriptors.CreateLambdaExpressionAsString();
+      return (IEnumerable<T>) repository.SearchFor_ByPage(condition, orderClauses, expressionAsString, startIndex, pageSize, out totalCount);
+    }
+
+    public static IEnumerable<OrderClauseInfo> ProcessOrderConditions(
+      IList<ISortDescriptor> sortDescriptors)
+    {
+      return (IEnumerable<OrderClauseInfo>) sortDescriptors.Select<ISortDescriptor, OrderClauseInfo>((Func<ISortDescriptor, OrderClauseInfo>) (descriptor =>
+      {
+        OrderClauseInfo orderClauseInfo = new OrderClauseInfo();
+        ref OrderClauseInfo local = ref orderClauseInfo;
+        string str;
+        switch (descriptor)
+        {
+          case SortDescriptor _:
+            str = ((SortDescriptor) descriptor).Member;
+            break;
+          case ColumnSortDescriptor columnSortDescriptor2:
+            str = columnSortDescriptor2.Column.UniqueName;
+            break;
+          default:
+            str = (string) null;
+            break;
+        }
+        local.PropertyName = str;
+        orderClauseInfo.Direction = descriptor.SortDirection == ListSortDirection.Ascending ? OrderDirection.Asc : OrderDirection.Desc;
+        return orderClauseInfo;
+      })).ToList<OrderClauseInfo>();
+    }
+  }
+}
+
+
+--- VirtualizationHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.Utils.Virtualization.VirtualizationHelper
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using MSS.Business.Modules.UsersManagement;
+using MSS.Core.Model.UsersManagement;
+using MSS.DTO.Users;
+using MSS.Interfaces;
+using NHibernate;
+using NHibernate.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using Telerik.Windows.Data;
+
+#nullable disable
+namespace MSS_Client.Utils.Virtualization
+{
+  public class VirtualizationHelper
+  {
+    private readonly ISession _nhSession;
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly IUserRepository _userRepository;
+
+    public VirtualizationHelper(IRepositoryFactory repositoryFactory)
+    {
+      this._nhSession = repositoryFactory.GetSession();
+      this._repositoryFactory = repositoryFactory;
+      this._userRepository = repositoryFactory.GetUserRepository();
+      repositoryFactory.GetRepository<UserRole>();
+      repositoryFactory.GetRepository<Country>();
+    }
+
+    private VirtualQueryableCollectionView<UserDTO> GetUsersDTOVirtualCollection(
+      int startIdex,
+      int pageSize,
+      Expression<Func<User, bool>> condition,
+      VirtualQueryableCollectionView<UserDTO> collection)
+    {
+      VirtualQueryableCollectionView<UserDTO> userDtos = new VirtualQueryableCollectionView<UserDTO>();
+      int totalCount;
+      IEnumerable<User> users = ServerOperationProcessor<User>.ProcessQueryByCommand((IRepository<User>) this._userRepository, startIdex, pageSize, collection, condition, out totalCount);
+      collection.VirtualItemCount = totalCount;
+      TypeHelperExtensionMethods.ForEach<User>(users, (Action<User>) (u =>
+      {
+        VirtualQueryableCollectionView<UserDTO> queryableCollectionView = userDtos;
+        UserDTO userDto1 = new UserDTO();
+        userDto1.FirstName = u.FirstName;
+        userDto1.Id = u.Id;
+        userDto1.LastName = u.LastName;
+        userDto1.Role = this.GetUserManagerInstance().GetRoles(u.UserRoles);
+        userDto1.Username = u.Username;
+        userDto1.Office = u.Office;
+        userDto1.Country = this.GetUserManagerInstance().GetCountry(u.Country);
+        userDto1.Language = u.Language;
+        UserDTO userDto2 = userDto1;
+        Country country = u.Country;
+        Guid guid = country != null ? country.Id : Guid.Empty;
+        userDto2.CountryId = guid;
+        UserDTO userDto3 = userDto1;
+        queryableCollectionView.Add((object) userDto3);
+      }));
+      return userDtos;
+    }
+
+    public VirtualQueryableCollectionView<UserDTO> LoadUsers(string search, int pageSize)
+    {
+      // ISSUE: object of a compiler-generated type is created
+      // ISSUE: variable of a compiler-generated type
+      VirtualizationHelper.\u003C\u003Ec__DisplayClass5_0 cDisplayClass50 = new VirtualizationHelper.\u003C\u003Ec__DisplayClass5_0();
+      // ISSUE: reference to a compiler-generated field
+      cDisplayClass50.\u003C\u003E4__this = this;
+      // ISSUE: reference to a compiler-generated field
+      cDisplayClass50.search = search;
+      // ISSUE: reference to a compiler-generated field
+      cDisplayClass50.pageSize = pageSize;
+      // ISSUE: reference to a compiler-generated field
+      if (cDisplayClass50.search == string.Empty)
+      {
+        Expression<Func<User, bool>> expression = (Expression<Func<User, bool>>) (u => !u.IsDeactivated && !u.Username.StartsWith("default"));
+        // ISSUE: reference to a compiler-generated field
+        cDisplayClass50.condition = expression;
+      }
+      else
+      {
+        // ISSUE: reference to a compiler-generated field
+        // ISSUE: reference to a compiler-generated field
+        // ISSUE: reference to a compiler-generated field
+        // ISSUE: reference to a compiler-generated field
+        Expression<Func<User, bool>> expression = (Expression<Func<User, bool>>) (s => s.FirstName.Contains(cDisplayClass50.search) || s.LastName.Contains(cDisplayClass50.search) || s.UserRoles.First<UserRole>((Func<UserRole, bool>) (ur => ur.Role.Name.Contains(cDisplayClass50.search))) != default (object) || s.Username.Contains(cDisplayClass50.search) && !s.IsDeactivated && !s.Username.StartsWith("default"));
+        // ISSUE: reference to a compiler-generated field
+        cDisplayClass50.condition = expression;
+      }
+      VirtualQueryableCollectionView<UserDTO> queryableCollectionView1 = new VirtualQueryableCollectionView<UserDTO>();
+      // ISSUE: reference to a compiler-generated field
+      queryableCollectionView1.LoadSize = cDisplayClass50.pageSize;
+      // ISSUE: reference to a compiler-generated field
+      queryableCollectionView1.VirtualItemCount = this._userRepository.SearchFor_RecordsCount(cDisplayClass50.condition);
+      VirtualQueryableCollectionView<UserDTO> queryableCollectionView2 = queryableCollectionView1;
+      // ISSUE: reference to a compiler-generated field
+      cDisplayClass50.collection = queryableCollectionView2;
+      // ISSUE: reference to a compiler-generated field
+      // ISSUE: reference to a compiler-generated method
+      cDisplayClass50.collection.ItemsLoading += new EventHandler<VirtualQueryableCollectionViewItemsLoadingEventArgs>(cDisplayClass50.\u003CLoadUsers\u003Eb__0);
+      // ISSUE: reference to a compiler-generated field
+      return cDisplayClass50.collection;
+    }
+
+    private UsersManager GetUserManagerInstance() => new UsersManager(this._repositoryFactory);
+  }
+}
+
+
+--- VirtualizationManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.Utils.Virtualization.VirtualizationManager
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using AutoMapper;
+using MSS.Business.Modules.UsersManagement;
+using MSS.Core.Model.Orders;
+using MSS.Core.Model.UsersManagement;
+using MSS.DTO.Orders;
+using MSS.DTO.Users;
+using MSS.Interfaces;
+using NHibernate;
+using NHibernate.Linq;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using Telerik.Windows.Data;
+
+#nullable disable
+namespace MSS_Client.Utils.Virtualization
+{
+  public class VirtualizationManager
+  {
+    private readonly ISession _nhSession;
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly IUserRepository _userRepository;
+
+    public VirtualizationManager(IRepositoryFactory repositoryFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._nhSession = repositoryFactory.GetSession();
+      this._userRepository = repositoryFactory.GetUserRepository();
+      repositoryFactory.GetRepository<UserRole>();
+      repositoryFactory.GetRepository<Country>();
+      Mapper.CreateMap<Role, RoleDTO>();
+      Mapper.CreateMap<Order, OrderDTO>();
+    }
+
+    public VirtualQueryableCollectionView<TV> LoadItems<TD, TV>(
+      int pageSize,
+      Expression<Func<TD, bool>> condition)
+      where TD : class
+    {
+      VirtualQueryableCollectionView<TV> queryableCollectionView = new VirtualQueryableCollectionView<TV>();
+      queryableCollectionView.LoadSize = pageSize;
+      queryableCollectionView.VirtualItemCount = this._repositoryFactory.GetRepository<TD>().SearchFor_RecordsCount(condition);
+      VirtualQueryableCollectionView<TV> collection = queryableCollectionView;
+      collection.ItemsLoading += (EventHandler<VirtualQueryableCollectionViewItemsLoadingEventArgs>) ((s, args) => collection.Load(args.StartIndex, (IEnumerable) this.GetVirtualCollection<TD, TV>(args.StartIndex, pageSize, condition)));
+      return collection;
+    }
+
+    private VirtualQueryableCollectionView<TV> GetVirtualCollection<TD, TV>(
+      int startIdex,
+      int pageSize,
+      Expression<Func<TD, bool>> condition)
+      where TD : class
+    {
+      IList<TD> source = this._repositoryFactory.GetRepository<TD>().SearchFor_ByPage(condition, startIdex, pageSize);
+      VirtualQueryableCollectionView<TV> destination = new VirtualQueryableCollectionView<TV>();
+      Mapper.Map<IList<TD>, VirtualQueryableCollectionView<TV>>(source, destination);
+      return destination;
+    }
+
+    private VirtualQueryableCollectionView<UserDTO> GetUsersDTOVirtualCollection(
+      int startIdex,
+      int pageSize,
+      Expression<Func<User, bool>> condition,
+      VirtualQueryableCollectionView<UserDTO> collection)
+    {
+      VirtualQueryableCollectionView<UserDTO> userDtos = new VirtualQueryableCollectionView<UserDTO>();
+      int totalCount;
+      IEnumerable<User> users = ServerOperationProcessor<User>.ProcessQueryByCommand((IRepository<User>) this._userRepository, startIdex, pageSize, collection, condition, out totalCount);
+      collection.VirtualItemCount = totalCount;
+      TypeHelperExtensionMethods.ForEach<User>(users, (Action<User>) (u =>
+      {
+        VirtualQueryableCollectionView<UserDTO> queryableCollectionView = userDtos;
+        UserDTO userDto1 = new UserDTO();
+        userDto1.FirstName = u.FirstName;
+        userDto1.Id = u.Id;
+        userDto1.LastName = u.LastName;
+        userDto1.Role = this.GetUserManagerInstance().GetRoles(u.UserRoles);
+        userDto1.Username = u.Username;
+        userDto1.Office = u.Office;
+        userDto1.Country = this.GetUserManagerInstance().GetCountry(u.Country);
+        userDto1.Language = u.Language;
+        UserDTO userDto2 = userDto1;
+        Country country = u.Country;
+        Guid guid = country != null ? country.Id : Guid.Empty;
+        userDto2.CountryId = guid;
+        UserDTO userDto3 = userDto1;
+        queryableCollectionView.Add((object) userDto3);
+      }));
+      return userDtos;
+    }
+
+    public VirtualQueryableCollectionView<UserDTO> LoadUsers(string search, int pageSize)
+    {
+      // ISSUE: object of a compiler-generated type is created
+      // ISSUE: variable of a compiler-generated type
+      VirtualizationManager.\u003C\u003Ec__DisplayClass7_0 cDisplayClass70 = new VirtualizationManager.\u003C\u003Ec__DisplayClass7_0();
+      // ISSUE: reference to a compiler-generated field
+      cDisplayClass70.\u003C\u003E4__this = this;
+      // ISSUE: reference to a compiler-generated field
+      cDisplayClass70.search = search;
+      // ISSUE: reference to a compiler-generated field
+      cDisplayClass70.pageSize = pageSize;
+      // ISSUE: reference to a compiler-generated field
+      if (cDisplayClass70.search == string.Empty)
+      {
+        Expression<Func<User, bool>> expression = (Expression<Func<User, bool>>) (u => !u.IsDeactivated && !u.Username.StartsWith("default", StringComparison.CurrentCulture));
+        // ISSUE: reference to a compiler-generated field
+        cDisplayClass70.condition = expression;
+      }
+      else
+      {
+        // ISSUE: reference to a compiler-generated field
+        // ISSUE: reference to a compiler-generated field
+        // ISSUE: reference to a compiler-generated field
+        // ISSUE: reference to a compiler-generated field
+        Expression<Func<User, bool>> expression = (Expression<Func<User, bool>>) (s => s.FirstName.Contains(cDisplayClass70.search) || s.LastName.Contains(cDisplayClass70.search) || s.UserRoles.First<UserRole>((Func<UserRole, bool>) (ur => ur.Role.Name.Contains(cDisplayClass70.search))) != default (object) || s.Username.Contains(cDisplayClass70.search) && !s.IsDeactivated && !s.Username.StartsWith("default", StringComparison.CurrentCulture));
+        // ISSUE: reference to a compiler-generated field
+        cDisplayClass70.condition = expression;
+      }
+      VirtualQueryableCollectionView<UserDTO> queryableCollectionView1 = new VirtualQueryableCollectionView<UserDTO>();
+      // ISSUE: reference to a compiler-generated field
+      queryableCollectionView1.LoadSize = cDisplayClass70.pageSize;
+      // ISSUE: reference to a compiler-generated field
+      queryableCollectionView1.VirtualItemCount = this._userRepository.SearchFor_RecordsCount(cDisplayClass70.condition);
+      VirtualQueryableCollectionView<UserDTO> queryableCollectionView2 = queryableCollectionView1;
+      // ISSUE: reference to a compiler-generated field
+      cDisplayClass70.collection = queryableCollectionView2;
+      // ISSUE: reference to a compiler-generated field
+      // ISSUE: reference to a compiler-generated method
+      cDisplayClass70.collection.ItemsLoading += new EventHandler<VirtualQueryableCollectionViewItemsLoadingEventArgs>(cDisplayClass70.\u003CLoadUsers\u003Eb__0);
+      // ISSUE: reference to a compiler-generated field
+      return cDisplayClass70.collection;
+    }
+
+    private UsersManager GetUserManagerInstance() => new UsersManager(this._repositoryFactory);
+  }
+}
+

@@ -1,0 +1,1845 @@
+
+--- AutomatedReportingAdditionalInfo.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Reporting.AutomatedReportingAdditionalInfo
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.Structures;
+using System.Collections.Generic;
+
+#nullable disable
+namespace MSS.Business.Modules.Reporting
+{
+  public class AutomatedReportingAdditionalInfo
+  {
+    public IEnumerable<MeterReadingValue> MeterReadingValues { get; set; }
+
+    public IEnumerable<Meter> Meters { get; set; }
+
+    public IEnumerable<StructureNode> StructureNodes { get; set; }
+
+    public IEnumerable<MSS.Core.Model.Structures.StructureNodeLinks> StructureNodeLinks { get; set; }
+
+    public IEnumerable<Tenant> Tenants { get; set; }
+
+    public IEnumerable<Location> Locations { get; set; }
+  }
+}
+
+
+--- AutomatedReportingManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Reporting.AutomatedReportingManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using AutoMapper;
+using MSS.Business.Utils;
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.Reporting;
+using MSS.Core.Model.UsersManagement;
+using MSS.DTO.Meters;
+using MSS.Interfaces;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
+
+#nullable disable
+namespace MSS.Business.Modules.Reporting
+{
+  public class AutomatedReportingManager
+  {
+    private readonly IRepositoryFactory _repositoryFactory;
+
+    public AutomatedReportingManager(IRepositoryFactory repositoryFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+    }
+
+    public void Export(
+      AutomatedExportJob automatedExportJob,
+      string fileName,
+      AutomatedReportingAdditionalInfo automatedReportingAdditionalInfo)
+    {
+      DataToExport dataToExport = JsonConvert.DeserializeObject<DataToExport>(automatedExportJob.DataToExport);
+      bool sasExportType = automatedExportJob.ExportFor == "SAS";
+      bool dataExportLastDaysChoice = dataToExport.Definition == "FromTheLastXDays";
+      bool csvFileType = automatedExportJob.ExportedFileType == "CSV";
+      bool commaDecimalSeparator = automatedExportJob.DecimalSeparator.ToString() == ",";
+      bool semicolonValueSeparator = automatedExportJob.ValueSeparator.ToString() == ";";
+      new ReportingManager(this._repositoryFactory).ExportAllReadingValues(fileName, dataExportLastDaysChoice, dataToExport.NumberOfDays, sasExportType, csvFileType, false, false, commaDecimalSeparator, semicolonValueSeparator, (BackgroundWorker) null, (DoWorkEventArgs) null, automatedExportJob.JobCountries.Select<AutomatedExportJobCountry, Country>((Func<AutomatedExportJobCountry, Country>) (j => j.Country)).Distinct<Country>().ToList<Country>());
+    }
+
+    private void ExportForGMM_CSV(
+      AutomatedExportJob automatedExportJob,
+      string fileName,
+      AutomatedReportingAdditionalInfo automatedReportingAdditionalInfo)
+    {
+      List<string[]> nodeList = new List<string[]>()
+      {
+        new string[12]
+        {
+          "TimePoint",
+          "SerialNr",
+          "MeterName",
+          "Device",
+          "Value",
+          "Unit",
+          "Physical Quantity",
+          "Calculation",
+          "Storage Interval",
+          "Calculation Start",
+          "Creation",
+          "Index"
+        }
+      };
+      MappingsManager.MeterReadingValue_to_MeterReadingValueDTO();
+      foreach (MeterReadingValueDTO meterReadingValueDto in Mapper.Map<IEnumerable<MeterReadingValue>, IEnumerable<MeterReadingValueDTO>>(automatedReportingAdditionalInfo.MeterReadingValues))
+      {
+        MeterReadingValueDTO readingValue = meterReadingValueDto;
+        Meter meter = automatedReportingAdditionalInfo.Meters.FirstOrDefault<Meter>((Func<Meter, bool>) (m => m.Id == readingValue.MeterId));
+        string[] strArray = new string[12]
+        {
+          readingValue.Date.ToString("dd.MM.yyyy"),
+          readingValue.MeterSerialNumber,
+          readingValue.Name,
+          meter == null ? string.Empty : meter.DeviceType.ToString(),
+          readingValue.Value.ToString((IFormatProvider) CultureInfo.InvariantCulture),
+          meter == null || meter.ReadingUnit == null ? string.Empty : meter.ReadingUnit.Code,
+          readingValue.PhysicalQuantity.ToString(),
+          readingValue.Calculation.ToString(),
+          readingValue.StorageInterval.ToString(),
+          readingValue.CalculationStart.ToString(),
+          readingValue.Creation.ToString(),
+          readingValue.Index.ToString()
+        };
+        nodeList.Add(strArray);
+      }
+      new CSVManager().WriteToFileCultureDependent(fileName, nodeList, automatedExportJob.ValueSeparator.ToString((IFormatProvider) CultureInfo.InvariantCulture));
+    }
+  }
+}
+
+
+--- ClassBwF.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Reporting.ClassBwF
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+
+#nullable disable
+namespace MSS.Business.Modules.Reporting
+{
+  [Serializable]
+  public class ClassBwF
+  {
+    private string _gruppe;
+    private string _dsc;
+    private string _typ;
+    private string _bwf;
+
+    public string GroupName
+    {
+      get => this._gruppe;
+      set => this._gruppe = value;
+    }
+
+    public string Description
+    {
+      get => this._dsc;
+      set => this._dsc = value;
+    }
+
+    public string Name
+    {
+      get => this._typ;
+      set => this._typ = value;
+    }
+
+    public string EvaluationFactor
+    {
+      get => this._bwf;
+      set => this._bwf = value;
+    }
+  }
+}
+
+
+--- CSVManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Reporting.CSVManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Microsoft.VisualBasic.FileIO;
+using MSS.Business.Errors;
+using MSS.Localisation;
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+#nullable disable
+namespace MSS.Business.Modules.Reporting
+{
+  public class CSVManager
+  {
+    public void WriteToFileCultureDependent(
+      string filename,
+      List<string[]> nodeList,
+      string valueSeparator)
+    {
+      string directoryName = Path.GetDirectoryName(filename);
+      if (!Directory.Exists(directoryName))
+        Directory.CreateDirectory(directoryName);
+      StreamWriter streamWriter = new StreamWriter(filename, true);
+      foreach (string[] node in nodeList)
+        streamWriter.WriteLine(string.Join(valueSeparator, node));
+      streamWriter.Close();
+    }
+
+    public void WriteToFile(string filename, List<string[]> nodeList)
+    {
+      StreamWriter streamWriter = new StreamWriter(filename, true);
+      foreach (string[] node in nodeList)
+        streamWriter.WriteLine(string.Join(",", node));
+      streamWriter.Close();
+    }
+
+    public List<string[]> ReadStructureFromFile(string fileName, string[] delimiters = null)
+    {
+      List<string[]> strArrayList = new List<string[]>();
+      try
+      {
+        using (TextFieldParser textFieldParser1 = new TextFieldParser(fileName))
+        {
+          TextFieldParser textFieldParser2 = textFieldParser1;
+          string[] strArray1 = delimiters;
+          if (strArray1 == null)
+            strArray1 = new string[1]{ "," };
+          textFieldParser2.SetDelimiters(strArray1);
+          textFieldParser1.HasFieldsEnclosedInQuotes = true;
+          while (!textFieldParser1.EndOfData)
+          {
+            string[] strArray2 = textFieldParser1.ReadFields();
+            strArrayList.Add(strArray2);
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        MessageHandler.LogException(ex);
+        throw new BaseApplicationException(Resources.MSS_Client_ImportCSV_OpenFileError);
+      }
+      return strArrayList;
+    }
+
+    public static List<string[]> AddQuatForCSV(List<string[]> rows)
+    {
+      List<string[]> strArrayList = new List<string[]>();
+      foreach (string[] row in rows)
+      {
+        string[] strArray = new string[row.Length];
+        for (int index = 0; index < row.Length; ++index)
+        {
+          int num;
+          if (!string.IsNullOrEmpty(row[index]))
+            num = row[index].IndexOfAny(new char[2]
+            {
+              '"',
+              ','
+            }) != -1 ? 1 : 0;
+          else
+            num = 0;
+          strArray[index] = num == 0 ? row[index] : string.Format("\"{0}\"", (object) row[index].Replace("\"", "\"\""));
+        }
+        strArrayList.Add(strArray);
+      }
+      return strArrayList;
+    }
+  }
+}
+
+
+--- CustomSerializationBinder.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Reporting.CustomSerializationBinder
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace MSS.Business.Modules.Reporting
+{
+  public class CustomSerializationBinder : SerializationBinder
+  {
+    public override Type BindToType(string assemblyName, string typeName)
+    {
+      return assemblyName == "ClassBwF, Version=1.0.0.2, Culture=neutral, PublicKeyToken=null" && typeName == "ClassBwF.ClassBwf" ? typeof (ClassBwF) : (Type) null;
+    }
+  }
+}
+
+
+--- ReportingHelper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Reporting.ReportingHelper
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.Utils;
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.Reporting;
+using MSS.DTO.Meters;
+using MSS.DTO.Structures;
+using MSS.Localisation;
+using MSSArchive.Core.Model.Jobs;
+using MSSArchive.Core.Model.Meters;
+using MSSArchive.Core.Model.Orders;
+using MSSArchive.Core.Model.Reporting;
+using MSSArchive.Core.Model.Structures;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Linq;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.Reporting
+{
+  public class ReportingHelper
+  {
+    public string[] GetEntityStrings(object entity)
+    {
+      string str1 = entity != null ? entity.GetType().Name : string.Empty;
+      switch (str1)
+      {
+        case "MeterDTO":
+          if (entity is MeterDTO meterDto)
+          {
+            string str2 = meterDto.Room == null ? string.Empty : meterDto.Room.Code;
+            string str3 = meterDto.ReadingUnit == null ? string.Empty : meterDto.ReadingUnit.Code;
+            string str4 = meterDto.Channel == null ? string.Empty : meterDto.Channel.Code;
+            string str5 = meterDto.ConnectedDeviceType == null ? string.Empty : meterDto.ConnectedDeviceType.Code;
+            string[] entityStrings = new string[12]
+            {
+              str1,
+              meterDto.SerialNumber,
+              meterDto.ShortDeviceNo,
+              meterDto.CompletDevice,
+              meterDto.DeviceType.ToString(),
+              str2,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            };
+            double? nullable = meterDto.StartValue;
+            entityStrings[6] = nullable.ToString();
+            entityStrings[7] = str3;
+            nullable = meterDto.DecimalPlaces;
+            entityStrings[8] = nullable.ToString();
+            entityStrings[9] = str4;
+            entityStrings[10] = str5;
+            entityStrings[11] = meterDto.ReadingEnabled.ToString();
+            return entityStrings;
+          }
+          break;
+        case "LocationDTO":
+          if (entity is LocationDTO locationDto)
+          {
+            string str6 = locationDto.Scenario == null ? string.Empty : locationDto.Scenario.Code.ToString((IFormatProvider) CultureInfo.InvariantCulture);
+            string[] entityStrings = new string[11]
+            {
+              str1,
+              locationDto.City,
+              locationDto.Street,
+              locationDto.ZipCode,
+              locationDto.BuildingNr,
+              locationDto.Description,
+              locationDto.Generation.ToString(),
+              str6,
+              null,
+              null,
+              null
+            };
+            DateTime? dueDate = locationDto.DueDate;
+            string str7;
+            if (!dueDate.HasValue)
+            {
+              str7 = "";
+            }
+            else
+            {
+              dueDate = locationDto.DueDate;
+              str7 = dueDate.Value.ToString("dd-MM-yy hh:mm");
+            }
+            entityStrings[8] = str7;
+            entityStrings[9] = locationDto.HasMaster.ToString();
+            entityStrings[10] = locationDto.Scale.ToString();
+            return entityStrings;
+          }
+          break;
+        case "TenantDTO":
+          if (entity is TenantDTO tenantDto)
+            return new string[9]
+            {
+              str1,
+              tenantDto.TenantNr.ToString((IFormatProvider) CultureInfo.InvariantCulture),
+              tenantDto.Name,
+              tenantDto.FloorNr,
+              tenantDto.FloorName,
+              tenantDto.ApartmentNr,
+              tenantDto.Description,
+              tenantDto.CustomerTenantNo,
+              tenantDto.Entrance
+            };
+          break;
+        case "MinomatSesializableDTO":
+          if (entity is MinomatSerializableDTO minomatSerializableDto)
+            return new string[25]
+            {
+              str1,
+              minomatSerializableDto.AccessPoint,
+              minomatSerializableDto.CelestaId,
+              minomatSerializableDto.Challenge,
+              minomatSerializableDto.CreatedBy,
+              minomatSerializableDto.GsmId,
+              minomatSerializableDto.HostAndPort,
+              minomatSerializableDto.LastUpdatedBy,
+              minomatSerializableDto.RadioId,
+              minomatSerializableDto.ProviderName,
+              minomatSerializableDto.SessionKey,
+              minomatSerializableDto.SimPin,
+              minomatSerializableDto.Status,
+              minomatSerializableDto.Url,
+              minomatSerializableDto.UserId,
+              minomatSerializableDto.UserPassword,
+              minomatSerializableDto.CreatedOn.ToString(),
+              minomatSerializableDto.EndDate.ToString(),
+              minomatSerializableDto.IsDeactivated.ToString(),
+              minomatSerializableDto.IsInMasterPool.ToString(),
+              minomatSerializableDto.IsMaster.ToString(),
+              minomatSerializableDto.LastChangedOn.ToString(),
+              minomatSerializableDto.Polling.ToString((IFormatProvider) CultureInfo.InvariantCulture),
+              minomatSerializableDto.Registered.ToString(),
+              minomatSerializableDto.StartDate.ToString()
+            };
+          break;
+      }
+      return (string[]) null;
+    }
+
+    public string[] GetReadingValueStrings(MeterReadingValue meterReadingValue)
+    {
+      return new string[7]
+      {
+        typeof (MeterReadingValue).Name,
+        meterReadingValue.MeterSerialNumber,
+        meterReadingValue.StorageInterval.ToString(),
+        meterReadingValue.Date.ToString("dd.MM.yyyy"),
+        meterReadingValue.Value.ToString(),
+        string.Empty,
+        meterReadingValue.ValueId.ToString((IFormatProvider) CultureInfo.InvariantCulture)
+      };
+    }
+
+    public static string GetLocalizedCharacterName(char c)
+    {
+      switch (c)
+      {
+        case ',':
+          return Resources.MSS_Client_Comma;
+        case '.':
+          return Resources.MSS_Client_Dot;
+        case ';':
+          return Resources.MSS_Client_Semicolon;
+        default:
+          return string.Empty;
+      }
+    }
+
+    public static string GetLocalizedDataToExport(string dataToExportJson)
+    {
+      DataToExport dataToExport = JsonConvert.DeserializeObject<DataToExport>(dataToExportJson);
+      if (dataToExport.Definition == "NotYetExported")
+        return Resources.MSS_Client_Reporting_AutomatedJobCreateDialog_NotYetExported;
+      return dataToExport.Definition == "FromTheLastXDays" ? Resources.MSS_Client_Reporting_AutomatedJobCreateDialog_FromTheLast + (object) dataToExport.NumberOfDays : string.Empty;
+    }
+
+    public List<string[]> GetArchiveListRows<T1>(IEnumerable<T1> archiveList)
+    {
+      List<string[]> archiveListRows = new List<string[]>();
+      foreach (T1 archive in archiveList)
+      {
+        Type type = archive.GetType();
+        DateTime? nullable;
+        bool flag;
+        if (type == typeof (ArchiveJobLogs) && archive is ArchiveJobLogs archiveJobLogs)
+        {
+          string[] strArray1 = new string[7];
+          strArray1[0] = "\"" + archiveJobLogs.JobEntityNumber + "\"";
+          strArray1[1] = archiveJobLogs.CreatedOn.ToShortDateString();
+          nullable = archiveJobLogs.StartDate;
+          strArray1[2] = nullable.ToString();
+          nullable = archiveJobLogs.EndDate;
+          strArray1[3] = nullable.ToString();
+          flag = archiveJobLogs.Active;
+          strArray1[4] = flag.ToString();
+          strArray1[5] = archiveJobLogs.Status.ToString();
+          strArray1[6] = "\"" + archiveJobLogs.Message + "\"";
+          string[] strArray2 = strArray1;
+          archiveListRows.Add(strArray2);
+        }
+        if (type == typeof (ArchiveMssReadingJob) && archive is ArchiveMssReadingJob archiveMssReadingJob)
+        {
+          string[] strArray3 = new string[21];
+          nullable = archiveMssReadingJob.StartDate;
+          strArray3[0] = nullable.ToString();
+          nullable = archiveMssReadingJob.EndDate;
+          strArray3[1] = nullable.ToString();
+          flag = archiveMssReadingJob.IsDeactivated;
+          strArray3[2] = flag.ToString();
+          strArray3[3] = "\"" + archiveMssReadingJob.JobDefinitionName + "\"";
+          strArray3[4] = "\"" + archiveMssReadingJob.JobDefinitionEquipmentModel + "\"";
+          strArray3[5] = "\"" + archiveMssReadingJob.JobDefinitionServiceJob + "\"";
+          strArray3[6] = "\"" + archiveMssReadingJob.JobDefinitionEquipmentParams + "\"";
+          strArray3[7] = "\"" + archiveMssReadingJob.JobDefinitionSystem + "\"";
+          strArray3[8] = "\"" + archiveMssReadingJob.JobDefinitionProfileType + "\"";
+          nullable = archiveMssReadingJob.JobDefinitionStartDate;
+          strArray3[9] = nullable.ToString();
+          nullable = archiveMssReadingJob.JobDefinitionEndDate;
+          strArray3[10] = nullable.ToString();
+          flag = archiveMssReadingJob.JobDefinitionIsDeactivated;
+          strArray3[11] = flag.ToString();
+          strArray3[12] = archiveMssReadingJob.Scenario;
+          strArray3[13] = archiveMssReadingJob.Minomat;
+          strArray3[14] = archiveMssReadingJob.RootNode;
+          flag = archiveMssReadingJob.IsUpdate;
+          strArray3[15] = flag.ToString();
+          nullable = archiveMssReadingJob.LastExecutionDate;
+          strArray3[16] = nullable.ToString();
+          strArray3[17] = archiveMssReadingJob.ErrorMessage;
+          strArray3[18] = archiveMssReadingJob.Status.ToString();
+          strArray3[19] = archiveMssReadingJob.CreatedOn.ToShortDateString();
+          nullable = archiveMssReadingJob.LastUpdatedOn;
+          strArray3[20] = nullable.ToString();
+          string[] strArray4 = strArray3;
+          archiveListRows.Add(strArray4);
+        }
+        if (type == typeof (ArchiveOrder) && archive is ArchiveOrder archiveOrder)
+        {
+          string[] strArray5 = new string[14];
+          strArray5[0] = "\"" + archiveOrder.InstallationNumber + "\"";
+          strArray5[1] = "\"" + archiveOrder.Details + "\"";
+          flag = archiveOrder.Exported;
+          strArray5[2] = flag.ToString();
+          strArray5[3] = archiveOrder.Status.ToString();
+          strArray5[4] = "\"" + archiveOrder.DeviceNumber + "\"";
+          strArray5[5] = archiveOrder.DueDate.ToShortDateString();
+          flag = archiveOrder.IsDeactivated;
+          strArray5[6] = flag.ToString();
+          strArray5[7] = archiveOrder.OrderType.ToString();
+          strArray5[8] = archiveOrder.CloseOrderReason.ToString();
+          strArray5[9] = archiveOrder.StructureType.ToString();
+          strArray5[10] = archiveOrder.CreatedOn.ToShortDateString();
+          nullable = archiveOrder.LastUpdatedOn;
+          strArray5[11] = nullable.ToString();
+          strArray5[12] = "\"" + archiveOrder.OrderRules + "\"";
+          strArray5[13] = "\"" + archiveOrder.OrderUsers + "\"";
+          string[] strArray6 = strArray5;
+          archiveListRows.Add(strArray6);
+        }
+        if (type == typeof (ArchiveMeterReadingValue) && archive is ArchiveMeterReadingValue meterReadingValue)
+        {
+          string[] strArray7 = new string[11];
+          strArray7[0] = "\"" + meterReadingValue.MeterSerialNumber + "\"";
+          strArray7[1] = meterReadingValue.Date.ToShortDateString();
+          strArray7[2] = meterReadingValue.Value.ToString();
+          strArray7[3] = meterReadingValue.CreatedOn.ToShortDateString();
+          nullable = meterReadingValue.ExportedOn;
+          strArray7[4] = nullable.ToString();
+          strArray7[5] = meterReadingValue.PhysicalQuantity.ToString();
+          strArray7[6] = meterReadingValue.MeterType.ToString();
+          strArray7[7] = meterReadingValue.CalculationStart.ToString();
+          strArray7[8] = meterReadingValue.Creation.ToString();
+          strArray7[9] = meterReadingValue.Calculation.ToString();
+          strArray7[10] = meterReadingValue.StorageInterval.ToString();
+          string[] strArray8 = strArray7;
+          archiveListRows.Add(strArray8);
+        }
+        if (type == typeof (ArchiveStructureNode) && archive is ArchiveStructureNode archiveStructureNode)
+        {
+          string[] strArray9 = new string[5]
+          {
+            "\"" + archiveStructureNode.EntityName + "\"",
+            "\"" + archiveStructureNode.Name + "\"",
+            "\"" + archiveStructureNode.Description + "\"",
+            null,
+            null
+          };
+          nullable = archiveStructureNode.StartDate;
+          strArray9[3] = nullable.ToString();
+          nullable = archiveStructureNode.EndDate;
+          strArray9[4] = nullable.ToString();
+          string[] strArray10 = strArray9;
+          archiveListRows.Add(strArray10);
+        }
+      }
+      return archiveListRows;
+    }
+
+    public string WriteArchiveListHeader<T1>()
+    {
+      string str = string.Empty;
+      if (typeof (T1) == typeof (ArchiveJobLogs))
+        str = "JobEntityNumber, CreatedOn, StartDate, EndDate, Active, Status, Message";
+      if (typeof (T1) == typeof (ArchiveMssReadingJob))
+        str = "StartDate, EndDate, IsDeactivated, JobDefinitionName, JobDefinitionEquipmentModel, JobDefinitionServiceJob, JobDefinitionEquipmentParams, JobDefinitionSystem, JobDefinitionProfileType, JobDefinitionStartDate, JobDefinitionEndDate, JobDefinitionIsDeactivated, Scenario, Minomat, RootNode, IsUpdate, LastExecutionDate, ErrorMessage, Status, CreatedOn, LastUpdatedOn";
+      if (typeof (T1) == typeof (ArchiveOrder))
+        str = "InstallationNumber, Details, Exported, Status, DeviceNumber, DueDate, IsDeactivated, OrderType, CloseOrderReason, StructureType, CreatedOn, LastUpdatedOn, OrderRules, OrderUsers";
+      if (typeof (T1) == typeof (ArchiveMeterReadingValue))
+        str = "MeterSerialNumber, Date, Value, CreatedOn, ExportedOn, PhysicalQuantity., MeterType, CalculationStart, Creation, Calculation, StorageInterval";
+      if (typeof (T1) == typeof (ArchiveStructureNode))
+        str = "EntityName, Name, Description, StartDate, EndDate";
+      return str;
+    }
+
+    public static ObservableCollection<MeterReadingValueDTO> FilteredReadingValuesCollection(
+      ObservableCollection<MeterReadingValueDTO> meterReadingValueDtos)
+    {
+      return MSSHelper.ListToObsCollection<MeterReadingValueDTO>(MSSHelper.DistinctBy(meterReadingValueDtos.Where<MeterReadingValueDTO>((Func<MeterReadingValueDTO, bool>) (rv => rv.PhysicalQuantity != ValueIdent.ValueIdPart_PhysicalQuantity.SignalStrength)), p => new
+      {
+        MeterSerialNumber = p.MeterSerialNumber,
+        Date = p.Date,
+        StorageInterval = p.StorageInterval
+      }));
+    }
+  }
+}
+
+
+--- ReportingManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Reporting.ReportingManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using AutoMapper;
+using Common.Library.NHibernate.Data;
+using Microsoft.Win32;
+using MSS.Business.DTO;
+using MSS.Business.Errors;
+using MSS.Business.Modules.StructuresManagement;
+using MSS.Core.Model.Jobs;
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.MSSClient;
+using MSS.Core.Model.Orders;
+using MSS.Core.Model.Reporting;
+using MSS.Core.Model.Structures;
+using MSS.Core.Model.UsersManagement;
+using MSS.DTO.Meters;
+using MSS.DTO.Orders;
+using MSS.DTO.Reporting;
+using MSS.DTO.Structures;
+using MSS.Interfaces;
+using MSS.Localisation;
+using NHibernate;
+using NHibernate.Linq;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Configuration;
+using System.Globalization;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading;
+using Telerik.Windows.Data;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.Reporting
+{
+  public class ReportingManager
+  {
+    private readonly IRepository<Channel> _channelRepository;
+    private readonly IRepository<ConnectedDeviceType> _connectedDeviceTypeRepository;
+    private readonly IRepository<Location> _locationRepository;
+    private readonly IRepository<MeasureUnit> _measureUniteRepository;
+    private readonly IRepository<MSS.Core.Model.Meters.Meter> _meterRepository;
+    private ISession _nhSession;
+    private readonly IRepository<RoomType> _roomTypeRepository;
+    private readonly IRepository<StructureNodeLinks> _structureNodeLinksRepository;
+    private readonly IRepository<StructureNode> _structureNodeRepository;
+    private readonly IRepository<MSS.Core.Model.Structures.StructureNodeType> _structureNodeTypeRepository;
+    private readonly IRepository<Tenant> _tenantRepository;
+    private readonly IRepository<Order> _orderRepository;
+    private readonly IRepositoryFactory _repositoryFactory;
+    private readonly IRepository<Scenario> _repositoryScenario;
+    private readonly IRepository<MeterReadingValue> _meterReadingValueRepository;
+    private readonly IRepository<AutomatedExportJob> _automatedExportJobRepository;
+    private static DateTime MinDateTime = new DateTime(1800, 1, 1);
+
+    public ReportingManager(IRepositoryFactory repositoryFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this._meterRepository = repositoryFactory.GetRepository<MSS.Core.Model.Meters.Meter>();
+      this._roomTypeRepository = repositoryFactory.GetRepository<RoomType>();
+      this._measureUniteRepository = repositoryFactory.GetRepository<MeasureUnit>();
+      this._channelRepository = repositoryFactory.GetRepository<Channel>();
+      this._connectedDeviceTypeRepository = repositoryFactory.GetRepository<ConnectedDeviceType>();
+      this._structureNodeRepository = repositoryFactory.GetRepository<StructureNode>();
+      this._structureNodeTypeRepository = repositoryFactory.GetRepository<MSS.Core.Model.Structures.StructureNodeType>();
+      this._structureNodeLinksRepository = repositoryFactory.GetRepository<StructureNodeLinks>();
+      this._locationRepository = repositoryFactory.GetRepository<Location>();
+      this._tenantRepository = repositoryFactory.GetRepository<Tenant>();
+      this._orderRepository = this._repositoryFactory.GetRepository<Order>();
+      this._repositoryScenario = repositoryFactory.GetRepository<Scenario>();
+      this._meterReadingValueRepository = repositoryFactory.GetRepository<MeterReadingValue>();
+      this._automatedExportJobRepository = repositoryFactory.GetRepository<AutomatedExportJob>();
+      this._nhSession = repositoryFactory.GetSession();
+      Mapper.CreateMap<MeterDTO, MSS.Core.Model.Meters.Meter>();
+      Mapper.CreateMap<LocationDTO, Location>();
+      Mapper.CreateMap<TenantDTO, Tenant>();
+      Mapper.CreateMap<MeterReadingValue, MeterReadingValueDTO>();
+      Mapper.CreateMap<StructureNodeDTO, StructureNode>().ForMember((Expression<Func<StructureNode, object>>) (strNode => strNode.Name), (Action<IMemberConfigurationExpression<StructureNodeDTO>>) (s => s.MapFrom<string>((Expression<Func<StructureNodeDTO, string>>) (strNodeDTO => strNodeDTO.Name)))).ForMember((Expression<Func<StructureNode, object>>) (strNode => strNode.Description), (Action<IMemberConfigurationExpression<StructureNodeDTO>>) (s => s.MapFrom<string>((Expression<Func<StructureNodeDTO, string>>) (strNodeDTO => strNodeDTO.Description)))).ForMember((Expression<Func<StructureNode, object>>) (strNode => (object) strNode.EntityId), (Action<IMemberConfigurationExpression<StructureNodeDTO>>) (s => s.ResolveUsing((Func<StructureNodeDTO, object>) (strNodeDTO => (object) this.GetEntityId(strNodeDTO))))).ForMember((Expression<Func<StructureNode, object>>) (strNode => strNode.EntityName), (Action<IMemberConfigurationExpression<StructureNodeDTO>>) (s => s.ResolveUsing((Func<StructureNodeDTO, object>) (strNodeDTO => (object) this.GetEntityName(strNodeDTO))))).ForMember((Expression<Func<StructureNode, object>>) (strNode => strNode.NodeType), (Action<IMemberConfigurationExpression<StructureNodeDTO>>) (s => s.MapFrom<MSS.Core.Model.Structures.StructureNodeType>((Expression<Func<StructureNodeDTO, MSS.Core.Model.Structures.StructureNodeType>>) (strNodeDTO => strNodeDTO.NodeType)))).ForMember((Expression<Func<StructureNode, object>>) (strNode => (object) strNode.StartDate), (Action<IMemberConfigurationExpression<StructureNodeDTO>>) (s => s.Ignore())).ForMember((Expression<Func<StructureNode, object>>) (strNode => (object) strNode.EndDate), (Action<IMemberConfigurationExpression<StructureNodeDTO>>) (s => s.Ignore()));
+      Mapper.CreateMap<StructureNodeLinks, StructureNodeLinks>().ForMember((Expression<Func<StructureNodeLinks, object>>) (l => (object) l.Id), (Action<IMemberConfigurationExpression<StructureNodeLinks>>) (s => s.Ignore()));
+    }
+
+    private Guid GetEntityId(StructureNodeDTO structureNodeDTO)
+    {
+      return structureNodeDTO.Entity != null ? (Guid) structureNodeDTO.Entity.GetType().GetProperty("Id").GetValue(structureNodeDTO.Entity) : Guid.Empty;
+    }
+
+    private string GetEntityName(StructureNodeDTO structureNodeDTO)
+    {
+      return structureNodeDTO.Entity != null ? structureNodeDTO.Entity.GetType().Name : string.Empty;
+    }
+
+    public RadObservableCollection<Country> GetCountriesForExportJob(AutomatedExportJobDTO exportJob)
+    {
+      RadObservableCollection<Country> countriesForExportJob = new RadObservableCollection<Country>();
+      AutomatedExportJob job = this._automatedExportJobRepository.FirstOrDefault((Expression<Func<AutomatedExportJob, bool>>) (j => j.Id == exportJob.Id));
+      IRepository<AutomatedExportJobCountry> repository = this._repositoryFactory.GetRepository<AutomatedExportJobCountry>();
+      Expression<Func<AutomatedExportJobCountry, bool>> predicate = (Expression<Func<AutomatedExportJobCountry, bool>>) (jc => jc.AutomatedExportJob == job);
+      foreach (AutomatedExportJobCountry exportJobCountry in (IEnumerable<AutomatedExportJobCountry>) repository.SearchFor(predicate))
+        countriesForExportJob.Add(exportJobCountry.Country);
+      return countriesForExportJob;
+    }
+
+    public void SaveImportedStructure(List<string[]> nodesList)
+    {
+      try
+      {
+        List<StructureNodeDTO> structureNodeDtoList = new List<StructureNodeDTO>();
+        List<StructureNodeEquipmentSettings> equipmentSettingsList = new List<StructureNodeEquipmentSettings>();
+        object obj = new object();
+        this._nhSession.FlushMode = FlushMode.Commit;
+        ITransaction transaction = this._nhSession.BeginTransaction();
+        foreach (string[] nodes in nodesList)
+        {
+          string[] node = nodes;
+          if (node[0] == typeof (MeterDTO).Name)
+          {
+            MeterDTO meterDto = new MeterDTO();
+            meterDto.SerialNumber = node[1];
+            meterDto.ShortDeviceNo = node[2];
+            meterDto.CompletDevice = node[3];
+            meterDto.DeviceType = (DeviceTypeEnum) Enum.Parse(typeof (DeviceTypeEnum), node[4]);
+            meterDto.Room = this._roomTypeRepository.FirstOrDefault((Expression<Func<RoomType, bool>>) (r => r.Code == node[5]));
+            meterDto.StartValue = node[6] != string.Empty ? new double?(double.Parse(node[6])) : new double?();
+            meterDto.ReadingUnit = this._measureUniteRepository.FirstOrDefault((Expression<Func<MeasureUnit, bool>>) (ru => ru.Code == node[7]));
+            meterDto.DecimalPlaces = node[8] != string.Empty ? new double?(double.Parse(node[8])) : new double?();
+            meterDto.Channel = this._channelRepository.FirstOrDefault((Expression<Func<Channel, bool>>) (c => c.Code == node[9]));
+            meterDto.ConnectedDeviceType = this._connectedDeviceTypeRepository.FirstOrDefault((Expression<Func<ConnectedDeviceType, bool>>) (cdt => cdt.Code == node[10]));
+            meterDto.ReadingEnabled = node.Length > 11 && Convert.ToBoolean(node[11]);
+            MeterDTO meterDTO = meterDto;
+            obj = (object) this.GetStructuresManagerInstance().TransactionalSaveOrUpdateMeter(meterDTO);
+          }
+          else if (node[0] == typeof (LocationDTO).Name)
+          {
+            LocationDTO locationDto = new LocationDTO();
+            locationDto.City = node[1];
+            locationDto.Street = node[2];
+            locationDto.ZipCode = node[3];
+            locationDto.BuildingNr = node[4];
+            locationDto.Description = node[5];
+            locationDto.Generation = (GenerationEnum) Enum.Parse(typeof (GenerationEnum), node[6]);
+            locationDto.Scenario = this._repositoryScenario.FirstOrDefault((Expression<Func<Scenario, bool>>) (s => s.Code == int.Parse(node[7])));
+            locationDto.DueDate = new DateTime?(DateTime.ParseExact(node[8], "dd-MM-yy hh:mm", (IFormatProvider) null));
+            locationDto.HasMaster = new bool?(bool.Parse(node[9]));
+            locationDto.Scale = (ScaleEnum) Enum.Parse(typeof (ScaleEnum), node[10]);
+            LocationDTO locationDTO = locationDto;
+            obj = (object) this.GetStructuresManagerInstance().TransactionalSaveOrUpdateLocation(locationDTO);
+          }
+          else if (node[0] == typeof (TenantDTO).Name)
+          {
+            TenantDTO tenantDTO = new TenantDTO()
+            {
+              TenantNr = int.Parse(node[1]),
+              Name = node[2],
+              FloorNr = node[3],
+              FloorName = node[4],
+              ApartmentNr = node[5],
+              Description = node[6],
+              CustomerTenantNo = node[7],
+              Entrance = node[8]
+            };
+            obj = (object) this.GetStructuresManagerInstance().TransactionalSaveOrUpdateTenant(tenantDTO);
+          }
+          else if (node[0] == typeof (MinomatSerializableDTO).Name)
+          {
+            MinomatSerializableDTO minomatDto = new MinomatSerializableDTO()
+            {
+              AccessPoint = node[1],
+              Challenge = node[2],
+              CreatedBy = node[3],
+              GsmId = node[4],
+              HostAndPort = node[5],
+              LastUpdatedBy = node[6],
+              RadioId = node[7],
+              ProviderName = node[8],
+              SessionKey = node[9],
+              SimPin = node[10],
+              Status = node[11],
+              Url = node[12],
+              UserId = node[13],
+              UserPassword = node[14],
+              CreatedOn = new DateTime?(node[15] != string.Empty ? DateTime.Parse(node[15]) : DateTime.Now),
+              EndDate = new DateTime?(node[16] != string.Empty ? DateTime.Parse(node[16]) : DateTime.Now),
+              IsDeactivated = bool.Parse(node[17]),
+              IsInMasterPool = bool.Parse(node[18]),
+              IsMaster = bool.Parse(node[19]),
+              LastChangedOn = new DateTime?(node[20] != string.Empty ? DateTime.Parse(node[20]) : DateTime.Now),
+              Polling = int.Parse(node[21]),
+              Registered = bool.Parse(node[22]),
+              StartDate = new DateTime?(node[23] != string.Empty ? DateTime.Parse(node[23]) : DateTime.Now)
+            };
+            obj = (object) this.GetStructuresManagerInstance().TransactionalSaveOrUpdateMinomat(minomatDto);
+          }
+          else if (node[0] == typeof (MeterReadingValue).Name)
+          {
+            if (obj is MSS.Core.Model.Meters.Meter meter)
+            {
+              long result;
+              this._meterReadingValueRepository.TransactionalInsert(new MeterReadingValue()
+              {
+                MeterId = meter.Id,
+                MeterSerialNumber = node[1],
+                StorageInterval = (long) int.Parse(node[2]),
+                Date = DateTime.ParseExact(node[3], "dd.MM.yyyy", (IFormatProvider) null),
+                Value = double.Parse(node[4]),
+                ValueId = long.TryParse(node[6], out result) ? result : 0L,
+                CreatedOn = DateTime.Now
+              });
+            }
+          }
+          else
+          {
+            StructureNodeDTO structureNodeDto1 = new StructureNodeDTO();
+            structureNodeDto1.Id = Guid.Parse(node[0]);
+            structureNodeDto1.Name = node[1];
+            structureNodeDto1.NodeType = this._structureNodeTypeRepository.FirstOrDefault((Expression<Func<MSS.Core.Model.Structures.StructureNodeType, bool>>) (n => n.Name == node[2]));
+            structureNodeDto1.Description = node[3];
+            structureNodeDto1.Entity = node[5] != string.Empty ? obj : (object) null;
+            structureNodeDto1.StructureType = new StructureTypeEnum?((StructureTypeEnum) Enum.Parse(typeof (StructureTypeEnum), node[6]));
+            structureNodeDto1.ParentNode = node[7] != string.Empty ? structureNodeDtoList.FirstOrDefault<StructureNodeDTO>((Func<StructureNodeDTO, bool>) (sn => sn.Id == Guid.Parse(node[7]))) : (StructureNodeDTO) null;
+            structureNodeDto1.OrderNr = node[9] != string.Empty ? Convert.ToInt32(node[9]) : 0;
+            StructureNodeDTO structureNodeDto2 = structureNodeDto1;
+            if (structureNodeDto2.ParentNode != null)
+              structureNodeDto2.ParentNode.SubNodes.Add(structureNodeDto2);
+            structureNodeDtoList.Add(structureNodeDto2);
+            structureNodeDto2.RootNode = structureNodeDtoList.FirstOrDefault<StructureNodeDTO>((Func<StructureNodeDTO, bool>) (sn => sn.Id == Guid.Parse(node[8])));
+            if (node[0] == node[8])
+            {
+              StructureNodeEquipmentSettings equipmentSettings = new StructureNodeEquipmentSettings()
+              {
+                EquipmentName = node.Length > 10 ? node[10] : (string) null,
+                EquipmentParams = node.Length > 11 ? node[11] : (string) null,
+                SystemName = node.Length > 12 ? node[12] : (string) null,
+                ScanMode = node.Length > 13 ? node[13] : (string) null,
+                ScanParams = node.Length > 14 ? node[14] : (string) null,
+                ReadingProfileName = node.Length > 15 ? node[15] : (string) null,
+                ReadingProfileParams = node.Length > 16 ? node[16] : (string) null,
+                DeviceModelReadingParams = node.Length > 17 ? node[17] : (string) null,
+                StructureNode = new StructureNode()
+                {
+                  Id = structureNodeDto2.Id
+                }
+              };
+              equipmentSettingsList.Add(equipmentSettings);
+            }
+          }
+        }
+        List<Guid> idsBeforeInsert = structureNodeDtoList.Select<StructureNodeDTO, Guid>((Func<StructureNodeDTO, Guid>) (sn => sn.Id)).ToList<Guid>();
+        foreach (StructureNodeDTO structureNodeDto in structureNodeDtoList)
+          structureNodeDto.Id = Guid.Empty;
+        StructureTypeEnum structureType = structureNodeDtoList[0].StructureType.Value;
+        this.GetStructuresManagerInstance().TransactionalSaveNewStructure((IList<StructureNodeDTO>) structureNodeDtoList, structureType);
+        List<Guid> list = structureNodeDtoList.Select<StructureNodeDTO, Guid>((Func<StructureNodeDTO, Guid>) (sn => sn.Id)).ToList<Guid>();
+        int index = 0;
+        Dictionary<Guid, Guid> idsBeforeAndAfterInsert = new Dictionary<Guid, Guid>();
+        list.ForEach((Action<Guid>) (id =>
+        {
+          idsBeforeAndAfterInsert[idsBeforeInsert.ElementAt<Guid>(index)] = id;
+          ++index;
+        }));
+        foreach (StructureNodeEquipmentSettings entity in equipmentSettingsList)
+        {
+          entity.StructureNode.Id = idsBeforeAndAfterInsert[entity.StructureNode.Id];
+          this._repositoryFactory.GetRepository<StructureNodeEquipmentSettings>().TransactionalInsert(entity);
+        }
+        transaction.Commit();
+      }
+      catch (Exception ex)
+      {
+        this._nhSession.Transaction.Rollback();
+        MessageHandler.LogException(ex);
+        throw new BaseApplicationException(ErrorCodes.GetErrorMessage("MSSError_9"));
+      }
+    }
+
+    private StructuresManager GetStructuresManagerInstance()
+    {
+      return new StructuresManager(this._repositoryFactory);
+    }
+
+    public void ExportAllReadingValues(
+      bool dataExportLastDaysChoice,
+      int numberOfDaysToExport,
+      bool sasExportType,
+      bool csvFileType,
+      bool xmlFileType,
+      bool excelFileType,
+      bool commaDecimalSeparator,
+      bool semicolonValueSeparator,
+      BackgroundWorker backgroundWorkerExport,
+      DoWorkEventArgs e,
+      List<Country> countries)
+    {
+      backgroundWorkerExport?.ReportProgress(0);
+      string str = string.Empty;
+      if (csvFileType)
+        str = !sasExportType ? "CSV Document for GMM|*.csv" : "CSV Document for SAS|*.csv";
+      else if (xmlFileType)
+        str = !sasExportType ? "XML Document for GMM|*.xml" : "XML Document for SAS|*.xml";
+      else if (excelFileType)
+        str = !sasExportType ? "Excel Document for GMM|*.xlsx" : "Excel Document for SAS|*.xlsx";
+      SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+      saveFileDialog1.Filter = str;
+      saveFileDialog1.Title = "Save reading values to file";
+      SaveFileDialog saveFileDialog2 = saveFileDialog1;
+      saveFileDialog2.ShowDialog();
+      if (saveFileDialog2.FileName == string.Empty)
+        return;
+      this.ExportAllReadingValues(saveFileDialog2.FileName, dataExportLastDaysChoice, numberOfDaysToExport, sasExportType, csvFileType, xmlFileType, excelFileType, commaDecimalSeparator, semicolonValueSeparator, backgroundWorkerExport, e, countries);
+    }
+
+    public void ExportAllReadingValues(
+      string fileName,
+      bool dataExportLastDaysChoice,
+      int numberOfDaysToExport,
+      bool sasExportType,
+      bool csvFileType,
+      bool xmlFileType,
+      bool excelFileType,
+      bool commaDecimalSeparator,
+      bool semicolonValueSeparator,
+      BackgroundWorker backgroundWorkerExport,
+      DoWorkEventArgs e,
+      List<Country> countries)
+    {
+      backgroundWorkerExport?.ReportProgress(0);
+      if (fileName == string.Empty)
+        return;
+      ISessionFactory sessionFactory = HibernateMultipleDatabasesManager.DataSessionFactory(ConfigurationManager.AppSettings["DatabaseEngine"]);
+      this._nhSession = sessionFactory.OpenSession();
+      this._repositoryFactory.SetSession(this._nhSession);
+      int num1 = 0;
+      int num2 = dataExportLastDaysChoice ? 1 : 0;
+      int numberOfDaysToExport1 = numberOfDaysToExport;
+      int num3 = sasExportType ? 1 : 0;
+      int num4 = num1;
+      int num5 = num4 + 1;
+      int batchNumber = num4;
+      for (List<MeterReadingValue> meterReadingValues = this.GetMeterReadingValues(num2 != 0, numberOfDaysToExport1, num3 != 0, batchNumber); meterReadingValues.Count > 0; meterReadingValues = this.GetMeterReadingValues(dataExportLastDaysChoice, numberOfDaysToExport, sasExportType, num5++))
+      {
+        ObservableCollection<MeterReadingValueDTO> meterReadingValueDtos = Mapper.Map<IEnumerable<MeterReadingValue>, ObservableCollection<MeterReadingValueDTO>>((IEnumerable<MeterReadingValue>) meterReadingValues);
+        if (meterReadingValueDtos.Count > 0)
+          this.ExportReadingValuesBase(sasExportType ? ReportingHelper.FilteredReadingValuesCollection(meterReadingValueDtos) : meterReadingValueDtos, sasExportType, backgroundWorkerExport, e, fileName, csvFileType, xmlFileType, excelFileType, commaDecimalSeparator, semicolonValueSeparator, countries);
+        this.SetReadingValuesAsExported(meterReadingValues);
+        ((IDisposable) this._repositoryFactory.GetSession()).Dispose();
+        this._nhSession = sessionFactory.OpenSession();
+        this._repositoryFactory.SetSession(this._nhSession);
+      }
+      backgroundWorkerExport?.ReportProgress(100);
+    }
+
+    private List<MeterReadingValue> GetMeterReadingValues(
+      bool dataExportLastDaysChoice,
+      int numberOfDaysToExport,
+      bool sasExport,
+      int batchNumber)
+    {
+      List<MeterReadingValue> meterReadingValueList = new List<MeterReadingValue>();
+      ISession session = this._repositoryFactory.GetSession();
+      int count = 500;
+      List<MeterReadingValue> meterReadingValues;
+      if (!dataExportLastDaysChoice)
+      {
+        List<MeterReadingValue> list;
+        if (!sasExport)
+          list = LinqExtensionMethods.Query<MeterReadingValue>(session).Where<MeterReadingValue>((Expression<Func<MeterReadingValue, bool>>) (mrv => mrv.ExportedOn == new DateTime?())).Take<MeterReadingValue>(count).ToList<MeterReadingValue>();
+        else
+          list = LinqExtensionMethods.Query<MeterReadingValue>(session).Where<MeterReadingValue>((Expression<Func<MeterReadingValue, bool>>) (mrv => mrv.ExportedOn == new DateTime?() && !(mrv.PhysicalQuantity == 18L || mrv.PhysicalQuantity == 1L && mrv.MeterType == 64L))).Take<MeterReadingValue>(count).ToList<MeterReadingValue>();
+        meterReadingValues = list;
+      }
+      else
+      {
+        DateTime startDate = DateTime.Today.AddDays((double) -numberOfDaysToExport);
+        List<MeterReadingValue> list;
+        if (!sasExport)
+          list = LinqExtensionMethods.Query<MeterReadingValue>(session).Where<MeterReadingValue>((Expression<Func<MeterReadingValue, bool>>) (mrv => mrv.CreatedOn >= startDate)).Skip<MeterReadingValue>(batchNumber * count).Take<MeterReadingValue>(count).ToList<MeterReadingValue>();
+        else
+          list = LinqExtensionMethods.Query<MeterReadingValue>(session).Where<MeterReadingValue>((Expression<Func<MeterReadingValue, bool>>) (mrv => mrv.CreatedOn >= startDate && !(mrv.PhysicalQuantity == 18L || mrv.PhysicalQuantity == 1L && mrv.MeterType == 64L))).Skip<MeterReadingValue>(batchNumber * count).Take<MeterReadingValue>(count).ToList<MeterReadingValue>();
+        meterReadingValues = list;
+      }
+      return meterReadingValues;
+    }
+
+    public void ExportReadingValues(
+      ObservableCollection<MeterReadingValueDTO> meterReadingValuesDtoUI,
+      bool isSasExport,
+      bool commaDecimalSeparator,
+      string fileName,
+      BackgroundWorker backgroundWorkerExport,
+      DoWorkEventArgs e)
+    {
+      this.ExportReadingValuesBase(meterReadingValuesDtoUI, isSasExport, backgroundWorkerExport, e, fileName, true, false, false, commaDecimalSeparator, true, (List<Country>) null);
+    }
+
+    private void ExportReadingValuesBase(
+      ObservableCollection<MeterReadingValueDTO> meterReadingValuesDtoUI,
+      bool isSasExport,
+      BackgroundWorker backgroundWorkerExport,
+      DoWorkEventArgs e,
+      string fileName,
+      bool csvFileType,
+      bool xmlFileType,
+      bool excelFileType,
+      bool commaDecimalSeparator,
+      bool semicolonValueSeparator,
+      List<Country> countriesFilterList)
+    {
+      int count1 = meterReadingValuesDtoUI.Count;
+      int index = 0;
+      int count2 = 500;
+      if (count1 < count2)
+        count2 = count1;
+      List<MeterReadingValueDTO> list1 = meterReadingValuesDtoUI.ToList<MeterReadingValueDTO>();
+      string name = commaDecimalSeparator ? "de-DE" : "en-GB";
+      string valueSeparator = semicolonValueSeparator ? ";" : ",";
+      while (index <= count1)
+      {
+        IList<MeterReadingValueDTO> meterReadingValueDtoList = index + count2 > count1 ? (IList<MeterReadingValueDTO>) list1.GetRange(index, count1 - index) : (IList<MeterReadingValueDTO>) list1.GetRange(index, count2);
+        List<string[]> readingValueList = new List<string[]>();
+        List<Guid> list2 = meterReadingValueDtoList.Select<MeterReadingValueDTO, Guid>((Func<MeterReadingValueDTO, Guid>) (x => x.Id)).ToList<Guid>();
+        List<OrderReadingValues> orderReadingValuesList = this._repositoryFactory.GetReadingValuesRepository().LoadOrderReadingValues(list2);
+        List<JobReadingValues> jobReadingValuesList = this._repositoryFactory.GetReadingValuesRepository().LoadJobReadingValues(list2);
+        if (!isSasExport)
+        {
+          if (index == 0)
+          {
+            string[] strArray = new string[12]
+            {
+              "TimePoint",
+              "SerialNr",
+              "MeterName",
+              "Device",
+              "Value",
+              "Unit",
+              "Physical Quantity",
+              "Calculation",
+              "Storage Interval",
+              "Calculation Start",
+              "Creation",
+              "Index"
+            };
+            readingValueList.Add(strArray);
+          }
+          Dictionary<Guid, List<MSS.Core.Model.Meters.Meter>> orderReadingValues = this.GetMetersForOrderReadingValues(meterReadingValueDtoList, orderReadingValuesList);
+          List<MSS.Core.Model.Meters.Meter> jobReadingValues = this.GetMetersForJobReadingValues(meterReadingValueDtoList, jobReadingValuesList);
+          foreach (MeterReadingValueDTO readingValue in (IEnumerable<MeterReadingValueDTO>) meterReadingValueDtoList)
+          {
+            MSS.Core.Model.Meters.Meter meterForReadingValue = ReportingManager.GetMeterForReadingValue(readingValue, orderReadingValuesList, jobReadingValuesList, orderReadingValues, jobReadingValues);
+            string[] strArray = new string[12]
+            {
+              readingValue.Date.ToString("dd.MM.yyyy HH:mm:ss"),
+              readingValue.MeterSerialNumber,
+              readingValue.Name,
+              meterForReadingValue != null ? meterForReadingValue.DeviceType.ToString() : string.Empty,
+              readingValue.Value.ToString((IFormatProvider) CultureInfo.CreateSpecificCulture(name)),
+              readingValue.UnitCode ?? (meterForReadingValue == null || meterForReadingValue.ReadingUnit == null ? string.Empty : meterForReadingValue.ReadingUnit.Code),
+              readingValue.PhysicalQuantity.ToString(),
+              readingValue.Calculation.ToString(),
+              readingValue.StorageInterval == ValueIdent.ValueIdPart_StorageInterval.None ? "Actual" : readingValue.StorageInterval.ToString(),
+              readingValue.CalculationStart.ToString(),
+              readingValue.Creation.ToString(),
+              readingValue.Index.ToString()
+            };
+            readingValueList.Add(strArray);
+            if (backgroundWorkerExport != null)
+            {
+              if (!backgroundWorkerExport.CancellationPending)
+              {
+                int percentProgress = index * 100 / count1;
+                backgroundWorkerExport.ReportProgress(percentProgress);
+              }
+              else
+              {
+                e.Cancel = true;
+                break;
+              }
+            }
+          }
+          ReportingManager.SaveReadingValuesFile(fileName, csvFileType, xmlFileType, excelFileType, readingValueList, valueSeparator, index == 0, index == count1);
+        }
+        else
+        {
+          if (index == 0)
+          {
+            string[] strArray = new string[9]
+            {
+              "deConfigNr",
+              "deLnr",
+              "deMasterRadioId",
+              "deRadioId",
+              "deDate",
+              "deValue",
+              "deStatus",
+              "deDetail",
+              "deIdent"
+            };
+            readingValueList.Add(strArray);
+          }
+          Dictionary<Guid, Location> locationsDictionary = new Dictionary<Guid, Location>();
+          this.GetMetersForOrderReadingValues(meterReadingValueDtoList, orderReadingValuesList, ref locationsDictionary);
+          foreach (MeterReadingValueDTO meterReadingValueDto in (IEnumerable<MeterReadingValueDTO>) meterReadingValueDtoList)
+          {
+            MeterReadingValueDTO readingValue = meterReadingValueDto;
+            Location location = (Location) null;
+            location = locationsDictionary.ContainsKey(readingValue.Id) ? locationsDictionary[readingValue.Id] : (Location) null;
+            if (location == null || countriesFilterList == null || location.Country == null || !countriesFilterList.All<Country>((Func<Country, bool>) (c => c.Id != location.Country.Id)))
+            {
+              OrderReadingValues orderReadingValues = orderReadingValuesList.LastOrDefault<OrderReadingValues>((Func<OrderReadingValues, bool>) (orv => orv.MeterReadingValue.Id == readingValue.Id));
+              JobReadingValues jobReadingValues = jobReadingValuesList.LastOrDefault<JobReadingValues>((Func<JobReadingValues, bool>) (jrv => jrv.ReadingValue.Id == readingValue.Id));
+              string[] strArray = new string[9]
+              {
+                orderReadingValues == null || orderReadingValues.OrderObj == null ? string.Empty : orderReadingValues.OrderObj.InstallationNumber,
+                location != null ? location.BuildingNr : string.Empty,
+                jobReadingValues == null || jobReadingValues.Job == null || jobReadingValues.Job.Minomat == null ? string.Empty : jobReadingValues.Job.Minomat.RadioId,
+                readingValue.MeterSerialNumber,
+                readingValue.Date.ToString("dd.MM.yyyy"),
+                readingValue.Value.ToString((IFormatProvider) CultureInfo.CreateSpecificCulture(name)),
+                readingValue.Status.ToString(),
+                readingValue.StorageInterval == ValueIdent.ValueIdPart_StorageInterval.None ? "Actual" : readingValue.StorageInterval.ToString(),
+                "M"
+              };
+              readingValueList.Add(strArray);
+              if (backgroundWorkerExport != null)
+              {
+                if (!backgroundWorkerExport.CancellationPending)
+                {
+                  int percentProgress = index * 100 / count1;
+                  backgroundWorkerExport.ReportProgress(percentProgress);
+                }
+                else
+                {
+                  e.Cancel = true;
+                  break;
+                }
+              }
+            }
+          }
+          if (backgroundWorkerExport != null && backgroundWorkerExport.CancellationPending)
+          {
+            e.Cancel = true;
+            break;
+          }
+          ReportingManager.SaveReadingValuesFile(fileName, csvFileType, xmlFileType, excelFileType, readingValueList, valueSeparator, index == 0, index == count1);
+        }
+        if (index + count2 <= count1)
+          index += count2;
+        else if (index == count1)
+        {
+          index += count2;
+          backgroundWorkerExport?.ReportProgress(100);
+        }
+        else
+          index += count1 - index;
+      }
+    }
+
+    private static MSS.Core.Model.Meters.Meter GetMeterForReadingValue(
+      MeterReadingValueDTO readingValue,
+      List<OrderReadingValues> orderReadingValues,
+      List<JobReadingValues> jobReadingValues,
+      Dictionary<Guid, List<MSS.Core.Model.Meters.Meter>> orderMetersDict,
+      List<MSS.Core.Model.Meters.Meter> jobMeters)
+    {
+      List<MSS.Core.Model.Meters.Meter> source = new List<MSS.Core.Model.Meters.Meter>();
+      OrderReadingValues orderReadingValues1 = orderReadingValues.LastOrDefault<OrderReadingValues>((Func<OrderReadingValues, bool>) (orv => orv.MeterReadingValue.Id == readingValue.Id));
+      JobReadingValues jobReadingValues1 = jobReadingValues.LastOrDefault<JobReadingValues>((Func<JobReadingValues, bool>) (jrv => jrv.ReadingValue.Id == readingValue.Id));
+      if (orderReadingValues1 != null)
+      {
+        Guid id = orderReadingValues1.OrderObj.Id;
+        source = orderMetersDict[id];
+      }
+      if (jobReadingValues1 != null)
+        source = jobMeters;
+      return source.FirstOrDefault<MSS.Core.Model.Meters.Meter>((Func<MSS.Core.Model.Meters.Meter, bool>) (x => x.SerialNumber == readingValue.MeterSerialNumber));
+    }
+
+    private StructuresManager GetStructureManagerInstance()
+    {
+      return new StructuresManager(this._repositoryFactory);
+    }
+
+    private Dictionary<Guid, List<MSS.Core.Model.Meters.Meter>> GetMetersForOrderReadingValues(
+      IList<MeterReadingValueDTO> meterReadingValuesDto,
+      List<OrderReadingValues> orderReadingvalues)
+    {
+      Dictionary<Guid, List<MSS.Core.Model.Meters.Meter>> orderReadingValues1 = new Dictionary<Guid, List<MSS.Core.Model.Meters.Meter>>();
+      List<string> readingValuesSerialNumbers = meterReadingValuesDto.Select<MeterReadingValueDTO, string>((Func<MeterReadingValueDTO, string>) (x => x.MeterSerialNumber)).Distinct<string>().ToList<string>();
+      if (orderReadingvalues != null && orderReadingvalues.Any<OrderReadingValues>())
+      {
+        foreach (IEnumerable<OrderReadingValues> source in orderReadingvalues.GroupBy<OrderReadingValues, Guid>((Func<OrderReadingValues, Guid>) (o => o.OrderObj.Id)))
+        {
+          OrderReadingValues orderReadingValues2 = source.First<OrderReadingValues>();
+          OrderSerializableStructure orderserializablestructure = StructuresHelper.DeserializeStructure(orderReadingValues2.OrderObj.StructureBytes);
+          List<MSS.Core.Model.Meters.Meter> list = this.GetStructureManagerInstance().GetStructure(orderserializablestructure).Meters.Where<MSS.Core.Model.Meters.Meter>((Func<MSS.Core.Model.Meters.Meter, bool>) (x => readingValuesSerialNumbers.Contains(x.SerialNumber))).ToList<MSS.Core.Model.Meters.Meter>();
+          orderReadingValues1.Add(orderReadingValues2.OrderObj.Id, list);
+        }
+      }
+      return orderReadingValues1;
+    }
+
+    private List<MSS.Core.Model.Meters.Meter> GetMetersForJobReadingValues(
+      IList<MeterReadingValueDTO> meterReadingValuesDto,
+      List<JobReadingValues> jobReadingvalues)
+    {
+      List<MSS.Core.Model.Meters.Meter> jobReadingValues = new List<MSS.Core.Model.Meters.Meter>();
+      List<string> readingValuesSerialNumbers = meterReadingValuesDto.Select<MeterReadingValueDTO, string>((Func<MeterReadingValueDTO, string>) (x => x.MeterSerialNumber)).Distinct<string>().ToList<string>();
+      if (jobReadingvalues != null && jobReadingvalues.Any<JobReadingValues>())
+        jobReadingValues = this._meterRepository.SearchFor((Expression<Func<MSS.Core.Model.Meters.Meter, bool>>) (x => readingValuesSerialNumbers.Contains(x.SerialNumber))).ToList<MSS.Core.Model.Meters.Meter>();
+      return jobReadingValues;
+    }
+
+    private Dictionary<Guid, List<MSS.Core.Model.Meters.Meter>> GetMetersForOrderReadingValues(
+      IList<MeterReadingValueDTO> meterReadingValuesDto,
+      List<OrderReadingValues> orderReadingvalues,
+      ref Dictionary<Guid, Location> locationsDictionary)
+    {
+      Dictionary<Guid, List<MSS.Core.Model.Meters.Meter>> orderReadingValues1 = new Dictionary<Guid, List<MSS.Core.Model.Meters.Meter>>();
+      Dictionary<Guid, Location> dictionary = new Dictionary<Guid, Location>();
+      List<string> readingValuesSerialNumbers = meterReadingValuesDto.Select<MeterReadingValueDTO, string>((Func<MeterReadingValueDTO, string>) (x => x.MeterSerialNumber)).Distinct<string>().ToList<string>();
+      if (orderReadingvalues != null && orderReadingvalues.Any<OrderReadingValues>())
+      {
+        foreach (IEnumerable<OrderReadingValues> source in orderReadingvalues.GroupBy<OrderReadingValues, Guid>((Func<OrderReadingValues, Guid>) (o => o.OrderObj.Id)))
+        {
+          OrderReadingValues orderReadingValues2 = source.First<OrderReadingValues>();
+          OrderSerializableStructure orderserializablestructure = StructuresHelper.DeserializeStructure(orderReadingValues2.OrderObj.StructureBytes);
+          Structure structure = this.GetStructureManagerInstance().GetStructure(orderserializablestructure);
+          List<MSS.Core.Model.Meters.Meter> list = structure.Meters.Where<MSS.Core.Model.Meters.Meter>((Func<MSS.Core.Model.Meters.Meter, bool>) (x => readingValuesSerialNumbers.Contains(x.SerialNumber))).ToList<MSS.Core.Model.Meters.Meter>();
+          orderReadingValues1.Add(orderReadingValues2.OrderObj.Id, list);
+          dictionary.Add(orderReadingValues2.OrderObj.Id, structure.Locations.FirstOrDefault<Location>());
+        }
+      }
+      if (orderReadingvalues != null && orderReadingvalues.Any<OrderReadingValues>())
+      {
+        foreach (OrderReadingValues orderReadingvalue in orderReadingvalues)
+        {
+          Location location = dictionary[orderReadingvalue.OrderObj.Id];
+          if (!locationsDictionary.ContainsKey(orderReadingvalue.MeterReadingValue.Id))
+            locationsDictionary.Add(orderReadingvalue.MeterReadingValue.Id, location);
+        }
+      }
+      return orderReadingValues1;
+    }
+
+    private List<MSS.Core.Model.Meters.Meter> GetMetersForJobReadingValues(
+      IList<MeterReadingValueDTO> meterReadingValuesDto,
+      List<JobReadingValues> jobReadingvalues,
+      ref Dictionary<Guid, Location> locationsDictionary)
+    {
+      List<MSS.Core.Model.Meters.Meter> source = new List<MSS.Core.Model.Meters.Meter>();
+      List<string> readingValuesSerialNumbers = meterReadingValuesDto.Select<MeterReadingValueDTO, string>((Func<MeterReadingValueDTO, string>) (x => x.MeterSerialNumber)).Distinct<string>().ToList<string>();
+      if (jobReadingvalues != null && jobReadingvalues.Any<JobReadingValues>())
+      {
+        source = this._meterRepository.SearchFor((Expression<Func<MSS.Core.Model.Meters.Meter, bool>>) (x => readingValuesSerialNumbers.Contains(x.SerialNumber))).ToList<MSS.Core.Model.Meters.Meter>();
+        Dictionary<Guid, Location> locationsForMeters = this._repositoryFactory.GetStructureNodeRepository().GetLocationsForMeters(source.Select<MSS.Core.Model.Meters.Meter, Guid>((Func<MSS.Core.Model.Meters.Meter, Guid>) (m => m.Id)).ToList<Guid>());
+        foreach (JobReadingValues jobReadingvalue in jobReadingvalues)
+        {
+          JobReadingValues jobReadingValue = jobReadingvalue;
+          MSS.Core.Model.Meters.Meter meter = source.FirstOrDefault<MSS.Core.Model.Meters.Meter>((Func<MSS.Core.Model.Meters.Meter, bool>) (m => m.SerialNumber == jobReadingValue.ReadingValue.MeterSerialNumber));
+          if (meter != null && locationsForMeters.ContainsKey(meter.Id))
+          {
+            Location location = locationsForMeters[meter.Id];
+            if (!locationsDictionary.ContainsKey(jobReadingValue.ReadingValue.Id))
+              locationsDictionary.Add(jobReadingValue.ReadingValue.Id, location);
+          }
+        }
+      }
+      return source;
+    }
+
+    private static void SaveReadingValuesFile(
+      string fileName,
+      bool csvFileType,
+      bool xmlFileType,
+      bool excelFileType,
+      List<string[]> readingValueList,
+      string valueSeparator,
+      bool writeStartElement,
+      bool writeEndElement)
+    {
+      CSVManager csvManager = new CSVManager();
+      XMLManager<MeterReadingValueDTO> xmlManager = new XMLManager<MeterReadingValueDTO>();
+      XCellManager xcellManager = new XCellManager();
+      if (csvFileType)
+        csvManager.WriteToFileCultureDependent(fileName, readingValueList, valueSeparator);
+      else if (xmlFileType)
+      {
+        xmlManager.WriteToFile(fileName, readingValueList, writeStartElement, writeEndElement);
+      }
+      else
+      {
+        if (!excelFileType)
+          return;
+        xcellManager.WriteToFile(fileName, readingValueList);
+      }
+    }
+
+    public void SetReadingValuesAsExported(List<MeterReadingValue> readingValues)
+    {
+      try
+      {
+        foreach (MeterReadingValue readingValue in readingValues)
+          readingValue.ExportedOn = new DateTime?(DateTime.Now);
+        this._nhSession.FlushMode = FlushMode.Commit;
+        ITransaction transaction = this._nhSession.BeginTransaction();
+        this._repositoryFactory.GetRepository<MeterReadingValue>().TransactionalUpdateMany((IEnumerable<MeterReadingValue>) readingValues);
+        transaction.Commit();
+      }
+      catch (Exception ex)
+      {
+        this._nhSession.Transaction.Rollback();
+        throw;
+      }
+    }
+
+    public List<string[]> CreateNodeList(List<StructureNodeDTO> nodeCollection)
+    {
+      List<string[]> nodeList = new List<string[]>();
+      Stack<StructureNodeDTO> structureNodeDtoStack = new Stack<StructureNodeDTO>((IEnumerable<StructureNodeDTO>) nodeCollection);
+      while (structureNodeDtoStack.Count > 0)
+      {
+        StructureNodeDTO next = structureNodeDtoStack.Pop();
+        Guid guid;
+        string empty1;
+        if (next.ParentNode != null)
+        {
+          guid = next.ParentNode.Id;
+          empty1 = guid.ToString();
+        }
+        else
+          empty1 = string.Empty;
+        string str1 = empty1;
+        string empty2;
+        if (next.RootNode != null)
+        {
+          guid = next.RootNode.Id;
+          empty2 = guid.ToString();
+        }
+        else
+          empty2 = string.Empty;
+        string str2 = empty2;
+        string str3;
+        if (next.Entity == null)
+        {
+          guid = Guid.Empty;
+          str3 = guid.ToString();
+        }
+        else
+          str3 = next.Entity.GetType().GetProperty("Id").GetValue(next.Entity).ToString();
+        string entityId = str3;
+        string str4 = next.Entity != null ? next.Entity.GetType().Name : string.Empty;
+        if (next.Entity != null)
+        {
+          nodeList.Add(new ReportingHelper().GetEntityStrings(next.Entity));
+          if (next.Entity.GetType() == typeof (MeterDTO))
+          {
+            IList<MeterReadingValue> source = this._meterReadingValueRepository.SearchFor((Expression<Func<MeterReadingValue, bool>>) (mrv => mrv.MeterId == Guid.Parse(entityId)));
+            if (source.Count > 0)
+              nodeList.AddRange(source.Select<MeterReadingValue, string[]>((Func<MeterReadingValue, string[]>) (meterReadingValue => new ReportingHelper().GetReadingValueStrings(meterReadingValue))));
+          }
+        }
+        StructureNodeEquipmentSettings equipmentSettings = (StructureNodeEquipmentSettings) null;
+        guid = next.Id;
+        if (guid.ToString() == str2)
+          equipmentSettings = this._repositoryFactory.GetRepository<StructureNodeEquipmentSettings>().FirstOrDefault((Expression<Func<StructureNodeEquipmentSettings, bool>>) (es => es.StructureNode != default (object) && es.StructureNode.Id == next.Id));
+        string str5 = equipmentSettings != null ? equipmentSettings.EquipmentName : string.Empty;
+        string str6 = equipmentSettings != null ? equipmentSettings.EquipmentParams : string.Empty;
+        string str7 = equipmentSettings != null ? equipmentSettings.SystemName : string.Empty;
+        string str8 = equipmentSettings != null ? equipmentSettings.ScanMode : string.Empty;
+        string str9 = equipmentSettings != null ? equipmentSettings.ScanParams : string.Empty;
+        string str10 = equipmentSettings != null ? equipmentSettings.ReadingProfileName : string.Empty;
+        string str11 = equipmentSettings != null ? equipmentSettings.ReadingProfileParams : string.Empty;
+        string str12 = equipmentSettings != null ? equipmentSettings.DeviceModelReadingParams : string.Empty;
+        string[] strArray1 = new string[18];
+        guid = next.Id;
+        strArray1[0] = guid.ToString();
+        strArray1[1] = next.Name;
+        strArray1[2] = next.NodeType.Name;
+        strArray1[3] = next.Description;
+        strArray1[4] = entityId;
+        strArray1[5] = str4;
+        strArray1[6] = next.StructureType.ToString();
+        strArray1[7] = str1;
+        strArray1[8] = str2;
+        strArray1[9] = next.OrderNr.ToString();
+        strArray1[10] = str5;
+        strArray1[11] = str6;
+        strArray1[12] = str7;
+        strArray1[13] = str8;
+        strArray1[14] = str9;
+        strArray1[15] = str10;
+        strArray1[16] = str11;
+        strArray1[17] = str12;
+        string[] strArray2 = strArray1;
+        nodeList.Add(strArray2);
+        foreach (StructureNodeDTO subNode in (Collection<StructureNodeDTO>) next.SubNodes)
+          structureNodeDtoStack.Push(subNode);
+      }
+      return nodeList;
+    }
+
+    public List<string[]> CreateReadingValuesList(List<MeterReadingValueDTO> meterReadingValues)
+    {
+      List<string[]> readingValuesList = new List<string[]>();
+      readingValuesList.Add(new string[9]
+      {
+        Resources.MSS_Client_ReadingValues_Date,
+        Resources.MSS_Client_Structures_Header_SerialNumber,
+        Resources.MSS_Client_ReadingValues_Value,
+        Resources.MSS_Client_DataFilters_PhysicalQuantity,
+        Resources.MSS_Client_DataFilters_MeterType,
+        Resources.MSS_Client_DataFilters_Calculation,
+        Resources.MSS_Client_DataFilters_CalculationStart,
+        Resources.MSS_Client_DataFilters_StorageInterval,
+        Resources.MSS_Client_DataFilters_Creation
+      });
+      foreach (MeterReadingValueDTO meterReadingValue in meterReadingValues)
+        readingValuesList.Add(new string[9]
+        {
+          meterReadingValue.Date.ToString("dd.MM.yyyy"),
+          meterReadingValue.MeterSerialNumber,
+          meterReadingValue.Value.ToString((IFormatProvider) Thread.CurrentThread.CurrentCulture),
+          meterReadingValue.PhysicalQuantity.ToString(),
+          meterReadingValue.MeterType.ToString(),
+          meterReadingValue.Calculation.ToString(),
+          meterReadingValue.CalculationStart.ToString(),
+          meterReadingValue.StorageInterval.ToString(),
+          meterReadingValue.Creation.ToString()
+        });
+      return readingValuesList;
+    }
+
+    public List<string[]> CreateReadingValuesListForCsvOrPdfExport(
+      List<MeterReadingValueDTO> meterReadingValues)
+    {
+      List<string[]> forCsvOrPdfExport = new List<string[]>();
+      forCsvOrPdfExport.Add(new string[4]
+      {
+        Resources.MSS_Client_ReadingValues_Date,
+        Resources.MSS_Client_ReadingValues_Value,
+        Resources.MSS_Client_ReadingValues_Unit,
+        Resources.MSS_Client_ReadingValues_Description
+      });
+      foreach (MeterReadingValueDTO meterReadingValue in meterReadingValues)
+        forCsvOrPdfExport.Add(new string[4]
+        {
+          meterReadingValue.Date.ToString("dd.MM.yyyy HH:mm:ss"),
+          meterReadingValue.Value.ToString((IFormatProvider) Thread.CurrentThread.CurrentCulture),
+          meterReadingValue.UnitCode,
+          meterReadingValue.PhysicalQuantity.ToString() + ", " + (object) meterReadingValue.Calculation
+        });
+      return forCsvOrPdfExport;
+    }
+
+    public List<string[]> CreateDeviceList(List<StructureNodeDTO> nodeCollection)
+    {
+      List<string[]> deviceList = new List<string[]>();
+      Stack<StructureNodeDTO> structureNodeDtoStack = new Stack<StructureNodeDTO>((IEnumerable<StructureNodeDTO>) nodeCollection);
+      string[] strArray1 = new string[11]
+      {
+        "dlLFNr",
+        "dnBem",
+        "dgZaehlerNr",
+        "dgFunkId",
+        "dgMessbereich",
+        "dgErfasst",
+        "dgAnfangsStand",
+        "dgAnfStandExtZ",
+        "dgRaumSchl",
+        "dnWohnung",
+        " dnStrAbw"
+      };
+      deviceList.Add(strArray1);
+      while (structureNodeDtoStack.Count > 0)
+      {
+        StructureNodeDTO structureNodeDto = structureNodeDtoStack.Pop();
+        if (structureNodeDto.Entity is MeterDTO)
+        {
+          MeterDTO entity = structureNodeDto.Entity as MeterDTO;
+          MSS.Core.Model.Meters.Meter byId = this._repositoryFactory.GetRepository<MSS.Core.Model.Meters.Meter>().GetById((object) entity.Id);
+          string[] strArray2 = new string[11]
+          {
+            structureNodeDto.RootNode == null || structureNodeDto.RootNode.Entity == null ? string.Empty : (structureNodeDto.RootNode.Entity as LocationDTO).BuildingNr,
+            structureNodeDto.ParentNode == null || structureNodeDto.ParentNode.Entity == null ? string.Empty : (structureNodeDto.ParentNode.Entity as TenantDTO).Name,
+            entity.DeviceType == DeviceTypeEnum.M7 || entity.DeviceType == DeviceTypeEnum.M6 ? entity.SerialNumber : entity.CompletDevice,
+            byId.SerialNumber,
+            byId == null || !byId.MeterRadioDetailsList.Any<MeterRadioDetails>() ? string.Empty : byId.MeterRadioDetailsList.First<MeterRadioDetails>().dgMessbereich,
+            byId.LastChangedOn.HasValue ? byId.LastChangedOn.Value.ToString("yyyy-MM-dd") : string.Empty,
+            byId.StartValue.HasValue ? byId.StartValue.ToString() : string.Empty,
+            byId.StartValueImpulses,
+            byId.Room != null ? byId.Room.Code : string.Empty,
+            structureNodeDto.ParentNode == null || structureNodeDto.ParentNode.Entity == null ? string.Empty : (structureNodeDto.ParentNode.Entity as TenantDTO).CustomerTenantNo,
+            structureNodeDto.ParentNode == null || structureNodeDto.ParentNode.Entity == null ? string.Empty : (structureNodeDto.ParentNode.Entity as TenantDTO).Description
+          };
+          deviceList.Add(strArray2);
+        }
+        foreach (StructureNodeDTO subNode in (Collection<StructureNodeDTO>) structureNodeDto.SubNodes)
+          structureNodeDtoStack.Push(subNode);
+      }
+      return deviceList;
+    }
+
+    public void CreateExportJob(AutomatedExportJob automatedExportJob)
+    {
+      try
+      {
+        this._repositoryFactory.GetSession().BeginTransaction();
+        automatedExportJob.CreatedOn = DateTime.Now;
+        this._automatedExportJobRepository.TransactionalInsert(automatedExportJob);
+        this._repositoryFactory.GetSession().Transaction.Commit();
+      }
+      catch (Exception ex)
+      {
+        this._repositoryFactory.GetSession().Transaction.Rollback();
+        throw;
+      }
+    }
+
+    public void CreateSasJobCountryConnections(
+      AutomatedExportJob automatedExportJob,
+      RadObservableCollection<Country> selectedCountries)
+    {
+      IRepository<AutomatedExportJobCountry> repository = this._repositoryFactory.GetRepository<AutomatedExportJobCountry>();
+      foreach (Country selectedCountry in (Collection<Country>) selectedCountries)
+        repository.Insert(new AutomatedExportJobCountry()
+        {
+          Country = selectedCountry,
+          AutomatedExportJob = automatedExportJob
+        });
+    }
+
+    public void UpdateExportJob(AutomatedExportJob automatedExportJob)
+    {
+      try
+      {
+        this._repositoryFactory.GetSession().BeginTransaction();
+        this._automatedExportJobRepository.TransactionalUpdate(automatedExportJob);
+        this._repositoryFactory.GetSession().Transaction.Commit();
+      }
+      catch (Exception ex)
+      {
+        this._repositoryFactory.GetSession().Transaction.Rollback();
+        throw;
+      }
+    }
+
+    public void UpdateSasJobCountryConnections(
+      AutomatedExportJob automatedExportJob,
+      RadObservableCollection<Country> selectedCountries)
+    {
+      IRepository<AutomatedExportJobCountry> repository1 = this._repositoryFactory.GetRepository<AutomatedExportJobCountry>();
+      IRepository<AutomatedExportJobCountry> repository2 = repository1;
+      Expression<Func<AutomatedExportJobCountry, bool>> predicate = (Expression<Func<AutomatedExportJobCountry, bool>>) (j => j.AutomatedExportJob == automatedExportJob);
+      foreach (AutomatedExportJobCountry entity in (IEnumerable<AutomatedExportJobCountry>) repository2.SearchFor(predicate))
+        repository1.Delete(entity);
+      foreach (Country selectedCountry in (Collection<Country>) selectedCountries)
+        repository1.Insert(new AutomatedExportJobCountry()
+        {
+          Country = selectedCountry,
+          AutomatedExportJob = automatedExportJob
+        });
+    }
+
+    public void DeleteExportJob(AutomatedExportJob automatedExportJob)
+    {
+      try
+      {
+        this._repositoryFactory.GetSession().BeginTransaction();
+        this._automatedExportJobRepository.TransactionalDelete(automatedExportJob);
+        this._repositoryFactory.GetSession().Transaction.Commit();
+      }
+      catch (Exception ex)
+      {
+        this._repositoryFactory.GetSession().Transaction.Rollback();
+        throw;
+      }
+    }
+
+    public bool ExistingRootNode(List<string[]> nodesList)
+    {
+      if (nodesList[0][0] == typeof (LocationDTO).Name)
+      {
+        string buildingNr = nodesList[0][4];
+        List<Guid> entityIds = this._locationRepository.SearchFor((Expression<Func<Location, bool>>) (l => l.BuildingNr == buildingNr)).Select<Location, Guid>((Func<Location, Guid>) (l => l.Id)).ToList<Guid>();
+        return this._structureNodeRepository.FirstOrDefault((Expression<Func<StructureNode, bool>>) (n => entityIds.Contains(n.EntityId) && n.EndDate == new DateTime?())) != null;
+      }
+      return this._structureNodeRepository.FirstOrDefault((Expression<Func<StructureNode, bool>>) (n => n.Name == nodesList[0][1] && n.EndDate == new DateTime?())) != null;
+    }
+
+    public List<string[]> ExistingMeters(List<string[]> nodesList)
+    {
+      return this.GetExistingMetersInDB(this.GetMetersInFile(nodesList));
+    }
+
+    private List<string[]> GetExistingMetersInDB(List<string[]> meterList)
+    {
+      List<string[]> existingMetersInDb = new List<string[]>();
+      for (int i = 0; i < meterList.Count; i += 2)
+      {
+        List<Guid> meterEntityIds = this._meterRepository.SearchFor((Expression<Func<MSS.Core.Model.Meters.Meter, bool>>) (m => m.SerialNumber == meterList[i][1].ToString())).Select<MSS.Core.Model.Meters.Meter, Guid>((Func<MSS.Core.Model.Meters.Meter, Guid>) (m => m.Id)).ToList<Guid>();
+        if (this._structureNodeRepository.FirstOrDefault((Expression<Func<StructureNode, bool>>) (n => meterEntityIds.Contains(n.EntityId) && n.EndDate == new DateTime?())) != null)
+        {
+          existingMetersInDb.Add(meterList[i]);
+          existingMetersInDb.Add(meterList[i + 1]);
+        }
+      }
+      return existingMetersInDb;
+    }
+
+    public List<string[]> GetMetersInFile(List<string[]> nodesList)
+    {
+      return nodesList.Where<string[]>((Func<string[], bool>) (nodeList => nodeList[0] == typeof (MeterDTO).Name || nodeList[5] == typeof (MeterDTO).Name)).ToList<string[]>();
+    }
+  }
+}
+
+
+--- XCellManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Reporting.XCellManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Excel;
+using MSS.Business.Modules.Archiving;
+using MSS.Business.Utils;
+using MSS.DTO.Minomat;
+using MSSArchive.Core.Model.Meters;
+using NHibernate;
+using NHibernate.Linq;
+using OfficeOpenXml;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
+
+#nullable disable
+namespace MSS.Business.Modules.Reporting
+{
+  public class XCellManager
+  {
+    public void WriteToFile(string filename, List<string[]> nodeList)
+    {
+      ExcelPackage excelPackage = new ExcelPackage(new FileInfo(filename));
+      excelPackage.Workbook.Properties.Author = "Minol™";
+      ExcelWorksheet excelWorksheet = ((IEnumerable<ExcelWorksheet>) excelPackage.Workbook.Worksheets).Any<ExcelWorksheet>((System.Func<ExcelWorksheet, bool>) (w => w.Name == "Structure")) ? excelPackage.Workbook.Worksheets["Structure"] : excelPackage.Workbook.Worksheets.Add("Structure");
+      excelWorksheet.Column(1).Width = 15.0;
+      int rows = excelWorksheet.Dimension != null ? excelWorksheet.Dimension.Rows : 0;
+      foreach (string[] node in nodeList)
+      {
+        ++rows;
+        int Col = 0;
+        foreach (string str in node)
+        {
+          ++Col;
+          excelWorksheet.Cells[rows, Col].Value = (object) str;
+        }
+      }
+      excelPackage.Save();
+    }
+
+    public List<string[]> ReadStructureFromFile(string filename)
+    {
+      FileStream fileStream = File.Open(filename, FileMode.Open, FileAccess.Read);
+      using (fileStream)
+      {
+        IExcelDataReader openXmlReader = ExcelReaderFactory.CreateOpenXmlReader((Stream) fileStream);
+        IEnumerable<DataRow> dataRows = openXmlReader.AsDataSet().Tables[openXmlReader.Name].Rows.Cast<DataRow>().Select<DataRow, DataRow>((System.Func<DataRow, DataRow>) (a => a));
+        List<string[]> nodeList = new List<string[]>();
+        TypeHelperExtensionMethods.ForEach<DataRow>(dataRows, (Action<DataRow>) (row => nodeList.Add(Array.ConvertAll<object, string>(row.ItemArray, (Converter<object, string>) (x => x?.ToString())))));
+        openXmlReader.Close();
+        return nodeList;
+      }
+    }
+
+    public List<MinomatImportDTO> ReadMinomatsFromFile(string filename)
+    {
+      FileStream fileStream = File.Open(filename, FileMode.Open, FileAccess.Read);
+      using (fileStream)
+      {
+        IExcelDataReader openXmlReader = ExcelReaderFactory.CreateOpenXmlReader((Stream) fileStream);
+        openXmlReader.IsFirstRowAsColumnNames = true;
+        return openXmlReader.AsDataSet().Tables[openXmlReader.Name].ToList<MinomatImportDTO>();
+      }
+    }
+
+    public void WriteArchiveToFile<T>(string fileName, Expression<System.Func<T, bool>> expression)
+    {
+      ISessionFactory factoryMssArchive = ArchiveManagerNHibernate.GetSessionFactoryMSSArchive();
+      int parameterValue = MSS.Business.Utils.AppContext.Current.GetParameterValue<int>("LoadSizeForExportOfArchive");
+      ReportingHelper reportingHelper = new ReportingHelper();
+      PagingProvider<T> pagingProvider = expression != null ? new PagingProvider<T>(factoryMssArchive, expression) : new PagingProvider<T>(factoryMssArchive);
+      int num = pagingProvider.FetchCount();
+      ExcelPackage excelPackage = new ExcelPackage(new FileInfo(fileName));
+      excelPackage.Workbook.Properties.Author = "Minol™";
+      ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add("ArchiveMeterReadingValue");
+      excelWorksheet.Column(1).Width = 15.0;
+      IList<T> archiveList = pagingProvider.FetchRange(1, parameterValue);
+      int startIndex = 2;
+      string[] source = reportingHelper.WriteArchiveListHeader<ArchiveMeterReadingValue>().Split(',');
+      for (int Col = 1; Col <= ((IEnumerable<string>) source).Count<string>(); ++Col)
+        excelWorksheet.Cells[1, Col].Value = (object) source[Col - 1];
+      while (startIndex < num)
+      {
+        List<string[]> archiveListRows = reportingHelper.GetArchiveListRows<ArchiveMeterReadingValue>((IEnumerable<ArchiveMeterReadingValue>) archiveList);
+        int Row = startIndex - 1;
+        startIndex += parameterValue;
+        archiveList = pagingProvider.FetchRange(startIndex, parameterValue);
+        foreach (string[] strArray in archiveListRows)
+        {
+          ++Row;
+          int Col = 0;
+          foreach (string str in strArray)
+          {
+            ++Col;
+            excelWorksheet.Cells[Row, Col].Value = (object) str;
+          }
+        }
+      }
+      excelPackage.Save();
+    }
+  }
+}
+
+
+--- XMLManager`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.Reporting.XMLManager`1
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Xml;
+
+#nullable disable
+namespace MSS.Business.Modules.Reporting
+{
+  public class XMLManager<T>
+  {
+    public void WriteToFile(
+      string filename,
+      List<string[]> nodeList,
+      bool writeStartElement = true,
+      bool writeEndElement = true)
+    {
+      StreamWriter streamWriter = new StreamWriter(filename);
+      StringWriter w = new StringWriter();
+      XmlTextWriter xmlTextWriter = new XmlTextWriter((TextWriter) w);
+      if (writeStartElement)
+        xmlTextWriter.WriteStartElement("items");
+      foreach (string[] node in nodeList)
+      {
+        xmlTextWriter.WriteStartElement("item");
+        foreach (string str in node)
+        {
+          xmlTextWriter.WriteStartElement("prop");
+          xmlTextWriter.WriteAttributeString("value", str);
+          xmlTextWriter.WriteFullEndElement();
+        }
+        xmlTextWriter.WriteEndElement();
+      }
+      if (writeEndElement)
+      {
+        xmlTextWriter.WriteStartElement("items");
+        xmlTextWriter.WriteFullEndElement();
+      }
+      xmlTextWriter.Flush();
+      xmlTextWriter.Close();
+      streamWriter.Write(w.ToString());
+      streamWriter.Close();
+    }
+
+    public List<string[]> ReadStructureFromFile(string fileName)
+    {
+      FileStream inStream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+      XmlDocument xmlDocument = new XmlDocument();
+      xmlDocument.Load((Stream) inStream);
+      return xmlDocument.GetElementsByTagName("item").Cast<XmlNode>().Select<XmlNode, string[]>((Func<XmlNode, string[]>) (node => node.ChildNodes.Cast<XmlElement>().Select<XmlElement, string>((Func<XmlElement, string>) (el => el.Attributes["value"].Value)).ToArray<string>())).ToList<string[]>();
+    }
+
+    public void WriteToFileSASModel() => throw new NotImplementedException();
+  }
+}
+

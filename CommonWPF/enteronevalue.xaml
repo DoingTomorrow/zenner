@@ -1,0 +1,23 @@
+<Window x:Class="CommonWPF.EnterOneValue"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:my="clr-namespace:CommonWPF"
+        Title="EnterOneValue" Height="466.93" Width="825.6" WindowStartupLocation="CenterScreen"
+        Icon="Images/ZR.ico">
+  <DockPanel>
+    <my:GmmCorporateControl DockPanel.Dock="Top" HorizontalAlignment="Stretch"/>
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" FlowDirection="RightToLeft">
+      <Button Click="ButtonOk_Click" Name="ButtonOk" Content="OK" Margin="5" Padding="10,2,10,2"/>
+    </StackPanel>
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="2*"/>
+        <RowDefinition Height="80"/>
+      </Grid.RowDefinitions>
+      <TextBlock Name="TextBlockInfo" Margin="10,10,9.8,9.8" Text="info text" Grid.RowSpan="2" FontSize="16"
+                 FontWeight="Bold" TextWrapping="Wrap"/>
+      <TextBox Name="TextBoxValue" Grid.Row="1" HorizontalAlignment="Stretch" Margin="10,10,9.8,9.8" Padding="10"
+               Grid.RowSpan="2" ScrollViewer.CanContentScroll="true" FontSize="16"/>
+    </Grid>
+  </DockPanel>
+</Window>

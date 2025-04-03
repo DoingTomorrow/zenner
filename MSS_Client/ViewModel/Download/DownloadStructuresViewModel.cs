@@ -1,0 +1,223 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.ViewModel.Download.DownloadStructuresViewModel
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using Microsoft.Synchronization;
+using MSS.Business.DTO;
+using MSS.Business.Errors;
+using MSS.Business.Events;
+using MSS.Business.Modules;
+using MSS.Business.Modules.Synchronization;
+using MSS.Business.Utils;
+using MSS.Client.UI.Desktop.View.Synchronization;
+using MSS.Core.Model.Structures;
+using MSS.Interfaces;
+using MSS.Localisation;
+using MSS.Utils.Utils;
+using MSS_Client.Utils;
+using MVVM.Commands;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Windows.Input;
+using Telerik.Windows.Controls;
+
+#nullable disable
+namespace MSS_Client.ViewModel.Download
+{
+  public class DownloadStructuresViewModel : MVVM.ViewModel.ViewModelBase
+  {
+    private IEnumerable<StructureNodeDTO> _sampleNodes = (IEnumerable<StructureNodeDTO>) new List<StructureNodeDTO>();
+    private string _searchText = string.Empty;
+    private BackgroundWorker _backgroundWorkerSync;
+    private ProgressDialog _syncProgressDialog;
+    private readonly EModul _activeModule;
+    private bool _lockBoxValue;
+    private readonly ApplicationTabsEnum _activeTab;
+    private List<StructureNodeLinks> structureNodesLinksList;
+    private readonly IRepositoryFactory _repositoryFactory;
+    private IWindowFactory _windowFactory;
+    private MVVM.ViewModel.ViewModelBase _messageUserControl;
+
+    public DownloadStructuresViewModel(
+      EModul am,
+      ApplicationTabsEnum selectedTab,
+      IRepositoryFactory repositoryFactory,
+      IWindowFactory windowFactory)
+    {
+      this._activeModule = am;
+      this._activeTab = selectedTab;
+      this._repositoryFactory = repositoryFactory;
+      this._windowFactory = windowFactory;
+    }
+
+    public string SearchText
+    {
+      get => this._searchText;
+      set => this._searchText = value;
+    }
+
+    public IEnumerable<StructureNodeDTO> SampleNodes
+    {
+      get => this._sampleNodes;
+      set
+      {
+        this._sampleNodes = value;
+        this.OnPropertyChanged(nameof (SampleNodes));
+      }
+    }
+
+    public bool LockBoxValue
+    {
+      get => this._lockBoxValue;
+      set
+      {
+        this._lockBoxValue = value;
+        this.OnPropertyChanged(nameof (LockBoxValue));
+      }
+    }
+
+    private IEnumerable<StructureNodeLinks> GetStructureNodeLinks(
+      IEnumerable<object> structureNodeDtos)
+    {
+      List<StructureNodeLinks> structureNodeLinks1 = new List<StructureNodeLinks>();
+      StructureNodeLinks structureNodeLinks2 = new StructureNodeLinks();
+      foreach (object structureNodeDto in structureNodeDtos)
+      {
+        StructureNodeDTO dto = (StructureNodeDTO) structureNodeDto;
+        StructureNodeLinks structureNodeLinks3 = this.structureNodesLinksList.First<StructureNodeLinks>((Func<StructureNodeLinks, bool>) (s =>
+        {
+          if (s.Node.Id == dto.Id)
+          {
+            StructureTypeEnum structureType1 = s.StructureType;
+            StructureTypeEnum? structureType2 = dto.StructureType;
+            if ((structureType1 == structureType2.GetValueOrDefault() ? (structureType2.HasValue ? 1 : 0) : 0) != 0 && s.ParentNodeId == Guid.Empty)
+              return s.RootNode.Id == s.Node.Id;
+          }
+          return false;
+        }));
+        structureNodeLinks1.Add(structureNodeLinks3);
+      }
+      return (IEnumerable<StructureNodeLinks>) structureNodeLinks1;
+    }
+
+    public ICommand SearchCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (Delegate =>
+        {
+          try
+          {
+            if (this._activeModule != EModul.Structures)
+              return;
+            this.SampleNodes = new DownloadManager().SearchStructures(this._activeTab == ApplicationTabsEnum.StructuresFixed ? StructureTypeEnum.Fixed : (this._activeTab == ApplicationTabsEnum.StructuresLogical ? StructureTypeEnum.Logical : StructureTypeEnum.Physical), this.SearchText, out this.structureNodesLinksList);
+            if (this.SampleNodes.Any<StructureNodeDTO>())
+              return;
+            this.MessageUserControl = MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_Structures_Search);
+          }
+          catch (BaseApplicationException ex)
+          {
+            MessageHandlingManager.ShowExceptionMessageDialog(ex);
+          }
+        }));
+      }
+    }
+
+    public ICommand DownloadCommand
+    {
+      get
+      {
+        return (ICommand) new RelayCommand((Action<object>) (parameter =>
+        {
+          if (!MSS.Business.Utils.AppContext.Current.IsServerAvailableAndStatusAccepted)
+          {
+            MSSUIHelper.ShowWarningDialog(this._windowFactory, MessageCodes.Warning.GetStringValue(), Resources.MSS_Client_Server_Not_Available, false);
+          }
+          else
+          {
+            this.GetStructureNodeLinks((IEnumerable<object>) (parameter as RadTreeListView).SelectedItems);
+            this._syncProgressDialog = new ProgressDialog();
+            this._syncProgressDialog.Cancel += new EventHandler(this.CancelProcess);
+            this._backgroundWorkerSync = new BackgroundWorker()
+            {
+              WorkerReportsProgress = true,
+              WorkerSupportsCancellation = true
+            };
+            this._backgroundWorkerSync.DoWork += (DoWorkEventHandler) ((sender, args) =>
+            {
+              List<object> objectList = (List<object>) args.Argument;
+              Guid? nullable = new Guid?();
+              if (objectList[4] != null)
+                nullable = new Guid?(Guid.Parse(objectList[4].ToString()));
+              SychronizationHelperFactory.GetSynchronizationHelper().SynchronizeScope((SyncScopesEnum) objectList[0], (SyncDirectionOrder) objectList[1]);
+            });
+            this._backgroundWorkerSync.RunWorkerCompleted += (RunWorkerCompletedEventHandler) ((sender, args) =>
+            {
+              this._syncProgressDialog.Close();
+              if (args.Cancelled)
+                MessageHandlingManager.ShowWarningMessage(Resources.MSS_Client_Synchronization_Cancelled);
+              else if (args.Error != null)
+              {
+                MessageHandler.LogException(args.Error);
+                MessageHandlingManager.ShowExceptionMessageDialog(CultureResources.GetValue(ErrorCodes.GetErrorMessage("MSSError_3")) + Environment.NewLine + "Message:" + args.Error.Message + Environment.NewLine + "Inner Exception:" + args.Error.InnerException.Message + Environment.NewLine + "Stack Trace:" + args.Error.StackTrace, this._windowFactory);
+              }
+              else
+                MessageHandlingManager.ShowSuccessMessage(Resources.MSS_Client_Synchronization_Succedded);
+            });
+            List<object> objectList1 = new List<object>();
+            switch (this._activeModule)
+            {
+              case EModul.Meters:
+                objectList1 = new List<object>()
+                {
+                  (object) SyncScopesEnum.Meters,
+                  (object) SyncDirectionOrder.Download
+                };
+                break;
+              case EModul.Structures:
+                objectList1 = new List<object>()
+                {
+                  (object) (SyncScopesEnum) (this._activeTab == ApplicationTabsEnum.StructuresPhysical ? 4 : (this._activeTab == ApplicationTabsEnum.StructuresLogical ? 3 : 2)),
+                  (object) SyncDirectionOrder.Download
+                };
+                EventPublisher.Publish<SelectedTabChanged>(new SelectedTabChanged()
+                {
+                  SelectedTab = this._activeTab
+                }, (IViewModel) this);
+                break;
+            }
+            this._backgroundWorkerSync.RunWorkerAsync((object) objectList1);
+            this._syncProgressDialog.ShowDialog();
+            this.OnRequestClose(true);
+          }
+        }));
+      }
+    }
+
+    public ICommand CancelCommand
+    {
+      get => (ICommand) new RelayCommand((Action<object>) (Delegate => this.OnRequestClose(false)));
+    }
+
+    private void CancelProcess(object sender, EventArgs e)
+    {
+      this._backgroundWorkerSync.CancelAsync();
+    }
+
+    public MVVM.ViewModel.ViewModelBase MessageUserControl
+    {
+      get => this._messageUserControl;
+      set
+      {
+        this._messageUserControl = value;
+        this.OnPropertyChanged(nameof (MessageUserControl));
+      }
+    }
+
+    public IEnumerable<StructureNodeDTO> SelectedNodes { get; set; }
+  }
+}

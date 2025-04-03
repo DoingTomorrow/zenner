@@ -1,0 +1,50 @@
+
+--- LangEnum.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Languages.LangEnum
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+#nullable disable
+namespace MSS.Business.Languages
+{
+  public enum LangEnum
+  {
+    English,
+    German,
+  }
+}
+
+
+--- Language.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Languages.Language
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Localisation;
+
+#nullable disable
+namespace MSS.Business.Languages
+{
+  public class Language
+  {
+    public Language(LangEnum n, string i)
+    {
+      this.Name = n;
+      this.TranslatedName = n == LangEnum.German ? Resources.MSS_LangEnum_German : Resources.MSS_LangEnum_English;
+      this.Image = i;
+    }
+
+    public LangEnum Name { get; set; }
+
+    public string TranslatedName { get; set; }
+
+    public string Image { get; set; }
+  }
+}
+

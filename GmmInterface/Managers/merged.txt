@@ -1,0 +1,42 @@
+
+--- MinoConnectManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.Managers.MinoConnectManager
+// Assembly: GmmInterface, Version=1.0.1.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 25F1E48F-52B7-4A4F-B66A-62C91CCF5C52
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmInterface.dll
+
+using System;
+using System.IO.Ports;
+using System.Threading;
+
+#nullable disable
+namespace ZENNER.Managers
+{
+  public static class MinoConnectManager
+  {
+    public static bool IsMinoConnect(string portName)
+    {
+      try
+      {
+        using (SerialPort serialPort = new SerialPort(portName, 115200, Parity.None, 8, StopBits.One)
+        {
+          ReadTimeout = 2000,
+          WriteTimeout = 2000
+        })
+        {
+          serialPort.Open();
+          serialPort.Write("#ver\r\n");
+          Thread.Sleep(600);
+          return !string.IsNullOrEmpty(serialPort.ReadExisting());
+        }
+      }
+      catch (Exception ex)
+      {
+        return false;
+      }
+    }
+  }
+}
+

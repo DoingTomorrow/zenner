@@ -1,0 +1,464 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0729F240-FD41-4FA0-A05A-123476D61210}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>MSS.Business</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper">
+      <HintPath>lib\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Library.Core.Cryptography">
+      <HintPath>lib\Common.Library.Core.Cryptography.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Library.NHibernate.Data">
+      <HintPath>lib\Common.Library.NHibernate.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="EDC_Handler">
+      <HintPath>lib\EDC_Handler.dll</HintPath>
+    </Reference>
+    <Reference Include="EPPlus">
+      <HintPath>lib\EPPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="Excel.4.5">
+      <HintPath>lib\Excel.4.5.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmInterface">
+      <HintPath>lib\GmmInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="InTheHand.Net.Personal">
+      <HintPath>lib\InTheHand.Net.Personal.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Core">
+      <HintPath>lib\MSS.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.DTO">
+      <HintPath>lib\MSS.DTO.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Interfaces">
+      <HintPath>lib\MSS.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Localisation">
+      <HintPath>lib\MSS.Localisation.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Utils">
+      <HintPath>lib\MSS.Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="MSSArchive.Core">
+      <HintPath>lib\MSSArchive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MSSWeb.Common">
+      <HintPath>lib\MSSWeb.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Synchronization">
+      <HintPath>lib\Microsoft.Synchronization.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Synchronization.Data">
+      <HintPath>lib\Microsoft.Synchronization.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Synchronization.Data.SqlServer">
+      <HintPath>lib\Microsoft.Synchronization.Data.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="MinomatHandler">
+      <HintPath>lib\MinomatHandler.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>lib\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject">
+      <HintPath>lib\Ninject.dll</HintPath>
+    </Reference>
+    <Reference Include="PDC_Handler">
+      <HintPath>lib\PDC_Handler.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="ReachFramework" />
+    <Reference Include="ReadoutConfiguration">
+      <HintPath>lib\ReadoutConfiguration.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>lib\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLite.SyncClient">
+      <HintPath>lib\SQLite.SyncClient.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>lib\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Printing" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Telerik.Windows.Controls">
+      <HintPath>lib\Telerik.Windows.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.GridView">
+      <HintPath>lib\Telerik.Windows.Controls.GridView.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Navigation">
+      <HintPath>lib\Telerik.Windows.Controls.Navigation.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Data">
+      <HintPath>lib\Telerik.Windows.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Documents">
+      <HintPath>lib\Telerik.Windows.Documents.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ApplicationScope\t_Minomat.cs" />
+    <Compile Include="ApplicationScope\t_MinomatRadioDetails.cs" />
+    <Compile Include="ApplicationScope\t_StructureNode.cs" />
+    <Compile Include="ApplicationScope\t_StructureNodeLinks.cs" />
+    <Compile Include="ApplicationScope\t_Meter.cs" />
+    <Compile Include="ApplicationScope\t_MeterRadioDetails.cs" />
+    <Compile Include="ApplicationScope\t_Order.cs" />
+    <Compile Include="ApplicationScope\t_OrderUser.cs" />
+    <Compile Include="ApplicationScope\t_Location.cs" />
+    <Compile Include="ApplicationScope\t_Tenant.cs" />
+    <Compile Include="ApplicationScope\t_MeterReplacementHistory.cs" />
+    <Compile Include="ApplicationScope\t_OrderMessages.cs" />
+    <Compile Include="ApplicationScope\t_MeterMbusRadio.cs" />
+    <Compile Include="ApplicationScope\t_MinomatMeters.cs" />
+    <Compile Include="ApplicationScope\t_StructureNodeEquipmentSettings.cs" />
+    <Compile Include="ApplicationScope\t_Note.cs" />
+    <Compile Include="ApplicationScope\ApplicationOfflineContext.cs" />
+    <Compile Include="ConfigurationScope\t_Country.cs" />
+    <Compile Include="ConfigurationScope\t_StructureNodeType.cs" />
+    <Compile Include="ConfigurationScope\t_Scenario.cs" />
+    <Compile Include="ConfigurationScope\t_CelestaReadingDeviceTypes.cs" />
+    <Compile Include="ConfigurationScope\t_RoomType.cs" />
+    <Compile Include="ConfigurationScope\t_MeasureUnit.cs" />
+    <Compile Include="ConfigurationScope\t_ConnectedDeviceType.cs" />
+    <Compile Include="ConfigurationScope\t_Channel.cs" />
+    <Compile Include="ConfigurationScope\t_Filters.cs" />
+    <Compile Include="ConfigurationScope\t_Rules.cs" />
+    <Compile Include="ConfigurationScope\t_JobDefinitions.cs" />
+    <Compile Include="ConfigurationScope\t_ScenarioJobDefinitions.cs" />
+    <Compile Include="ConfigurationScope\t_Provider.cs" />
+    <Compile Include="ConfigurationScope\t_COMServer.cs" />
+    <Compile Include="ConfigurationScope\t_MDMConfigs.cs" />
+    <Compile Include="ConfigurationScope\t_NoteType.cs" />
+    <Compile Include="ConfigurationScope\ConfigurationOfflineContext.cs" />
+    <Compile Include="ReadingValuesScope\t_ReadingValues.cs" />
+    <Compile Include="ReadingValuesScope\t_OrderReadingValues.cs" />
+    <Compile Include="ReadingValuesScope\ReadingValuesOfflineContext.cs" />
+    <Compile Include="UsersScope\t_User.cs" />
+    <Compile Include="UsersScope\t_Role.cs" />
+    <Compile Include="UsersScope\t_Operation.cs" />
+    <Compile Include="UsersScope\t_UserRole.cs" />
+    <Compile Include="UsersScope\t_RoleOperation.cs" />
+    <Compile Include="UsersScope\t_UserDeviceTypeSettings.cs" />
+    <Compile Include="UsersScope\UsersOfflineContext.cs" />
+    <Compile Include="MSS\Business\Utils\AppContext.cs" />
+    <Compile Include="MSS\Business\Utils\AppDataFolderHelper.cs" />
+    <Compile Include="MSS\Business\Utils\ApplicationTabsEnum.cs" />
+    <Compile Include="MSS\Business\Utils\AppServerContext.cs" />
+    <Compile Include="MSS\Business\Utils\ConversionHelper.cs" />
+    <Compile Include="MSS\Business\Utils\CustomerConfiguration.cs" />
+    <Compile Include="MSS\Business\Utils\DatabaseDialect.cs" />
+    <Compile Include="MSS\Business\Utils\DatabaseEngineEnum.cs" />
+    <Compile Include="MSS\Business\Utils\DataTableHelper.cs" />
+    <Compile Include="MSS\Business\Utils\DragDropAttachedObject.cs" />
+    <Compile Include="MSS\Business\Utils\EnumHelper.cs" />
+    <Compile Include="MSS\Business\Utils\AppConstants.cs" />
+    <Compile Include="MSS\Business\Utils\EModul.cs" />
+    <Compile Include="MSS\Business\Utils\ImageHelper.cs" />
+    <Compile Include="MSS\Business\Utils\TaskScheduler.cs" />
+    <Compile Include="MSS\Business\Utils\JobCyclesCache.cs" />
+    <Compile Include="MSS\Business\Utils\JobCycles.cs" />
+    <Compile Include="MSS\Business\Utils\MappingsManager.cs" />
+    <Compile Include="MSS\Business\Utils\MSSHelper.cs" />
+    <Compile Include="MSS\Business\Utils\MultiselectTreeListView.cs" />
+    <Compile Include="MSS\Business\Utils\NHibernateConfigurationHelper.cs" />
+    <Compile Include="MSS\Business\Utils\NHibernateEventListener.cs" />
+    <Compile Include="MSS\Business\Utils\NHibernateToSQLConverter.cs" />
+    <Compile Include="MSS\Business\Utils\NHibernateNLogFactory.cs" />
+    <Compile Include="MSS\Business\Utils\NLogLogger.cs" />
+    <Compile Include="MSS\Business\Utils\PagingProvider`1.cs" />
+    <Compile Include="MSS\Business\Utils\PathsHelper.cs" />
+    <Compile Include="MSS\Business\Utils\PrintAborted.cs" />
+    <Compile Include="MSS\Business\Utils\Sql2008StructuredForReadingValues.cs" />
+    <Compile Include="MSS\Business\Utils\Sql2008StructuredStringList.cs" />
+    <Compile Include="MSS\Business\Utils\StructuredExtensions.cs" />
+    <Compile Include="MSS\Business\Utils\IUIPrinter.cs" />
+    <Compile Include="MSS\Business\Utils\UIPrinter.cs" />
+    <Compile Include="MSS\Business\Utils\UnitConversionHelper.cs" />
+    <Compile Include="MSS\Business\Properties\Settings.cs" />
+    <Compile Include="MSS\Business\Modules\DownloadManager.cs" />
+    <Compile Include="MSS\Business\Modules\WCFRelated\SynchronizationServiceClient.cs" />
+    <Compile Include="MSS\Business\Modules\WCFRelated\ServiceClient.cs" />
+    <Compile Include="MSS\Business\Modules\WCFRelated\ServiceProxyBase`1.cs" />
+    <Compile Include="MSS\Business\Modules\WCFRelated\SettingsConnectionManager.cs" />
+    <Compile Include="MSS\Business\Modules\UsersManagement\UserSettingsManager.cs" />
+    <Compile Include="MSS\Business\Modules\UsersManagement\OperationEnum.cs" />
+    <Compile Include="MSS\Business\Modules\UsersManagement\RoleManager.cs" />
+    <Compile Include="MSS\Business\Modules\UsersManagement\UsersManager.cs" />
+    <Compile Include="MSS\Business\Modules\Synchronization\SychronizationHelperFactory.cs" />
+    <Compile Include="MSS\Business\Modules\Synchronization\SynchronizationHelperBase.cs" />
+    <Compile Include="MSS\Business\Modules\Synchronization\SyncScopesEnum.cs" />
+    <Compile Include="MSS\Business\Modules\Synchronization\SynchronizationResults.cs" />
+    <Compile Include="MSS\Business\Modules\Synchronization\SynchronizationHelper.cs" />
+    <Compile Include="MSS\Business\Modules\Synchronization\DatabaseConstants.cs" />
+    <Compile Include="MSS\Business\Modules\Synchronization\Sqlite\SqliteSynchronizationHelper.cs" />
+    <Compile Include="MSS\Business\Modules\Synchronization\HandleConflicts\ConflictHelper.cs" />
+    <Compile Include="MSS\Business\Modules\Synchronization\HandleConflicts\ConflictsManager.cs" />
+    <Compile Include="MSS\Business\Modules\Synchronization\HandleConflicts\ConflictDetails.cs" />
+    <Compile Include="MSS\Business\Modules\Synchronization\HandleConflicts\ResolveConflict.cs" />
+    <Compile Include="MSS\Business\Modules\StructuresManagement\DeviceTypeHelper.cs" />
+    <Compile Include="MSS\Business\Modules\StructuresManagement\StructureEntrancesManager.cs" />
+    <Compile Include="MSS\Business\Modules\StructuresManagement\FixedStructureNodesValidator.cs" />
+    <Compile Include="MSS\Business\Modules\StructuresManagement\FloorHelper.cs" />
+    <Compile Include="MSS\Business\Modules\StructuresManagement\LocationManager.cs" />
+    <Compile Include="MSS\Business\Modules\StructuresManagement\StructureNodesValidator.cs" />
+    <Compile Include="MSS\Business\Modules\StructuresManagement\StructuresHelper.cs" />
+    <Compile Include="MSS\Business\Modules\StructuresManagement\Group.cs" />
+    <Compile Include="MSS\Business\Modules\StructuresManagement\FixedStructureNodeTypesEnum.cs" />
+    <Compile Include="MSS\Business\Modules\StructuresManagement\ReadingMeterUniqueIdentifier.cs" />
+    <Compile Include="MSS\Business\Modules\StructuresManagement\InstallationMeterUniqueIdentifier.cs" />
+    <Compile Include="MSS\Business\Modules\StructuresManagement\StructuresManager.cs" />
+    <Compile Include="MSS\Business\Modules\StructuresManagement\TenantManager.cs" />
+    <Compile Include="MSS\Business\Modules\Reporting\AutomatedReportingAdditionalInfo.cs" />
+    <Compile Include="MSS\Business\Modules\Reporting\AutomatedReportingManager.cs" />
+    <Compile Include="MSS\Business\Modules\Reporting\ClassBwF.cs" />
+    <Compile Include="MSS\Business\Modules\Reporting\CSVManager.cs" />
+    <Compile Include="MSS\Business\Modules\Reporting\CustomSerializationBinder.cs" />
+    <Compile Include="MSS\Business\Modules\Reporting\ReportingHelper.cs" />
+    <Compile Include="MSS\Business\Modules\Reporting\ReportingManager.cs" />
+    <Compile Include="MSS\Business\Modules\Reporting\XCellManager.cs" />
+    <Compile Include="MSS\Business\Modules\Reporting\XMLManager`1.cs" />
+    <Compile Include="MSS\Business\Modules\ReadingValues\JobReadingValuesManager.cs" />
+    <Compile Include="MSS\Business\Modules\ReadingValues\OrderReadingValuesInitializer.cs" />
+    <Compile Include="MSS\Business\Modules\ReadingValues\ReadingValuesInitializer.cs" />
+    <Compile Include="MSS\Business\Modules\ReadingValues\StructureReadingValuesInitializer.cs" />
+    <Compile Include="MSS\Business\Modules\OrdersManagement\ExecutingStateEnum.cs" />
+    <Compile Include="MSS\Business\Modules\OrdersManagement\OrderResult.cs" />
+    <Compile Include="MSS\Business\Modules\OrdersManagement\OrdersHelper.cs" />
+    <Compile Include="MSS\Business\Modules\OrdersManagement\OrdersManager.cs" />
+    <Compile Include="MSS\Business\Modules\OrdersManagement\ReadingValuesHelper.cs" />
+    <Compile Include="MSS\Business\Modules\OrdersManagement\ReadingValuesManager.cs" />
+    <Compile Include="MSS\Business\Modules\NewsAndUpdatesManagement\NewsAndUpdatesmanager.cs" />
+    <Compile Include="MSS\Business\Modules\NewsAndUpdatesManagement\NewsAndUpdatesWepApiHandler.cs" />
+    <Compile Include="MSS\Business\Modules\LicenseManagement\DownloadLicenseResponse.cs" />
+    <Compile Include="MSS\Business\Modules\LicenseManagement\FileHelper.cs" />
+    <Compile Include="MSS\Business\Modules\LicenseManagement\HardwareKeyGenerator.cs" />
+    <Compile Include="MSS\Business\Modules\LicenseManagement\LicenseHelper.cs" />
+    <Compile Include="MSS\Business\Modules\LicenseManagement\LicenseInfo.cs" />
+    <Compile Include="MSS\Business\Modules\LicenseManagement\LicenseNotification.cs" />
+    <Compile Include="MSS\Business\Modules\LicenseManagement\LicenseOperations.cs" />
+    <Compile Include="MSS\Business\Modules\LicenseManagement\LicenseProblemTypeEnum.cs" />
+    <Compile Include="MSS\Business\Modules\LicenseManagement\LicenseWebApiHandler.cs" />
+    <Compile Include="MSS\Business\Modules\JobsManagement\CardinalDayObject.cs" />
+    <Compile Include="MSS\Business\Modules\JobsManagement\DayObject.cs" />
+    <Compile Include="MSS\Business\Modules\JobsManagement\JobLogsManager.cs" />
+    <Compile Include="MSS\Business\Modules\JobsManagement\JobsManager.cs" />
+    <Compile Include="MSS\Business\Modules\JobsManagement\JobsRadCombobox.cs" />
+    <Compile Include="MSS\Business\Modules\JobsManagement\ManageMSSReadingJobs.cs" />
+    <Compile Include="MSS\Business\Modules\JobsManagement\MonthObject.cs" />
+    <Compile Include="MSS\Business\Modules\JobsManagement\OrdinalDayObject.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\BaseMinoConnectManager.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\DeviceConfigurator.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\DeviceReaderManager.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\EDCConfigurator.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\GMMHelper.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\GMMJobsLogger.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\GMMManager.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\GMMMinomatConfigurator.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\GMMMinomatConfiguratorResult.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\IFirmwareConfigurator.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\IGMMReading.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\GMMJobsManager.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\ListenerManager.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\MBusJobsManager.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\MeasureUnitsHelper.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\MinomatJobsManager.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\ParamsReturnedUsingIrExpando.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\PDCConfigurator.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\ReaderMinoConnectManager.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\SpecialTranslationsEnum.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\TimepointEnum.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\ValueIdentHelper.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\WalkByTestManager.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\ReceiverMinoConnectManager.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\SaveGMMValuesLogger.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\ScanMinoConnectManager.cs" />
+    <Compile Include="MSS\Business\Modules\GMM\ZDFKeyEnum.cs" />
+    <Compile Include="MSS\Business\Modules\GMMWrapper\ConfiguratorManagerWrapper.cs" />
+    <Compile Include="MSS\Business\Modules\GMMWrapper\DeviceManagerWrapper.cs" />
+    <Compile Include="MSS\Business\Modules\GMMWrapper\HandlerManagerWrapper.cs" />
+    <Compile Include="MSS\Business\Modules\GMMWrapper\IConfiguratorManager.cs" />
+    <Compile Include="MSS\Business\Modules\GMMWrapper\IDeviceManager.cs" />
+    <Compile Include="MSS\Business\Modules\GMMWrapper\IHandlerManager.cs" />
+    <Compile Include="MSS\Business\Modules\DataFilterManagement\FilterManager.cs" />
+    <Compile Include="MSS\Business\Modules\DataCollectorsManagement\DataCollectorsManager.cs" />
+    <Compile Include="MSS\Business\Modules\Configuration\IDeviceConfigurationParameterWriter.cs" />
+    <Compile Include="MSS\Business\Modules\Configuration\IDeviceConfigurationParameterCollector.cs" />
+    <Compile Include="MSS\Business\Modules\Configuration\DeviceConfigurationParameterWriter.cs" />
+    <Compile Include="MSS\Business\Modules\Configuration\IConfigurationValuesToListConfigConverter.cs" />
+    <Compile Include="MSS\Business\Modules\Configuration\ConfigurationValuesToListConfigConverter.cs" />
+    <Compile Include="MSS\Business\Modules\Configuration\DeviceConfigurationParameterCollector.cs" />
+    <Compile Include="MSS\Business\Modules\Configuration\Config.cs" />
+    <Compile Include="MSS\Business\Modules\Configuration\ConfigurationHelper.cs" />
+    <Compile Include="MSS\Business\Modules\Configuration\ConfigurationPerChannel.cs" />
+    <Compile Include="MSS\Business\Modules\Configuration\ConfigurationPropertyValue.cs" />
+    <Compile Include="MSS\Business\Modules\ClientsManagement\ClientsManager.cs" />
+    <Compile Include="MSS\Business\Modules\Cleanup\CleanupModel.cs" />
+    <Compile Include="MSS\Business\Modules\Cleanup\DatabaseCleanupManager.cs" />
+    <Compile Include="MSS\Business\Modules\Archiving\ArchiveDetailsNHibernate.cs" />
+    <Compile Include="MSS\Business\Modules\Archiving\ArchiveJobManager.cs" />
+    <Compile Include="MSS\Business\Modules\Archiving\ArchiveManagerNHibernate.cs" />
+    <Compile Include="MSS\Business\Modules\Archiving\ArchivingHelper.cs" />
+    <Compile Include="MSS\Business\Modules\Archiving\CleanupManager.cs" />
+    <Compile Include="MSS\Business\Modules\Archiving\ArchiveManagerADO.cs" />
+    <Compile Include="MSS\Business\Modules\Archiving\ArchiveDetailsADO.cs" />
+    <Compile Include="MSS\Business\Modules\Archiving\DatasourcesInfo.cs" />
+    <Compile Include="MSS\Business\Modules\Archiving\GenericArchiver.cs" />
+    <Compile Include="MSS\Business\Modules\Archiving\MSSQLDatabaseArchiver.cs" />
+    <Compile Include="MSS\Business\Modules\Archiving\SQLiteBulkInsert.cs" />
+    <Compile Include="MSS\Business\Modules\Archiving\SQLiteDatabaseArchiver.cs" />
+    <Compile Include="MSS\Business\Modules\AppParametersManagement\AppParametersManagement.cs" />
+    <Compile Include="MSS\Business\Modules\AppParametersManagement\ConfigurationPropertyDTO.cs" />
+    <Compile Include="MSS\Business\Modules\AppParametersManagement\EquipmentHelper.cs" />
+    <Compile Include="MSS\Business\Languages\Language.cs" />
+    <Compile Include="MSS\Business\Languages\LangEnum.cs" />
+    <Compile Include="MSS\Business\Events\ActionFinishedBooleanResponse.cs" />
+    <Compile Include="MSS\Business\Events\ActionSearch`1.cs" />
+    <Compile Include="MSS\Business\Events\ActionSearchByText.cs" />
+    <Compile Include="MSS\Business\Events\ActionStructureAndEntitiesUpdate.cs" />
+    <Compile Include="MSS\Business\Events\ActionSyncFinished.cs" />
+    <Compile Include="MSS\Business\Events\ActionUpdated.cs" />
+    <Compile Include="MSS\Business\Events\ArchiveSearched.cs" />
+    <Compile Include="MSS\Business\Events\AssignMinomatEvent.cs" />
+    <Compile Include="MSS\Business\Events\AssignStructureEvent.cs" />
+    <Compile Include="MSS\Business\Events\AttachTestConfigMessage.cs" />
+    <Compile Include="MSS\Business\Events\ChangeableParametersLoadedEvent.cs" />
+    <Compile Include="MSS\Business\Events\CleanNews.cs" />
+    <Compile Include="MSS\Business\Events\ConfigurationParameterClicked.cs" />
+    <Compile Include="MSS\Business\Events\DeleteEntityEvent.cs" />
+    <Compile Include="MSS\Business\Events\EquipmentConfigEvent.cs" />
+    <Compile Include="MSS\Business\Events\ActionFinished.cs" />
+    <Compile Include="MSS\Business\Events\EditRuleEvent.cs" />
+    <Compile Include="MSS\Business\Events\ErrorDuringReading.cs" />
+    <Compile Include="MSS\Business\Events\EventsPublisher.cs" />
+    <Compile Include="MSS\Business\Events\IEventPublisher.cs" />
+    <Compile Include="MSS\Business\Events\GridShouldBeUpdated.cs" />
+    <Compile Include="MSS\Business\Events\ItemDropped.cs" />
+    <Compile Include="MSS\Business\Events\JobCacheUpdate.cs" />
+    <Compile Include="MSS\Business\Events\JobCacheUpdateEnum.cs" />
+    <Compile Include="MSS\Business\Events\JobStateModified.cs" />
+    <Compile Include="MSS\Business\Events\LanguageChangedEvent.cs" />
+    <Compile Include="MSS\Business\Events\LoadSubNodesForRoot.cs" />
+    <Compile Include="MSS\Business\Events\LocalDatabaseModified.cs" />
+    <Compile Include="MSS\Business\Events\MBusScanEvent.cs" />
+    <Compile Include="MSS\Business\Events\MBusScanMessage.cs" />
+    <Compile Include="MSS\Business\Events\MeterConfigurationEvent.cs" />
+    <Compile Include="MSS\Business\Events\MeterConfigurationParamsLoadedEvent.cs" />
+    <Compile Include="MSS\Business\Events\MeterNotesUpdated.cs" />
+    <Compile Include="MSS\Business\Events\MeterPhotosUpdated.cs" />
+    <Compile Include="MSS\Business\Events\MinomatUpdate.cs" />
+    <Compile Include="MSS\Business\Events\PartialSyncEvent.cs" />
+    <Compile Include="MSS\Business\Events\ProfileTypeChangedEvent.cs" />
+    <Compile Include="MSS\Business\Events\ProgressBarValueChanged.cs" />
+    <Compile Include="MSS\Business\Events\OrderReadingValuesSavedEvent.cs" />
+    <Compile Include="MSS\Business\Events\ProgressEvent.cs" />
+    <Compile Include="MSS\Business\Events\ProgressFinished.cs" />
+    <Compile Include="MSS\Business\Events\ProgressBarItemDone.cs" />
+    <Compile Include="MSS\Business\Events\DynamicGridSelectionEvent.cs" />
+    <Compile Include="MSS\Business\Events\RefreshFilters.cs" />
+    <Compile Include="MSS\Business\Events\RefreshFixedStructuresEvent.cs" />
+    <Compile Include="MSS\Business\Events\RefreshGridEvent.cs" />
+    <Compile Include="MSS\Business\Events\RefreshJobGrid.cs" />
+    <Compile Include="MSS\Business\Events\RemoveJobDefinitionEvent.cs" />
+    <Compile Include="MSS\Business\Events\RemoveJobEvent.cs" />
+    <Compile Include="MSS\Business\Events\ReplaceDeviceEvent.cs" />
+    <Compile Include="MSS\Business\Events\SaveJobDefinitionEvent.cs" />
+    <Compile Include="MSS\Business\Events\ScanModeConfigEvent.cs" />
+    <Compile Include="MSS\Business\Events\SelectedTabValue.cs" />
+    <Compile Include="MSS\Business\Events\SendSerializedDataEvent.cs" />
+    <Compile Include="MSS\Business\Events\SetSystemChangeableParamsEvent.cs" />
+    <Compile Include="MSS\Business\Events\ShowMessage.cs" />
+    <Compile Include="MSS\Business\Events\StructureBytesUpdated.cs" />
+    <Compile Include="MSS\Business\Events\StructureRootUpdated.cs" />
+    <Compile Include="MSS\Business\Events\SyncConflictsStateChanged.cs" />
+    <Compile Include="MSS\Business\Events\OrderUpdated.cs" />
+    <Compile Include="MSS\Business\Events\SelectedTabChanged.cs" />
+    <Compile Include="MSS\Business\Events\StructureUpdated.cs" />
+    <Compile Include="MSS\Business\Events\TreeDragDropChange.cs" />
+    <Compile Include="MSS\Business\Events\UpdateDefaultEquipment.cs" />
+    <Compile Include="MSS\Business\Events\EventPublisher.cs" />
+    <Compile Include="MSS\Business\Errors\UnsupportedFileTypeException.cs" />
+    <Compile Include="MSS\Business\Errors\BaseApplicationException.cs" />
+    <Compile Include="MSS\Business\Errors\ErrorCodes.cs" />
+    <Compile Include="MSS\Business\Errors\MessageCodes.cs" />
+    <Compile Include="MSS\Business\Errors\MessageHandler.cs" />
+    <Compile Include="MSS\Business\DTO\EntityDTO.cs" />
+    <Compile Include="MSS\Business\DTO\StructureNodeDTO.cs" />
+    <Compile Include="MSS\Business\DTO\StructureNodeExecuteOrderDTO.cs" />
+    <Compile Include="MSS\Business\Documents\DocumentTypesEnum.cs" />
+    <Compile Include="MSS\Business\Documents\GeneratePdfFromData.cs" />
+    <Compile Include="MSS_Client\Utils\OrderErrorMessages.cs" />
+    <Compile Include="MSS_Client\ViewModel\Orders\ReadingOrderHasMeterChecker.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="MSS\Business\Modules\Synchronization\HandleConflicts\ResolveConflict.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

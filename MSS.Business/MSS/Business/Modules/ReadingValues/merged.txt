@@ -1,0 +1,370 @@
+
+--- JobReadingValuesManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.ReadingValues.JobReadingValuesManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using Common.Library.NHibernate.Data;
+using GmmDbLib;
+using GmmDbLib.DataSets;
+using MSS.Business.Modules.GMM;
+using MSS.Business.Utils;
+using MSS.Core.Model.Jobs;
+using NHibernate;
+using NHibernate.Linq;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Linq;
+using System.Linq.Expressions;
+using ZENNER;
+using ZR_ClassLibrary;
+
+#nullable disable
+namespace MSS.Business.Modules.ReadingValues
+{
+  public class JobReadingValuesManager
+  {
+    private List<JobReadingValues> jobReadingValues;
+
+    public JobReadingValuesManager() => this.jobReadingValues = new List<JobReadingValues>();
+
+    public void SaveJobValuesBatchInDb()
+    {
+      try
+      {
+        SaveGMMValuesLogger.LogDebug("Start working on batch!");
+        string appSetting = ConfigurationManager.AppSettings["DatabaseEngine"];
+        HibernateMultipleDatabasesManager.Initialize(appSetting);
+        using (IStatelessSession statelessSession = HibernateMultipleDatabasesManager.DataSessionFactory(appSetting).OpenStatelessSession())
+        {
+          List<GMMJobValue> list = LinqExtensionMethods.Query<GMMJobValue>(statelessSession).OrderBy<GMMJobValue, DateTime>((Expression<System.Func<GMMJobValue, DateTime>>) (v => v.ReceivedOn)).Take<GMMJobValue>(100).ToList<GMMJobValue>();
+          SaveGMMValuesLogger.LogDebug("Get Reading Values from GMM");
+          List<Guid> gmmMeterIdsList;
+          DataTable readingValuesFromGmm = this.GetReadingValuesFromGMM(list, out gmmMeterIdsList);
+          if (readingValuesFromGmm != null && readingValuesFromGmm.Rows.Count > 0)
+          {
+            SaveGMMValuesLogger.LogDebug("Save Reading Value to MSS");
+            statelessSession.CreateSQLQuery("exec sp_ProcessAndInsertReadingValues @readingValueFromGMM = :data ").SetStructuredForReadingValues("data", readingValuesFromGmm).ExecuteUpdate();
+            if (gmmMeterIdsList != null && gmmMeterIdsList.Count > 0)
+            {
+              SaveGMMValuesLogger.LogDebug("Delete reading values from gmm table");
+              foreach (Guid meterID in gmmMeterIdsList)
+                MeterValuesMSS.DeleteMeterValuesMSS(GmmInterface.Database.BaseDbConnection, meterID);
+            }
+          }
+        }
+        SaveGMMValuesLogger.LogDebug("Finished working on batch!");
+      }
+      catch (Exception ex)
+      {
+        GMMJobsLogger.LogJobError(ex);
+      }
+    }
+
+    private DataTable GetReadingValuesFromGMM(
+      List<GMMJobValue> gmmJobValueFromMssList,
+      out List<Guid> gmmMeterIdsList)
+    {
+      DataTable readingValuesFromGmm = new DataTable();
+      gmmMeterIdsList = new List<Guid>();
+      foreach (GMMJobValue gmmJobValueFromMss in gmmJobValueFromMssList)
+      {
+        List<DriverTables.MeterValuesMSSRow> meterValuesMssRowList = new List<DriverTables.MeterValuesMSSRow>();
+        List<DriverTables.MeterMSSRow> meterMss = MeterMSS.GetMeterMSS(GmmInterface.Database.BaseDbConnection, gmmJobValueFromMss.SerialNumber);
+        if (meterMss != null && meterMss.Count > 0)
+        {
+          gmmMeterIdsList.Add(meterMss[0].MeterID);
+          List<DriverTables.MeterValuesMSSRow> gmmReadingValues = MeterValuesMSS.LoadMeterValuesMSS(GmmInterface.Database.BaseDbConnection, meterMss[0].MeterID);
+          if (gmmReadingValues != null && gmmReadingValues.Count > 0)
+          {
+            DataTable mssReadingValues = this.ConvertGMMReadingValuesToMssReadingValues(gmmJobValueFromMss, gmmReadingValues);
+            if (mssReadingValues != null)
+            {
+              if (readingValuesFromGmm != null && readingValuesFromGmm.Rows.Count == 0)
+              {
+                readingValuesFromGmm = mssReadingValues;
+              }
+              else
+              {
+                foreach (DataRow row in (InternalDataCollectionBase) mssReadingValues.Rows)
+                  readingValuesFromGmm.Rows.Add(row.ItemArray);
+              }
+            }
+          }
+          else
+            SaveGMMValuesLogger.LogDebug(string.Format("No meter values were found for meter with serial number {0}", (object) gmmJobValueFromMss.SerialNumber));
+        }
+        else
+          SaveGMMValuesLogger.LogDebug(string.Format("Meter with serial number {0} was not found in GMM.", (object) gmmJobValueFromMss.SerialNumber));
+      }
+      return readingValuesFromGmm;
+    }
+
+    private DataTable ConvertGMMReadingValuesToMssReadingValues(
+      GMMJobValue gmmJobValueFromMss,
+      List<DriverTables.MeterValuesMSSRow> gmmReadingValues)
+    {
+      DataTable mssReadingValues = new DataTable();
+      mssReadingValues.Columns.Add("MeterSerialNumber", typeof (string));
+      mssReadingValues.Columns.Add("JobId", typeof (Guid));
+      mssReadingValues.Columns.Add("gmmJobValueID", typeof (Guid));
+      mssReadingValues.Columns.Add("CreatedOn", typeof (DateTime));
+      mssReadingValues.Columns.Add("Date", typeof (DateTime));
+      mssReadingValues.Columns.Add("Value", typeof (double));
+      mssReadingValues.Columns.Add("ValueId", typeof (long));
+      mssReadingValues.Columns.Add("StorageInterval", typeof (long));
+      mssReadingValues.Columns.Add("PhysicalQuantity", typeof (long));
+      mssReadingValues.Columns.Add("MeterType", typeof (long));
+      mssReadingValues.Columns.Add("CalculationStart", typeof (long));
+      mssReadingValues.Columns.Add("Creation", typeof (long));
+      mssReadingValues.Columns.Add("Calculation", typeof (long));
+      mssReadingValues.Columns.Add("UnitName", typeof (string));
+      foreach (DriverTables.MeterValuesMSSRow gmmReadingValue in gmmReadingValues)
+      {
+        DataRow row = mssReadingValues.NewRow();
+        row["MeterSerialNumber"] = (object) gmmJobValueFromMss.SerialNumber;
+        row["JobId"] = (object) gmmJobValueFromMss.JobId;
+        row["gmmJobValueID"] = (object) gmmJobValueFromMss.Id;
+        row["CreatedOn"] = (object) DateTime.Now;
+        row["Date"] = (object) gmmReadingValue.TimePoint;
+        row["Value"] = (object) gmmReadingValue.Value;
+        long int64 = Convert.ToInt64(ValueIdent.GetValueIdent(gmmReadingValue.ValueIdentIndex, gmmReadingValue.PhysicalQuantity, gmmReadingValue.MeterType, gmmReadingValue.Calculation, gmmReadingValue.CalculationStart, gmmReadingValue.StorageInterval, gmmReadingValue.Creation));
+        row["ValueId"] = (object) int64;
+        row["StorageInterval"] = (object) (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_StorageInterval>(int64);
+        row["PhysicalQuantity"] = (object) (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_PhysicalQuantity>(int64);
+        row["MeterType"] = (object) (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_MeterType>(int64);
+        row["CalculationStart"] = (object) (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_CalculationStart>(int64);
+        row["Creation"] = (object) (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_Creation>(int64);
+        row["Calculation"] = (object) (long) ValueIdent.ValueIdPart_Get<ValueIdent.ValueIdPart_Calculation>(int64);
+        row["UnitName"] = (object) ValueIdent.GetUnit(Convert.ToInt64(int64));
+        mssReadingValues.Rows.Add(row);
+      }
+      return mssReadingValues;
+    }
+  }
+}
+
+
+--- OrderReadingValuesInitializer.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.ReadingValues.OrderReadingValuesInitializer
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using AutoMapper;
+using MSS.Business.DTO;
+using MSS.Business.Modules.StructuresManagement;
+using MSS.Core.Model.Meters;
+using MSS.DTO.Meters;
+using MSS.DTO.Orders;
+using MSS.Interfaces;
+using NHibernate.Criterion;
+using NHibernate.SqlCommand;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+
+#nullable disable
+namespace MSS.Business.Modules.ReadingValues
+{
+  public class OrderReadingValuesInitializer : ReadingValuesInitializer
+  {
+    public OrderReadingValuesInitializer(
+      OrderDTO selectedOrder,
+      StructureNodeDTO structureNode,
+      IRepositoryFactory repositoryFactory)
+      : base(structureNode, repositoryFactory)
+    {
+      this.SelectedOrder = selectedOrder;
+    }
+
+    public override List<Guid> GetReplacedMeters()
+    {
+      return StructuresHelper.DeserializeStructure(this.SelectedOrder.StructureBytes).meterReplacementHistoryList.Select<MeterReplacementHistorySerializableDTO, Guid>((Func<MeterReplacementHistorySerializableDTO, Guid>) (x => x.ReplacedMeterId)).ToList<Guid>();
+    }
+
+    public List<MeterReadingValue> GetReadingValuesList()
+    {
+      return this.StructureNode.Entity is MeterDTO entity ? (List<MeterReadingValue>) this._repositoryFactory.GetSession().CreateCriteria<MeterReadingValue>("RV").CreateCriteria("RV.OrderReadingValues", "ORV", JoinType.InnerJoin).Add((ICriterion) Restrictions.Eq("ORV.OrderObj.Id", (object) this.SelectedOrder.Id)).Add((ICriterion) Restrictions.Eq("RV.MeterSerialNumber", (object) entity.SerialNumber)).List<MeterReadingValue>() : (List<MeterReadingValue>) this._repositoryFactory.GetSession().CreateCriteria<MeterReadingValue>("RV").CreateCriteria("RV.OrderReadingValues", "ORV", JoinType.InnerJoin).Add((ICriterion) Restrictions.Eq("ORV.OrderObj.Id", (object) this.SelectedOrder.Id)).List<MeterReadingValue>();
+    }
+
+    public override List<MeterReadingValueDTO> GetReadingValues()
+    {
+      ObservableCollection<MeterReadingValueDTO> source = Mapper.Map<IEnumerable<MeterReadingValue>, ObservableCollection<MeterReadingValueDTO>>((IEnumerable<MeterReadingValue>) this.GetReadingValuesList());
+      source.ToList<MeterReadingValueDTO>().ForEach((Action<MeterReadingValueDTO>) (rv => rv.ReadingType = ReadingTypeEnum.R));
+      return source.ToList<MeterReadingValueDTO>();
+    }
+  }
+}
+
+
+--- ReadingValuesInitializer.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.ReadingValues.ReadingValuesInitializer
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+using MSS.Business.Utils;
+using MSS.DTO.Meters;
+using MSS.DTO.Orders;
+using MSS.Interfaces;
+using MSS.Localisation;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+
+#nullable disable
+namespace MSS.Business.Modules.ReadingValues
+{
+  public abstract class ReadingValuesInitializer
+  {
+    protected readonly IRepositoryFactory _repositoryFactory;
+    private ObservableCollection<MeterReadingValueDTO> meterReadingValuesDto;
+
+    protected ReadingValuesInitializer(
+      StructureNodeDTO structureNode,
+      IRepositoryFactory repositoryFactory)
+    {
+      this._repositoryFactory = repositoryFactory;
+      this.StructureNode = structureNode;
+      MappingsManager.MeterReadingValue_to_MeterReadingValueDTO();
+    }
+
+    public StructureNodeDTO StructureNode { get; set; }
+
+    public OrderDTO SelectedOrder { get; set; }
+
+    public string SetTitle(string suffix)
+    {
+      return Resources.MSS_Client_Structures_ReadingValues + " - " + suffix;
+    }
+
+    public abstract List<Guid> GetReplacedMeters();
+
+    public abstract List<MeterReadingValueDTO> GetReadingValues();
+
+    public ObservableCollection<MeterReadingValueDTO> GetReadingValuesDTO()
+    {
+      List<Guid> replacedMeterIds = this.GetReplacedMeters();
+      List<MeterReadingValueDTO> readingValues = this.GetReadingValues();
+      foreach (MeterReadingValueDTO meterReadingValueDto in readingValues.Where<MeterReadingValueDTO>((Func<MeterReadingValueDTO, bool>) (meterReadingValueDto => replacedMeterIds.Contains(meterReadingValueDto.MeterId))))
+        meterReadingValueDto.IsReplacedMeter = true;
+      ObservableCollection<MeterReadingValueDTO> readingValuesDto = new ObservableCollection<MeterReadingValueDTO>();
+      foreach (MeterReadingValueDTO meterReadingValueDto in readingValues)
+        readingValuesDto.Add(meterReadingValueDto);
+      return readingValuesDto;
+    }
+  }
+}
+
+
+--- StructureReadingValuesInitializer.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.ReadingValues.StructureReadingValuesInitializer
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using MSS.Business.DTO;
+using MSS.Core.Model.Meters;
+using MSS.DTO.Meters;
+using MSS.Interfaces;
+using NHibernate.Criterion;
+using NHibernate.SqlCommand;
+using NHibernate.Transform;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Linq.Expressions;
+
+#nullable disable
+namespace MSS.Business.Modules.ReadingValues
+{
+  public class StructureReadingValuesInitializer(
+    StructureNodeDTO structureNode,
+    IRepositoryFactory repositoryFactory) : ReadingValuesInitializer(structureNode, repositoryFactory)
+  {
+    public override List<Guid> GetReplacedMeters()
+    {
+      List<MeterDTO> meterDtoList = new List<MeterDTO>();
+      List<MeterDTO> metersFromList = this.GetMetersFromList(this.StructureNode, new List<MeterDTO>());
+      List<MeterDTO> replacedMeters = this.GetReplacedMeters((IEnumerable<MeterDTO>) metersFromList);
+      replacedMeters.ForEach(new Action<MeterDTO>(metersFromList.Add));
+      this.StructureMeters = metersFromList;
+      return replacedMeters.Select<MeterDTO, Guid>((Func<MeterDTO, Guid>) (x => x.Id)).ToList<Guid>();
+    }
+
+    public override List<MeterReadingValueDTO> GetReadingValues()
+    {
+      List<MeterReadingValueDTO> readingValues = new List<MeterReadingValueDTO>();
+      string s = new MSS.Business.Modules.AppParametersManagement.AppParametersManagement(this._repositoryFactory).GetAppParam("BatchSize").Value;
+      int result;
+      if (string.IsNullOrEmpty(s) || !int.TryParse(s, out result))
+        result = 500;
+      int count1 = this.StructureMeters.Count;
+      int count2 = 0;
+      int count3 = result;
+      for (; count2 < count1; count2 += count3)
+      {
+        if (count3 > count1 - count2)
+          count3 = count1 - count2;
+        readingValues.AddRange((IEnumerable<MeterReadingValueDTO>) this.GetMeterReadingValueDtos(this.StructureMeters.Skip<MeterDTO>(count2).Take<MeterDTO>(count3).ToList<MeterDTO>()));
+      }
+      return readingValues;
+    }
+
+    private List<MeterReadingValueDTO> GetMeterReadingValueDtos(List<MeterDTO> meterList)
+    {
+      List<string> list = meterList.Select<MeterDTO, string>((Func<MeterDTO, string>) (x => x.SerialNumber)).ToList<string>();
+      IProjection projection = Projections.Conditional((ICriterion) Subqueries.Exists(DetachedCriteria.For<OrderReadingValues>("ORV").SetProjection((IProjection) Projections.Property("ORV.MeterReadingValue.Id")).Add((ICriterion) Restrictions.EqProperty("ORV.MeterReadingValue.Id", "RV.Id"))), Projections.Constant((object) 'R'), Projections.Constant((object) 'S'));
+      return this._repositoryFactory.GetSession().CreateCriteria<MeterReadingValue>("RV").CreateAlias("RV.Unit", "U", JoinType.LeftOuterJoin).Add((ICriterion) Restrictions.In("RV.MeterSerialNumber", (ICollection) list)).SetProjection((IProjection) Projections.ProjectionList().Add((IProjection) Projections.Property<MeterReadingValue>((Expression<Func<MeterReadingValue, object>>) (r => (object) r.Id)), "Id").Add((IProjection) Projections.Property<MeterReadingValue>((Expression<Func<MeterReadingValue, object>>) (r => (object) r.MeterId)), "MeterId").Add((IProjection) Projections.Property<MeterReadingValue>((Expression<Func<MeterReadingValue, object>>) (r => r.MeterSerialNumber)), "MeterSerialNumber").Add((IProjection) Projections.Property<MeterReadingValue>((Expression<Func<MeterReadingValue, object>>) (r => (object) r.Date)), "Date").Add((IProjection) Projections.Property<MeterReadingValue>((Expression<Func<MeterReadingValue, object>>) (r => (object) r.Value)), "Value").Add((IProjection) Projections.Property<MeterReadingValue>((Expression<Func<MeterReadingValue, object>>) (r => (object) r.PhysicalQuantity)), "PhysicalQuantity").Add((IProjection) Projections.Property<MeterReadingValue>((Expression<Func<MeterReadingValue, object>>) (r => (object) r.MeterType)), "MeterType").Add((IProjection) Projections.Property<MeterReadingValue>((Expression<Func<MeterReadingValue, object>>) (r => (object) r.Calculation)), "Calculation").Add((IProjection) Projections.Property<MeterReadingValue>((Expression<Func<MeterReadingValue, object>>) (r => (object) r.CalculationStart)), "CalculationStart").Add((IProjection) Projections.Property<MeterReadingValue>((Expression<Func<MeterReadingValue, object>>) (r => (object) r.StorageInterval)), "StorageInterval").Add((IProjection) Projections.Property<MeterReadingValue>((Expression<Func<MeterReadingValue, object>>) (r => (object) r.Creation)), "Creation").Add((IProjection) Projections.Property("U.Id"), "UnitId").Add((IProjection) Projections.Property("U.Code"), "UnitCode").Add(projection, "ReadingType")).AddOrder(Order.Desc("Date")).SetResultTransformer(Transformers.AliasToBean<MeterReadingValueDTO>()).List<MeterReadingValueDTO>().ToList<MeterReadingValueDTO>();
+    }
+
+    private List<MeterDTO> StructureMeters { get; set; }
+
+    private List<MeterDTO> GetReplacedMeters(IEnumerable<MeterDTO> foundMeters)
+    {
+      List<MeterDTO> replacedMeterDTOList = new List<MeterDTO>();
+      foreach (MeterDTO foundMeter in foundMeters)
+      {
+        if (foundMeter.MeterReplacementHistoryList != null)
+          foundMeter.MeterReplacementHistoryList.ForEach((Action<MeterReplacementHistorySerializableDTO>) (h => replacedMeterDTOList.Add(new MeterDTO()
+          {
+            SerialNumber = h.ReplacedMeterSerialNumber,
+            Id = h.ReplacedMeterId
+          })));
+      }
+      return replacedMeterDTOList;
+    }
+
+    private List<MeterDTO> GetMetersFromList(StructureNodeDTO node, List<MeterDTO> foundMeters)
+    {
+      if (node.Entity is MeterDTO)
+        foundMeters.Add(node.Entity as MeterDTO);
+      foreach (StructureNodeDTO subNode in (Collection<StructureNodeDTO>) node.SubNodes)
+      {
+        if (subNode.Entity is MeterDTO)
+          foundMeters.Add(subNode.Entity as MeterDTO);
+        if (subNode.SubNodes.Count != 0)
+          this.GetMetersFromList(subNode, foundMeters);
+      }
+      return foundMeters;
+    }
+  }
+}
+

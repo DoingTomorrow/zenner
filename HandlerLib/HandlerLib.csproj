@@ -1,0 +1,487 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E382EC21-5B51-418C-9611-80AF067011CA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>HandlerLib</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>HandlerLib</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonWPF">
+      <HintPath>lib\CommonWPF.dll</HintPath>
+    </Reference>
+    <Reference Include="CommunicationPort">
+      <HintPath>lib\CommunicationPort.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="MBusLib">
+      <HintPath>lib\MBusLib.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="ReadoutConfiguration">
+      <HintPath>lib\ReadoutConfiguration.dll</HintPath>
+    </Reference>
+    <Reference Include="StartupLib">
+      <HintPath>lib\StartupLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BaseMemoryAccess.cs" />
+    <Compile Include="Manufacturer_FC.cs" />
+    <Compile Include="SubCommands_FC.cs" />
+    <Compile Include="CommonRadioCommands_EFC.cs" />
+    <Compile Include="CommonMBusCommands_EFC.cs" />
+    <Compile Include="CommonLoRaCommands_EFC.cs" />
+    <Compile Include="CommonNBIoTCommands_EFC.cs" />
+    <Compile Include="SpecialCommands_EFC.cs" />
+    <Compile Include="NACK_Messages.cs" />
+    <Compile Include="Common32BitCommands.cs" />
+    <Compile Include="cImpulseInputCounters.cs" />
+    <Compile Include="eWR4_VOL_INPUT_STATE.cs" />
+    <Compile Include="C5_Commands.cs" />
+    <Compile Include="eIoTestFunctions.cs" />
+    <Compile Include="Common16BitCommands.cs" />
+    <Compile Include="CommonNBIoTCommands.cs" />
+    <Compile Include="DeviceCommandsMBus.cs" />
+    <Compile Include="VersionProtocolTypes.cs" />
+    <Compile Include="DeviceVersionMBus.cs" />
+    <Compile Include="SpecialCommands.cs" />
+    <Compile Include="BatteryEnergyManagement.cs" />
+    <Compile Include="DeviceCharacteristics.cs" />
+    <Compile Include="RangeListVisualisation.cs" />
+    <Compile Include="AddressRangeInfo.cs" />
+    <Compile Include="VolumeCalibrationValues.cs" />
+    <Compile Include="DeviceIdentification.cs" />
+    <Compile Include="CommonMBusCommands.cs" />
+    <Compile Include="MBusSystemLog.cs" />
+    <Compile Include="MBusEventLog.cs" />
+    <Compile Include="MBusChannelLog.cs" />
+    <Compile Include="MBusChannelAddress.cs" />
+    <Compile Include="MBusChannelIdentification.cs" />
+    <Compile Include="MBusChannelOBIS.cs" />
+    <Compile Include="MBusChannelSingleLogValue.cs" />
+    <Compile Include="MBusChannelConfiguration.cs" />
+    <Compile Include="MBusChannelValue.cs" />
+    <Compile Include="MBusTXTimings.cs" />
+    <Compile Include="CommonLoRaCommands.cs" />
+    <Compile Include="OTAA_ABP.cs" />
+    <Compile Include="SCENARIO.cs" />
+    <Compile Include="ReturnValue.cs" />
+    <Compile Include="LoRaFcVersion.cs" />
+    <Compile Include="LoRaWANVersion.cs" />
+    <Compile Include="LoRaCheckJoinAccept.cs" />
+    <Compile Include="LoRaSystemDiagnostic.cs" />
+    <Compile Include="CommonRadioCommands.cs" />
+    <Compile Include="DeviceVersion.cs" />
+    <Compile Include="FirmwareParameterManager.cs" />
+    <Compile Include="ParameterType.cs" />
+    <Compile Include="FirmwareParameterInfo.cs" />
+    <Compile Include="HardwareTypeSupport.cs" />
+    <Compile Include="FirmwareReleaseInfo.cs" />
+    <Compile Include="FirmwareData.cs" />
+    <Compile Include="CompatibilityInfo.cs" />
+    <Compile Include="LoRaPackets.cs" />
+    <Compile Include="TemperatureSensorParameters.cs" />
+    <Compile Include="HandlerFunctionsForProduction.cs" />
+    <Compile Include="HandlerMeterObjects.cs" />
+    <Compile Include="DeviceHistoryData.cs" />
+    <Compile Include="IHandler.cs" />
+    <Compile Include="ReadPartsSelection.cs" />
+    <Compile Include="IMeterAndFilter.cs" />
+    <Compile Include="IMeterDataSpecial.cs" />
+    <Compile Include="IZRCommand.cs" />
+    <Compile Include="DeviceMemoryType.cs" />
+    <Compile Include="MeterTypeNAME.cs" />
+    <Compile Include="DeviceMemory.cs" />
+    <Compile Include="DeviceMemoryStorage.cs" />
+    <Compile Include="Parameter32bit.cs" />
+    <Compile Include="IElectronicDeliveryNote.cs" />
+    <Compile Include="ICreateMeter.cs" />
+    <Compile Include="IMeter.cs" />
+    <Compile Include="DeviceStateCounter.cs" />
+    <Compile Include="DeviceStateCounterID.cs" />
+    <Compile Include="ILoggerManager.cs" />
+    <Compile Include="LoggerEventTypes.cs" />
+    <Compile Include="OperationChanges.cs" />
+    <Compile Include="LoggerListItem.cs" />
+    <Compile Include="LoggerNames.cs" />
+    <Compile Include="LoggerTableRows.cs" />
+    <Compile Include="MSP430.cs" />
+    <Compile Include="NfcDeviceCommands.cs" />
+    <Compile Include="SmartFunctionIdentResultAndCalls.cs" />
+    <Compile Include="SmartFunctionIdentAndResult.cs" />
+    <Compile Include="SmartFunctionRuntimeResult.cs" />
+    <Compile Include="NfcDeviceIdentification.cs" />
+    <Compile Include="Parameter.cs" />
+    <Compile Include="S4_SystemState.cs" />
+    <Compile Include="S4_DeviceModes.cs" />
+    <Compile Include="Test_State.cs" />
+    <Compile Include="Test_Mode.cs" />
+    <Compile Include="SystemInfo.cs" />
+    <Compile Include="SmartFunctionResult.cs" />
+    <Compile Include="BatteryNotEnoughException.cs" />
+    <Compile Include="BusModuleTypes.cs" />
+    <Compile Include="BusModuleCommand.cs" />
+    <Compile Include="BusModuleInfo.cs" />
+    <Compile Include="FunctionDoesNotMakeSenseException.cs" />
+    <Compile Include="RADIO_MODE.cs" />
+    <Compile Include="AES_ENCRYPTION_MODE.cs" />
+    <Compile Include="ParameterListInfo.cs" />
+    <Compile Include="RadioTestByDevice.cs" />
+    <Compile Include="RadioTestLog.cs" />
+    <Compile Include="RadioTestLoopResults.cs" />
+    <Compile Include="RadioTestParameters.cs" />
+    <Compile Include="DebugQueueWindow.cs" />
+    <Compile Include="RowScaling.cs" />
+    <Compile Include="DebugQueueEntry.cs" />
+    <Compile Include="DebugQueueData.cs" />
+    <Compile Include="DownLinkTestSetup.cs" />
+    <Compile Include="DownLinkTestWindow.cs" />
+    <Compile Include="FirmwareInfoClass.cs" />
+    <Compile Include="FirmwareBlockInfoClass.cs" />
+    <Compile Include="FirmwareUpdateToolDeviceCommands.cs" />
+    <Compile Include="FirmwareUpdateFunctions.cs" />
+    <Compile Include="DescendingComparer.cs" />
+    <Compile Include="DescComparer`1.cs" />
+    <Compile Include="BootLoader_FC.cs" />
+    <Compile Include="BTL_MEM_ERROR.cs" />
+    <Compile Include="BTL_NON_NFC_Devices.cs" />
+    <Compile Include="BootLoaderFunctions.cs" />
+    <Compile Include="IZDebugInfo.cs" />
+    <Compile Include="FirmwareUpdateFunctionsUI.cs" />
+    <Compile Include="SENSUSSTATE.cs" />
+    <Compile Include="SENSUSVOLFORMAT.cs" />
+    <Compile Include="SENSUSVOLFORMATTRUNCATE.cs" />
+    <Compile Include="SENSUSConnector.cs" />
+    <Compile Include="SENSUSReader.cs" />
+    <Compile Include="SmartFunctions_EDC.cs" />
+    <Compile Include="AccessHandlerFromHandlerName.cs" />
+    <Compile Include="ByteArrayScanner.cs" />
+    <Compile Include="CalendarBase2000.cs" />
+    <Compile Include="ConfigurationParameterListSupport.cs" />
+    <Compile Include="DeviceMessageException.cs" />
+    <Compile Include="InputWindow.cs" />
+    <Compile Include="MeterKeyManager.cs" />
+    <Compile Include="CommonOverwriteGroups.cs" />
+    <Compile Include="OverwriteConditions.cs" />
+    <Compile Include="OverwriteSupport.cs" />
+    <Compile Include="TypeOverwriteData.cs" />
+    <Compile Include="TimeZoneSupport.cs" />
+    <Compile Include="SensusToolWindow.cs" />
+    <Compile Include="ChangeIdentWindow.cs" />
+    <Compile Include="NBIoTCommandWindow.cs" />
+    <Compile Include="SpecialCommandWindow.cs" />
+    <Compile Include="EDC_Warning.cs" />
+    <Compile Include="CompatibleFirmwareWindow.cs" />
+    <Compile Include="CompatibleFirmwareSelectWindow.cs" />
+    <Compile Include="ConfiguratorControl.cs" />
+    <Compile Include="DeviceReadRangeSelection.cs" />
+    <Compile Include="OverwriteAndCompare.cs" />
+    <Compile Include="ConfiguratorWindow.cs" />
+    <Compile Include="ParameterItem.cs" />
+    <Compile Include="PropertyEditorWindow.cs" />
+    <Compile Include="ReceiveTestPacketMiConWindow.cs" />
+    <Compile Include="TypeEditorWindow.cs" />
+    <Compile Include="TypeWindow.cs" />
+    <Compile Include="CheckBoxForEnumWithFlagAttribute.cs" />
+    <Compile Include="CRC.cs" />
+    <Compile Include="GetCommandValues.cs" />
+    <Compile Include="HandlerMessageException.cs" />
+    <Compile Include="LibraryInfo.cs" />
+    <Compile Include="Retry.cs" />
+    <Compile Include="TimeControl.cs" />
+    <Compile Include="ZipUnzip.cs" />
+    <Compile Include="BackupWindow.cs" />
+    <Compile Include="CommandWindowCommon.cs" />
+    <Compile Include="MBusCommandWindow.cs" />
+    <Compile Include="InfoWindow.cs" />
+    <Compile Include="Memory32BitWindow.cs" />
+    <Compile Include="Memory16BitWindow.cs" />
+    <Compile Include="LoRaCommandWindow.cs" />
+    <Compile Include="RadioCommandWindow.cs" />
+    <Compile Include="HardwareTypeEditor.cs" />
+    <Compile Include="memoryRow.cs" />
+    <Compile Include="MemoryViewer.cs" />
+    <Compile Include="NFC_Test.cs" />
+    <Compile Include="MySpecialParam.cs" />
+    <Compile Include="Double2ulong.cs" />
+    <Compile Include="ParameterArrayAssistant.cs" />
+    <Compile Include="myDataRow.cs" />
+    <Compile Include="ParameterWindow.cs" />
+    <Compile Include="ProtectionWindow.cs" />
+    <Compile Include="ReceiveTestPacketWindow.cs" />
+    <Compile Include="SendTestPacketMiConWindow.cs" />
+    <Compile Include="TestCommunicationWindow.cs" />
+    <Compile Include="VersionWindow.cs" />
+    <Compile Include="VolumeSimulator.cs" />
+    <Compile Include="Properties\Settings.cs" />
+    <Compile Include="NFC\NDC_ModuleTypes.cs" />
+    <Compile Include="NFC\NDC_ModuleConfiguration.cs" />
+    <Compile Include="NFC\NfcCommands.cs" />
+    <Compile Include="NFC\NFC_TRANSMISSION_STATE.cs" />
+    <Compile Include="NFC\CR95_RESULTCODE.cs" />
+    <Compile Include="NFC\CR95_RESULTCODE_90.cs" />
+    <Compile Include="NFC\NFC_DEVICE_ERROR.cs" />
+    <Compile Include="NFC\NfcFrame.cs" />
+    <Compile Include="NFC\MiConConnector.cs" />
+    <Compile Include="NFC\NfcCouplerCurrents.cs" />
+    <Compile Include="NFC\MiConConnectorVersion.cs" />
+    <Compile Include="NFC\NfcFrameException.cs" />
+    <Compile Include="NFC\NfcMemoryTransceiver.cs" />
+    <Compile Include="NFC\NfcRepeater.cs" />
+    <Compile Include="NFC\SubunitCommands.cs" />
+    <Compile Include="NFC\NfcSubunitCommands.cs" />
+    <Compile Include="NFC\NdcMiConModuleHardwareIds.cs" />
+    <Compile Include="NFC\NFC_Versions.cs" />
+    <Compile Include="Interfaces\IHandlerMemoryAccess.cs" />
+    <Compile Include="MapManagement\MapDefClassDynamic.cs" />
+    <Compile Include="MapManagement\MAP_EXCEPTION_HANDLE.cs" />
+    <Compile Include="MapManagement\MapExceptionClass.cs" />
+    <Compile Include="MapManagement\LoadDataFromMapClass.cs" />
+    <Compile Include="MapManagement\MapClassGenerator.cs" />
+    <Compile Include="MapManagement\MapClassManager.cs" />
+    <Compile Include="MapManagement\MapDefClassBase.cs" />
+    <Compile Include="MapManagement\MapReaderSelector.cs" />
+    <Compile Include="MapManagement\MapReader.cs" />
+    <Compile Include="MapManagement\MapParameterInfo.cs" />
+    <Compile Include="MapManagement\ListFileParameter.cs" />
+    <Compile Include="MapManagement\MapSectionInfo.cs" />
+    <Compile Include="MapManagement\MapSectionParameters.cs" />
+    <Compile Include="MapManagement\MapReaderARMv6.cs" />
+    <Compile Include="MapManagement\MapReaderS3.cs" />
+    <Compile Include="ViewCommandWindowBusModule.xaml.cs">
+      <DependentUpon>viewcommandwindowbusmodule.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewVMCP_Tool.xaml.cs">
+      <DependentUpon>viewvmcp_tool.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewMBus_IO_Management.xaml.cs">
+      <DependentUpon>viewmbus_io_management.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="zr.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="hardwaremanagement\compatiblefirmwarewindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="hardwaremanagement\firmwareupdatefunctionsui.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="hardwaremanagement\hardwaretypeeditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="hardwaremanagement\mapclassmanager.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="util\inputwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="util\timecontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\backupwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\changeidentwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\commandwindowbusmodule.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\commandwindowcommon.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\commandwindowlora.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\commandwindowmbus.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\commandwindownbiot.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\commandwindowradio.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\commandwindowspecial.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\configuratorcontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\configuratorwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\debugqueuewindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\devicereadrangeselection.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\downlinktestwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\infowindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\mbus_io_management.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\memory16bitwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\memory32bitwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\memoryviewer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\nfc_test.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\overwriteandcompare.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\parameterarrayassistant.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\parameterwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\propertyeditorwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\protectionwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\receivetestpacketmiconwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\receivetestpacketwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\sendtestpacketmiconwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\sensustoolwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\testcommunicationwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\typeeditorwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\typewindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\versionwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\vmcp_tool.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\volumesimulator.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

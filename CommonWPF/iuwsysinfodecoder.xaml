@@ -1,0 +1,210 @@
+<Window x:Class="CommonWPF.IuwSysInfoDecoder"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="IuwSysInfoDecoder" Height="760" Width="600" MinHeight="350" MinWidth="600"
+        WindowStartupLocation="CenterScreen">
+  <FrameworkElement.Resources>
+    <Style x:Key="CheckBoxStyleA" TargetType="{x:Type CheckBox}">
+      <Setter Property="DockPanel.Dock" Value="Top"/>
+      <Setter Property="FrameworkElement.VerticalAlignment" Value="Top"/>
+      <Setter Property="FrameworkElement.Margin" Value="0,0,0,0"/>
+      <Setter Property="InputMethod.IsInputMethodEnabled" Value="true"/>
+    </Style>
+    <Style x:Key="CheckBoxStyleB" TargetType="{x:Type CheckBox}">
+      <Setter Property="DockPanel.Dock" Value="Top"/>
+      <Setter Property="FrameworkElement.VerticalAlignment" Value="Top"/>
+      <Setter Property="FrameworkElement.Margin" Value="0,5,0,0"/>
+      <Setter Property="InputMethod.IsInputMethodEnabled" Value="true"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <Grid x:Name="GridMain" Margin="5">
+    <TabControl x:Name="TabControl1">
+      <TabItem x:Name="TabItemSysInfo" Header="Sys-Info" IsSelected="true">
+        <Grid x:Name="GridSysInfo">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto "/>
+          </Grid.RowDefinitions>
+          <GroupBox x:Name="GroupBoxInput" Grid.Row="0" Header="Input">
+            <Grid x:Name="GridInput">
+              <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+              </Grid.RowDefinitions>
+              <DockPanel x:Name="DockPanelHex" Grid.Row="0">
+                <Label x:Name="LabelHex" DockPanel.Dock="Left" Margin="5,0,0,0" Width="80" Content="HexValue:"
+                       HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBox TextChanged="TextBoxHex_TextChanged" x:Name="TextBoxHex" DockPanel.Dock="Left"
+                         VerticalAlignment="Center" Margin="0,0,5,0">
+                </TextBox>
+              </DockPanel>
+              <DockPanel x:Name="DockPanelDec" Grid.Row="1">
+                <Label x:Name="LabelDec" DockPanel.Dock="Left" Margin="5,0,0,0" Width="80" Content="DecimalValue:"
+                       HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBox TextChanged="TextBoxDec_TextChanged" x:Name="TextBoxDec" DockPanel.Dock="Left"
+                         VerticalAlignment="Center" Margin="0,0,5,0">
+                </TextBox>
+              </DockPanel>
+              <DockPanel x:Name="DockPanelBin" Grid.Row="2">
+                <Label x:Name="LabelBin" DockPanel.Dock="Left" Margin="5,0,0,0" Width="80" Content="BinaryValue:"
+                       HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBox x:Name="TextBoxBin" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,5,0"
+                         IsReadOnly="true">
+                </TextBox>
+              </DockPanel>
+            </Grid>
+          </GroupBox>
+          <GroupBox x:Name="GroupBoxFlags" Grid.Row="1" Header="Flags">
+            <Grid x:Name="GridCheckBoxes" IsEnabled="true">
+              <DockPanel Margin="5,10,0,0">
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox0" Content="CheckBox0"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox1" Content="CheckBox1"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox2" Content="CheckBox2"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox3" Content="CheckBox3"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox4" Content="CheckBox4"
+                          Style="{StaticResource CheckBoxStyleB}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox5" Content="CheckBox5"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox6" Content="CheckBox6"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox7" Content="CheckBox7"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox8" Content="CheckBox8"
+                          Style="{StaticResource CheckBoxStyleB}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox9" Content="CheckBox9"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox10" Content="CheckBox10"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox11" Content="CheckBox11"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox12" Content="CheckBox12"
+                          Style="{StaticResource CheckBoxStyleB}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox13" Content="CheckBox13"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox14" Content="CheckBox14"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox15" Content="CheckBox15"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox16" Content="CheckBox20"
+                          Style="{StaticResource CheckBoxStyleB}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox17" Content="CheckBox21"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox18" Content="CheckBox22"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox19" Content="CheckBox23"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox20" Content="CheckBox20"
+                          Style="{StaticResource CheckBoxStyleB}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox21" Content="CheckBox21"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox22" Content="CheckBox22"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox23" Content="CheckBox23"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox24" Content="CheckBox24"
+                          Style="{StaticResource CheckBoxStyleB}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox25" Content="CheckBox25"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox26" Content="CheckBox26"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox27" Content="CheckBox27"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox28" Content="CheckBox28"
+                          Style="{StaticResource CheckBoxStyleB}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox29" Content="CheckBox29"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox30" Content="CheckBox30"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBox_Click" x:Name="CheckBox31" Content="CheckBox31"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+              </DockPanel>
+            </Grid>
+          </GroupBox>
+        </Grid>
+      </TabItem>
+      <TabItem x:Name="TabItemState" Header="State">
+        <Grid x:Name="GridStateInfo">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto "/>
+          </Grid.RowDefinitions>
+          <GroupBox x:Name="GroupBoxStateInput" Grid.Row="0" Header="Input">
+            <Grid x:Name="GridStateInput">
+              <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+              </Grid.RowDefinitions>
+              <DockPanel x:Name="DockPanelStateHex" Grid.Row="0">
+                <Label x:Name="LabelStateHex" DockPanel.Dock="Left" Margin="5,0,0,0" Width="80" Content="HexValue:"
+                       HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBox TextChanged="TextBoxStateHex_TextChanged" x:Name="TextBoxStateHex" DockPanel.Dock="Left"
+                         VerticalAlignment="Center" Margin="0,0,5,0">
+                </TextBox>
+              </DockPanel>
+              <DockPanel x:Name="DockPanelStateDec" Grid.Row="1">
+                <Label x:Name="LabelStateDec" DockPanel.Dock="Left" Margin="5,0,0,0" Width="80" Content="DecimalValue:"
+                       HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBox TextChanged="TextBoxStateDec_TextChanged" x:Name="TextBoxStateDec" DockPanel.Dock="Left"
+                         VerticalAlignment="Center" Margin="0,0,5,0">
+                </TextBox>
+              </DockPanel>
+              <DockPanel x:Name="DockPanelStateBin" Grid.Row="2">
+                <Label x:Name="LabelStateBin" DockPanel.Dock="Left" Margin="5,0,0,0" Width="80" Content="BinaryValue:"
+                       HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBox x:Name="TextBoxStateBin" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,5,0"
+                         IsReadOnly="true">
+                </TextBox>
+              </DockPanel>
+            </Grid>
+          </GroupBox>
+          <GroupBox x:Name="GroupBoxStateFlags" Grid.Row="1" Header="Flags">
+            <Grid x:Name="GridCheckBoxesState" IsEnabled="true">
+              <DockPanel Margin="5,10,0,0">
+                <CheckBox Click="CheckBoxState_Click" x:Name="CheckBoxState0" Content="CheckBox0"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBoxState_Click" x:Name="CheckBoxState1" Content="CheckBox1"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBoxState_Click" x:Name="CheckBoxState2" Content="CheckBox2"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBoxState_Click" x:Name="CheckBoxState3" Content="CheckBox3"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBoxState_Click" x:Name="CheckBoxState4" Content="CheckBox4"
+                          Style="{StaticResource CheckBoxStyleB}"/>
+                <CheckBox Click="CheckBoxState_Click" x:Name="CheckBoxState5" Content="CheckBox5"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBoxState_Click" x:Name="CheckBoxState6" Content="CheckBox6"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBoxState_Click" x:Name="CheckBoxState7" Content="CheckBox7"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBoxState_Click" x:Name="CheckBoxState8" Content="CheckBox8"
+                          Style="{StaticResource CheckBoxStyleB}"/>
+                <CheckBox Click="CheckBoxState_Click" x:Name="CheckBoxState9" Content="CheckBox9"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBoxState_Click" x:Name="CheckBoxState10" Content="CheckBox10"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBoxState_Click" x:Name="CheckBoxState11" Content="CheckBox11"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBoxState_Click" x:Name="CheckBoxState12" Content="CheckBox12"
+                          Style="{StaticResource CheckBoxStyleB}"/>
+                <CheckBox Click="CheckBoxState_Click" x:Name="CheckBoxState13" Content="CheckBox13"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBoxState_Click" x:Name="CheckBoxState14" Content="CheckBox14"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+                <CheckBox Click="CheckBoxState_Click" x:Name="CheckBoxState15" Content="CheckBox15"
+                          Style="{StaticResource CheckBoxStyleA}"/>
+              </DockPanel>
+            </Grid>
+          </GroupBox>
+        </Grid>
+      </TabItem>
+    </TabControl>
+  </Grid>
+</Window>

@@ -1,0 +1,2899 @@
+
+--- AttributeDisassembler.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.AttributeDisassembler
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  [Serializable]
+  public class AttributeDisassembler : IAttributeDisassembler
+  {
+    public CustomAttributeBuilder Disassemble(Attribute attribute)
+    {
+      Type type = attribute.GetType();
+      try
+      {
+        ConstructorInfo ci;
+        object[] constructorAndArgs = AttributeDisassembler.GetConstructorAndArgs(type, attribute, out ci);
+        Attribute instance = (Attribute) Activator.CreateInstance(type, constructorAndArgs);
+        PropertyInfo[] properties;
+        object[] propertyValues = AttributeDisassembler.GetPropertyValues(type, out properties, attribute, instance);
+        FieldInfo[] fields;
+        object[] fieldValues = AttributeDisassembler.GetFieldValues(type, out fields, attribute, instance);
+        return new CustomAttributeBuilder(ci, constructorAndArgs, properties, propertyValues, fields, fieldValues);
+      }
+      catch (Exception ex)
+      {
+        return this.HandleError(type, ex);
+      }
+    }
+
+    protected virtual CustomAttributeBuilder HandleError(Type attributeType, Exception exception)
+    {
+      throw new ProxyGenerationException("DynamicProxy was unable to disassemble attribute " + attributeType.Name + " using default AttributeDisassembler. " + string.Format("To handle the disassembly process properly implement the {0} interface, ", (object) typeof (IAttributeDisassembler)) + "and register your disassembler to handle this type of attributes using " + typeof (AttributeUtil).Name + ".AddDisassembler<" + attributeType.Name + ">(yourDisassembler) method", exception);
+    }
+
+    private static object[] GetConstructorAndArgs(
+      Type attType,
+      Attribute attribute,
+      out ConstructorInfo ci)
+    {
+      object[] args = new object[0];
+      ci = attType.GetConstructors()[0];
+      ParameterInfo[] parameters = ci.GetParameters();
+      if (parameters.Length != 0)
+      {
+        args = new object[parameters.Length];
+        AttributeDisassembler.InitializeConstructorArgs(attType, attribute, args, parameters);
+      }
+      return args;
+    }
+
+    private static object[] GetPropertyValues(
+      Type attType,
+      out PropertyInfo[] properties,
+      Attribute original,
+      Attribute replicated)
+    {
+      List<PropertyInfo> propertyCandidates = AttributeDisassembler.GetPropertyCandidates(attType);
+      List<object> objectList = new List<object>(propertyCandidates.Count);
+      List<PropertyInfo> propertyInfoList = new List<PropertyInfo>(propertyCandidates.Count);
+      foreach (PropertyInfo propertyInfo in propertyCandidates)
+      {
+        object first = propertyInfo.GetValue((object) original, (object[]) null);
+        object second = propertyInfo.GetValue((object) replicated, (object[]) null);
+        if (!AttributeDisassembler.AreAttributeElementsEqual(first, second))
+        {
+          propertyInfoList.Add(propertyInfo);
+          objectList.Add(first);
+        }
+      }
+      properties = propertyInfoList.ToArray();
+      return objectList.ToArray();
+    }
+
+    private static object[] GetFieldValues(
+      Type attType,
+      out FieldInfo[] fields,
+      Attribute original,
+      Attribute replicated)
+    {
+      FieldInfo[] fields1 = attType.GetFields(BindingFlags.Instance | BindingFlags.Public);
+      List<object> objectList = new List<object>(fields1.Length);
+      List<FieldInfo> fieldInfoList = new List<FieldInfo>(fields1.Length);
+      foreach (FieldInfo fieldInfo in fields1)
+      {
+        object first = fieldInfo.GetValue((object) original);
+        object second = fieldInfo.GetValue((object) replicated);
+        if (!AttributeDisassembler.AreAttributeElementsEqual(first, second))
+        {
+          fieldInfoList.Add(fieldInfo);
+          objectList.Add(first);
+        }
+      }
+      fields = fieldInfoList.ToArray();
+      return objectList.ToArray();
+    }
+
+    private static void InitializeConstructorArgs(
+      Type attType,
+      Attribute attribute,
+      object[] args,
+      ParameterInfo[] parameterInfos)
+    {
+      for (int index = 0; index < args.Length; ++index)
+        args[index] = AttributeDisassembler.GetArgValue(attType, attribute, parameterInfos[index]);
+    }
+
+    private static object GetArgValue(
+      Type attType,
+      Attribute attribute,
+      ParameterInfo parameterInfo)
+    {
+      Type parameterType = parameterInfo.ParameterType;
+      PropertyInfo[] properties = attType.GetProperties();
+      foreach (PropertyInfo propertyInfo in properties)
+      {
+        if ((propertyInfo.CanRead || propertyInfo.GetIndexParameters().Length == 0) && string.Compare(propertyInfo.Name, parameterInfo.Name, StringComparison.CurrentCultureIgnoreCase) == 0)
+          return AttributeDisassembler.ConvertValue(propertyInfo.GetValue((object) attribute, (object[]) null), parameterType);
+      }
+      PropertyInfo bestMatch = (PropertyInfo) null;
+      foreach (PropertyInfo propertyInfo in properties)
+      {
+        if (propertyInfo.CanRead || propertyInfo.GetIndexParameters().Length == 0)
+          bestMatch = AttributeDisassembler.ReplaceIfBetterMatch(parameterInfo, propertyInfo, bestMatch);
+      }
+      return bestMatch != null ? AttributeDisassembler.ConvertValue(bestMatch.GetValue((object) attribute, (object[]) null), parameterType) : AttributeDisassembler.GetDefaultValueFor(parameterType);
+    }
+
+    private static PropertyInfo ReplaceIfBetterMatch(
+      ParameterInfo parameterInfo,
+      PropertyInfo propertyInfo,
+      PropertyInfo bestMatch)
+    {
+      bool flag = bestMatch == null || bestMatch.PropertyType != parameterInfo.ParameterType;
+      return propertyInfo.PropertyType == parameterInfo.ParameterType && flag || parameterInfo.ParameterType == typeof (string) && flag ? propertyInfo : bestMatch;
+    }
+
+    private static object ConvertValue(object obj, Type paramType)
+    {
+      if (obj == null)
+        return (object) null;
+      return paramType == typeof (string) ? (object) obj.ToString() : obj;
+    }
+
+    private static object GetDefaultValueFor(Type type)
+    {
+      if (type == typeof (bool))
+        return (object) false;
+      if (type.IsEnum)
+        return Enum.GetValues(type).GetValue(0);
+      if (type == typeof (char))
+        return (object) char.MinValue;
+      return type.IsPrimitive ? (object) 0 : (object) null;
+    }
+
+    private static List<PropertyInfo> GetPropertyCandidates(Type attributeType)
+    {
+      List<PropertyInfo> propertyCandidates = new List<PropertyInfo>();
+      foreach (PropertyInfo property in attributeType.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+      {
+        if (property.CanRead && property.CanWrite)
+          propertyCandidates.Add(property);
+      }
+      return propertyCandidates;
+    }
+
+    private static bool AreAttributeElementsEqual(object first, object second)
+    {
+      if (first == null)
+        return second == null;
+      return first is string first1 ? AttributeDisassembler.AreStringsEqual(first1, second as string) : first.Equals(second);
+    }
+
+    private static bool AreStringsEqual(string first, string second)
+    {
+      return first.Equals(second, StringComparison.Ordinal);
+    }
+
+    public bool Equals(AttributeDisassembler other)
+    {
+      return !object.ReferenceEquals((object) null, (object) other);
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (object.ReferenceEquals((object) null, obj))
+        return false;
+      if (object.ReferenceEquals((object) this, obj))
+        return true;
+      return obj.GetType() == typeof (AttributeDisassembler) && this.Equals((AttributeDisassembler) obj);
+    }
+
+    public override int GetHashCode() => this.GetType().GetHashCode();
+  }
+}
+
+
+--- AttributesToAvoidReplicating.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.AttributesToAvoidReplicating
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Security.Permissions;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public static class AttributesToAvoidReplicating
+  {
+    private static readonly IList<Type> attributes = (IList<Type>) new List<Type>();
+
+    static AttributesToAvoidReplicating()
+    {
+      AttributesToAvoidReplicating.Add<ComImportAttribute>();
+      AttributesToAvoidReplicating.Add<SecurityPermissionAttribute>();
+    }
+
+    public static void Add(Type attribute)
+    {
+      if (AttributesToAvoidReplicating.attributes.Contains(attribute))
+        return;
+      AttributesToAvoidReplicating.attributes.Add(attribute);
+    }
+
+    public static void Add<T>() => AttributesToAvoidReplicating.Add(typeof (T));
+
+    public static bool Contains(Type type)
+    {
+      return AttributesToAvoidReplicating.attributes.Contains(type);
+    }
+  }
+}
+
+
+--- BaseProxyGenerator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.BaseProxyGenerator
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.Core.Internal;
+using Castle.Core.Logging;
+using Castle.DynamicProxy.Contributors;
+using Castle.DynamicProxy.Generators.Emitters;
+using Castle.DynamicProxy.Generators.Emitters.CodeBuilders;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public abstract class BaseProxyGenerator
+  {
+    private readonly ModuleScope scope;
+    protected readonly Type targetType;
+    private ILogger logger = (ILogger) NullLogger.Instance;
+    private ProxyGenerationOptions proxyGenerationOptions;
+
+    protected BaseProxyGenerator(ModuleScope scope, Type targetType)
+    {
+      this.scope = scope;
+      this.targetType = targetType;
+    }
+
+    public ILogger Logger
+    {
+      get => this.logger;
+      set => this.logger = value;
+    }
+
+    protected ProxyGenerationOptions ProxyGenerationOptions
+    {
+      get
+      {
+        return this.proxyGenerationOptions != null ? this.proxyGenerationOptions : throw new InvalidOperationException("ProxyGenerationOptions must be set before being retrieved.");
+      }
+      set
+      {
+        this.proxyGenerationOptions = this.proxyGenerationOptions == null ? value : throw new InvalidOperationException("ProxyGenerationOptions can only be set once.");
+      }
+    }
+
+    protected ModuleScope Scope => this.scope;
+
+    protected FieldReference CreateOptionsField(ClassEmitter emitter)
+    {
+      return emitter.CreateStaticField("proxyGenerationOptions", typeof (ProxyGenerationOptions));
+    }
+
+    protected void InitializeStaticFields(Type builtType)
+    {
+      builtType.SetStaticField("proxyGenerationOptions", BindingFlags.Public, (object) this.ProxyGenerationOptions);
+    }
+
+    protected void CheckNotGenericTypeDefinition(Type type, string argumentName)
+    {
+      if (type != null && type.IsGenericTypeDefinition)
+        throw new ArgumentException("Type cannot be a generic type definition. Type: " + type.FullName, argumentName);
+    }
+
+    protected void CheckNotGenericTypeDefinitions(IEnumerable<Type> types, string argumentName)
+    {
+      if (types == null)
+        return;
+      foreach (Type type in types)
+        this.CheckNotGenericTypeDefinition(type, argumentName);
+    }
+
+    protected virtual ClassEmitter BuildClassEmitter(
+      string typeName,
+      Type parentType,
+      IEnumerable<Type> interfaces)
+    {
+      this.CheckNotGenericTypeDefinition(parentType, nameof (parentType));
+      this.CheckNotGenericTypeDefinitions(interfaces, nameof (interfaces));
+      return new ClassEmitter(this.Scope, typeName, parentType, interfaces);
+    }
+
+    protected void GenerateConstructor(
+      ClassEmitter emitter,
+      ConstructorInfo baseConstructor,
+      params FieldReference[] fields)
+    {
+      ParameterInfo[] source = (ParameterInfo[]) null;
+      if (baseConstructor != null)
+        source = baseConstructor.GetParameters();
+      ArgumentReference[] sourceArray;
+      if (source != null && source.Length != 0)
+      {
+        sourceArray = new ArgumentReference[fields.Length + source.Length];
+        int length = fields.Length;
+        for (int index = length; index < length + source.Length; ++index)
+        {
+          ParameterInfo parameterInfo = source[index - length];
+          sourceArray[index] = new ArgumentReference(parameterInfo.ParameterType);
+        }
+      }
+      else
+        sourceArray = new ArgumentReference[fields.Length];
+      for (int index = 0; index < fields.Length; ++index)
+        sourceArray[index] = new ArgumentReference(fields[index].Reference.FieldType);
+      ConstructorEmitter constructor = emitter.CreateConstructor(sourceArray);
+      if (source != null && source.Length != 0)
+      {
+        ParameterInfo member = ((IEnumerable<ParameterInfo>) source).Last<ParameterInfo>();
+        if (member.ParameterType.IsArray && member.HasAttribute<ParamArrayAttribute>())
+          constructor.ConstructorBuilder.DefineParameter(sourceArray.Length, ParameterAttributes.None, member.Name).SetCustomAttribute(AttributeUtil.CreateBuilder<ParamArrayAttribute>());
+      }
+      for (int index = 0; index < fields.Length; ++index)
+        constructor.CodeBuilder.AddStatement((Statement) new AssignStatement((Reference) fields[index], sourceArray[index].ToExpression()));
+      if (baseConstructor != null)
+      {
+        ArgumentReference[] destinationArray = new ArgumentReference[source.Length];
+        Array.Copy((Array) sourceArray, fields.Length, (Array) destinationArray, 0, source.Length);
+        constructor.CodeBuilder.InvokeBaseConstructor(baseConstructor, destinationArray);
+      }
+      else
+        constructor.CodeBuilder.InvokeBaseConstructor();
+      constructor.CodeBuilder.AddStatement((Statement) new ReturnStatement());
+    }
+
+    protected void GenerateParameterlessConstructor(
+      ClassEmitter emitter,
+      Type baseClass,
+      FieldReference interceptorField)
+    {
+      ConstructorInfo constructor1 = baseClass.GetConstructor(BindingFlags.Instance | BindingFlags.Public, (Binder) null, Type.EmptyTypes, (ParameterModifier[]) null);
+      if (constructor1 == null)
+      {
+        constructor1 = baseClass.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, (Binder) null, Type.EmptyTypes, (ParameterModifier[]) null);
+        if (constructor1 == null || constructor1.IsPrivate)
+          return;
+      }
+      ConstructorEmitter constructor2 = emitter.CreateConstructor();
+      constructor2.CodeBuilder.AddStatement((Statement) new AssignStatement((Reference) interceptorField, (Expression) new NewArrayExpression(1, typeof (IInterceptor))));
+      constructor2.CodeBuilder.AddStatement((Statement) new AssignArrayStatement((Reference) interceptorField, 0, (Expression) new NewInstanceExpression(typeof (StandardInterceptor), new Type[0], new Expression[0])));
+      constructor2.CodeBuilder.InvokeBaseConstructor(constructor1);
+      constructor2.CodeBuilder.AddStatement((Statement) new ReturnStatement());
+    }
+
+    protected void EnsureOptionsOverrideEqualsAndGetHashCode(ProxyGenerationOptions options)
+    {
+      if (!this.Logger.IsWarnEnabled || this.OverridesEqualsAndGetHashCode(options.Hook.GetType()))
+        return;
+      this.Logger.Warn("The IProxyGenerationHook type {0} does not override both Equals and GetHashCode. If these are not correctly overridden caching will fail to work causing performance problems.", (object) options.Hook.GetType().FullName);
+    }
+
+    private bool OverridesEqualsAndGetHashCode(Type type)
+    {
+      MethodInfo method1 = type.GetMethod("Equals", BindingFlags.Instance | BindingFlags.Public);
+      if (method1 == null || method1.DeclaringType == typeof (object) || method1.IsAbstract)
+        return false;
+      MethodInfo method2 = type.GetMethod("GetHashCode", BindingFlags.Instance | BindingFlags.Public);
+      return method2 != null && method2.DeclaringType != typeof (object) && !method2.IsAbstract;
+    }
+
+    protected void AddMapping(
+      Type @interface,
+      ITypeContributor implementer,
+      IDictionary<Type, ITypeContributor> mapping)
+    {
+      if (mapping.ContainsKey(@interface))
+        return;
+      this.AddMappingNoCheck(@interface, implementer, mapping);
+    }
+
+    protected void AddMappingNoCheck(
+      Type @interface,
+      ITypeContributor implementer,
+      IDictionary<Type, ITypeContributor> mapping)
+    {
+      mapping.Add(@interface, implementer);
+    }
+
+    protected void AddMappingForISerializable(
+      IDictionary<Type, ITypeContributor> typeImplementerMapping,
+      ITypeContributor instance)
+    {
+      this.AddMapping(typeof (ISerializable), instance, typeImplementerMapping);
+    }
+
+    protected void HandleExplicitlyPassedProxyTargetAccessor(
+      ICollection<Type> targetInterfaces,
+      ICollection<Type> additionalInterfaces)
+    {
+      string str = typeof (IProxyTargetAccessor).ToString();
+      throw new ProxyGenerationException("This is a DynamicProxy2 error: " + (!targetInterfaces.Contains(typeof (IProxyTargetAccessor)) ? (!this.ProxyGenerationOptions.MixinData.ContainsMixin(typeof (IProxyTargetAccessor)) ? (!additionalInterfaces.Contains(typeof (IProxyTargetAccessor)) ? string.Format("It looks like we have a bug with regards to how we handle {0}. Please report it.", (object) str) : string.Format("You passed {0} as one of additional interfaces to proxy which is a DynamicProxy infrastructure interface and is implemented by every proxy anyway. Please remove it from the list of additional interfaces to proxy.", (object) str)) : string.Format("Mixin type {0} implements {1} which is a DynamicProxy infrastructure interface and you should never implement it yourself. Are you trying to mix in an existing proxy?", (object) this.ProxyGenerationOptions.MixinData.GetMixinInstance(typeof (IProxyTargetAccessor)).GetType().Name, (object) str)) : string.Format("Target type for the proxy implements {0} which is a DynamicProxy infrastructure interface and you should never implement it yourself. Are you trying to proxy an existing proxy?", (object) str)));
+    }
+
+    protected void CreateInterceptorsField(ClassEmitter emitter)
+    {
+      FieldReference field = emitter.CreateField("__interceptors", typeof (IInterceptor[]));
+      emitter.DefineCustomAttributeFor<XmlIgnoreAttribute>(field);
+    }
+
+    protected void CreateSelectorField(ClassEmitter emitter)
+    {
+      if (this.ProxyGenerationOptions.Selector == null)
+        return;
+      emitter.CreateField("__selector", typeof (IInterceptorSelector));
+    }
+
+    protected virtual void CreateTypeAttributes(ClassEmitter emitter)
+    {
+      emitter.AddCustomAttributes(this.ProxyGenerationOptions);
+      emitter.DefineCustomAttribute<XmlIncludeAttribute>(new object[1]
+      {
+        (object) this.targetType
+      });
+    }
+
+    protected virtual void CreateFields(ClassEmitter emitter)
+    {
+      this.CreateOptionsField(emitter);
+      this.CreateSelectorField(emitter);
+      this.CreateInterceptorsField(emitter);
+    }
+
+    protected Type ObtainProxyType(CacheKey cacheKey, Func<string, INamingScope, Type> factory)
+    {
+      using (IUpgradeableLockHolder upgradeableLockHolder = this.Scope.Lock.ForReadingUpgradeable())
+      {
+        Type fromCache1 = this.GetFromCache(cacheKey);
+        if (fromCache1 != null)
+        {
+          this.Logger.Debug("Found cached proxy type {0} for target type {1}.", (object) fromCache1.FullName, (object) this.targetType.FullName);
+          return fromCache1;
+        }
+        upgradeableLockHolder.Upgrade();
+        Type fromCache2 = this.GetFromCache(cacheKey);
+        if (fromCache2 != null)
+        {
+          this.Logger.Debug("Found cached proxy type {0} for target type {1}.", (object) fromCache2.FullName, (object) this.targetType.FullName);
+          return fromCache2;
+        }
+        this.Logger.Debug("No cached proxy type was found for target type {0}.", (object) this.targetType.FullName);
+        this.EnsureOptionsOverrideEqualsAndGetHashCode(this.ProxyGenerationOptions);
+        string uniqueName = this.Scope.NamingScope.GetUniqueName("Castle.Proxies." + this.targetType.Name + "Proxy");
+        Type type = factory(uniqueName, this.Scope.NamingScope.SafeSubScope());
+        this.AddToCache(cacheKey, type);
+        return type;
+      }
+    }
+
+    protected void GenerateConstructors(
+      ClassEmitter emitter,
+      Type baseType,
+      params FieldReference[] fields)
+    {
+      foreach (ConstructorInfo constructor in baseType.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+      {
+        if (this.IsConstructorVisible(constructor))
+          this.GenerateConstructor(emitter, constructor, fields);
+      }
+    }
+
+    private bool IsConstructorVisible(ConstructorInfo constructor)
+    {
+      if (constructor.IsPublic || constructor.IsFamily || constructor.IsFamilyOrAssembly)
+        return true;
+      return constructor.IsAssembly && InternalsHelper.IsInternalToDynamicProxy(constructor.DeclaringType.Assembly);
+    }
+
+    protected ConstructorEmitter GenerateStaticConstructor(ClassEmitter emitter)
+    {
+      return emitter.CreateTypeConstructor();
+    }
+
+    protected void CompleteInitCacheMethod(ConstructorCodeBuilder constCodeBuilder)
+    {
+      constCodeBuilder.AddStatement((Statement) new ReturnStatement());
+    }
+
+    protected Type GetFromCache(CacheKey key) => this.scope.GetFromCache(key);
+
+    protected void AddToCache(CacheKey key, Type type) => this.scope.RegisterInCache(key, type);
+  }
+}
+
+
+--- CacheKey.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.CacheKey
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  [Serializable]
+  public class CacheKey
+  {
+    private readonly MemberInfo target;
+    private readonly Type[] interfaces;
+    private readonly ProxyGenerationOptions options;
+    private readonly Type type;
+
+    public CacheKey(
+      MemberInfo target,
+      Type type,
+      Type[] interfaces,
+      ProxyGenerationOptions options)
+    {
+      this.target = target;
+      this.type = type;
+      this.interfaces = interfaces ?? Type.EmptyTypes;
+      this.options = options;
+    }
+
+    public CacheKey(Type target, Type[] interfaces, ProxyGenerationOptions options)
+      : this((MemberInfo) target, (Type) null, interfaces, options)
+    {
+    }
+
+    public override int GetHashCode()
+    {
+      int hashCode = this.target.GetHashCode();
+      foreach (Type type in this.interfaces)
+        hashCode += 29 + type.GetHashCode();
+      if (this.options != null)
+        hashCode = 29 * hashCode + this.options.GetHashCode();
+      if (this.type != null)
+        hashCode = 29 * hashCode + this.type.GetHashCode();
+      return hashCode;
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (this == obj)
+        return true;
+      if (!(obj is CacheKey cacheKey) || !object.Equals((object) this.type, (object) cacheKey.type) || !object.Equals((object) this.target, (object) cacheKey.target) || this.interfaces.Length != cacheKey.interfaces.Length)
+        return false;
+      for (int index = 0; index < this.interfaces.Length; ++index)
+      {
+        if (!object.Equals((object) this.interfaces[index], (object) cacheKey.interfaces[index]))
+          return false;
+      }
+      return object.Equals((object) this.options, (object) cacheKey.options);
+    }
+  }
+}
+
+
+--- ClassProxyGenerator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.ClassProxyGenerator
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Contributors;
+using Castle.DynamicProxy.Generators.Emitters;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using Castle.DynamicProxy.Serialization;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class ClassProxyGenerator : BaseProxyGenerator
+  {
+    public ClassProxyGenerator(ModuleScope scope, Type targetType)
+      : base(scope, targetType)
+    {
+      this.CheckNotGenericTypeDefinition(targetType, nameof (targetType));
+      this.EnsureDoesNotImplementIProxyTargetAccessor(targetType, nameof (targetType));
+    }
+
+    private void EnsureDoesNotImplementIProxyTargetAccessor(Type type, string name)
+    {
+      if (typeof (IProxyTargetAccessor).IsAssignableFrom(type))
+        throw new ArgumentException(string.Format("Target type for the proxy implements {0} which is a DynamicProxy infrastructure interface and you should never implement it yourself. Are you trying to proxy an existing proxy?", (object) typeof (IProxyTargetAccessor)), name);
+    }
+
+    public Type GenerateCode(Type[] interfaces, ProxyGenerationOptions options)
+    {
+      options.Initialize();
+      interfaces = TypeUtil.GetAllInterfaces(interfaces).ToArray<Type>();
+      this.CheckNotGenericTypeDefinitions((IEnumerable<Type>) interfaces, nameof (interfaces));
+      this.ProxyGenerationOptions = options;
+      return this.ObtainProxyType(new CacheKey(this.targetType, interfaces, options), (Func<string, INamingScope, Type>) ((n, s) => this.GenerateType(n, interfaces, s)));
+    }
+
+    protected virtual Type GenerateType(string name, Type[] interfaces, INamingScope namingScope)
+    {
+      IEnumerable<ITypeContributor> contributors;
+      IEnumerable<Type> implementerMapping = this.GetTypeImplementerMapping(interfaces, out contributors, namingScope);
+      MetaType model = new MetaType();
+      foreach (ITypeContributor typeContributor in contributors)
+        typeContributor.CollectElementsToProxy(this.ProxyGenerationOptions.Hook, model);
+      this.ProxyGenerationOptions.Hook.MethodsInspected();
+      ClassEmitter classEmitter = this.BuildClassEmitter(name, this.targetType, implementerMapping);
+      this.CreateFields(classEmitter);
+      this.CreateTypeAttributes(classEmitter);
+      ConstructorEmitter staticConstructor = this.GenerateStaticConstructor(classEmitter);
+      List<FieldReference> fieldReferenceList = new List<FieldReference>();
+      foreach (ITypeContributor typeContributor in contributors)
+      {
+        typeContributor.Generate(classEmitter, this.ProxyGenerationOptions);
+        if (typeContributor is MixinContributor)
+          fieldReferenceList.AddRange((typeContributor as MixinContributor).Fields);
+      }
+      FieldReference field1 = classEmitter.GetField("__interceptors");
+      fieldReferenceList.Add(field1);
+      FieldReference field2 = classEmitter.GetField("__selector");
+      if (field2 != null)
+        fieldReferenceList.Add(field2);
+      this.GenerateConstructors(classEmitter, this.targetType, fieldReferenceList.ToArray());
+      this.GenerateParameterlessConstructor(classEmitter, this.targetType, field1);
+      this.CompleteInitCacheMethod(staticConstructor.CodeBuilder);
+      Type builtType = classEmitter.BuildType();
+      this.InitializeStaticFields(builtType);
+      return builtType;
+    }
+
+    protected virtual IEnumerable<Type> GetTypeImplementerMapping(
+      Type[] interfaces,
+      out IEnumerable<ITypeContributor> contributors,
+      INamingScope namingScope)
+    {
+      List<MethodInfo> methodsToSkip = new List<MethodInfo>();
+      ClassProxyInstanceContributor instanceContributor = new ClassProxyInstanceContributor(this.targetType, (IList<MethodInfo>) methodsToSkip, interfaces, ProxyTypeConstants.Class);
+      ClassProxyTargetContributor targetContributor1 = new ClassProxyTargetContributor(this.targetType, (IList<MethodInfo>) methodsToSkip, namingScope);
+      targetContributor1.Logger = this.Logger;
+      ClassProxyTargetContributor implementer1 = targetContributor1;
+      IDictionary<Type, ITypeContributor> dictionary = (IDictionary<Type, ITypeContributor>) new Dictionary<Type, ITypeContributor>();
+      ICollection<Type> allInterfaces1 = this.targetType.GetAllInterfaces();
+      ICollection<Type> allInterfaces2 = TypeUtil.GetAllInterfaces(interfaces);
+      MixinContributor mixinContributor = new MixinContributor(namingScope, false);
+      mixinContributor.Logger = this.Logger;
+      MixinContributor implementer2 = mixinContributor;
+      if (this.ProxyGenerationOptions.HasMixins)
+      {
+        foreach (Type mixinInterface in this.ProxyGenerationOptions.MixinData.MixinInterfaces)
+        {
+          if (allInterfaces1.Contains(mixinInterface))
+          {
+            if (allInterfaces2.Contains(mixinInterface) && !dictionary.ContainsKey(mixinInterface))
+            {
+              this.AddMappingNoCheck(mixinInterface, (ITypeContributor) implementer1, dictionary);
+              implementer1.AddInterfaceToProxy(mixinInterface);
+            }
+            implementer2.AddEmptyInterface(mixinInterface);
+          }
+          else if (!dictionary.ContainsKey(mixinInterface))
+          {
+            implementer2.AddInterfaceToProxy(mixinInterface);
+            this.AddMappingNoCheck(mixinInterface, (ITypeContributor) implementer2, dictionary);
+          }
+        }
+      }
+      InterfaceProxyWithoutTargetContributor targetContributor2 = new InterfaceProxyWithoutTargetContributor(namingScope, (GetTargetExpressionDelegate) ((c, m) => (Expression) NullExpression.Instance));
+      targetContributor2.Logger = this.Logger;
+      InterfaceProxyWithoutTargetContributor implementer3 = targetContributor2;
+      foreach (Type type in (IEnumerable<Type>) allInterfaces2)
+      {
+        if (allInterfaces1.Contains(type))
+        {
+          if (!dictionary.ContainsKey(type))
+          {
+            this.AddMappingNoCheck(type, (ITypeContributor) implementer1, dictionary);
+            implementer1.AddInterfaceToProxy(type);
+          }
+        }
+        else if (!this.ProxyGenerationOptions.MixinData.ContainsMixin(type))
+        {
+          implementer3.AddInterfaceToProxy(type);
+          this.AddMapping(type, (ITypeContributor) implementer3, dictionary);
+        }
+      }
+      if (this.targetType.IsSerializable)
+        this.AddMappingForISerializable(dictionary, (ITypeContributor) instanceContributor);
+      try
+      {
+        this.AddMappingNoCheck(typeof (IProxyTargetAccessor), (ITypeContributor) instanceContributor, dictionary);
+      }
+      catch (ArgumentException ex)
+      {
+        this.HandleExplicitlyPassedProxyTargetAccessor(allInterfaces1, allInterfaces2);
+      }
+      contributors = (IEnumerable<ITypeContributor>) new List<ITypeContributor>()
+      {
+        (ITypeContributor) implementer1,
+        (ITypeContributor) implementer2,
+        (ITypeContributor) implementer3,
+        (ITypeContributor) instanceContributor
+      };
+      return (IEnumerable<Type>) dictionary.Keys;
+    }
+  }
+}
+
+
+--- ClassProxyWithTargetGenerator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.ClassProxyWithTargetGenerator
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Contributors;
+using Castle.DynamicProxy.Generators.Emitters;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using Castle.DynamicProxy.Serialization;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Serialization;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class ClassProxyWithTargetGenerator : BaseProxyGenerator
+  {
+    private readonly Type[] additionalInterfacesToProxy;
+
+    public ClassProxyWithTargetGenerator(
+      ModuleScope scope,
+      Type classToProxy,
+      Type[] additionalInterfacesToProxy,
+      ProxyGenerationOptions options)
+      : base(scope, classToProxy)
+    {
+      this.CheckNotGenericTypeDefinition(this.targetType, "targetType");
+      this.EnsureDoesNotImplementIProxyTargetAccessor(this.targetType, "targetType");
+      this.CheckNotGenericTypeDefinitions((IEnumerable<Type>) additionalInterfacesToProxy, nameof (additionalInterfacesToProxy));
+      options.Initialize();
+      this.ProxyGenerationOptions = options;
+      this.additionalInterfacesToProxy = TypeUtil.GetAllInterfaces(additionalInterfacesToProxy).ToArray<Type>();
+    }
+
+    private void EnsureDoesNotImplementIProxyTargetAccessor(Type type, string name)
+    {
+      if (typeof (IProxyTargetAccessor).IsAssignableFrom(type))
+        throw new ArgumentException(string.Format("Target type for the proxy implements {0} which is a DynamicProxy infrastructure interface and you should never implement it yourself. Are you trying to proxy an existing proxy?", (object) typeof (IProxyTargetAccessor)), name);
+    }
+
+    public Type GetGeneratedType()
+    {
+      return this.ObtainProxyType(new CacheKey(this.targetType, this.additionalInterfacesToProxy, this.ProxyGenerationOptions), new Func<string, INamingScope, Type>(this.GenerateType));
+    }
+
+    private Type GenerateType(string name, INamingScope namingScope)
+    {
+      IEnumerable<ITypeContributor> contributors;
+      IEnumerable<Type> implementerMapping = this.GetTypeImplementerMapping(out contributors, namingScope);
+      MetaType model = new MetaType();
+      foreach (ITypeContributor typeContributor in contributors)
+        typeContributor.CollectElementsToProxy(this.ProxyGenerationOptions.Hook, model);
+      this.ProxyGenerationOptions.Hook.MethodsInspected();
+      ClassEmitter classEmitter = this.BuildClassEmitter(name, this.targetType, implementerMapping);
+      this.CreateFields(classEmitter);
+      this.CreateTypeAttributes(classEmitter);
+      ConstructorEmitter staticConstructor = this.GenerateStaticConstructor(classEmitter);
+      List<FieldReference> fieldReferenceList = new List<FieldReference>()
+      {
+        this.CreateTargetField(classEmitter)
+      };
+      foreach (ITypeContributor typeContributor in contributors)
+      {
+        typeContributor.Generate(classEmitter, this.ProxyGenerationOptions);
+        if (typeContributor is MixinContributor)
+          fieldReferenceList.AddRange((typeContributor as MixinContributor).Fields);
+      }
+      FieldReference field1 = classEmitter.GetField("__interceptors");
+      fieldReferenceList.Add(field1);
+      FieldReference field2 = classEmitter.GetField("__selector");
+      if (field2 != null)
+        fieldReferenceList.Add(field2);
+      this.GenerateConstructors(classEmitter, this.targetType, fieldReferenceList.ToArray());
+      this.GenerateParameterlessConstructor(classEmitter, this.targetType, field1);
+      this.CompleteInitCacheMethod(staticConstructor.CodeBuilder);
+      Type builtType = classEmitter.BuildType();
+      this.InitializeStaticFields(builtType);
+      return builtType;
+    }
+
+    protected virtual IEnumerable<Type> GetTypeImplementerMapping(
+      out IEnumerable<ITypeContributor> contributors,
+      INamingScope namingScope)
+    {
+      List<MethodInfo> methodsToSkip = new List<MethodInfo>();
+      ClassProxyInstanceContributor instanceContributor = new ClassProxyInstanceContributor(this.targetType, (IList<MethodInfo>) methodsToSkip, this.additionalInterfacesToProxy, ProxyTypeConstants.ClassWithTarget);
+      ClassProxyWithTargetTargetContributor targetContributor1 = new ClassProxyWithTargetTargetContributor(this.targetType, (IList<MethodInfo>) methodsToSkip, namingScope);
+      targetContributor1.Logger = this.Logger;
+      ClassProxyWithTargetTargetContributor implementer1 = targetContributor1;
+      IDictionary<Type, ITypeContributor> dictionary = (IDictionary<Type, ITypeContributor>) new Dictionary<Type, ITypeContributor>();
+      ICollection<Type> allInterfaces = this.targetType.GetAllInterfaces();
+      MixinContributor mixinContributor = new MixinContributor(namingScope, false);
+      mixinContributor.Logger = this.Logger;
+      MixinContributor implementer2 = mixinContributor;
+      if (this.ProxyGenerationOptions.HasMixins)
+      {
+        foreach (Type mixinInterface in this.ProxyGenerationOptions.MixinData.MixinInterfaces)
+        {
+          if (allInterfaces.Contains(mixinInterface))
+          {
+            if (((IEnumerable<Type>) this.additionalInterfacesToProxy).Contains<Type>(mixinInterface) && !dictionary.ContainsKey(mixinInterface))
+            {
+              this.AddMappingNoCheck(mixinInterface, (ITypeContributor) implementer1, dictionary);
+              implementer1.AddInterfaceToProxy(mixinInterface);
+            }
+            implementer2.AddEmptyInterface(mixinInterface);
+          }
+          else if (!dictionary.ContainsKey(mixinInterface))
+          {
+            implementer2.AddInterfaceToProxy(mixinInterface);
+            this.AddMappingNoCheck(mixinInterface, (ITypeContributor) implementer2, dictionary);
+          }
+        }
+      }
+      InterfaceProxyWithoutTargetContributor targetContributor2 = new InterfaceProxyWithoutTargetContributor(namingScope, (GetTargetExpressionDelegate) ((c, m) => (Expression) NullExpression.Instance));
+      targetContributor2.Logger = this.Logger;
+      InterfaceProxyWithoutTargetContributor implementer3 = targetContributor2;
+      foreach (Type type in this.additionalInterfacesToProxy)
+      {
+        if (allInterfaces.Contains(type))
+        {
+          if (!dictionary.ContainsKey(type))
+          {
+            this.AddMappingNoCheck(type, (ITypeContributor) implementer1, dictionary);
+            implementer1.AddInterfaceToProxy(type);
+          }
+        }
+        else if (!this.ProxyGenerationOptions.MixinData.ContainsMixin(type))
+        {
+          implementer3.AddInterfaceToProxy(type);
+          this.AddMapping(type, (ITypeContributor) implementer3, dictionary);
+        }
+      }
+      if (this.targetType.IsSerializable)
+        this.AddMappingForISerializable(dictionary, (ITypeContributor) instanceContributor);
+      try
+      {
+        this.AddMappingNoCheck(typeof (IProxyTargetAccessor), (ITypeContributor) instanceContributor, dictionary);
+      }
+      catch (ArgumentException ex)
+      {
+        this.HandleExplicitlyPassedProxyTargetAccessor(allInterfaces, (ICollection<Type>) this.additionalInterfacesToProxy);
+      }
+      contributors = (IEnumerable<ITypeContributor>) new List<ITypeContributor>()
+      {
+        (ITypeContributor) implementer1,
+        (ITypeContributor) implementer2,
+        (ITypeContributor) implementer3,
+        (ITypeContributor) instanceContributor
+      };
+      return (IEnumerable<Type>) dictionary.Keys;
+    }
+
+    private FieldReference CreateTargetField(ClassEmitter emitter)
+    {
+      FieldReference field = emitter.CreateField("__target", this.targetType);
+      emitter.DefineCustomAttributeFor<XmlIgnoreAttribute>(field);
+      return field;
+    }
+  }
+}
+
+
+--- CompositionInvocationTypeGenerator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.CompositionInvocationTypeGenerator
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Generators.Emitters;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using Castle.DynamicProxy.Tokens;
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class CompositionInvocationTypeGenerator(
+    Type target,
+    MetaMethod method,
+    MethodInfo callback,
+    bool canChangeTarget,
+    IInvocationCreationContributor contributor) : InvocationTypeGenerator(target, method, callback, canChangeTarget, contributor)
+  {
+    public static readonly Type BaseType = typeof (CompositionInvocation);
+
+    protected override FieldReference GetTargetReference()
+    {
+      return new FieldReference(InvocationMethods.Target);
+    }
+
+    protected override Type GetBaseType() => CompositionInvocationTypeGenerator.BaseType;
+
+    protected override void ImplementInvokeMethodOnTarget(
+      AbstractTypeEmitter invocation,
+      ParameterInfo[] parameters,
+      MethodEmitter invokeMethodOnTarget,
+      Reference targetField)
+    {
+      invokeMethodOnTarget.CodeBuilder.AddStatement((Statement) new ExpressionStatement((Expression) new MethodInvocationExpression((Reference) SelfReference.Self, InvocationMethods.EnsureValidTarget, new Expression[0])));
+      base.ImplementInvokeMethodOnTarget(invocation, parameters, invokeMethodOnTarget, targetField);
+    }
+
+    protected override ArgumentReference[] GetBaseCtorArguments(
+      Type targetFieldType,
+      ProxyGenerationOptions proxyGenerationOptions,
+      out ConstructorInfo baseConstructor)
+    {
+      if (proxyGenerationOptions.Selector == null)
+      {
+        baseConstructor = InvocationMethods.CompositionInvocationConstructorNoSelector;
+        return new ArgumentReference[5]
+        {
+          new ArgumentReference(targetFieldType),
+          new ArgumentReference(typeof (object)),
+          new ArgumentReference(typeof (IInterceptor[])),
+          new ArgumentReference(typeof (MethodInfo)),
+          new ArgumentReference(typeof (object[]))
+        };
+      }
+      baseConstructor = InvocationMethods.CompositionInvocationConstructorWithSelector;
+      return new ArgumentReference[7]
+      {
+        new ArgumentReference(targetFieldType),
+        new ArgumentReference(typeof (object)),
+        new ArgumentReference(typeof (IInterceptor[])),
+        new ArgumentReference(typeof (MethodInfo)),
+        new ArgumentReference(typeof (object[])),
+        new ArgumentReference(typeof (IInterceptorSelector)),
+        new ArgumentReference(typeof (IInterceptor[]).MakeByRefType())
+      };
+    }
+  }
+}
+
+
+--- DelegateMembersCollector.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.DelegateMembersCollector
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Contributors;
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class DelegateMembersCollector(Type type) : MembersCollector(type)
+  {
+    protected override MetaMethod GetMethodToGenerate(
+      MethodInfo method,
+      IProxyGenerationHook hook,
+      bool isStandalone)
+    {
+      return !this.AcceptMethod(method, true, hook) ? (MetaMethod) null : new MetaMethod(method, method, isStandalone, true, !method.IsAbstract);
+    }
+  }
+}
+
+
+--- DelegateProxyGenerationHook.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.DelegateProxyGenerationHook
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class DelegateProxyGenerationHook : IProxyGenerationHook
+  {
+    public bool ShouldInterceptMethod(Type type, MethodInfo methodInfo)
+    {
+      return methodInfo.Name.Equals("Invoke");
+    }
+
+    public void NonProxyableMemberNotification(Type type, MemberInfo memberInfo)
+    {
+    }
+
+    public void MethodsInspected()
+    {
+    }
+
+    public override bool Equals(object obj)
+    {
+      return !object.ReferenceEquals((object) null, obj) && obj.GetType() == typeof (DelegateProxyGenerationHook);
+    }
+
+    public override int GetHashCode() => this.GetType().GetHashCode();
+  }
+}
+
+
+--- DelegateProxyGenerator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.DelegateProxyGenerator
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Contributors;
+using Castle.DynamicProxy.Generators.Emitters;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using Castle.DynamicProxy.Serialization;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Xml.Serialization;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class DelegateProxyGenerator : BaseProxyGenerator
+  {
+    public DelegateProxyGenerator(ModuleScope scope, Type delegateType)
+      : base(scope, delegateType)
+    {
+      this.ProxyGenerationOptions = new ProxyGenerationOptions((IProxyGenerationHook) new DelegateProxyGenerationHook());
+      this.ProxyGenerationOptions.Initialize();
+    }
+
+    public Type GetProxyType()
+    {
+      return this.ObtainProxyType(new CacheKey(this.targetType, (Type[]) null, (ProxyGenerationOptions) null), new Func<string, INamingScope, Type>(this.GenerateType));
+    }
+
+    private Type GenerateType(string name, INamingScope namingScope)
+    {
+      IEnumerable<ITypeContributor> contributors;
+      IEnumerable<Type> implementerMapping = this.GetTypeImplementerMapping(out contributors, namingScope);
+      MetaType model = new MetaType();
+      foreach (ITypeContributor typeContributor in contributors)
+        typeContributor.CollectElementsToProxy(this.ProxyGenerationOptions.Hook, model);
+      this.ProxyGenerationOptions.Hook.MethodsInspected();
+      ClassEmitter classEmitter = this.BuildClassEmitter(name, typeof (object), implementerMapping);
+      this.CreateFields(classEmitter);
+      this.CreateTypeAttributes(classEmitter);
+      ConstructorEmitter staticConstructor = this.GenerateStaticConstructor(classEmitter);
+      List<FieldReference> fieldReferenceList = new List<FieldReference>()
+      {
+        this.CreateTargetField(classEmitter)
+      };
+      foreach (ITypeContributor typeContributor in contributors)
+        typeContributor.Generate(classEmitter, this.ProxyGenerationOptions);
+      FieldReference field1 = classEmitter.GetField("__interceptors");
+      fieldReferenceList.Add(field1);
+      FieldReference field2 = classEmitter.GetField("__selector");
+      if (field2 != null)
+        fieldReferenceList.Add(field2);
+      this.GenerateConstructor(classEmitter, (ConstructorInfo) null, fieldReferenceList.ToArray());
+      this.GenerateParameterlessConstructor(classEmitter, this.targetType, field1);
+      this.CompleteInitCacheMethod(staticConstructor.CodeBuilder);
+      Type builtType = classEmitter.BuildType();
+      this.InitializeStaticFields(builtType);
+      return builtType;
+    }
+
+    protected virtual IEnumerable<Type> GetTypeImplementerMapping(
+      out IEnumerable<ITypeContributor> contributors,
+      INamingScope namingScope)
+    {
+      ClassProxyInstanceContributor instanceContributor = new ClassProxyInstanceContributor(this.targetType, (IList<MethodInfo>) new List<MethodInfo>(), Type.EmptyTypes, ProxyTypeConstants.ClassWithTarget);
+      DelegateProxyTargetContributor targetContributor1 = new DelegateProxyTargetContributor(this.targetType, namingScope);
+      targetContributor1.Logger = this.Logger;
+      DelegateProxyTargetContributor targetContributor2 = targetContributor1;
+      IDictionary<Type, ITypeContributor> dictionary = (IDictionary<Type, ITypeContributor>) new Dictionary<Type, ITypeContributor>();
+      if (this.targetType.IsSerializable)
+        this.AddMappingForISerializable(dictionary, (ITypeContributor) instanceContributor);
+      this.AddMappingNoCheck(typeof (IProxyTargetAccessor), (ITypeContributor) instanceContributor, dictionary);
+      contributors = (IEnumerable<ITypeContributor>) new List<ITypeContributor>()
+      {
+        (ITypeContributor) targetContributor2,
+        (ITypeContributor) instanceContributor
+      };
+      return (IEnumerable<Type>) dictionary.Keys;
+    }
+
+    private FieldReference CreateTargetField(ClassEmitter emitter)
+    {
+      FieldReference field = emitter.CreateField("__target", this.targetType);
+      emitter.DefineCustomAttributeFor<XmlIgnoreAttribute>(field);
+      return field;
+    }
+  }
+}
+
+
+--- GeneratorException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.GeneratorException
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  [Serializable]
+  public class GeneratorException : Exception
+  {
+    public GeneratorException(string message)
+      : base(message)
+    {
+    }
+
+    public GeneratorException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+
+    public GeneratorException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+    }
+  }
+}
+
+
+--- GeneratorUtil.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.GeneratorUtil
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Generators.Emitters;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using Castle.DynamicProxy.Tokens;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public static class GeneratorUtil
+  {
+    public static void CopyOutAndRefParameters(
+      TypeReference[] dereferencedArguments,
+      LocalReference invocation,
+      MethodInfo method,
+      MethodEmitter emitter)
+    {
+      ParameterInfo[] parameters = method.GetParameters();
+      if (!ArgumentsUtil.IsAnyByRef(parameters))
+        return;
+      LocalReference invocationArgs = GeneratorUtil.StoreInvocationArgumentsInLocal(emitter, invocation);
+      for (int i = 0; i < parameters.Length; ++i)
+      {
+        if (parameters[i].ParameterType.IsByRef)
+          emitter.CodeBuilder.AddStatement((Statement) GeneratorUtil.AssignArgument(dereferencedArguments, i, invocationArgs));
+      }
+    }
+
+    private static AssignStatement AssignArgument(
+      TypeReference[] dereferencedArguments,
+      int i,
+      LocalReference invocationArgs)
+    {
+      return new AssignStatement((Reference) dereferencedArguments[i], (Expression) GeneratorUtil.Argument(i, invocationArgs, dereferencedArguments));
+    }
+
+    private static ConvertExpression Argument(
+      int i,
+      LocalReference invocationArgs,
+      TypeReference[] arguments)
+    {
+      return new ConvertExpression(arguments[i].Type, (Expression) new LoadRefArrayElementExpression(i, (Reference) invocationArgs));
+    }
+
+    private static LocalReference StoreInvocationArgumentsInLocal(
+      MethodEmitter emitter,
+      LocalReference invocation)
+    {
+      LocalReference invocationArgs = emitter.CodeBuilder.DeclareLocal(typeof (object[]));
+      emitter.CodeBuilder.AddStatement((Statement) GeneratorUtil.GetArguments(invocationArgs, invocation));
+      return invocationArgs;
+    }
+
+    private static AssignStatement GetArguments(
+      LocalReference invocationArgs,
+      LocalReference invocation)
+    {
+      return new AssignStatement((Reference) invocationArgs, (Expression) new MethodInvocationExpression((Reference) invocation, InvocationMethods.GetArguments, new Expression[0]));
+    }
+  }
+}
+
+
+--- IGenerator`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.IGenerator`1
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Generators.Emitters;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public interface IGenerator<T>
+  {
+    T Generate(ClassEmitter @class, ProxyGenerationOptions options, INamingScope namingScope);
+  }
+}
+
+
+--- IInvocationCreationContributor.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.IInvocationCreationContributor
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Generators.Emitters;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public interface IInvocationCreationContributor
+  {
+    ConstructorEmitter CreateConstructor(
+      ArgumentReference[] baseCtorArguments,
+      AbstractTypeEmitter invocation);
+
+    MethodInvocationExpression GetCallbackMethodInvocation(
+      AbstractTypeEmitter invocation,
+      Expression[] args,
+      Reference targetField,
+      MethodEmitter invokeMethodOnTarget);
+
+    MethodInfo GetCallbackMethod();
+
+    Expression[] GetConstructorInvocationArguments(Expression[] arguments, ClassEmitter proxy);
+  }
+}
+
+
+--- INamingScope.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.INamingScope
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public interface INamingScope
+  {
+    string GetUniqueName(string suggestedName);
+
+    INamingScope SafeSubScope();
+
+    INamingScope ParentScope { get; }
+  }
+}
+
+
+--- InheritanceInvocationTypeGenerator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.InheritanceInvocationTypeGenerator
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using Castle.DynamicProxy.Tokens;
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class InheritanceInvocationTypeGenerator(
+    Type targetType,
+    MetaMethod method,
+    MethodInfo callback,
+    IInvocationCreationContributor contributor) : InvocationTypeGenerator(targetType, method, callback, false, contributor)
+  {
+    public static readonly Type BaseType = typeof (InheritanceInvocation);
+
+    protected override FieldReference GetTargetReference()
+    {
+      return new FieldReference(InvocationMethods.ProxyObject);
+    }
+
+    protected override Type GetBaseType() => InheritanceInvocationTypeGenerator.BaseType;
+
+    protected override ArgumentReference[] GetBaseCtorArguments(
+      Type targetFieldType,
+      ProxyGenerationOptions proxyGenerationOptions,
+      out ConstructorInfo baseConstructor)
+    {
+      if (proxyGenerationOptions.Selector == null)
+      {
+        baseConstructor = InvocationMethods.InheritanceInvocationConstructorNoSelector;
+        return new ArgumentReference[5]
+        {
+          new ArgumentReference(typeof (Type)),
+          new ArgumentReference(typeof (object)),
+          new ArgumentReference(typeof (IInterceptor[])),
+          new ArgumentReference(typeof (MethodInfo)),
+          new ArgumentReference(typeof (object[]))
+        };
+      }
+      baseConstructor = InvocationMethods.InheritanceInvocationConstructorWithSelector;
+      return new ArgumentReference[7]
+      {
+        new ArgumentReference(typeof (Type)),
+        new ArgumentReference(typeof (object)),
+        new ArgumentReference(typeof (IInterceptor[])),
+        new ArgumentReference(typeof (MethodInfo)),
+        new ArgumentReference(typeof (object[])),
+        new ArgumentReference(typeof (IInterceptorSelector)),
+        new ArgumentReference(typeof (IInterceptor[]).MakeByRefType())
+      };
+    }
+  }
+}
+
+
+--- InterfaceProxyWithoutTargetGenerator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.InterfaceProxyWithoutTargetGenerator
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Contributors;
+using Castle.DynamicProxy.Generators.Emitters;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using Castle.DynamicProxy.Serialization;
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class InterfaceProxyWithoutTargetGenerator(ModuleScope scope, Type @interface) : 
+    InterfaceProxyWithTargetGenerator(scope, @interface)
+  {
+    protected override ITypeContributor AddMappingForTargetType(
+      IDictionary<Type, ITypeContributor> interfaceTypeImplementerMapping,
+      Type proxyTargetType,
+      ICollection<Type> targetInterfaces,
+      ICollection<Type> additionalInterfaces,
+      INamingScope namingScope)
+    {
+      InterfaceProxyWithoutTargetContributor targetContributor = new InterfaceProxyWithoutTargetContributor(namingScope, (GetTargetExpressionDelegate) ((c, m) => (Expression) NullExpression.Instance));
+      targetContributor.Logger = this.Logger;
+      InterfaceProxyWithoutTargetContributor implementer = targetContributor;
+      foreach (Type allInterface in (IEnumerable<Type>) this.targetType.GetAllInterfaces())
+      {
+        implementer.AddInterfaceToProxy(allInterface);
+        this.AddMappingNoCheck(allInterface, (ITypeContributor) implementer, interfaceTypeImplementerMapping);
+      }
+      return (ITypeContributor) implementer;
+    }
+
+    protected override Type GenerateType(
+      string typeName,
+      Type proxyTargetType,
+      Type[] interfaces,
+      INamingScope namingScope)
+    {
+      IEnumerable<ITypeContributor> contributors;
+      IEnumerable<Type> implementerMapping = this.GetTypeImplementerMapping(interfaces, this.targetType, out contributors, namingScope);
+      MetaType model = new MetaType();
+      foreach (ITypeContributor typeContributor in contributors)
+        typeContributor.CollectElementsToProxy(this.ProxyGenerationOptions.Hook, model);
+      this.ProxyGenerationOptions.Hook.MethodsInspected();
+      ClassEmitter emitter;
+      FieldReference interceptorsField;
+      Type baseType = this.Init(typeName, out emitter, proxyTargetType, out interceptorsField, implementerMapping);
+      ConstructorEmitter staticConstructor = this.GenerateStaticConstructor(emitter);
+      List<FieldReference> collection = new List<FieldReference>();
+      foreach (ITypeContributor typeContributor in contributors)
+      {
+        typeContributor.Generate(emitter, this.ProxyGenerationOptions);
+        if (typeContributor is MixinContributor)
+          collection.AddRange((typeContributor as MixinContributor).Fields);
+      }
+      List<FieldReference> fieldReferenceList = new List<FieldReference>((IEnumerable<FieldReference>) collection)
+      {
+        interceptorsField,
+        this.targetField
+      };
+      FieldReference field = emitter.GetField("__selector");
+      if (field != null)
+        fieldReferenceList.Add(field);
+      this.GenerateConstructors(emitter, baseType, fieldReferenceList.ToArray());
+      this.CompleteInitCacheMethod(staticConstructor.CodeBuilder);
+      Type builtType = emitter.BuildType();
+      this.InitializeStaticFields(builtType);
+      return builtType;
+    }
+
+    protected override string GeneratorType => ProxyTypeConstants.InterfaceWithoutTarget;
+  }
+}
+
+
+--- InterfaceProxyWithTargetGenerator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.InterfaceProxyWithTargetGenerator
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Contributors;
+using Castle.DynamicProxy.Generators.Emitters;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using Castle.DynamicProxy.Serialization;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Serialization;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class InterfaceProxyWithTargetGenerator : BaseProxyGenerator
+  {
+    protected FieldReference targetField;
+
+    public InterfaceProxyWithTargetGenerator(ModuleScope scope, Type @interface)
+      : base(scope, @interface)
+    {
+      this.CheckNotGenericTypeDefinition(@interface, "@interface");
+    }
+
+    public Type GenerateCode(
+      Type proxyTargetType,
+      Type[] interfaces,
+      ProxyGenerationOptions options)
+    {
+      options.Initialize();
+      this.CheckNotGenericTypeDefinition(proxyTargetType, nameof (proxyTargetType));
+      this.CheckNotGenericTypeDefinitions((IEnumerable<Type>) interfaces, nameof (interfaces));
+      this.EnsureValidBaseType(options.BaseTypeForInterfaceProxy);
+      this.ProxyGenerationOptions = options;
+      interfaces = TypeUtil.GetAllInterfaces(interfaces).ToArray<Type>();
+      return this.ObtainProxyType(new CacheKey((MemberInfo) proxyTargetType, this.targetType, interfaces, options), (Func<string, INamingScope, Type>) ((n, s) => this.GenerateType(n, proxyTargetType, interfaces, s)));
+    }
+
+    private void EnsureValidBaseType(Type type)
+    {
+      if (type == null)
+        throw new ArgumentException("Base type for proxy is null reference. Please set it to System.Object or some other valid type.");
+      if (!type.IsClass)
+        this.ThrowInvalidBaseType(type, "it is not a class type");
+      if (type.IsSealed)
+        this.ThrowInvalidBaseType(type, "it is sealed");
+      ConstructorInfo constructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, (Binder) null, Type.EmptyTypes, (ParameterModifier[]) null);
+      if (constructor != null && !constructor.IsPrivate)
+        return;
+      this.ThrowInvalidBaseType(type, "it does not have accessible parameterless constructor");
+    }
+
+    private void ThrowInvalidBaseType(
+      Type type,
+      string doesNotHaveAccessibleParameterlessConstructor)
+    {
+      throw new ArgumentException(string.Format("Type {0} is not valid base type for interface proxy, because {1}. Only a non-sealed class with non-private default constructor can be used as base type for interface proxy. Please use some other valid type.", (object) type, (object) doesNotHaveAccessibleParameterlessConstructor));
+    }
+
+    protected virtual Type GenerateType(
+      string typeName,
+      Type proxyTargetType,
+      Type[] interfaces,
+      INamingScope namingScope)
+    {
+      IEnumerable<ITypeContributor> contributors;
+      IEnumerable<Type> implementerMapping = this.GetTypeImplementerMapping(interfaces, proxyTargetType, out contributors, namingScope);
+      ClassEmitter emitter;
+      FieldReference interceptorsField;
+      Type baseType = this.Init(typeName, out emitter, proxyTargetType, out interceptorsField, implementerMapping);
+      MetaType model = new MetaType();
+      foreach (ITypeContributor typeContributor in contributors)
+        typeContributor.CollectElementsToProxy(this.ProxyGenerationOptions.Hook, model);
+      this.ProxyGenerationOptions.Hook.MethodsInspected();
+      ConstructorEmitter staticConstructor = this.GenerateStaticConstructor(emitter);
+      List<FieldReference> fieldReferenceList = new List<FieldReference>();
+      foreach (ITypeContributor typeContributor in contributors)
+      {
+        typeContributor.Generate(emitter, this.ProxyGenerationOptions);
+        if (typeContributor is MixinContributor)
+          fieldReferenceList.AddRange((typeContributor as MixinContributor).Fields);
+      }
+      fieldReferenceList.Add(interceptorsField);
+      fieldReferenceList.Add(this.targetField);
+      FieldReference field = emitter.GetField("__selector");
+      if (field != null)
+        fieldReferenceList.Add(field);
+      this.GenerateConstructors(emitter, baseType, fieldReferenceList.ToArray());
+      this.CompleteInitCacheMethod(staticConstructor.CodeBuilder);
+      Type builtType = emitter.BuildType();
+      this.InitializeStaticFields(builtType);
+      return builtType;
+    }
+
+    protected virtual Type Init(
+      string typeName,
+      out ClassEmitter emitter,
+      Type proxyTargetType,
+      out FieldReference interceptorsField,
+      IEnumerable<Type> interfaces)
+    {
+      Type forInterfaceProxy = this.ProxyGenerationOptions.BaseTypeForInterfaceProxy;
+      emitter = this.BuildClassEmitter(typeName, forInterfaceProxy, interfaces);
+      this.CreateFields(emitter, proxyTargetType);
+      this.CreateTypeAttributes(emitter);
+      interceptorsField = emitter.GetField("__interceptors");
+      return forInterfaceProxy;
+    }
+
+    private void CreateFields(ClassEmitter emitter, Type proxyTargetType)
+    {
+      this.CreateFields(emitter);
+      this.targetField = emitter.CreateField("__target", proxyTargetType);
+      emitter.DefineCustomAttributeFor<XmlIgnoreAttribute>(this.targetField);
+    }
+
+    protected override void CreateTypeAttributes(ClassEmitter emitter)
+    {
+      base.CreateTypeAttributes(emitter);
+      emitter.DefineCustomAttribute<SerializableAttribute>();
+    }
+
+    protected virtual string GeneratorType => ProxyTypeConstants.InterfaceWithTarget;
+
+    protected virtual bool AllowChangeTarget => false;
+
+    protected virtual IEnumerable<Type> GetTypeImplementerMapping(
+      Type[] interfaces,
+      Type proxyTargetType,
+      out IEnumerable<ITypeContributor> contributors,
+      INamingScope namingScope)
+    {
+      IDictionary<Type, ITypeContributor> dictionary = (IDictionary<Type, ITypeContributor>) new Dictionary<Type, ITypeContributor>();
+      MixinContributor mixinContributor1 = new MixinContributor(namingScope, this.AllowChangeTarget);
+      mixinContributor1.Logger = this.Logger;
+      MixinContributor mixinContributor2 = mixinContributor1;
+      ICollection<Type> allInterfaces1 = proxyTargetType.GetAllInterfaces();
+      ICollection<Type> allInterfaces2 = TypeUtil.GetAllInterfaces(interfaces);
+      ITypeContributor implementer = this.AddMappingForTargetType(dictionary, proxyTargetType, allInterfaces1, allInterfaces2, namingScope);
+      if (this.ProxyGenerationOptions.HasMixins)
+      {
+        foreach (Type mixinInterface in this.ProxyGenerationOptions.MixinData.MixinInterfaces)
+        {
+          if (allInterfaces1.Contains(mixinInterface))
+          {
+            if (allInterfaces2.Contains(mixinInterface))
+              this.AddMapping(mixinInterface, implementer, dictionary);
+            mixinContributor2.AddEmptyInterface(mixinInterface);
+          }
+          else if (!dictionary.ContainsKey(mixinInterface))
+          {
+            mixinContributor2.AddInterfaceToProxy(mixinInterface);
+            dictionary.Add(mixinInterface, (ITypeContributor) mixinContributor2);
+          }
+        }
+      }
+      InterfaceProxyWithoutTargetContributor additionalInterfaces = this.GetContributorForAdditionalInterfaces(namingScope);
+      foreach (Type type in (IEnumerable<Type>) allInterfaces2)
+      {
+        if (!dictionary.ContainsKey(type) && !this.ProxyGenerationOptions.MixinData.ContainsMixin(type))
+        {
+          additionalInterfaces.AddInterfaceToProxy(type);
+          this.AddMappingNoCheck(type, (ITypeContributor) additionalInterfaces, dictionary);
+        }
+      }
+      InterfaceProxyInstanceContributor instanceContributor = new InterfaceProxyInstanceContributor(this.targetType, this.GeneratorType, interfaces);
+      this.AddMappingForISerializable(dictionary, (ITypeContributor) instanceContributor);
+      try
+      {
+        this.AddMappingNoCheck(typeof (IProxyTargetAccessor), (ITypeContributor) instanceContributor, dictionary);
+      }
+      catch (ArgumentException ex)
+      {
+        this.HandleExplicitlyPassedProxyTargetAccessor(allInterfaces1, allInterfaces2);
+      }
+      contributors = (IEnumerable<ITypeContributor>) new List<ITypeContributor>()
+      {
+        implementer,
+        (ITypeContributor) additionalInterfaces,
+        (ITypeContributor) mixinContributor2,
+        (ITypeContributor) instanceContributor
+      };
+      return (IEnumerable<Type>) dictionary.Keys;
+    }
+
+    protected virtual InterfaceProxyWithoutTargetContributor GetContributorForAdditionalInterfaces(
+      INamingScope namingScope)
+    {
+      InterfaceProxyWithoutTargetContributor additionalInterfaces = new InterfaceProxyWithoutTargetContributor(namingScope, (GetTargetExpressionDelegate) ((c, m) => (Expression) NullExpression.Instance));
+      additionalInterfaces.Logger = this.Logger;
+      return additionalInterfaces;
+    }
+
+    protected virtual ITypeContributor AddMappingForTargetType(
+      IDictionary<Type, ITypeContributor> typeImplementerMapping,
+      Type proxyTargetType,
+      ICollection<Type> targetInterfaces,
+      ICollection<Type> additionalInterfaces,
+      INamingScope namingScope)
+    {
+      InterfaceProxyTargetContributor targetContributor = new InterfaceProxyTargetContributor(proxyTargetType, this.AllowChangeTarget, namingScope);
+      targetContributor.Logger = this.Logger;
+      InterfaceProxyTargetContributor implementer = targetContributor;
+      ICollection<Type> allInterfaces = this.targetType.GetAllInterfaces();
+      foreach (Type @interface in (IEnumerable<Type>) allInterfaces)
+      {
+        implementer.AddInterfaceToProxy(@interface);
+        this.AddMappingNoCheck(@interface, (ITypeContributor) implementer, typeImplementerMapping);
+      }
+      foreach (Type additionalInterface in (IEnumerable<Type>) additionalInterfaces)
+      {
+        if (this.ImplementedByTarget(targetInterfaces, additionalInterface) && !allInterfaces.Contains(additionalInterface))
+        {
+          implementer.AddInterfaceToProxy(additionalInterface);
+          this.AddMappingNoCheck(additionalInterface, (ITypeContributor) implementer, typeImplementerMapping);
+        }
+      }
+      return (ITypeContributor) implementer;
+    }
+
+    private bool ImplementedByTarget(ICollection<Type> targetInterfaces, Type @interface)
+    {
+      return targetInterfaces.Contains(@interface);
+    }
+  }
+}
+
+
+--- InterfaceProxyWithTargetInterfaceGenerator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.InterfaceProxyWithTargetInterfaceGenerator
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Contributors;
+using Castle.DynamicProxy.Generators.Emitters;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using Castle.DynamicProxy.Serialization;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class InterfaceProxyWithTargetInterfaceGenerator(ModuleScope scope, Type @interface) : 
+    InterfaceProxyWithTargetGenerator(scope, @interface)
+  {
+    protected override ITypeContributor AddMappingForTargetType(
+      IDictionary<Type, ITypeContributor> typeImplementerMapping,
+      Type proxyTargetType,
+      ICollection<Type> targetInterfaces,
+      ICollection<Type> additionalInterfaces,
+      INamingScope namingScope)
+    {
+      InterfaceProxyWithTargetInterfaceTargetContributor targetContributor = new InterfaceProxyWithTargetInterfaceTargetContributor(proxyTargetType, this.AllowChangeTarget, namingScope);
+      targetContributor.Logger = this.Logger;
+      InterfaceProxyWithTargetInterfaceTargetContributor implementer = targetContributor;
+      foreach (Type allInterface in (IEnumerable<Type>) this.targetType.GetAllInterfaces())
+      {
+        implementer.AddInterfaceToProxy(allInterface);
+        this.AddMappingNoCheck(allInterface, (ITypeContributor) implementer, typeImplementerMapping);
+      }
+      return (ITypeContributor) implementer;
+    }
+
+    protected override InterfaceProxyWithoutTargetContributor GetContributorForAdditionalInterfaces(
+      INamingScope namingScope)
+    {
+      InterfaceProxyWithOptionalTargetContributor additionalInterfaces = new InterfaceProxyWithOptionalTargetContributor(namingScope, new GetTargetExpressionDelegate(this.GetTargetExpression), new GetTargetReferenceDelegate(this.GetTarget));
+      additionalInterfaces.Logger = this.Logger;
+      return (InterfaceProxyWithoutTargetContributor) additionalInterfaces;
+    }
+
+    private Reference GetTarget(ClassEmitter @class, MethodInfo method)
+    {
+      return (Reference) new AsTypeReference((Reference) @class.GetField("__target"), method.DeclaringType);
+    }
+
+    private Expression GetTargetExpression(ClassEmitter @class, MethodInfo method)
+    {
+      return this.GetTarget(@class, method).ToExpression();
+    }
+
+    protected override bool AllowChangeTarget => true;
+
+    protected override string GeneratorType => ProxyTypeConstants.InterfaceWithTargetInterface;
+  }
+}
+
+
+--- InvocationTypeGenerator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.InvocationTypeGenerator
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Generators.Emitters;
+using Castle.DynamicProxy.Generators.Emitters.CodeBuilders;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using Castle.DynamicProxy.Tokens;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public abstract class InvocationTypeGenerator : IGenerator<AbstractTypeEmitter>
+  {
+    protected readonly Type targetType;
+    protected readonly MetaMethod method;
+    private readonly MethodInfo callback;
+    private readonly bool canChangeTarget;
+    private readonly IInvocationCreationContributor contributor;
+
+    protected InvocationTypeGenerator(
+      Type targetType,
+      MetaMethod method,
+      MethodInfo callback,
+      bool canChangeTarget,
+      IInvocationCreationContributor contributor)
+    {
+      this.targetType = targetType;
+      this.method = method;
+      this.callback = callback;
+      this.canChangeTarget = canChangeTarget;
+      this.contributor = contributor;
+    }
+
+    public AbstractTypeEmitter Generate(
+      ClassEmitter @class,
+      ProxyGenerationOptions options,
+      INamingScope namingScope)
+    {
+      MethodInfo method = this.method.Method;
+      Type[] interfaces = new Type[0];
+      if (this.canChangeTarget)
+        interfaces = new Type[1]
+        {
+          typeof (IChangeProxyTarget)
+        };
+      AbstractTypeEmitter emitter = this.GetEmitter(@class, interfaces, namingScope, method);
+      emitter.CopyGenericParametersFromMethod(method);
+      this.CreateConstructor(emitter, options);
+      FieldReference targetReference = this.GetTargetReference();
+      if (this.canChangeTarget)
+        this.ImplementChangeProxyTargetInterface(@class, emitter, targetReference);
+      this.ImplemementInvokeMethodOnTarget(emitter, method.GetParameters(), targetReference, this.callback);
+      emitter.DefineCustomAttribute<SerializableAttribute>();
+      return emitter;
+    }
+
+    private void CreateConstructor(AbstractTypeEmitter invocation, ProxyGenerationOptions options)
+    {
+      ConstructorInfo baseConstructor;
+      ArgumentReference[] baseCtorArguments = this.GetBaseCtorArguments(this.targetType, options, out baseConstructor);
+      ConstructorEmitter constructor = this.CreateConstructor(invocation, baseCtorArguments);
+      constructor.CodeBuilder.InvokeBaseConstructor(baseConstructor, baseCtorArguments);
+      constructor.CodeBuilder.AddStatement((Statement) new ReturnStatement());
+    }
+
+    private ConstructorEmitter CreateConstructor(
+      AbstractTypeEmitter invocation,
+      ArgumentReference[] baseCtorArguments)
+    {
+      return this.contributor == null ? invocation.CreateConstructor(baseCtorArguments) : this.contributor.CreateConstructor(baseCtorArguments, invocation);
+    }
+
+    protected abstract FieldReference GetTargetReference();
+
+    private AbstractTypeEmitter GetEmitter(
+      ClassEmitter @class,
+      Type[] interfaces,
+      INamingScope namingScope,
+      MethodInfo methodInfo)
+    {
+      string suggestedName = string.Format("Castle.Proxies.Invocations.{0}_{1}", (object) methodInfo.DeclaringType.Name, (object) methodInfo.Name);
+      string uniqueName = namingScope.ParentScope.GetUniqueName(suggestedName);
+      return (AbstractTypeEmitter) new ClassEmitter(@class.ModuleScope, uniqueName, this.GetBaseType(), (IEnumerable<Type>) interfaces);
+    }
+
+    protected abstract Type GetBaseType();
+
+    private void ImplementChangeProxyTargetInterface(
+      ClassEmitter @class,
+      AbstractTypeEmitter invocation,
+      FieldReference targetField)
+    {
+      this.ImplementChangeInvocationTarget(invocation, targetField);
+      this.ImplementChangeProxyTarget(invocation, @class);
+    }
+
+    private void ImplementChangeProxyTarget(AbstractTypeEmitter invocation, ClassEmitter @class)
+    {
+      MethodEmitter method = invocation.CreateMethod("ChangeProxyTarget", typeof (void), typeof (object));
+      method.CodeBuilder.AddStatement((Statement) new ExpressionStatement((Expression) new ConvertExpression((Type) @class.TypeBuilder, new FieldReference(InvocationMethods.ProxyObject).ToExpression())));
+      FieldReference field = @class.GetField("__target");
+      MethodCodeBuilder codeBuilder = method.CodeBuilder;
+      FieldReference target = new FieldReference(field.Reference);
+      target.OwnerReference = (Reference) null;
+      AssignStatement stmt = new AssignStatement((Reference) target, (Expression) new ConvertExpression(field.Fieldbuilder.FieldType, method.Arguments[0].ToExpression()));
+      codeBuilder.AddStatement((Statement) stmt);
+      method.CodeBuilder.AddStatement((Statement) new ReturnStatement());
+    }
+
+    private void ImplementChangeInvocationTarget(
+      AbstractTypeEmitter invocation,
+      FieldReference targetField)
+    {
+      MethodEmitter method = invocation.CreateMethod("ChangeInvocationTarget", typeof (void), typeof (object));
+      method.CodeBuilder.AddStatement((Statement) new AssignStatement((Reference) targetField, (Expression) new ConvertExpression(this.targetType, method.Arguments[0].ToExpression())));
+      method.CodeBuilder.AddStatement((Statement) new ReturnStatement());
+    }
+
+    private void ImplemementInvokeMethodOnTarget(
+      AbstractTypeEmitter invocation,
+      ParameterInfo[] parameters,
+      FieldReference targetField,
+      MethodInfo callbackMethod)
+    {
+      MethodEmitter method = invocation.CreateMethod("InvokeMethodOnTarget", typeof (void));
+      this.ImplementInvokeMethodOnTarget(invocation, parameters, method, (Reference) targetField);
+    }
+
+    protected virtual void ImplementInvokeMethodOnTarget(
+      AbstractTypeEmitter invocation,
+      ParameterInfo[] parameters,
+      MethodEmitter invokeMethodOnTarget,
+      Reference targetField)
+    {
+      MethodInfo callbackMethod = this.GetCallbackMethod(invocation);
+      if (callbackMethod == null)
+      {
+        this.EmitCallThrowOnNoTarget(invokeMethodOnTarget);
+      }
+      else
+      {
+        if (this.canChangeTarget)
+          this.EmitCallEnsureValidTarget(invokeMethodOnTarget);
+        Expression[] args = new Expression[parameters.Length];
+        Dictionary<int, LocalReference> dictionary = new Dictionary<int, LocalReference>();
+        for (int key = 0; key < parameters.Length; ++key)
+        {
+          ParameterInfo parameter = parameters[key];
+          Type closedParameterType = invocation.GetClosedParameterType(parameter.ParameterType);
+          if (closedParameterType.IsByRef)
+          {
+            LocalReference localReference = invokeMethodOnTarget.CodeBuilder.DeclareLocal(closedParameterType.GetElementType());
+            invokeMethodOnTarget.CodeBuilder.AddStatement((Statement) new AssignStatement((Reference) localReference, (Expression) new ConvertExpression(closedParameterType.GetElementType(), (Expression) new MethodInvocationExpression((Reference) SelfReference.Self, InvocationMethods.GetArgumentValue, new Expression[1]
+            {
+              (Expression) new LiteralIntExpression(key)
+            }))));
+            ByRefReference byRefReference = new ByRefReference(localReference);
+            args[key] = (Expression) new ReferenceExpression((Reference) byRefReference);
+            dictionary[key] = localReference;
+          }
+          else
+            args[key] = (Expression) new ConvertExpression(closedParameterType, (Expression) new MethodInvocationExpression((Reference) SelfReference.Self, InvocationMethods.GetArgumentValue, new Expression[1]
+            {
+              (Expression) new LiteralIntExpression(key)
+            }));
+        }
+        MethodInvocationExpression methodInvocation = this.GetCallbackMethodInvocation(invocation, args, callbackMethod, targetField, invokeMethodOnTarget);
+        LocalReference target = (LocalReference) null;
+        if (callbackMethod.ReturnType != typeof (void))
+        {
+          Type closedParameterType = invocation.GetClosedParameterType(callbackMethod.ReturnType);
+          target = invokeMethodOnTarget.CodeBuilder.DeclareLocal(closedParameterType);
+          invokeMethodOnTarget.CodeBuilder.AddStatement((Statement) new AssignStatement((Reference) target, (Expression) methodInvocation));
+        }
+        else
+          invokeMethodOnTarget.CodeBuilder.AddStatement((Statement) new ExpressionStatement((Expression) methodInvocation));
+        foreach (KeyValuePair<int, LocalReference> keyValuePair in dictionary)
+        {
+          int key = keyValuePair.Key;
+          LocalReference localReference = keyValuePair.Value;
+          invokeMethodOnTarget.CodeBuilder.AddStatement((Statement) new ExpressionStatement((Expression) new MethodInvocationExpression((Reference) SelfReference.Self, InvocationMethods.SetArgumentValue, new Expression[2]
+          {
+            (Expression) new LiteralIntExpression(key),
+            (Expression) new ConvertExpression(typeof (object), localReference.Type, (Expression) new ReferenceExpression((Reference) localReference))
+          })));
+        }
+        if (callbackMethod.ReturnType != typeof (void))
+        {
+          MethodInvocationExpression invocationExpression = new MethodInvocationExpression((Reference) SelfReference.Self, InvocationMethods.SetReturnValue, new Expression[1]
+          {
+            (Expression) new ConvertExpression(typeof (object), target.Type, target.ToExpression())
+          });
+          invokeMethodOnTarget.CodeBuilder.AddStatement((Statement) new ExpressionStatement((Expression) invocationExpression));
+        }
+        invokeMethodOnTarget.CodeBuilder.AddStatement((Statement) new ReturnStatement());
+      }
+    }
+
+    private void EmitCallThrowOnNoTarget(MethodEmitter invokeMethodOnTarget)
+    {
+      ExpressionStatement stmt = new ExpressionStatement((Expression) new MethodInvocationExpression(InvocationMethods.ThrowOnNoTarget, new Expression[0]));
+      invokeMethodOnTarget.CodeBuilder.AddStatement((Statement) stmt);
+      invokeMethodOnTarget.CodeBuilder.AddStatement((Statement) new ReturnStatement());
+    }
+
+    private AbstractCodeBuilder EmitCallEnsureValidTarget(MethodEmitter invokeMethodOnTarget)
+    {
+      return invokeMethodOnTarget.CodeBuilder.AddStatement((Statement) new ExpressionStatement((Expression) new MethodInvocationExpression((Reference) SelfReference.Self, InvocationMethods.EnsureValidTarget, new Expression[0])));
+    }
+
+    protected virtual MethodInvocationExpression GetCallbackMethodInvocation(
+      AbstractTypeEmitter invocation,
+      Expression[] args,
+      MethodInfo callbackMethod,
+      Reference targetField,
+      MethodEmitter invokeMethodOnTarget)
+    {
+      if (this.contributor != null)
+        return this.contributor.GetCallbackMethodInvocation(invocation, args, targetField, invokeMethodOnTarget);
+      return new MethodInvocationExpression((Reference) new AsTypeReference(targetField, callbackMethod.DeclaringType), callbackMethod, args)
+      {
+        VirtualCall = true
+      };
+    }
+
+    protected abstract ArgumentReference[] GetBaseCtorArguments(
+      Type targetFieldType,
+      ProxyGenerationOptions proxyGenerationOptions,
+      out ConstructorInfo baseConstructor);
+
+    private MethodInfo GetCallbackMethod(AbstractTypeEmitter invocation)
+    {
+      if (this.contributor != null)
+        return this.contributor.GetCallbackMethod();
+      MethodInfo callback = this.callback;
+      if (callback == null)
+        return (MethodInfo) null;
+      return !callback.IsGenericMethod ? callback : callback.MakeGenericMethod(invocation.GetGenericArgumentsFor(callback));
+    }
+  }
+}
+
+
+--- MetaEvent.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.MetaEvent
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Generators.Emitters;
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class MetaEvent : MetaTypeElement, IEquatable<MetaEvent>
+  {
+    private string name;
+    private readonly Type type;
+    private EventEmitter emitter;
+    private readonly MetaMethod adder;
+    private readonly MetaMethod remover;
+
+    public bool Equals(MetaEvent other)
+    {
+      return !object.ReferenceEquals((object) null, (object) other) && (object.ReferenceEquals((object) this, (object) other) || this.type.Equals(other.type) && StringComparer.OrdinalIgnoreCase.Equals(this.name, other.name));
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (object.ReferenceEquals((object) null, obj))
+        return false;
+      if (object.ReferenceEquals((object) this, obj))
+        return true;
+      return obj.GetType() == typeof (MetaEvent) && this.Equals((MetaEvent) obj);
+    }
+
+    public override int GetHashCode()
+    {
+      return ((this.adder.Method != null ? this.adder.Method.GetHashCode() : 0) * 397 ^ (this.remover.Method != null ? this.remover.Method.GetHashCode() : 0)) * 397 ^ this.Attributes.GetHashCode();
+    }
+
+    public MetaEvent(
+      string name,
+      Type declaringType,
+      Type eventDelegateType,
+      MetaMethod adder,
+      MetaMethod remover,
+      EventAttributes attributes)
+      : base(declaringType)
+    {
+      if (adder == null)
+        throw new ArgumentNullException(nameof (adder));
+      if (remover == null)
+        throw new ArgumentNullException(nameof (remover));
+      this.name = name;
+      this.type = eventDelegateType;
+      this.adder = adder;
+      this.remover = remover;
+      this.Attributes = attributes;
+    }
+
+    public EventAttributes Attributes { get; private set; }
+
+    public EventEmitter Emitter
+    {
+      get
+      {
+        return this.emitter != null ? this.emitter : throw new InvalidOperationException("Emitter is not initialized. You have to initialize it first using 'BuildEventEmitter' method");
+      }
+    }
+
+    public MetaMethod Adder => this.adder;
+
+    public MetaMethod Remover => this.remover;
+
+    public void BuildEventEmitter(ClassEmitter classEmitter)
+    {
+      if (this.emitter != null)
+        throw new InvalidOperationException();
+      this.emitter = classEmitter.CreateEvent(this.name, this.Attributes, this.type);
+    }
+
+    internal override void SwitchToExplicitImplementation()
+    {
+      this.name = string.Format("{0}.{1}", (object) this.sourceType.Name, (object) this.name);
+      this.adder.SwitchToExplicitImplementation();
+      this.remover.SwitchToExplicitImplementation();
+    }
+  }
+}
+
+
+--- MetaMethod.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.MetaMethod
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Diagnostics;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  [DebuggerDisplay("{Method}")]
+  public class MetaMethod : MetaTypeElement, IEquatable<MetaMethod>
+  {
+    private const MethodAttributes ExplicitImplementationAttributes = MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.Virtual | MethodAttributes.HideBySig | MethodAttributes.VtableLayoutMask;
+    private string name;
+
+    public MetaMethod(
+      MethodInfo method,
+      MethodInfo methodOnTarget,
+      bool standalone,
+      bool proxyable,
+      bool hasTarget)
+      : base(method.DeclaringType)
+    {
+      this.Method = method;
+      this.name = method.Name;
+      this.MethodOnTarget = methodOnTarget;
+      this.Standalone = standalone;
+      this.Proxyable = proxyable;
+      this.HasTarget = hasTarget;
+      this.Attributes = this.ObtainAttributes();
+    }
+
+    private MethodAttributes ObtainAttributes()
+    {
+      MethodInfo method = this.Method;
+      MethodAttributes attributes = MethodAttributes.Virtual;
+      if (method.IsFinal || this.Method.DeclaringType.IsInterface)
+        attributes |= MethodAttributes.VtableLayoutMask;
+      if (method.IsPublic)
+        attributes |= MethodAttributes.Public;
+      if (method.IsHideBySig)
+        attributes |= MethodAttributes.HideBySig;
+      if (InternalsHelper.IsInternal(method) && InternalsHelper.IsInternalToDynamicProxy(method.DeclaringType.Assembly))
+        attributes |= MethodAttributes.Assembly;
+      if (method.IsFamilyAndAssembly)
+        attributes |= MethodAttributes.FamANDAssem;
+      else if (method.IsFamilyOrAssembly)
+        attributes |= MethodAttributes.FamORAssem;
+      else if (method.IsFamily)
+        attributes |= MethodAttributes.Family;
+      if (!this.Standalone)
+        attributes |= MethodAttributes.SpecialName;
+      return attributes;
+    }
+
+    public bool Proxyable { get; private set; }
+
+    public MethodInfo MethodOnTarget { get; private set; }
+
+    public bool Standalone { get; private set; }
+
+    public MethodInfo Method { get; private set; }
+
+    public bool HasTarget { get; private set; }
+
+    public bool Equals(MetaMethod other)
+    {
+      if (object.ReferenceEquals((object) null, (object) other))
+        return false;
+      if (object.ReferenceEquals((object) this, (object) other))
+        return true;
+      if (!StringComparer.OrdinalIgnoreCase.Equals(this.name, other.name))
+        return false;
+      MethodSignatureComparer instance = MethodSignatureComparer.Instance;
+      return instance.EqualSignatureTypes(this.Method.ReturnType, other.Method.ReturnType) && instance.EqualGenericParameters(this.Method, other.Method) && instance.EqualParameters(this.Method, other.Method);
+    }
+
+    internal override void SwitchToExplicitImplementation()
+    {
+      this.Attributes = MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.Virtual | MethodAttributes.HideBySig | MethodAttributes.VtableLayoutMask;
+      if (!this.Standalone)
+        this.Attributes |= MethodAttributes.SpecialName;
+      this.name = string.Format("{0}.{1}", (object) this.Method.DeclaringType.Name, (object) this.Method.Name);
+    }
+
+    public MethodAttributes Attributes { get; private set; }
+
+    public string Name => this.name;
+  }
+}
+
+
+--- MetaProperty.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.MetaProperty
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Generators.Emitters;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class MetaProperty : MetaTypeElement, IEquatable<MetaProperty>
+  {
+    private string name;
+    private readonly Type type;
+    private readonly MetaMethod getter;
+    private readonly MetaMethod setter;
+    private readonly PropertyAttributes attributes;
+    private readonly IEnumerable<CustomAttributeBuilder> customAttributes;
+    private readonly Type[] arguments;
+    private PropertyEmitter emitter;
+
+    public MetaProperty(
+      string name,
+      Type propertyType,
+      Type declaringType,
+      MetaMethod getter,
+      MetaMethod setter,
+      IEnumerable<CustomAttributeBuilder> customAttributes,
+      Type[] arguments)
+      : base(declaringType)
+    {
+      this.name = name;
+      this.type = propertyType;
+      this.getter = getter;
+      this.setter = setter;
+      this.attributes = PropertyAttributes.None;
+      this.customAttributes = customAttributes;
+      this.arguments = arguments ?? Type.EmptyTypes;
+    }
+
+    public bool CanRead => this.getter != null;
+
+    public bool CanWrite => this.setter != null;
+
+    public MethodInfo GetMethod
+    {
+      get
+      {
+        if (!this.CanRead)
+          throw new InvalidOperationException();
+        return this.getter.Method;
+      }
+    }
+
+    public MethodInfo SetMethod
+    {
+      get
+      {
+        if (!this.CanWrite)
+          throw new InvalidOperationException();
+        return this.setter.Method;
+      }
+    }
+
+    public PropertyEmitter Emitter
+    {
+      get
+      {
+        return this.emitter != null ? this.emitter : throw new InvalidOperationException("Emitter is not initialized. You have to initialize it first using 'BuildPropertyEmitter' method");
+      }
+    }
+
+    public MetaMethod Getter => this.getter;
+
+    public MetaMethod Setter => this.setter;
+
+    public bool Equals(MetaProperty other)
+    {
+      if (object.ReferenceEquals((object) null, (object) other))
+        return false;
+      if (object.ReferenceEquals((object) this, (object) other))
+        return true;
+      if (!this.type.Equals(other.type) || !StringComparer.OrdinalIgnoreCase.Equals(this.name, other.name) || this.Arguments.Length != other.Arguments.Length)
+        return false;
+      for (int index = 0; index < this.Arguments.Length; ++index)
+      {
+        if (!this.Arguments[index].Equals(other.Arguments[index]))
+          return false;
+      }
+      return true;
+    }
+
+    public Type[] Arguments => this.arguments;
+
+    public override bool Equals(object obj)
+    {
+      if (object.ReferenceEquals((object) null, obj))
+        return false;
+      if (object.ReferenceEquals((object) this, obj))
+        return true;
+      return obj.GetType() == typeof (MetaProperty) && this.Equals((MetaProperty) obj);
+    }
+
+    public override int GetHashCode()
+    {
+      return (this.GetMethod != null ? this.GetMethod.GetHashCode() : 0) * 397 ^ (this.SetMethod != null ? this.SetMethod.GetHashCode() : 0);
+    }
+
+    public void BuildPropertyEmitter(ClassEmitter classEmitter)
+    {
+      if (this.emitter != null)
+        throw new InvalidOperationException("Emitter is already created. It is illegal to invoke this method twice.");
+      this.emitter = classEmitter.CreateProperty(this.name, this.attributes, this.type, this.arguments);
+      foreach (CustomAttributeBuilder customAttribute in this.customAttributes)
+        this.emitter.DefineCustomAttribute(customAttribute);
+    }
+
+    internal override void SwitchToExplicitImplementation()
+    {
+      this.name = string.Format("{0}.{1}", (object) this.sourceType.Name, (object) this.name);
+      if (this.setter != null)
+        this.setter.SwitchToExplicitImplementation();
+      if (this.getter == null)
+        return;
+      this.getter.SwitchToExplicitImplementation();
+    }
+  }
+}
+
+
+--- MetaType.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.MetaType
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Collections.Generic;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class MetaType
+  {
+    private readonly ICollection<MetaProperty> properties = (ICollection<MetaProperty>) new TypeElementCollection<MetaProperty>();
+    private readonly ICollection<MetaEvent> events = (ICollection<MetaEvent>) new TypeElementCollection<MetaEvent>();
+    private readonly ICollection<MetaMethod> methods = (ICollection<MetaMethod>) new TypeElementCollection<MetaMethod>();
+
+    public IEnumerable<MetaMethod> Methods => (IEnumerable<MetaMethod>) this.methods;
+
+    public IEnumerable<MetaProperty> Properties => (IEnumerable<MetaProperty>) this.properties;
+
+    public IEnumerable<MetaEvent> Events => (IEnumerable<MetaEvent>) this.events;
+
+    public void AddMethod(MetaMethod method) => this.methods.Add(method);
+
+    public void AddEvent(MetaEvent @event) => this.events.Add(@event);
+
+    public void AddProperty(MetaProperty property) => this.properties.Add(property);
+  }
+}
+
+
+--- MetaTypeElement.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.MetaTypeElement
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public abstract class MetaTypeElement
+  {
+    protected readonly Type sourceType;
+
+    protected MetaTypeElement(Type sourceType) => this.sourceType = sourceType;
+
+    internal bool CanBeImplementedExplicitly
+    {
+      get => this.sourceType != null && this.sourceType.IsInterface;
+    }
+
+    internal abstract void SwitchToExplicitImplementation();
+  }
+}
+
+
+--- MethodFinder.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.MethodFinder
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class MethodFinder
+  {
+    private static readonly Dictionary<Type, object> cachedMethodInfosByType = new Dictionary<Type, object>();
+    private static readonly object lockObject = new object();
+
+    public static MethodInfo[] GetAllInstanceMethods(Type type, BindingFlags flags)
+    {
+      if ((flags & ~(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)) != BindingFlags.Default)
+        throw new ArgumentException("MethodFinder only supports the Public, NonPublic, and Instance binding flags.", nameof (flags));
+      MethodInfo[] methodsInCache;
+      lock (MethodFinder.lockObject)
+      {
+        if (!MethodFinder.cachedMethodInfosByType.ContainsKey(type))
+          MethodFinder.cachedMethodInfosByType.Add(type, MethodFinder.RemoveDuplicates(type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)));
+        methodsInCache = (MethodInfo[]) MethodFinder.cachedMethodInfosByType[type];
+      }
+      return MethodFinder.MakeFilteredCopy(methodsInCache, flags & (BindingFlags.Public | BindingFlags.NonPublic));
+    }
+
+    private static object RemoveDuplicates(MethodInfo[] infos)
+    {
+      Dictionary<MethodInfo, object> dictionary = new Dictionary<MethodInfo, object>((IEqualityComparer<MethodInfo>) MethodSignatureComparer.Instance);
+      foreach (MethodInfo info in infos)
+      {
+        if (!dictionary.ContainsKey(info))
+          dictionary.Add(info, (object) null);
+      }
+      MethodInfo[] array = new MethodInfo[dictionary.Count];
+      dictionary.Keys.CopyTo(array, 0);
+      return (object) array;
+    }
+
+    private static MethodInfo[] MakeFilteredCopy(
+      MethodInfo[] methodsInCache,
+      BindingFlags visibilityFlags)
+    {
+      if ((visibilityFlags & ~(BindingFlags.Public | BindingFlags.NonPublic)) != BindingFlags.Default)
+        throw new ArgumentException("Only supports BindingFlags.Public and NonPublic.", nameof (visibilityFlags));
+      bool flag1 = (visibilityFlags & BindingFlags.Public) == BindingFlags.Public;
+      bool flag2 = (visibilityFlags & BindingFlags.NonPublic) == BindingFlags.NonPublic;
+      List<MethodInfo> methodInfoList = new List<MethodInfo>(methodsInCache.Length);
+      foreach (MethodInfo methodInfo in methodsInCache)
+      {
+        if (methodInfo.IsPublic && flag1 || !methodInfo.IsPublic && flag2)
+          methodInfoList.Add(methodInfo);
+      }
+      return methodInfoList.ToArray();
+    }
+  }
+}
+
+
+--- MethodGenerator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.MethodGenerator
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Contributors;
+using Castle.DynamicProxy.Generators.Emitters;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public abstract class MethodGenerator : IGenerator<MethodEmitter>
+  {
+    private readonly MetaMethod method;
+    private readonly OverrideMethodDelegate overrideMethod;
+
+    protected MethodInfo MethodToOverride => this.method.Method;
+
+    protected MethodInfo MethodOnTarget => this.method.MethodOnTarget;
+
+    protected MethodGenerator(MetaMethod method, OverrideMethodDelegate overrideMethod)
+    {
+      this.method = method;
+      this.overrideMethod = overrideMethod;
+    }
+
+    public MethodEmitter Generate(
+      ClassEmitter @class,
+      ProxyGenerationOptions options,
+      INamingScope namingScope)
+    {
+      MethodEmitter methodEmitter = this.BuildProxiedMethodBody(this.overrideMethod(this.method.Name, this.method.Attributes, this.MethodToOverride), @class, options, namingScope);
+      if (this.MethodToOverride.DeclaringType.IsInterface)
+        @class.TypeBuilder.DefineMethodOverride((MethodInfo) methodEmitter.MethodBuilder, this.MethodToOverride);
+      return methodEmitter;
+    }
+
+    protected abstract MethodEmitter BuildProxiedMethodBody(
+      MethodEmitter emitter,
+      ClassEmitter @class,
+      ProxyGenerationOptions options,
+      INamingScope namingScope);
+  }
+}
+
+
+--- MethodSignatureComparer.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.MethodSignatureComparer
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class MethodSignatureComparer : IEqualityComparer<MethodInfo>
+  {
+    public static readonly MethodSignatureComparer Instance = new MethodSignatureComparer();
+
+    public bool Equals(MethodInfo x, MethodInfo y)
+    {
+      if (x == null && y == null)
+        return true;
+      return x != null && y != null && this.EqualNames(x, y) && this.EqualGenericParameters(x, y) && this.EqualSignatureTypes(x.ReturnType, y.ReturnType) && this.EqualParameters(x, y);
+    }
+
+    private bool EqualNames(MethodInfo x, MethodInfo y) => x.Name == y.Name;
+
+    public bool EqualGenericParameters(MethodInfo x, MethodInfo y)
+    {
+      if (x.IsGenericMethod != y.IsGenericMethod)
+        return false;
+      if (x.IsGenericMethod)
+      {
+        Type[] genericArguments1 = x.GetGenericArguments();
+        Type[] genericArguments2 = y.GetGenericArguments();
+        if (genericArguments1.Length != genericArguments2.Length)
+          return false;
+        for (int index = 0; index < genericArguments1.Length; ++index)
+        {
+          if (genericArguments1[index].IsGenericParameter != genericArguments2[index].IsGenericParameter || !genericArguments1[index].IsGenericParameter && !genericArguments1[index].Equals(genericArguments2[index]))
+            return false;
+        }
+      }
+      return true;
+    }
+
+    public bool EqualParameters(MethodInfo x, MethodInfo y)
+    {
+      ParameterInfo[] parameters1 = x.GetParameters();
+      ParameterInfo[] parameters2 = y.GetParameters();
+      if (parameters1.Length != parameters2.Length)
+        return false;
+      for (int index = 0; index < parameters1.Length; ++index)
+      {
+        if (!this.EqualSignatureTypes(parameters1[index].ParameterType, parameters2[index].ParameterType))
+          return false;
+      }
+      return true;
+    }
+
+    public bool EqualSignatureTypes(Type x, Type y)
+    {
+      if (x.IsGenericParameter != y.IsGenericParameter)
+        return false;
+      if (x.IsGenericParameter)
+      {
+        if (x.GenericParameterPosition != y.GenericParameterPosition)
+          return false;
+      }
+      else if (!x.Equals(y))
+        return false;
+      return true;
+    }
+
+    public int GetHashCode(MethodInfo obj) => obj.Name.GetHashCode() ^ obj.GetParameters().Length;
+  }
+}
+
+
+--- MethodWithInvocationGenerator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.MethodWithInvocationGenerator
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Contributors;
+using Castle.DynamicProxy.Generators.Emitters;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using Castle.DynamicProxy.Tokens;
+using System;
+using System.Diagnostics;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Xml.Serialization;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class MethodWithInvocationGenerator : MethodGenerator
+  {
+    private readonly Reference interceptors;
+    private readonly GetTargetExpressionDelegate getTargetExpression;
+    private readonly Type invocation;
+    private readonly IInvocationCreationContributor contributor;
+
+    public MethodWithInvocationGenerator(
+      MetaMethod method,
+      Reference interceptors,
+      Type invocation,
+      GetTargetExpressionDelegate getTargetExpression,
+      OverrideMethodDelegate createMethod,
+      IInvocationCreationContributor contributor)
+      : base(method, createMethod)
+    {
+      this.invocation = invocation;
+      this.getTargetExpression = getTargetExpression;
+      this.interceptors = interceptors;
+      this.contributor = contributor;
+    }
+
+    protected override MethodEmitter BuildProxiedMethodBody(
+      MethodEmitter emitter,
+      ClassEmitter @class,
+      ProxyGenerationOptions options,
+      INamingScope namingScope)
+    {
+      Type type = this.invocation;
+      Trace.Assert(this.MethodToOverride.IsGenericMethod == type.IsGenericTypeDefinition);
+      Type[] typeArray = Type.EmptyTypes;
+      ConstructorInfo constructor = this.invocation.GetConstructors()[0];
+      Expression proxiedMethodTokenExpression;
+      if (this.MethodToOverride.IsGenericMethod)
+      {
+        typeArray = emitter.MethodBuilder.GetGenericArguments();
+        type = type.MakeGenericType(typeArray);
+        constructor = TypeBuilder.GetConstructor(type, constructor);
+        proxiedMethodTokenExpression = (Expression) new MethodTokenExpression(this.MethodToOverride.MakeGenericMethod(typeArray));
+      }
+      else
+      {
+        FieldReference staticField = @class.CreateStaticField(namingScope.GetUniqueName("token_" + this.MethodToOverride.Name), typeof (MethodInfo));
+        @class.ClassConstructor.CodeBuilder.AddStatement((Statement) new AssignStatement((Reference) staticField, (Expression) new MethodTokenExpression(this.MethodToOverride)));
+        proxiedMethodTokenExpression = staticField.ToExpression();
+      }
+      TypeReference[] dereferencedArguments = IndirectReference.WrapIfByRef((TypeReference[]) emitter.Arguments);
+      Expression[] ctorArguments = this.GetCtorArguments(@class, namingScope, proxiedMethodTokenExpression, dereferencedArguments);
+      Expression[] expressionArray = this.ModifyArguments(@class, ctorArguments);
+      LocalReference localReference = emitter.CodeBuilder.DeclareLocal(type);
+      emitter.CodeBuilder.AddStatement((Statement) new AssignStatement((Reference) localReference, (Expression) new NewInstanceExpression(constructor, expressionArray)));
+      if (this.MethodToOverride.ContainsGenericParameters)
+        this.EmitLoadGenricMethodArguments(emitter, this.MethodToOverride.MakeGenericMethod(typeArray), (Reference) localReference);
+      ExpressionStatement stmt = new ExpressionStatement((Expression) new MethodInvocationExpression((Reference) localReference, InvocationMethods.Proceed, new Expression[0]));
+      emitter.CodeBuilder.AddStatement((Statement) stmt);
+      GeneratorUtil.CopyOutAndRefParameters(dereferencedArguments, localReference, this.MethodToOverride, emitter);
+      if (this.MethodToOverride.ReturnType != typeof (void))
+      {
+        MethodInvocationExpression right = new MethodInvocationExpression((Reference) localReference, InvocationMethods.GetReturnValue, new Expression[0]);
+        emitter.CodeBuilder.AddStatement((Statement) new ReturnStatement((Expression) new ConvertExpression(emitter.ReturnType, (Expression) right)));
+      }
+      else
+        emitter.CodeBuilder.AddStatement((Statement) new ReturnStatement());
+      return emitter;
+    }
+
+    private Expression[] ModifyArguments(ClassEmitter @class, Expression[] arguments)
+    {
+      return this.contributor == null ? arguments : this.contributor.GetConstructorInvocationArguments(arguments, @class);
+    }
+
+    private Expression[] GetCtorArguments(
+      ClassEmitter @class,
+      INamingScope namingScope,
+      Expression proxiedMethodTokenExpression,
+      TypeReference[] dereferencedArguments)
+    {
+      FieldReference field = @class.GetField("__selector");
+      return field != null ? new Expression[7]
+      {
+        this.getTargetExpression(@class, this.MethodToOverride),
+        SelfReference.Self.ToExpression(),
+        this.interceptors.ToExpression(),
+        proxiedMethodTokenExpression,
+        (Expression) new ReferencesToObjectArrayExpression(dereferencedArguments),
+        field.ToExpression(),
+        (Expression) new AddressOfReferenceExpression((Reference) this.BuildMethodInterceptorsField(@class, this.MethodToOverride, namingScope))
+      } : new Expression[5]
+      {
+        this.getTargetExpression(@class, this.MethodToOverride),
+        SelfReference.Self.ToExpression(),
+        this.interceptors.ToExpression(),
+        proxiedMethodTokenExpression,
+        (Expression) new ReferencesToObjectArrayExpression(dereferencedArguments)
+      };
+    }
+
+    protected FieldReference BuildMethodInterceptorsField(
+      ClassEmitter @class,
+      MethodInfo method,
+      INamingScope namingScope)
+    {
+      FieldReference field = @class.CreateField(namingScope.GetUniqueName(string.Format("interceptors_{0}", (object) method.Name)), typeof (IInterceptor[]), false);
+      @class.DefineCustomAttributeFor<XmlIgnoreAttribute>(field);
+      return field;
+    }
+
+    private void EmitLoadGenricMethodArguments(
+      MethodEmitter methodEmitter,
+      MethodInfo method,
+      Reference invocationLocal)
+    {
+      Type[] all = Array.FindAll<Type>(method.GetGenericArguments(), (Predicate<Type>) (t => t.IsGenericParameter));
+      LocalReference localReference = methodEmitter.CodeBuilder.DeclareLocal(typeof (Type[]));
+      methodEmitter.CodeBuilder.AddStatement((Statement) new AssignStatement((Reference) localReference, (Expression) new NewArrayExpression(all.Length, typeof (Type))));
+      for (int targetPosition = 0; targetPosition < all.Length; ++targetPosition)
+        methodEmitter.CodeBuilder.AddStatement((Statement) new AssignArrayStatement((Reference) localReference, targetPosition, (Expression) new TypeTokenExpression(all[targetPosition])));
+      methodEmitter.CodeBuilder.AddStatement((Statement) new ExpressionStatement((Expression) new MethodInvocationExpression(invocationLocal, InvocationMethods.SetGenericMethodArguments, new Expression[1]
+      {
+        (Expression) new ReferenceExpression((Reference) localReference)
+      })));
+    }
+  }
+}
+
+
+--- NamingScope.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.NamingScope
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Collections.Generic;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class NamingScope : INamingScope
+  {
+    private readonly IDictionary<string, int> names = (IDictionary<string, int>) new Dictionary<string, int>();
+    private readonly INamingScope parentScope;
+
+    public NamingScope()
+    {
+    }
+
+    private NamingScope(INamingScope parent) => this.parentScope = parent;
+
+    public string GetUniqueName(string suggestedName)
+    {
+      int num1;
+      if (!this.names.TryGetValue(suggestedName, out num1))
+      {
+        this.names.Add(suggestedName, 0);
+        return suggestedName;
+      }
+      int num2 = num1 + 1;
+      this.names[suggestedName] = num2;
+      return suggestedName + "_" + num2.ToString();
+    }
+
+    public INamingScope SafeSubScope() => (INamingScope) new NamingScope((INamingScope) this);
+
+    public INamingScope ParentScope => this.parentScope;
+  }
+}
+
+
+--- TypeElementCollection`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.TypeElementCollection`1
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators
+{
+  public class TypeElementCollection<TElement> : 
+    ICollection<TElement>,
+    IEnumerable<TElement>,
+    IEnumerable
+    where TElement : MetaTypeElement, IEquatable<TElement>
+  {
+    private readonly ICollection<TElement> items = (ICollection<TElement>) new List<TElement>();
+
+    public IEnumerator<TElement> GetEnumerator() => this.items.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => (IEnumerator) this.GetEnumerator();
+
+    public void Add(TElement item)
+    {
+      if (!item.CanBeImplementedExplicitly)
+      {
+        this.items.Add(item);
+      }
+      else
+      {
+        if (this.Contains(item))
+        {
+          item.SwitchToExplicitImplementation();
+          if (this.Contains(item))
+            throw new ProxyGenerationException("Duplicate element: " + item.ToString());
+        }
+        this.items.Add(item);
+      }
+    }
+
+    void ICollection<TElement>.Clear() => throw new NotSupportedException();
+
+    public bool Contains(TElement item)
+    {
+      foreach (TElement element in (IEnumerable<TElement>) this.items)
+      {
+        if (element.Equals(item))
+          return true;
+      }
+      return false;
+    }
+
+    void ICollection<TElement>.CopyTo(TElement[] array, int arrayIndex)
+    {
+      throw new NotSupportedException();
+    }
+
+    bool ICollection<TElement>.Remove(TElement item) => throw new NotSupportedException();
+
+    public int Count => this.items.Count;
+
+    bool ICollection<TElement>.IsReadOnly => false;
+  }
+}
+

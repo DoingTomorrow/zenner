@@ -1,0 +1,32 @@
+<Window x:Class="HandlerLib.DebugQueueWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HandlerLib.View"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Title="Debug Queue" Height="450" Width="800" WindowStartupLocation="CenterOwner">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="2"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StartupLib:GmmCorporateControl DockPanel.Dock="Top" HorizontalAlignment="Stretch"/>
+    <GroupBox DockPanel.Dock="Right">
+      <DockPanel Name="DockPanelButtons">
+        <StackPanel Name="StackPanelBottomButtoms" DockPanel.Dock="Bottom">
+          <Button Click="ButtomReadLogger_Click" Name="ButtomReadLogger" Content="Read debug logger"/>
+        </StackPanel>
+        <StackPanel Name="StackPanelTopButtoms"/>
+      </DockPanel>
+    </GroupBox>
+    <GroupBox DockPanel.Dock="Right" Header="Functions">
+      <DockPanel Name="DockPanelFunctions">
+        <StackPanel Name="StackPanelFunctions"/>
+      </DockPanel>
+    </GroupBox>
+    <Grid x:Name="GridGraphics"/>
+  </DockPanel>
+</Window>

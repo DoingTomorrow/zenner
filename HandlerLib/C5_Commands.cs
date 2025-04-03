@@ -1,0 +1,56 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: HandlerLib.C5_Commands
+// Assembly: HandlerLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 32680C26-DD6F-4028-82D3-7440714FE33F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\HandlerLib.dll
+
+#nullable disable
+namespace HandlerLib
+{
+  public enum C5_Commands
+  {
+    EEPROM_READ_0x00,
+    FLASH_WRITE_0x01,
+    CPU_READ_0x02,
+    CPU_WRITE_0x03,
+    RESET_0x04,
+    VOLUME_MONITOR_0x05,
+    VERSION_0x06,
+    MANAGE_WRITE_PROTECTION_0x07,
+    RUN_BACKUP_0x08,
+    WRITE_BITS_0x09,
+    SET_EMERGENCY_MODE_0x0a,
+    TEMP_TEST_AND_VOL_SIM_0x0b,
+    IO_ACCESS_0x0c,
+    SET_IR_OFF_TIME_0x0d,
+    ERASE_FLASH_0x0e,
+    CLEAR_TESTMODES_0x0f,
+    SET_ENERGY_TEST_MODE_0x10,
+    SET_VOLUME_TEST_MODE_0x11,
+    VOLUME_TEST_START_0x12,
+    VOLUME_TEST_STOP_0x13,
+    READ_TEST_VOLUME_0x14,
+    IO_HARDWARE_TEST_0x15,
+    RADIO_2_CENTER_TEST_0x16,
+    RADIO_2_PN9_TEST_0x17,
+    RADIO_3_CENTER_TEST_0x18,
+    RADIO_3_PN9_TEST_0x19,
+    WMBUS_S_CENTER_TEST_0x1a,
+    WMBUS_S_PN9_TEST_0x1b,
+    WMBUS_T_CENTER_TEST_0x1c,
+    WMBUS_T_PN9_TEST_0x1d,
+    F_868_3_CW_TEST_0x1e,
+    F_868_9_CW_TEST_0x1f,
+    RADIO_3_PACKET_TEST_0x20,
+    SET_DUE_DATE_0x21,
+    SET_RADIO_POWER_0x22,
+    SET_ACLK_TO_OUTPUT_0x23,
+    SET_RTCCLK_TO_OUTPUT_0x24,
+    GET_PARAMETERLIST_INFO_0x25,
+    SET_CAPACITY_TEST_0x26,
+    RADIO_3_RUS_CENTER_TEST_0x27,
+    RADIO_3_RUS_PN9_TEST_0x28,
+    GET_VOLUME_COUNTER_0x29,
+    SET_RADIO_PARAMS_0x2a,
+  }
+}

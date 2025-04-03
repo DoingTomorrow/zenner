@@ -1,0 +1,206 @@
+
+--- ProxyObjectReference.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Serialization.ProxyObjectReference
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Generators;
+using Castle.DynamicProxy.Generators.Emitters;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Castle.DynamicProxy.Serialization
+{
+  [Serializable]
+  public class ProxyObjectReference : IObjectReference, ISerializable, IDeserializationCallback
+  {
+    private static ModuleScope scope = new ModuleScope();
+    private readonly SerializationInfo info;
+    private readonly StreamingContext context;
+    private readonly Type baseType;
+    private readonly Type[] interfaces;
+    private readonly object proxy;
+    private readonly ProxyGenerationOptions proxyGenerationOptions;
+    private bool isInterfaceProxy;
+    private bool delegateToBase;
+
+    public static void ResetScope() => ProxyObjectReference.SetScope(new ModuleScope());
+
+    public static void SetScope(ModuleScope scope)
+    {
+      ProxyObjectReference.scope = scope != null ? scope : throw new ArgumentNullException(nameof (scope));
+    }
+
+    public static ModuleScope ModuleScope => ProxyObjectReference.scope;
+
+    protected ProxyObjectReference(SerializationInfo info, StreamingContext context)
+    {
+      this.info = info;
+      this.context = context;
+      this.baseType = this.DeserializeTypeFromString("__baseType");
+      string[] strArray = (string[]) info.GetValue("__interfaces", typeof (string[]));
+      this.interfaces = new Type[strArray.Length];
+      for (int index = 0; index < strArray.Length; ++index)
+        this.interfaces[index] = Type.GetType(strArray[index]);
+      this.proxyGenerationOptions = (ProxyGenerationOptions) info.GetValue("__proxyGenerationOptions", typeof (ProxyGenerationOptions));
+      this.proxy = this.RecreateProxy();
+      this.DeserializeProxyState();
+    }
+
+    private Type DeserializeTypeFromString(string key)
+    {
+      return Type.GetType(this.info.GetString(key), true, false);
+    }
+
+    protected virtual object RecreateProxy()
+    {
+      string generatorType = this.GetValue<string>("__proxyTypeId");
+      if (generatorType.Equals(ProxyTypeConstants.Class))
+      {
+        this.isInterfaceProxy = false;
+        return this.RecreateClassProxy();
+      }
+      if (generatorType.Equals(ProxyTypeConstants.ClassWithTarget))
+      {
+        this.isInterfaceProxy = false;
+        return this.RecreateClassProxyWithTarget();
+      }
+      this.isInterfaceProxy = true;
+      return this.RecreateInterfaceProxy(generatorType);
+    }
+
+    private object RecreateClassProxyWithTarget()
+    {
+      return this.InstantiateClassProxy(new ClassProxyWithTargetGenerator(ProxyObjectReference.scope, this.baseType, this.interfaces, this.proxyGenerationOptions).GetGeneratedType());
+    }
+
+    public object RecreateInterfaceProxy(string generatorType)
+    {
+      Type @interface = this.DeserializeTypeFromString("__theInterface");
+      Type proxyTargetType = this.DeserializeTypeFromString("__targetFieldType");
+      InterfaceProxyWithTargetGenerator withTargetGenerator;
+      if (generatorType == ProxyTypeConstants.InterfaceWithTarget)
+        withTargetGenerator = new InterfaceProxyWithTargetGenerator(ProxyObjectReference.scope, @interface);
+      else if (generatorType == ProxyTypeConstants.InterfaceWithoutTarget)
+      {
+        withTargetGenerator = (InterfaceProxyWithTargetGenerator) new InterfaceProxyWithoutTargetGenerator(ProxyObjectReference.scope, @interface);
+      }
+      else
+      {
+        if (!(generatorType == ProxyTypeConstants.InterfaceWithTargetInterface))
+          throw new InvalidOperationException(string.Format("Got value {0} for the interface generator type, which is not known for the purpose of serialization.", (object) generatorType));
+        withTargetGenerator = (InterfaceProxyWithTargetGenerator) new InterfaceProxyWithTargetInterfaceGenerator(ProxyObjectReference.scope, @interface);
+      }
+      return FormatterServices.GetSafeUninitializedObject(withTargetGenerator.GenerateCode(proxyTargetType, this.interfaces, this.proxyGenerationOptions));
+    }
+
+    public object RecreateClassProxy()
+    {
+      return this.InstantiateClassProxy(new ClassProxyGenerator(ProxyObjectReference.scope, this.baseType).GenerateCode(this.interfaces, this.proxyGenerationOptions));
+    }
+
+    private object InstantiateClassProxy(Type proxy_type)
+    {
+      this.delegateToBase = this.GetValue<bool>("__delegateToBase");
+      if (!this.delegateToBase)
+        return FormatterServices.GetSafeUninitializedObject(proxy_type);
+      return Activator.CreateInstance(proxy_type, (object) this.info, (object) this.context);
+    }
+
+    protected void InvokeCallback(object target)
+    {
+      if (!(target is IDeserializationCallback))
+        return;
+      (target as IDeserializationCallback).OnDeserialization((object) this);
+    }
+
+    public object GetRealObject(StreamingContext context) => this.proxy;
+
+    public void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+    }
+
+    public void OnDeserialization(object sender)
+    {
+      this.SetInterceptors(this.GetValue<IInterceptor[]>("__interceptors"));
+      this.DeserializeProxyMembers();
+      this.DeserializeProxyState();
+      this.InvokeCallback(this.proxy);
+    }
+
+    private void DeserializeProxyMembers()
+    {
+      Type type = this.proxy.GetType();
+      MemberInfo[] serializableMembers = FormatterServices.GetSerializableMembers(type);
+      List<MemberInfo> memberInfoList = new List<MemberInfo>();
+      List<object> objectList = new List<object>();
+      for (int index = 0; index < serializableMembers.Length; ++index)
+      {
+        FieldInfo fieldInfo = serializableMembers[index] as FieldInfo;
+        if (fieldInfo.DeclaringType == type)
+        {
+          object obj = this.info.GetValue(fieldInfo.Name, fieldInfo.FieldType);
+          memberInfoList.Add((MemberInfo) fieldInfo);
+          objectList.Add(obj);
+        }
+      }
+      FormatterServices.PopulateObjectMembers(this.proxy, memberInfoList.ToArray(), objectList.ToArray());
+    }
+
+    private void DeserializeProxyState()
+    {
+      if (this.isInterfaceProxy)
+      {
+        this.SetTarget(this.GetValue<object>("__target"));
+      }
+      else
+      {
+        if (this.delegateToBase)
+          return;
+        object[] data = this.GetValue<object[]>("__data");
+        FormatterServices.PopulateObjectMembers(this.proxy, TypeUtil.Sort(FormatterServices.GetSerializableMembers(this.baseType)), data);
+      }
+    }
+
+    private void SetTarget(object target)
+    {
+      (this.proxy.GetType().GetField("__target") ?? throw new SerializationException("The SerializationInfo specifies an invalid interface proxy type, which has no __target field.")).SetValue(this.proxy, target);
+    }
+
+    private void SetInterceptors(IInterceptor[] interceptors)
+    {
+      (this.proxy.GetType().GetField("__interceptors") ?? throw new SerializationException("The SerializationInfo specifies an invalid proxy type, which has no __interceptors field.")).SetValue(this.proxy, (object) interceptors);
+    }
+
+    private T GetValue<T>(string name) => (T) this.info.GetValue(name, typeof (T));
+  }
+}
+
+
+--- ProxyTypeConstants.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Serialization.ProxyTypeConstants
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+#nullable disable
+namespace Castle.DynamicProxy.Serialization
+{
+  internal static class ProxyTypeConstants
+  {
+    public static readonly string InterfaceWithoutTarget = "interface.without.target";
+    public static readonly string InterfaceWithTarget = "interface.with.target";
+    public static readonly string InterfaceWithTargetInterface = "interface.with.target.interface";
+    public static readonly string Class = "class";
+    public static readonly string ClassWithTarget = "class.with.target";
+  }
+}
+

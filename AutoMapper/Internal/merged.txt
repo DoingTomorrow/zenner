@@ -1,0 +1,826 @@
+
+--- DictionaryFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.DictionaryFactory
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public class DictionaryFactory : IDictionaryFactory
+  {
+    public IDictionary<TKey, TValue> CreateDictionary<TKey, TValue>()
+    {
+      return (IDictionary<TKey, TValue>) new DictionaryFactory.DictionaryAdapter<TKey, TValue>(new Dictionary<TKey, TValue>());
+    }
+
+    private class DictionaryAdapter<TKey, TValue> : IDictionary<TKey, TValue>
+    {
+      private readonly Dictionary<TKey, TValue> _dictionary;
+
+      public DictionaryAdapter(Dictionary<TKey, TValue> dictionary)
+      {
+        this._dictionary = dictionary;
+      }
+
+      public TValue AddOrUpdate(
+        TKey key,
+        TValue addValue,
+        Func<TKey, TValue, TValue> updateValueFactory)
+      {
+        lock (this._dictionary)
+        {
+          TValue obj = this._dictionary.ContainsKey(key) ? updateValueFactory(key, addValue) : addValue;
+          this._dictionary[key] = obj;
+          return obj;
+        }
+      }
+
+      public bool TryGetValue(TKey key, out TValue value)
+      {
+        lock (this._dictionary)
+          return this._dictionary.TryGetValue(key, out value);
+      }
+
+      public TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory)
+      {
+        lock (this._dictionary)
+        {
+          if (this._dictionary.ContainsKey(key))
+            return this._dictionary[key];
+          TValue orAdd = valueFactory(key);
+          this._dictionary[key] = orAdd;
+          return orAdd;
+        }
+      }
+
+      public TValue this[TKey key]
+      {
+        get
+        {
+          lock (this._dictionary)
+            return this._dictionary[key];
+        }
+        set
+        {
+          lock (this._dictionary)
+            this._dictionary[key] = value;
+        }
+      }
+
+      public bool TryRemove(TKey key, out TValue value)
+      {
+        lock (this._dictionary)
+        {
+          if (!this._dictionary.ContainsKey(key))
+          {
+            value = default (TValue);
+            return false;
+          }
+          value = this._dictionary[key];
+          this._dictionary.Remove(key);
+          return true;
+        }
+      }
+    }
+  }
+}
+
+
+--- EnumNameValueMapperFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.EnumNameValueMapperFactory
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public class EnumNameValueMapperFactory : IEnumNameValueMapperFactory
+  {
+    public IEnumNameValueMapper Create()
+    {
+      return (IEnumNameValueMapper) new EnumNameValueMapperFactory.EnumVameValueMapper();
+    }
+
+    private class EnumVameValueMapper : IEnumNameValueMapper
+    {
+      public bool IsMatch(Type enumDestinationType, string sourceValue) => false;
+
+      public object Convert(
+        Type enumSourceType,
+        Type enumDestinationType,
+        ResolutionContext context)
+      {
+        throw new PlatformNotSupportedException("Mapping enum names to values not supported on this platform.");
+      }
+    }
+  }
+}
+
+
+--- FeatureDetector.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.FeatureDetector
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public static class FeatureDetector
+  {
+    public static Func<Type, bool> IsIDataRecordType = (Func<Type, bool>) (t => false);
+    private static bool? _isEnumGetNamesSupported;
+
+    public static bool IsEnumGetNamesSupported
+    {
+      get
+      {
+        if (!FeatureDetector._isEnumGetNamesSupported.HasValue)
+          FeatureDetector._isEnumGetNamesSupported = new bool?(FeatureDetector.ResolveIsEnumGetNamesSupported());
+        return FeatureDetector._isEnumGetNamesSupported.Value;
+      }
+    }
+
+    private static bool ResolveIsEnumGetNamesSupported()
+    {
+      return (object) typeof (Enum).GetMethod("GetNames") != null;
+    }
+  }
+}
+
+
+--- IAdapterResolver.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.IAdapterResolver
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  internal interface IAdapterResolver
+  {
+    object Resolve(Type type);
+  }
+}
+
+
+--- IDictionary`2.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.IDictionary`2
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public interface IDictionary<TKey, TValue>
+  {
+    TValue AddOrUpdate(TKey key, TValue addValue, Func<TKey, TValue, TValue> updateValueFactory);
+
+    bool TryGetValue(TKey key, out TValue value);
+
+    TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory);
+
+    TValue this[TKey key] { get; set; }
+
+    bool TryRemove(TKey key, out TValue value);
+  }
+}
+
+
+--- IDictionaryFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.IDictionaryFactory
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public interface IDictionaryFactory
+  {
+    IDictionary<TKey, TValue> CreateDictionary<TKey, TValue>();
+  }
+}
+
+
+--- IEnumNameValueMapper.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.IEnumNameValueMapper
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public interface IEnumNameValueMapper
+  {
+    bool IsMatch(Type enumDestinationType, string sourceValue);
+
+    object Convert(Type enumSourceType, Type enumDestinationType, ResolutionContext context);
+  }
+}
+
+
+--- IEnumNameValueMapperFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.IEnumNameValueMapperFactory
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public interface IEnumNameValueMapperFactory
+  {
+    IEnumNameValueMapper Create();
+  }
+}
+
+
+--- ILazy`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.ILazy`1
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public interface ILazy<T>
+  {
+    T Value { get; }
+  }
+}
+
+
+--- INullableConverter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.INullableConverter
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public interface INullableConverter
+  {
+    object ConvertFrom(object value);
+
+    Type UnderlyingType { get; }
+  }
+}
+
+
+--- INullableConverterFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.INullableConverterFactory
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public interface INullableConverterFactory
+  {
+    INullableConverter Create(Type nullableType);
+  }
+}
+
+
+--- IProxyGenerator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.IProxyGenerator
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public interface IProxyGenerator
+  {
+    Type GetProxyType(Type interfaceType);
+  }
+}
+
+
+--- IProxyGeneratorFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.IProxyGeneratorFactory
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public interface IProxyGeneratorFactory
+  {
+    IProxyGenerator Create();
+  }
+}
+
+
+--- IReaderWriterLockSlim.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.IReaderWriterLockSlim
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public interface IReaderWriterLockSlim : IDisposable
+  {
+    void EnterWriteLock();
+
+    void ExitWriteLock();
+
+    void EnterUpgradeableReadLock();
+
+    void ExitUpgradeableReadLock();
+
+    void EnterReadLock();
+
+    void ExitReadLock();
+  }
+}
+
+
+--- IReaderWriterLockSlimFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.IReaderWriterLockSlimFactory
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public interface IReaderWriterLockSlimFactory
+  {
+    IReaderWriterLockSlim Create();
+  }
+}
+
+
+--- LazyFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.LazyFactory
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+using System.Threading;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public static class LazyFactory
+  {
+    public static ILazy<T> Create<T>(Func<T> valueFactory) where T : class
+    {
+      return (ILazy<T>) new LazyFactory.LazyImpl<T>(valueFactory);
+    }
+
+    private sealed class LazyImpl<T> : ILazy<T> where T : class
+    {
+      private readonly object _lockObj = new object();
+      private readonly Func<T> _valueFactory;
+      private bool _isDelegateInvoked;
+      private T m_value;
+
+      public LazyImpl(Func<T> valueFactory) => this._valueFactory = valueFactory;
+
+      public T Value
+      {
+        get
+        {
+          if (!this._isDelegateInvoked)
+          {
+            Interlocked.CompareExchange<T>(ref this.m_value, this._valueFactory(), default (T));
+            bool flag = false;
+            try
+            {
+              Monitor.Enter(this._lockObj);
+              flag = true;
+              this._isDelegateInvoked = true;
+            }
+            finally
+            {
+              if (flag)
+                Monitor.Exit(this._lockObj);
+            }
+          }
+          return this.m_value;
+        }
+      }
+    }
+  }
+}
+
+
+--- NullableConverterFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.NullableConverterFactory
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public class NullableConverterFactory : INullableConverterFactory
+  {
+    public INullableConverter Create(Type nullableType)
+    {
+      return (INullableConverter) new NullableConverterFactory.NullableConverterImpl(nullableType);
+    }
+
+    private class NullableConverterImpl : INullableConverter
+    {
+      private readonly Type _nullableType;
+      private readonly Type _underlyingType;
+
+      public NullableConverterImpl(Type nullableType)
+      {
+        this._nullableType = nullableType;
+        this._underlyingType = Nullable.GetUnderlyingType(this._nullableType);
+      }
+
+      public object ConvertFrom(object value)
+      {
+        if (value == null)
+          return Activator.CreateInstance(this._nullableType);
+        return (object) value.GetType() == (object) this.UnderlyingType ? Activator.CreateInstance(this._nullableType, value) : Activator.CreateInstance(this._nullableType, Convert.ChangeType(value, this.UnderlyingType, (IFormatProvider) null));
+      }
+
+      public Type UnderlyingType => this._underlyingType;
+    }
+  }
+}
+
+
+--- PlatformAdapter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.PlatformAdapter
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public static class PlatformAdapter
+  {
+    private static readonly string[] KnownPlatformNames = new string[6]
+    {
+      "Net4",
+      "WinRT",
+      "SL5",
+      "WP8",
+      "Android",
+      "iOS"
+    };
+    private static IAdapterResolver _resolver = (IAdapterResolver) new ProbingAdapterResolver(PlatformAdapter.KnownPlatformNames);
+
+    public static T Resolve<T>(bool throwIfNotFound = true)
+    {
+      T obj = (T) PlatformAdapter._resolver.Resolve(typeof (T));
+      return (object) obj != null || !throwIfNotFound ? obj : throw new PlatformNotSupportedException("This type is not supported on this platform " + typeof (T).Name);
+    }
+
+    internal static void SetResolver(IAdapterResolver resolver)
+    {
+      PlatformAdapter._resolver = resolver;
+    }
+  }
+}
+
+
+--- PrimitiveExtensions.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.PrimitiveExtensions
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public static class PrimitiveExtensions
+  {
+    public static string ToNullSafeString(this object value) => value?.ToString();
+
+    public static bool IsNullableType(this Type type)
+    {
+      return type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof (Nullable<>));
+    }
+
+    public static Type GetTypeOfNullable(this Type type) => type.GetGenericArguments()[0];
+
+    public static bool IsCollectionType(this Type type)
+    {
+      return type.IsGenericType && (object) type.GetGenericTypeDefinition() == (object) typeof (ICollection<>) || ((IEnumerable<Type>) type.GetInterfaces()).Where<Type>((Func<Type, bool>) (t => t.IsGenericType)).Select<Type, Type>((Func<Type, Type>) (t => t.GetGenericTypeDefinition())).Any<Type>((Func<Type, bool>) (t => (object) t == (object) typeof (ICollection<>)));
+    }
+
+    public static bool IsEnumerableType(this Type type)
+    {
+      return ((IEnumerable<Type>) type.GetInterfaces()).Contains<Type>(typeof (IEnumerable));
+    }
+
+    public static bool IsListType(this Type type)
+    {
+      return ((IEnumerable<Type>) type.GetInterfaces()).Contains<Type>(typeof (IList));
+    }
+
+    public static bool IsListOrDictionaryType(this Type type)
+    {
+      return type.IsListType() || type.IsDictionaryType();
+    }
+
+    public static bool IsDictionaryType(this Type type)
+    {
+      return type.IsGenericType && (object) type.GetGenericTypeDefinition() == (object) typeof (System.Collections.Generic.IDictionary<,>) || ((IEnumerable<Type>) type.GetInterfaces()).Where<Type>((Func<Type, bool>) (t => t.IsGenericType)).Select<Type, Type>((Func<Type, Type>) (t => t.GetGenericTypeDefinition())).Any<Type>((Func<Type, bool>) (t => (object) t == (object) typeof (System.Collections.Generic.IDictionary<,>)));
+    }
+
+    public static Type GetDictionaryType(this Type type)
+    {
+      return type.IsGenericType && (object) type.GetGenericTypeDefinition() == (object) typeof (System.Collections.Generic.IDictionary<,>) ? type : ((IEnumerable<Type>) type.GetInterfaces()).Where<Type>((Func<Type, bool>) (t => t.IsGenericType && (object) t.GetGenericTypeDefinition() == (object) typeof (System.Collections.Generic.IDictionary<,>))).FirstOrDefault<Type>();
+    }
+  }
+}
+
+
+--- ProbingAdapterResolver.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.ProbingAdapterResolver
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  internal class ProbingAdapterResolver : IAdapterResolver
+  {
+    private readonly string[] _platformNames;
+    private readonly Func<string, Assembly> _assemblyLoader;
+    private readonly object _lock = new object();
+    private readonly Dictionary<Type, object> _adapters = new Dictionary<Type, object>();
+    private Assembly _assembly;
+    private bool _probed;
+
+    public ProbingAdapterResolver(params string[] platformNames)
+      : this(new Func<string, Assembly>(Assembly.Load), platformNames)
+    {
+    }
+
+    public ProbingAdapterResolver(
+      Func<string, Assembly> assemblyLoader,
+      params string[] platformNames)
+    {
+      this._platformNames = platformNames;
+      this._assemblyLoader = assemblyLoader;
+    }
+
+    public object Resolve(Type type)
+    {
+      lock (this._lock)
+      {
+        object obj;
+        if (!this._adapters.TryGetValue(type, out obj))
+        {
+          obj = ProbingAdapterResolver.ResolveAdapter(this.GetPlatformSpecificAssembly(), type);
+          this._adapters.Add(type, obj);
+        }
+        return obj;
+      }
+    }
+
+    private static object ResolveAdapter(Assembly assembly, Type interfaceType)
+    {
+      string name = ProbingAdapterResolver.MakeAdapterTypeName(interfaceType);
+      if ((object) assembly != null)
+      {
+        Type type1 = assembly.GetType(name + "Override");
+        if ((object) type1 != null)
+          return Activator.CreateInstance(type1);
+        Type type2 = assembly.GetType(name);
+        if ((object) type2 != null)
+          return Activator.CreateInstance(type2);
+      }
+      Type type = typeof (ProbingAdapterResolver).Assembly.GetType(name);
+      return (object) type == null ? (object) null : Activator.CreateInstance(type);
+    }
+
+    private static string MakeAdapterTypeName(Type interfaceType)
+    {
+      return interfaceType.Namespace + "." + interfaceType.Name.Substring(1);
+    }
+
+    private Assembly GetPlatformSpecificAssembly()
+    {
+      if ((object) this._assembly == null && !this._probed)
+      {
+        this._probed = true;
+        this._assembly = this.ProbeForPlatformSpecificAssembly();
+      }
+      return this._assembly;
+    }
+
+    private Assembly ProbeForPlatformSpecificAssembly()
+    {
+      return ((IEnumerable<string>) this._platformNames).Select<string, Assembly>(new Func<string, Assembly>(this.ProbeForPlatformSpecificAssembly)).FirstOrDefault<Assembly>((Func<Assembly, bool>) (assembly => (object) assembly != null));
+    }
+
+    private Assembly ProbeForPlatformSpecificAssembly(string platformName)
+    {
+      AssemblyName assemblyName = new AssemblyName(this.GetType().Assembly.FullName)
+      {
+        Name = "AutoMapper." + platformName
+      };
+      try
+      {
+        return this._assemblyLoader(assemblyName.ToString());
+      }
+      catch (FileNotFoundException ex)
+      {
+      }
+      catch (Exception ex1)
+      {
+        assemblyName.SetPublicKey((byte[]) null);
+        assemblyName.SetPublicKeyToken((byte[]) null);
+        try
+        {
+          return this._assemblyLoader(assemblyName.ToString());
+        }
+        catch (Exception ex2)
+        {
+          return (Assembly) null;
+        }
+      }
+      return (Assembly) null;
+    }
+  }
+}
+
+
+--- ProxyGeneratorFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.ProxyGeneratorFactory
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public class ProxyGeneratorFactory : IProxyGeneratorFactory
+  {
+    public IProxyGenerator Create()
+    {
+      return (IProxyGenerator) new ProxyGeneratorFactory.NotSupportedProxyGenerator();
+    }
+
+    public class NotSupportedProxyGenerator : IProxyGenerator
+    {
+      public Type GetProxyType(Type interfaceType)
+      {
+        throw new PlatformNotSupportedException("Proxy generation not supported on this platform.");
+      }
+    }
+  }
+}
+
+
+--- ReaderWriterLockSlimFactory.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AutoMapper.Internal.ReaderWriterLockSlimFactory
+// Assembly: AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005
+// MVID: D6FEE810-B806-4119-85A4-5044E7EED03C
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AutoMapper.dll
+
+using System;
+
+#nullable disable
+namespace AutoMapper.Internal
+{
+  public class ReaderWriterLockSlimFactory : IReaderWriterLockSlimFactory
+  {
+    public IReaderWriterLockSlim Create()
+    {
+      return (IReaderWriterLockSlim) new ReaderWriterLockSlimFactory.NoOpReaderWriterLock();
+    }
+
+    public class NoOpReaderWriterLock : IReaderWriterLockSlim, IDisposable
+    {
+      public void Dispose()
+      {
+      }
+
+      public void EnterWriteLock()
+      {
+      }
+
+      public void ExitWriteLock()
+      {
+      }
+
+      public void EnterUpgradeableReadLock()
+      {
+      }
+
+      public void ExitUpgradeableReadLock()
+      {
+      }
+
+      public void EnterReadLock()
+      {
+      }
+
+      public void ExitReadLock()
+      {
+      }
+    }
+  }
+}
+

@@ -1,0 +1,278 @@
+
+--- DelegateMethods.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Tokens.DelegateMethods
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Tokens
+{
+  public static class DelegateMethods
+  {
+    public static readonly MethodInfo CreateDelegate = typeof (Delegate).GetMethod(nameof (CreateDelegate), new Type[3]
+    {
+      typeof (Type),
+      typeof (object),
+      typeof (MethodInfo)
+    });
+  }
+}
+
+
+--- FormatterServicesMethods.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Tokens.FormatterServicesMethods
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Castle.DynamicProxy.Tokens
+{
+  public static class FormatterServicesMethods
+  {
+    public static readonly MethodInfo GetObjectData = typeof (FormatterServices).GetMethod(nameof (GetObjectData), new Type[2]
+    {
+      typeof (object),
+      typeof (MemberInfo[])
+    });
+    public static readonly MethodInfo GetSerializableMembers = typeof (FormatterServices).GetMethod(nameof (GetSerializableMembers), new Type[1]
+    {
+      typeof (Type)
+    });
+  }
+}
+
+
+--- InvocationMethods.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Tokens.InvocationMethods
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Tokens
+{
+  public static class InvocationMethods
+  {
+    public static readonly FieldInfo Target = typeof (CompositionInvocation).GetField("target", BindingFlags.Instance | BindingFlags.NonPublic);
+    public static readonly FieldInfo ProxyObject = typeof (AbstractInvocation).GetField("proxyObject", BindingFlags.Instance | BindingFlags.NonPublic);
+    public static readonly MethodInfo GetArguments = typeof (AbstractInvocation).GetMethod("get_Arguments");
+    public static readonly MethodInfo GetArgumentValue = typeof (AbstractInvocation).GetMethod(nameof (GetArgumentValue));
+    public static readonly MethodInfo GetReturnValue = typeof (AbstractInvocation).GetMethod("get_ReturnValue");
+    public static readonly MethodInfo ThrowOnNoTarget = typeof (AbstractInvocation).GetMethod(nameof (ThrowOnNoTarget), BindingFlags.Instance | BindingFlags.NonPublic);
+    public static readonly MethodInfo SetArgumentValue = typeof (AbstractInvocation).GetMethod(nameof (SetArgumentValue));
+    public static readonly MethodInfo SetGenericMethodArguments = typeof (AbstractInvocation).GetMethod(nameof (SetGenericMethodArguments), new Type[1]
+    {
+      typeof (Type[])
+    });
+    public static readonly MethodInfo SetReturnValue = typeof (AbstractInvocation).GetMethod("set_ReturnValue");
+    public static readonly ConstructorInfo InheritanceInvocationConstructorNoSelector = typeof (InheritanceInvocation).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, (Binder) null, new Type[5]
+    {
+      typeof (Type),
+      typeof (object),
+      typeof (IInterceptor[]),
+      typeof (MethodInfo),
+      typeof (object[])
+    }, (ParameterModifier[]) null);
+    public static readonly ConstructorInfo InheritanceInvocationConstructorWithSelector = typeof (InheritanceInvocation).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, (Binder) null, new Type[7]
+    {
+      typeof (Type),
+      typeof (object),
+      typeof (IInterceptor[]),
+      typeof (MethodInfo),
+      typeof (object[]),
+      typeof (IInterceptorSelector),
+      typeof (IInterceptor[]).MakeByRefType()
+    }, (ParameterModifier[]) null);
+    public static readonly ConstructorInfo CompositionInvocationConstructorNoSelector = typeof (CompositionInvocation).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, (Binder) null, new Type[5]
+    {
+      typeof (object),
+      typeof (object),
+      typeof (IInterceptor[]),
+      typeof (MethodInfo),
+      typeof (object[])
+    }, (ParameterModifier[]) null);
+    public static readonly ConstructorInfo CompositionInvocationConstructorWithSelector = typeof (CompositionInvocation).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, (Binder) null, new Type[7]
+    {
+      typeof (object),
+      typeof (object),
+      typeof (IInterceptor[]),
+      typeof (MethodInfo),
+      typeof (object[]),
+      typeof (IInterceptorSelector),
+      typeof (IInterceptor[]).MakeByRefType()
+    }, (ParameterModifier[]) null);
+    public static readonly MethodInfo Proceed = typeof (AbstractInvocation).GetMethod(nameof (Proceed), BindingFlags.Instance | BindingFlags.Public);
+    public static readonly MethodInfo EnsureValidTarget = typeof (CompositionInvocation).GetMethod(nameof (EnsureValidTarget), BindingFlags.Instance | BindingFlags.NonPublic);
+  }
+}
+
+
+--- MethodBaseMethods.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Tokens.MethodBaseMethods
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Tokens
+{
+  public static class MethodBaseMethods
+  {
+    public static readonly MethodInfo GetMethodFromHandle1 = typeof (MethodBase).GetMethod("GetMethodFromHandle", BindingFlags.Static | BindingFlags.Public, (Binder) null, new Type[1]
+    {
+      typeof (RuntimeMethodHandle)
+    }, (ParameterModifier[]) null);
+    public static readonly MethodInfo GetMethodFromHandle2 = typeof (MethodBase).GetMethod("GetMethodFromHandle", BindingFlags.Static | BindingFlags.Public, (Binder) null, new Type[2]
+    {
+      typeof (RuntimeMethodHandle),
+      typeof (RuntimeTypeHandle)
+    }, (ParameterModifier[]) null);
+  }
+}
+
+
+--- SerializationInfoMethods.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Tokens.SerializationInfoMethods
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Castle.DynamicProxy.Tokens
+{
+  public static class SerializationInfoMethods
+  {
+    public static readonly MethodInfo AddValue_Bool = typeof (SerializationInfo).GetMethod("AddValue", new Type[2]
+    {
+      typeof (string),
+      typeof (bool)
+    });
+    public static readonly MethodInfo AddValue_Int32 = typeof (SerializationInfo).GetMethod("AddValue", new Type[2]
+    {
+      typeof (string),
+      typeof (int)
+    });
+    public static readonly MethodInfo AddValue_Object = typeof (SerializationInfo).GetMethod("AddValue", new Type[2]
+    {
+      typeof (string),
+      typeof (object)
+    });
+    public static readonly MethodInfo GetValue = typeof (SerializationInfo).GetMethod(nameof (GetValue), new Type[2]
+    {
+      typeof (string),
+      typeof (Type)
+    });
+    public static readonly MethodInfo SetType = typeof (SerializationInfo).GetMethod(nameof (SetType));
+  }
+}
+
+
+--- TypeBuilderMethods.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Tokens.TypeBuilderMethods
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Tokens
+{
+  public static class TypeBuilderMethods
+  {
+    public static readonly MethodInfo DefineProperty = typeof (TypeBuilder).GetMethod(nameof (DefineProperty), new Type[9]
+    {
+      typeof (string),
+      typeof (PropertyAttributes),
+      typeof (CallingConventions),
+      typeof (Type),
+      typeof (Type[]),
+      typeof (Type[]),
+      typeof (Type[]),
+      typeof (Type[][]),
+      typeof (Type[][])
+    });
+  }
+}
+
+
+--- TypeMethods.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Tokens.TypeMethods
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Tokens
+{
+  public static class TypeMethods
+  {
+    public static readonly MethodInfo StaticGetType = typeof (Type).GetMethod("GetType", new Type[3]
+    {
+      typeof (string),
+      typeof (bool),
+      typeof (bool)
+    });
+    public static readonly MethodInfo GetTypeFromHandle = typeof (Type).GetMethod(nameof (GetTypeFromHandle));
+  }
+}
+
+
+--- TypeUtilMethods.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Tokens.TypeUtilMethods
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Generators.Emitters;
+using System.Reflection;
+
+#nullable disable
+namespace Castle.DynamicProxy.Tokens
+{
+  public static class TypeUtilMethods
+  {
+    public static readonly MethodInfo Sort = typeof (TypeUtil).GetMethod(nameof (Sort), BindingFlags.Static | BindingFlags.Public);
+  }
+}
+

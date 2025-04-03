@@ -1,0 +1,68 @@
+
+--- BrowseCommand.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS_Client.Commands.BrowseCommand
+// Assembly: MSS_Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 04E68651-4483-4E77-961C-A6C12FC6E4D6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS_Client.exe
+
+using Microsoft.Win32;
+using MSS.Business.Modules.LicenseManagement;
+using MSS.Business.Utils;
+using MSS.Interfaces;
+using MSS_Client.Utils;
+using MVVM.ViewModel;
+using System;
+using System.IO;
+using System.Windows.Input;
+
+#nullable disable
+namespace MSS_Client.Commands
+{
+  internal class BrowseCommand : ICommand
+  {
+    private IRepositoryFactory RepositoryFactory { get; set; }
+
+    private IWindowFactory WindowFactory { get; set; }
+
+    private ViewModelBase ViewModel { get; set; }
+
+    public BrowseCommand(
+      ViewModelBase viewModel,
+      IRepositoryFactory _repositoryFactory,
+      IWindowFactory _windowFactory)
+    {
+      this.ViewModel = viewModel;
+      this.RepositoryFactory = _repositoryFactory;
+      this.WindowFactory = _windowFactory;
+    }
+
+    public event EventHandler CanExecuteChanged
+    {
+      add => CommandManager.RequerySuggested += value;
+      remove => CommandManager.RequerySuggested -= value;
+    }
+
+    public bool CanExecute(object parameter) => true;
+
+    public void Execute(object parameter)
+    {
+      OpenFileDialog openFileDialog1 = new OpenFileDialog();
+      openFileDialog1.DefaultExt = ".zlf";
+      openFileDialog1.Filter = "License files (.zlf)|*.zlf";
+      OpenFileDialog openFileDialog2 = openFileDialog1;
+      bool? nullable = openFileDialog2.ShowDialog();
+      bool flag = true;
+      if (nullable.GetValueOrDefault() != flag || !nullable.HasValue)
+        return;
+      string hardwareKeyForOpenFile = LicenseHelper.GetValidHardwareKeyForOpenFile(openFileDialog2.FileName);
+      MSS.Business.Modules.LicenseManagement.FileHelper.OpenFile(openFileDialog2.FileName).SaveToDisk(Path.Combine(AppDataFolderHelper.GetUserAppDataPath(), LicenseHelper.GetLicenseFileName(hardwareKeyForOpenFile)));
+      MSS.Business.Utils.AppContext.Current.Operations = LicenseHelper.GetOperations(MSS.Business.Utils.AppContext.Current.LoggedUser, this.RepositoryFactory);
+      MSSHelper.InitializeGMMAndSetEquipment();
+      MSSUIHelper.ShowApplicationStartWindow(this.RepositoryFactory, this.WindowFactory);
+      this.ViewModel.OnRequestClose(false);
+    }
+  }
+}
+

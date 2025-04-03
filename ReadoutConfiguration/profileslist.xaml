@@ -1,0 +1,135 @@
+<Window x:Class="ReadoutConfiguration.ProfilesList"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Loaded="Window_Loaded" Title="List of profiles" Height="733.508" Width="1163.475"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico"
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
+  <FrameworkElement.Resources>
+    <ResourceDictionary/>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StackPanel DockPanel.Dock="Top">
+      <Menu Name="MenuMain" Height="23" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+        <MenuItem Name="MenuItemAdditionalTools" Header="Profile tools">
+          <MenuItem Click="MenuItemShowLostItems_Click" Name="MenuItemShowLostItems" Header="Show lost items"/>
+          <MenuItem Click="MenuItemCreateProfilesForMBusConverters_Click"
+                    Name="MenuItemCreateProfilesForMBusConverters"
+                    Header="Create profiles for all M-Bus converters for selected ProfileType"/>
+          <MenuItem Click="MenuItemCopyTagsToParameters_Click" Name="MenuItemCopyTagsToParameters"
+                    Header="Copy tags to parameters"/>
+          <MenuItem Click="MenuItemCheckSettings_Click" Name="MenuItemCheckSettings" Header="Check settings"/>
+        </MenuItem>
+      </Menu>
+      <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
+      <TextBlock Name="TextBlockInfo" Text="Select info" Margin="2"/>
+    </StackPanel>
+    <DockPanel Dock="Bottom">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="5" FlowDirection="RightToLeft">
+        <Button Click="ButtonUseSelectedProfile_Click" Name="ButtonUseSelectedProfile"
+                Content="Use selected profile" IsEnabled="false"/>
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Margin="5">
+        <GroupBox Header="Display filter by name">
+          <StackPanel Orientation="Horizontal">
+            <Label Content="Device:"/>
+            <TextBox LostFocus="TextBoxFilter_LostFocus" PreviewKeyDown="TextBoxFilter_PreviewKeyDown"
+                     Name="TextBoxDeviceFilter" MinWidth="40"/>
+            <Label Content="Equipment:"/>
+            <TextBox LostFocus="TextBoxFilter_LostFocus" PreviewKeyDown="TextBoxFilter_PreviewKeyDown"
+                     Name="TextBoxEquipmentFilter" MinWidth="40"/>
+            <Label Content="Type:"/>
+            <TextBox LostFocus="TextBoxFilter_LostFocus" PreviewKeyDown="TextBoxFilter_PreviewKeyDown"
+                     Name="TextBoxTypeFilter" MinWidth="40"/>
+          </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Profile filter by data base filter">
+          <StackPanel Orientation="Horizontal">
+            <ComboBox SelectionChanged="ComboBoxFilter_SelectionChanged" Name="ComboBoxFilter" Margin="2"/>
+            <CheckBox Checked="CheckBoxUseFilter_Checked" Unchecked="CheckBoxUseFilter_Unchecked"
+                      Name="CheckBoxUseFilter" Content="UseFilter" Margin="2" IsEnabled="false"
+                      VerticalAlignment="Center"/>
+            <Button Click="ButtonAddFilter_Click" Name="ButtonAddFilter" Content="+" Margin="2"/>
+            <Button Click="ButtonDeleteFilter_Click" Name="ButtonDeleteFilter" Content="-" Margin="2" IsEnabled="false"/>
+            <Button Click="ButtonChangeFilter_Click" Name="ButtonChangeFilter" Content="Change" Margin="2"
+                    IsEnabled="false"/>
+          </StackPanel>
+        </GroupBox>
+        <StackPanel>
+          <CheckBox Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Name="CheckBoxShowParameters"
+                    Content="Show parameters" IsChecked="False"/>
+          <CheckBox Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Name="CheckBoxShowProfileNames"
+                    Content="Show setting names" IsChecked="False"/>
+          <CheckBox Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Name="CheckBoxShowItemIDs"
+                    Content="Show item IDs" IsChecked="False"/>
+        </StackPanel>
+      </StackPanel>
+    </DockPanel>
+    <DataGrid SelectionChanged="DataGridAllProfiles_SelectionChanged"
+              MouseDoubleClick="DataGridAllProfiles_MouseDoubleClick" Name="DataGridAllProfiles"
+              IsReadOnly="true" ClipboardCopyMode="IncludeHeader" Margin="5">
+      <DataGrid.ColumnHeaderStyle>
+        <Style TargetType="{x:Type DataGridColumnHeader}" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+          <Setter Property="ContentControl.ContentTemplate">
+            <Setter.Value>
+              <DataTemplate>
+                <TextBlock Text="{TemplateBinding ContentPresenter.Content}" HorizontalAlignment="Center"/>
+              </DataTemplate>
+            </Setter.Value>
+          </Setter>
+        </Style>
+      </DataGrid.ColumnHeaderStyle>
+      <FrameworkElement.ContextMenu>
+        <ContextMenu>
+          <MenuItem Click="MenuItemCopySelectedProfile_Click" Name="MenuItemCopySelectedProfile"
+                    Header="Copy selected profile"/>
+          <MenuItem Name="MenuItemPast" Header="Past from copied profile">
+            <MenuItem Click="MenuItemDeviceModelParameters_Click" Name="MenuItemDeviceModelParameters"
+                      Header="DeviceModel parameters"/>
+            <MenuItem Click="MenuItemEquipmentModelParameters_Click" Name="MenuItemEquipmentModelParameters"
+                      Header="EquipmentModel parameters"/>
+            <MenuItem Click="MenuItemProfileTypeParameters_Click" Name="MenuItemProfileTypeParameters"
+                      Header="ProfileType parameters"/>
+            <MenuItem Click="MenuItemProfileParameters_Click" Name="MenuItemProfileParameters"
+                      Header="Profile parameters"/>
+          </MenuItem>
+          <MenuItem Click="MenuItemDeleteProfiles_Click" Name="MenuItemDeleteProfiles"
+                    Header="Delete selected profiles ..."/>
+          <MenuItem Header="Create new profiles as copy of selected profiles">
+            <MenuItem Click="MenuItemDefineNewModel_Click" Name="MenuItemDefineNewModel" Header="Define new DeviceModel"/>
+            <MenuItem Click="MenuItemDefineNewEquipment_Click" Name="MenuItemDefineNewEquipment"
+                      Header="Define new EquipmentModel"/>
+            <MenuItem Click="MenuItemDefineNewType_Click" Name="MenuItemDefineNewType" Header="Define new ProfileType"/>
+            <Separator/>
+            <MenuItem Click="MenuItemSetDifferentModel_Click" Name="MenuItemSetDifferentModel"
+                      Header="Set DeviceModelID from clipboard"/>
+            <MenuItem Click="MenuItemSetDifferentEquipment_Click" Name="MenuItemSetDifferentEquipment"
+                      Header="Set EquipmentModelID  from clipboard"/>
+            <MenuItem Click="MenuItemSetDifferentType_Click" Name="MenuItemSetDifferentType"
+                      Header="Set ProfileTypeID from clipboard"/>
+          </MenuItem>
+          <MenuItem Header="Change ID's inside selected profiles">
+            <MenuItem Click="MenuItemChangeDeviceModelID_Click" Name="MenuItemChangeDeviceModelID"
+                      Header="Change DeviceModelID"/>
+            <MenuItem Click="MenuItemChangeEquipmentModelID_Click" Name="MenuItemChangeEquipmentModelID"
+                      Header="Change EquipmentModelID"/>
+            <MenuItem Click="MenuItemChangeProfileTypeID_Click" Name="MenuItemChangeProfileTypeID"
+                      Header="Change ProfileTypeID"/>
+            <MenuItem Click="MenuItemChangeSettingsID_Click" Name="MenuItemChangeSettingsID" Header="Change SettingsID"/>
+          </MenuItem>
+          <MenuItem Header="Settings">
+            <MenuItem Click="ButtonCreateClonedSettings_Click" Name="MenuItemCreateSettingsCloneAndAssingIt"
+                      Header="Create settings clone and assing it"/>
+            <MenuItem Click="MenuItemShowAndEditSettings_Click" Name="MenuItemShowAndEditSettings"
+                      Header="Show and edit settings"/>
+            <MenuItem Click="MenuItemEditCommonSettings_Click" Name="MenuItemEditCommonSettings"
+                      Header="Edit common settings"/>
+          </MenuItem>
+        </ContextMenu>
+      </FrameworkElement.ContextMenu>
+      <FrameworkElement.Resources>
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightBlue"/>
+      </FrameworkElement.Resources>
+    </DataGrid>
+  </DockPanel>
+</Window>

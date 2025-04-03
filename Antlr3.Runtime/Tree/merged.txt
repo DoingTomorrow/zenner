@@ -1,0 +1,3447 @@
+
+--- AntlrRuntime_BaseTreeDebugView.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.AntlrRuntime_BaseTreeDebugView
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System.Diagnostics;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  internal sealed class AntlrRuntime_BaseTreeDebugView
+  {
+    private readonly BaseTree _tree;
+
+    public AntlrRuntime_BaseTreeDebugView(BaseTree tree) => this._tree = tree;
+
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+    public ITree[] Children
+    {
+      get
+      {
+        if (this._tree == null || this._tree.Children == null)
+          return (ITree[]) null;
+        ITree[] array = new ITree[this._tree.Children.Count];
+        this._tree.Children.CopyTo(array, 0);
+        return array;
+      }
+    }
+  }
+}
+
+
+--- AstTreeRuleReturnScope`2.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.AstTreeRuleReturnScope`2
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public class AstTreeRuleReturnScope<TOutputTree, TInputTree> : 
+    TreeRuleReturnScope<TInputTree>,
+    IAstRuleReturnScope<TOutputTree>,
+    IAstRuleReturnScope,
+    IRuleReturnScope
+  {
+    private TOutputTree _tree;
+
+    public TOutputTree Tree
+    {
+      get => this._tree;
+      set => this._tree = value;
+    }
+
+    object IAstRuleReturnScope.Tree => (object) this.Tree;
+  }
+}
+
+
+--- BaseTree.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.BaseTree
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  [DebuggerTypeProxy(typeof (AntlrRuntime_BaseTreeDebugView))]
+  [Serializable]
+  public abstract class BaseTree : ITree
+  {
+    private IList<ITree> _children;
+
+    public BaseTree()
+    {
+    }
+
+    public BaseTree(ITree node)
+    {
+    }
+
+    public virtual IList<ITree> Children
+    {
+      get => this._children;
+      private set => this._children = value;
+    }
+
+    public virtual int ChildCount => this.Children == null ? 0 : this.Children.Count;
+
+    public virtual ITree Parent
+    {
+      get => (ITree) null;
+      set
+      {
+      }
+    }
+
+    public virtual int ChildIndex
+    {
+      get => 0;
+      set
+      {
+      }
+    }
+
+    public virtual bool IsNil => false;
+
+    public abstract int TokenStartIndex { get; set; }
+
+    public abstract int TokenStopIndex { get; set; }
+
+    public abstract int Type { get; set; }
+
+    public abstract string Text { get; set; }
+
+    public virtual int Line { get; set; }
+
+    public virtual int CharPositionInLine { get; set; }
+
+    public virtual ITree GetChild(int i)
+    {
+      if (i < 0)
+        throw new ArgumentOutOfRangeException();
+      return this.Children == null || i >= this.Children.Count ? (ITree) null : this.Children[i];
+    }
+
+    public virtual ITree GetFirstChildWithType(int type)
+    {
+      foreach (ITree child in (IEnumerable<ITree>) this.Children)
+      {
+        if (child.Type == type)
+          return child;
+      }
+      return (ITree) null;
+    }
+
+    public virtual void AddChild(ITree t)
+    {
+      if (t == null)
+        return;
+      if (t.IsNil)
+      {
+        if (t is BaseTree baseTree && this.Children != null && this.Children == baseTree.Children)
+          throw new Exception("attempt to add child list to itself");
+        if (t.ChildCount <= 0)
+          return;
+        if (this.Children != null || baseTree == null)
+        {
+          if (this.Children == null)
+            this.Children = this.CreateChildrenList();
+          int childCount = t.ChildCount;
+          for (int i = 0; i < childCount; ++i)
+          {
+            ITree child = t.GetChild(i);
+            this.Children.Add(child);
+            child.Parent = (ITree) this;
+            child.ChildIndex = this.Children.Count - 1;
+          }
+        }
+        else
+        {
+          this.Children = baseTree.Children;
+          this.FreshenParentAndChildIndexes();
+        }
+      }
+      else
+      {
+        if (this.Children == null)
+          this.Children = this.CreateChildrenList();
+        this.Children.Add(t);
+        t.Parent = (ITree) this;
+        t.ChildIndex = this.Children.Count - 1;
+      }
+    }
+
+    public virtual void AddChildren(IEnumerable<ITree> kids)
+    {
+      if (kids == null)
+        throw new ArgumentNullException(nameof (kids));
+      foreach (ITree kid in kids)
+        this.AddChild(kid);
+    }
+
+    public virtual void SetChild(int i, ITree t)
+    {
+      if (i < 0)
+        throw new ArgumentOutOfRangeException(nameof (i));
+      if (t == null)
+        return;
+      if (t.IsNil)
+        throw new ArgumentException("Can't set single child to a list");
+      if (this.Children == null)
+        this.Children = this.CreateChildrenList();
+      this.Children[i] = t;
+      t.Parent = (ITree) this;
+      t.ChildIndex = i;
+    }
+
+    public virtual void InsertChild(int i, ITree t)
+    {
+      if (i < 0)
+        throw new ArgumentOutOfRangeException(nameof (i));
+      if (i > this.ChildCount)
+        throw new ArgumentException();
+      if (i == this.ChildCount)
+      {
+        this.AddChild(t);
+      }
+      else
+      {
+        this.Children.Insert(i, t);
+        this.FreshenParentAndChildIndexes(i);
+      }
+    }
+
+    public virtual object DeleteChild(int i)
+    {
+      if (i < 0)
+        throw new ArgumentOutOfRangeException(nameof (i));
+      if (i >= this.ChildCount)
+        throw new ArgumentException();
+      if (this.Children == null)
+        return (object) null;
+      ITree child = this.Children[i];
+      this.Children.RemoveAt(i);
+      this.FreshenParentAndChildIndexes(i);
+      return (object) child;
+    }
+
+    public virtual void ReplaceChildren(int startChildIndex, int stopChildIndex, object t)
+    {
+      if (startChildIndex < 0)
+        throw new ArgumentOutOfRangeException();
+      if (stopChildIndex < 0)
+        throw new ArgumentOutOfRangeException();
+      if (t == null)
+        throw new ArgumentNullException(nameof (t));
+      if (stopChildIndex < startChildIndex)
+        throw new ArgumentException();
+      if (this.Children == null)
+        throw new ArgumentException("indexes invalid; no children in list");
+      int num1 = stopChildIndex - startChildIndex + 1;
+      ITree tree1 = (ITree) t;
+      IList<ITree> treeList;
+      if (tree1.IsNil)
+      {
+        if (tree1 is BaseTree baseTree && baseTree.Children != null)
+        {
+          treeList = baseTree.Children;
+        }
+        else
+        {
+          treeList = this.CreateChildrenList();
+          int childCount = tree1.ChildCount;
+          for (int i = 0; i < childCount; ++i)
+            treeList.Add(tree1.GetChild(i));
+        }
+      }
+      else
+      {
+        treeList = (IList<ITree>) new List<ITree>(1);
+        treeList.Add(tree1);
+      }
+      int count1 = treeList.Count;
+      int count2 = treeList.Count;
+      int num2 = num1 - count1;
+      if (num2 == 0)
+      {
+        int index1 = 0;
+        for (int index2 = startChildIndex; index2 <= stopChildIndex; ++index2)
+        {
+          ITree tree2 = treeList[index1];
+          this.Children[index2] = tree2;
+          tree2.Parent = (ITree) this;
+          tree2.ChildIndex = index2;
+          ++index1;
+        }
+      }
+      else if (num2 > 0)
+      {
+        for (int index = 0; index < count2; ++index)
+          this.Children[startChildIndex + index] = treeList[index];
+        int index3 = startChildIndex + count2;
+        for (int index4 = index3; index4 <= stopChildIndex; ++index4)
+          this.Children.RemoveAt(index3);
+        this.FreshenParentAndChildIndexes(startChildIndex);
+      }
+      else
+      {
+        for (int index = 0; index < num1; ++index)
+          this.Children[startChildIndex + index] = treeList[index];
+        for (int index = num1; index < count1; ++index)
+          this.Children.Insert(startChildIndex + index, treeList[index]);
+        this.FreshenParentAndChildIndexes(startChildIndex);
+      }
+    }
+
+    protected virtual IList<ITree> CreateChildrenList() => (IList<ITree>) new List<ITree>();
+
+    public virtual void FreshenParentAndChildIndexes() => this.FreshenParentAndChildIndexes(0);
+
+    public virtual void FreshenParentAndChildIndexes(int offset)
+    {
+      int childCount = this.ChildCount;
+      for (int i = offset; i < childCount; ++i)
+      {
+        ITree child = this.GetChild(i);
+        child.ChildIndex = i;
+        child.Parent = (ITree) this;
+      }
+    }
+
+    public virtual void FreshenParentAndChildIndexesDeeply()
+    {
+      this.FreshenParentAndChildIndexesDeeply(0);
+    }
+
+    public virtual void FreshenParentAndChildIndexesDeeply(int offset)
+    {
+      int childCount = this.ChildCount;
+      for (int i = offset; i < childCount; ++i)
+      {
+        ITree child = this.GetChild(i);
+        child.ChildIndex = i;
+        child.Parent = (ITree) this;
+        if (child is BaseTree baseTree)
+          baseTree.FreshenParentAndChildIndexesDeeply();
+      }
+    }
+
+    public virtual void SanityCheckParentAndChildIndexes()
+    {
+      this.SanityCheckParentAndChildIndexes((ITree) null, -1);
+    }
+
+    public virtual void SanityCheckParentAndChildIndexes(ITree parent, int i)
+    {
+      if (parent != this.Parent)
+        throw new InvalidOperationException("parents don't match; expected " + (object) parent + " found " + (object) this.Parent);
+      if (i != this.ChildIndex)
+        throw new InvalidOperationException("child indexes don't match; expected " + (object) i + " found " + (object) this.ChildIndex);
+      int childCount = this.ChildCount;
+      for (int i1 = 0; i1 < childCount; ++i1)
+        ((BaseTree) this.GetChild(i1)).SanityCheckParentAndChildIndexes((ITree) this, i1);
+    }
+
+    public virtual bool HasAncestor(int ttype) => this.GetAncestor(ttype) != null;
+
+    public virtual ITree GetAncestor(int ttype)
+    {
+      for (ITree parent = this.Parent; parent != null; parent = parent.Parent)
+      {
+        if (parent.Type == ttype)
+          return parent;
+      }
+      return (ITree) null;
+    }
+
+    public virtual IList<ITree> GetAncestors()
+    {
+      if (this.Parent == null)
+        return (IList<ITree>) null;
+      List<ITree> ancestors = new List<ITree>();
+      for (ITree parent = this.Parent; parent != null; parent = parent.Parent)
+        ancestors.Insert(0, parent);
+      return (IList<ITree>) ancestors;
+    }
+
+    public virtual string ToStringTree()
+    {
+      if (this.Children == null || this.Children.Count == 0)
+        return this.ToString();
+      StringBuilder stringBuilder = new StringBuilder();
+      if (!this.IsNil)
+      {
+        stringBuilder.Append("(");
+        stringBuilder.Append(this.ToString());
+        stringBuilder.Append(' ');
+      }
+      for (int index = 0; this.Children != null && index < this.Children.Count; ++index)
+      {
+        ITree child = this.Children[index];
+        if (index > 0)
+          stringBuilder.Append(' ');
+        stringBuilder.Append(child.ToStringTree());
+      }
+      if (!this.IsNil)
+        stringBuilder.Append(")");
+      return stringBuilder.ToString();
+    }
+
+    public abstract override string ToString();
+
+    public abstract ITree DupNode();
+  }
+}
+
+
+--- BaseTreeAdaptor.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.BaseTreeAdaptor
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public abstract class BaseTreeAdaptor : ITreeAdaptor
+  {
+    protected IDictionary<object, int> treeToUniqueIDMap;
+    protected int uniqueNodeID = 1;
+
+    public virtual object Nil() => this.Create((IToken) null);
+
+    public virtual object ErrorNode(
+      ITokenStream input,
+      IToken start,
+      IToken stop,
+      RecognitionException e)
+    {
+      return (object) new CommonErrorNode(input, start, stop, e);
+    }
+
+    public virtual bool IsNil(object tree) => ((ITree) tree).IsNil;
+
+    public virtual object DupNode(int type, object treeNode)
+    {
+      object t = this.DupNode(treeNode);
+      this.SetType(t, type);
+      return t;
+    }
+
+    public virtual object DupNode(object treeNode, string text)
+    {
+      object t = this.DupNode(treeNode);
+      this.SetText(t, text);
+      return t;
+    }
+
+    public virtual object DupNode(int type, object treeNode, string text)
+    {
+      object t = this.DupNode(treeNode);
+      this.SetType(t, type);
+      this.SetText(t, text);
+      return t;
+    }
+
+    public virtual object DupTree(object tree) => this.DupTree(tree, (object) null);
+
+    public virtual object DupTree(object t, object parent)
+    {
+      if (t == null)
+        return (object) null;
+      object t1 = this.DupNode(t);
+      this.SetChildIndex(t1, this.GetChildIndex(t));
+      this.SetParent(t1, parent);
+      int childCount = this.GetChildCount(t);
+      for (int i = 0; i < childCount; ++i)
+      {
+        object child = this.DupTree(this.GetChild(t, i), t);
+        this.AddChild(t1, child);
+      }
+      return t1;
+    }
+
+    public virtual void AddChild(object t, object child)
+    {
+      if (t == null || child == null)
+        return;
+      ((ITree) t).AddChild((ITree) child);
+    }
+
+    public virtual object BecomeRoot(object newRoot, object oldRoot)
+    {
+      ITree tree = (ITree) newRoot;
+      ITree t = (ITree) oldRoot;
+      if (oldRoot == null)
+        return newRoot;
+      if (tree.IsNil)
+      {
+        int childCount = tree.ChildCount;
+        if (childCount == 1)
+          tree = tree.GetChild(0);
+        else if (childCount > 1)
+          throw new Exception("more than one node as root (TODO: make exception hierarchy)");
+      }
+      tree.AddChild(t);
+      return (object) tree;
+    }
+
+    public virtual object RulePostProcessing(object root)
+    {
+      ITree tree = (ITree) root;
+      if (tree != null && tree.IsNil)
+      {
+        if (tree.ChildCount == 0)
+          tree = (ITree) null;
+        else if (tree.ChildCount == 1)
+        {
+          tree = tree.GetChild(0);
+          tree.Parent = (ITree) null;
+          tree.ChildIndex = -1;
+        }
+      }
+      return (object) tree;
+    }
+
+    public virtual object BecomeRoot(IToken newRoot, object oldRoot)
+    {
+      return this.BecomeRoot(this.Create(newRoot), oldRoot);
+    }
+
+    public virtual object Create(int tokenType, IToken fromToken)
+    {
+      fromToken = this.CreateToken(fromToken);
+      fromToken.Type = tokenType;
+      return this.Create(fromToken);
+    }
+
+    public virtual object Create(int tokenType, IToken fromToken, string text)
+    {
+      if (fromToken == null)
+        return this.Create(tokenType, text);
+      fromToken = this.CreateToken(fromToken);
+      fromToken.Type = tokenType;
+      fromToken.Text = text;
+      return this.Create(fromToken);
+    }
+
+    public virtual object Create(IToken fromToken, string text)
+    {
+      fromToken = fromToken != null ? this.CreateToken(fromToken) : throw new ArgumentNullException(nameof (fromToken));
+      fromToken.Text = text;
+      return this.Create(fromToken);
+    }
+
+    public virtual object Create(int tokenType, string text)
+    {
+      return this.Create(this.CreateToken(tokenType, text));
+    }
+
+    public virtual int GetType(object t)
+    {
+      ITree tree = this.GetTree(t);
+      return tree == null ? 0 : tree.Type;
+    }
+
+    public virtual void SetType(object t, int type)
+    {
+      throw new NotSupportedException("don't know enough about Tree node");
+    }
+
+    public virtual string GetText(object t) => this.GetTree(t)?.Text;
+
+    public virtual void SetText(object t, string text)
+    {
+      throw new NotSupportedException("don't know enough about Tree node");
+    }
+
+    public virtual object GetChild(object t, int i)
+    {
+      ITree tree = this.GetTree(t);
+      return tree == null ? (object) null : (object) tree.GetChild(i);
+    }
+
+    public virtual void SetChild(object t, int i, object child)
+    {
+      ITree tree1 = this.GetTree(t);
+      if (tree1 == null)
+        return;
+      ITree tree2 = this.GetTree(child);
+      tree1.SetChild(i, tree2);
+    }
+
+    public virtual object DeleteChild(object t, int i) => ((ITree) t).DeleteChild(i);
+
+    public virtual int GetChildCount(object t)
+    {
+      ITree tree = this.GetTree(t);
+      return tree == null ? 0 : tree.ChildCount;
+    }
+
+    public virtual int GetUniqueID(object node)
+    {
+      if (this.treeToUniqueIDMap == null)
+        this.treeToUniqueIDMap = (IDictionary<object, int>) new Dictionary<object, int>();
+      int uniqueId;
+      if (this.treeToUniqueIDMap.TryGetValue(node, out uniqueId))
+        return uniqueId;
+      int uniqueNodeId = this.uniqueNodeID;
+      this.treeToUniqueIDMap[node] = uniqueNodeId;
+      ++this.uniqueNodeID;
+      return uniqueNodeId;
+    }
+
+    public abstract IToken CreateToken(int tokenType, string text);
+
+    public abstract IToken CreateToken(IToken fromToken);
+
+    public abstract object Create(IToken payload);
+
+    public virtual object DupNode(object treeNode)
+    {
+      ITree tree = this.GetTree(treeNode);
+      return tree == null ? (object) null : (object) tree.DupNode();
+    }
+
+    public abstract IToken GetToken(object t);
+
+    public virtual void SetTokenBoundaries(object t, IToken startToken, IToken stopToken)
+    {
+      ITree tree = this.GetTree(t);
+      if (tree == null)
+        return;
+      int num1 = 0;
+      int num2 = 0;
+      if (startToken != null)
+        num1 = startToken.TokenIndex;
+      if (stopToken != null)
+        num2 = stopToken.TokenIndex;
+      tree.TokenStartIndex = num1;
+      tree.TokenStopIndex = num2;
+    }
+
+    public virtual int GetTokenStartIndex(object t)
+    {
+      ITree tree = this.GetTree(t);
+      return tree == null ? -1 : tree.TokenStartIndex;
+    }
+
+    public virtual int GetTokenStopIndex(object t)
+    {
+      ITree tree = this.GetTree(t);
+      return tree == null ? -1 : tree.TokenStopIndex;
+    }
+
+    public virtual object GetParent(object t)
+    {
+      ITree tree = this.GetTree(t);
+      return tree == null ? (object) null : (object) tree.Parent;
+    }
+
+    public virtual void SetParent(object t, object parent)
+    {
+      ITree tree1 = this.GetTree(t);
+      if (tree1 == null)
+        return;
+      ITree tree2 = this.GetTree(parent);
+      tree1.Parent = tree2;
+    }
+
+    public virtual int GetChildIndex(object t)
+    {
+      ITree tree = this.GetTree(t);
+      return tree == null ? 0 : tree.ChildIndex;
+    }
+
+    public virtual void SetChildIndex(object t, int index)
+    {
+      ITree tree = this.GetTree(t);
+      if (tree == null)
+        return;
+      tree.ChildIndex = index;
+    }
+
+    public virtual void ReplaceChildren(
+      object parent,
+      int startChildIndex,
+      int stopChildIndex,
+      object t)
+    {
+      this.GetTree(parent)?.ReplaceChildren(startChildIndex, stopChildIndex, t);
+    }
+
+    protected virtual ITree GetTree(object t)
+    {
+      if (t == null)
+        return (ITree) null;
+      return t is ITree tree ? tree : throw new NotSupportedException();
+    }
+  }
+}
+
+
+--- BufferedTreeNodeStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.BufferedTreeNodeStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public class BufferedTreeNodeStream : ITreeNodeStream, IIntStream, ITokenStreamInformation
+  {
+    public const int DEFAULT_INITIAL_BUFFER_SIZE = 100;
+    public const int INITIAL_CALL_STACK_SIZE = 10;
+    protected object down;
+    protected object up;
+    protected object eof;
+    protected IList nodes;
+    protected object root;
+    protected ITokenStream tokens;
+    private ITreeAdaptor adaptor;
+    private bool uniqueNavigationNodes;
+    protected int p = -1;
+    protected int lastMarker;
+    protected Stack<int> calls;
+
+    public BufferedTreeNodeStream(object tree)
+      : this((ITreeAdaptor) new CommonTreeAdaptor(), tree)
+    {
+    }
+
+    public BufferedTreeNodeStream(ITreeAdaptor adaptor, object tree)
+      : this(adaptor, tree, 100)
+    {
+    }
+
+    public BufferedTreeNodeStream(ITreeAdaptor adaptor, object tree, int initialBufferSize)
+    {
+      this.root = tree;
+      this.adaptor = adaptor;
+      this.nodes = (IList) new List<object>(initialBufferSize);
+      this.down = adaptor.Create(2, "DOWN");
+      this.up = adaptor.Create(3, "UP");
+      this.eof = adaptor.Create(-1, "EOF");
+    }
+
+    public virtual int Count
+    {
+      get
+      {
+        if (this.p == -1)
+          throw new InvalidOperationException("Cannot determine the Count before the buffer is filled.");
+        return this.nodes.Count;
+      }
+    }
+
+    public virtual object TreeSource => this.root;
+
+    public virtual string SourceName => this.TokenStream.SourceName;
+
+    public virtual ITokenStream TokenStream
+    {
+      get => this.tokens;
+      set => this.tokens = value;
+    }
+
+    public virtual ITreeAdaptor TreeAdaptor
+    {
+      get => this.adaptor;
+      set => this.adaptor = value;
+    }
+
+    public virtual bool UniqueNavigationNodes
+    {
+      get => this.uniqueNavigationNodes;
+      set => this.uniqueNavigationNodes = value;
+    }
+
+    public virtual IToken LastToken => this.TreeAdaptor.GetToken(this.LB(1));
+
+    public virtual IToken LastRealToken
+    {
+      get
+      {
+        int k = 0;
+        IToken token;
+        do
+        {
+          ++k;
+          token = this.TreeAdaptor.GetToken(this.LB(k));
+        }
+        while (token != null && token.Line <= 0);
+        return token;
+      }
+    }
+
+    public virtual int MaxLookBehind => int.MaxValue;
+
+    protected virtual void FillBuffer()
+    {
+      this.FillBuffer(this.root);
+      this.p = 0;
+    }
+
+    public virtual void FillBuffer(object t)
+    {
+      bool flag = this.adaptor.IsNil(t);
+      if (!flag)
+        this.nodes.Add(t);
+      int childCount = this.adaptor.GetChildCount(t);
+      if (!flag && childCount > 0)
+        this.AddNavigationNode(2);
+      for (int i = 0; i < childCount; ++i)
+        this.FillBuffer(this.adaptor.GetChild(t, i));
+      if (flag || childCount <= 0)
+        return;
+      this.AddNavigationNode(3);
+    }
+
+    protected virtual int GetNodeIndex(object node)
+    {
+      if (this.p == -1)
+        this.FillBuffer();
+      for (int index = 0; index < this.nodes.Count; ++index)
+      {
+        if (this.nodes[index] == node)
+          return index;
+      }
+      return -1;
+    }
+
+    protected virtual void AddNavigationNode(int ttype)
+    {
+      this.nodes.Add(ttype != 2 ? (!this.UniqueNavigationNodes ? this.up : this.adaptor.Create(3, "UP")) : (!this.UniqueNavigationNodes ? this.down : this.adaptor.Create(2, "DOWN")));
+    }
+
+    public virtual object this[int i]
+    {
+      get
+      {
+        if (this.p == -1)
+          throw new InvalidOperationException("Cannot get the node at index i before the buffer is filled.");
+        return this.nodes[i];
+      }
+    }
+
+    public virtual object LT(int k)
+    {
+      if (this.p == -1)
+        this.FillBuffer();
+      if (k == 0)
+        return (object) null;
+      if (k < 0)
+        return this.LB(-k);
+      return this.p + k - 1 >= this.nodes.Count ? this.eof : this.nodes[this.p + k - 1];
+    }
+
+    public virtual object GetCurrentSymbol() => this.LT(1);
+
+    protected virtual object LB(int k)
+    {
+      if (k == 0)
+        return (object) null;
+      return this.p - k < 0 ? (object) null : this.nodes[this.p - k];
+    }
+
+    public virtual void Consume()
+    {
+      if (this.p == -1)
+        this.FillBuffer();
+      ++this.p;
+    }
+
+    public virtual int LA(int i) => this.adaptor.GetType(this.LT(i));
+
+    public virtual int Mark()
+    {
+      if (this.p == -1)
+        this.FillBuffer();
+      this.lastMarker = this.Index;
+      return this.lastMarker;
+    }
+
+    public virtual void Release(int marker)
+    {
+    }
+
+    public virtual int Index => this.p;
+
+    public virtual void Rewind(int marker) => this.Seek(marker);
+
+    public virtual void Rewind() => this.Seek(this.lastMarker);
+
+    public virtual void Seek(int index)
+    {
+      if (this.p == -1)
+        this.FillBuffer();
+      this.p = index;
+    }
+
+    public virtual void Push(int index)
+    {
+      if (this.calls == null)
+        this.calls = new Stack<int>();
+      this.calls.Push(this.p);
+      this.Seek(index);
+    }
+
+    public virtual int Pop()
+    {
+      int index = this.calls.Pop();
+      this.Seek(index);
+      return index;
+    }
+
+    public virtual void Reset()
+    {
+      this.p = 0;
+      this.lastMarker = 0;
+      if (this.calls == null)
+        return;
+      this.calls.Clear();
+    }
+
+    public virtual IEnumerator<object> Iterator()
+    {
+      if (this.p == -1)
+        this.FillBuffer();
+      return (IEnumerator<object>) new BufferedTreeNodeStream.StreamIterator(this);
+    }
+
+    public virtual void ReplaceChildren(
+      object parent,
+      int startChildIndex,
+      int stopChildIndex,
+      object t)
+    {
+      if (parent == null)
+        return;
+      this.adaptor.ReplaceChildren(parent, startChildIndex, stopChildIndex, t);
+    }
+
+    public virtual string ToTokenTypeString()
+    {
+      if (this.p == -1)
+        this.FillBuffer();
+      StringBuilder stringBuilder = new StringBuilder();
+      for (int index = 0; index < this.nodes.Count; ++index)
+      {
+        object node = this.nodes[index];
+        stringBuilder.Append(" ");
+        stringBuilder.Append(this.adaptor.GetType(node));
+      }
+      return stringBuilder.ToString();
+    }
+
+    public virtual string ToTokenString(int start, int stop)
+    {
+      if (this.p == -1)
+        this.FillBuffer();
+      StringBuilder stringBuilder = new StringBuilder();
+      for (int index = start; index < this.nodes.Count && index <= stop; ++index)
+      {
+        object node = this.nodes[index];
+        stringBuilder.Append(" ");
+        stringBuilder.Append((object) this.adaptor.GetToken(node));
+      }
+      return stringBuilder.ToString();
+    }
+
+    public virtual string ToString(object start, object stop)
+    {
+      Console.Out.WriteLine("toString");
+      if (start == null || stop == null)
+        return (string) null;
+      if (this.p == -1)
+        throw new InvalidOperationException("Buffer is not yet filled.");
+      if (start is CommonTree)
+        Console.Out.Write("toString: " + (object) ((CommonTree) start).Token + ", ");
+      else
+        Console.Out.WriteLine(start);
+      if (stop is CommonTree)
+        Console.Out.WriteLine((object) ((CommonTree) stop).Token);
+      else
+        Console.Out.WriteLine(stop);
+      if (this.tokens != null)
+      {
+        int tokenStartIndex = this.adaptor.GetTokenStartIndex(start);
+        int stop1 = this.adaptor.GetTokenStopIndex(stop);
+        if (this.adaptor.GetType(stop) == 3)
+          stop1 = this.adaptor.GetTokenStopIndex(start);
+        else if (this.adaptor.GetType(stop) == -1)
+          stop1 = this.Count - 2;
+        return this.tokens.ToString(tokenStartIndex, stop1);
+      }
+      int index = 0;
+      while (index < this.nodes.Count && this.nodes[index] != start)
+        ++index;
+      StringBuilder stringBuilder = new StringBuilder();
+      for (object node = this.nodes[index]; node != stop; node = this.nodes[index])
+      {
+        string str = this.adaptor.GetText(node) ?? " " + this.adaptor.GetType(node).ToString();
+        stringBuilder.Append(str);
+        ++index;
+      }
+      string str1 = this.adaptor.GetText(stop) ?? " " + this.adaptor.GetType(stop).ToString();
+      stringBuilder.Append(str1);
+      return stringBuilder.ToString();
+    }
+
+    protected sealed class StreamIterator : IEnumerator<object>, IDisposable, IEnumerator
+    {
+      private BufferedTreeNodeStream _outer;
+      private int _index;
+
+      public StreamIterator(BufferedTreeNodeStream outer)
+      {
+        this._outer = outer;
+        this._index = -1;
+      }
+
+      public object Current
+      {
+        get
+        {
+          return this._index < this._outer.nodes.Count ? this._outer.nodes[this._index] : this._outer.eof;
+        }
+      }
+
+      public void Dispose()
+      {
+      }
+
+      public bool MoveNext()
+      {
+        if (this._index < this._outer.nodes.Count)
+          ++this._index;
+        return this._index < this._outer.nodes.Count;
+      }
+
+      public void Reset() => this._index = -1;
+    }
+  }
+}
+
+
+--- CommonErrorNode.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.CommonErrorNode
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  [Serializable]
+  public class CommonErrorNode : CommonTree
+  {
+    public IIntStream input;
+    public IToken start;
+    public IToken stop;
+    public RecognitionException trappedException;
+
+    public CommonErrorNode(ITokenStream input, IToken start, IToken stop, RecognitionException e)
+    {
+      if (stop == null || stop.TokenIndex < start.TokenIndex && stop.Type != -1)
+        stop = start;
+      this.input = (IIntStream) input;
+      this.start = start;
+      this.stop = stop;
+      this.trappedException = e;
+    }
+
+    public override bool IsNil => false;
+
+    public override string Text
+    {
+      get
+      {
+        string text;
+        if (this.start != null)
+        {
+          int tokenIndex = this.start.TokenIndex;
+          int stop = this.stop.TokenIndex;
+          if (this.stop.Type == -1)
+            stop = this.input.Count;
+          text = ((ITokenStream) this.input).ToString(tokenIndex, stop);
+        }
+        else
+          text = !(this.start is ITree) ? "<unknown>" : ((ITreeNodeStream) this.input).ToString((object) this.start, (object) this.stop);
+        return text;
+      }
+      set
+      {
+      }
+    }
+
+    public override int Type
+    {
+      get => 0;
+      set
+      {
+      }
+    }
+
+    public override string ToString()
+    {
+      if (this.trappedException is MissingTokenException)
+        return "<missing type: " + (object) ((MissingTokenException) this.trappedException).MissingType + ">";
+      if (this.trappedException is UnwantedTokenException)
+        return "<extraneous: " + (object) ((UnwantedTokenException) this.trappedException).UnexpectedToken + ", resync=" + this.Text + ">";
+      if (this.trappedException is MismatchedTokenException)
+        return "<mismatched token: " + (object) this.trappedException.Token + ", resync=" + this.Text + ">";
+      if (!(this.trappedException is NoViableAltException))
+        return "<error: " + this.Text + ">";
+      return "<unexpected: " + (object) this.trappedException.Token + ", resync=" + this.Text + ">";
+    }
+  }
+}
+
+
+--- CommonTree.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.CommonTree
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  [Serializable]
+  public class CommonTree : BaseTree
+  {
+    private IToken _token;
+    protected int startIndex = -1;
+    protected int stopIndex = -1;
+    private CommonTree parent;
+    private int childIndex = -1;
+
+    public CommonTree()
+    {
+    }
+
+    public CommonTree(CommonTree node)
+      : base((ITree) node)
+    {
+      this.Token = node != null ? node.Token : throw new ArgumentNullException(nameof (node));
+      this.startIndex = node.startIndex;
+      this.stopIndex = node.stopIndex;
+    }
+
+    public CommonTree(IToken t) => this.Token = t;
+
+    public override int CharPositionInLine
+    {
+      get
+      {
+        if (this.Token != null && this.Token.CharPositionInLine != -1)
+          return this.Token.CharPositionInLine;
+        return this.ChildCount > 0 ? this.Children[0].CharPositionInLine : 0;
+      }
+      set => base.CharPositionInLine = value;
+    }
+
+    public override int ChildIndex
+    {
+      get => this.childIndex;
+      set => this.childIndex = value;
+    }
+
+    public override bool IsNil => this.Token == null;
+
+    public override int Line
+    {
+      get
+      {
+        if (this.Token != null && this.Token.Line != 0)
+          return this.Token.Line;
+        return this.ChildCount > 0 ? this.Children[0].Line : 0;
+      }
+      set => base.Line = value;
+    }
+
+    public override ITree Parent
+    {
+      get => (ITree) this.parent;
+      set => this.parent = (CommonTree) value;
+    }
+
+    public override string Text
+    {
+      get => this.Token == null ? (string) null : this.Token.Text;
+      set
+      {
+      }
+    }
+
+    public IToken Token
+    {
+      get => this._token;
+      set => this._token = value;
+    }
+
+    public override int TokenStartIndex
+    {
+      get => this.startIndex == -1 && this.Token != null ? this.Token.TokenIndex : this.startIndex;
+      set => this.startIndex = value;
+    }
+
+    public override int TokenStopIndex
+    {
+      get => this.stopIndex == -1 && this.Token != null ? this.Token.TokenIndex : this.stopIndex;
+      set => this.stopIndex = value;
+    }
+
+    public override int Type
+    {
+      get => this.Token == null ? 0 : this.Token.Type;
+      set
+      {
+      }
+    }
+
+    public override ITree DupNode() => (ITree) new CommonTree(this);
+
+    public virtual void SetUnknownTokenBoundaries()
+    {
+      if (this.Children == null)
+      {
+        if (this.startIndex >= 0 && this.stopIndex >= 0)
+          return;
+        this.startIndex = this.stopIndex = this.Token.TokenIndex;
+      }
+      else
+      {
+        foreach (ITree child in (IEnumerable<ITree>) this.Children)
+        {
+          if (child is CommonTree commonTree)
+            commonTree.SetUnknownTokenBoundaries();
+        }
+        if (this.startIndex >= 0 && this.stopIndex >= 0 || this.Children.Count <= 0)
+          return;
+        ITree child1 = this.Children[0];
+        ITree child2 = this.Children[this.Children.Count - 1];
+        this.startIndex = child1.TokenStartIndex;
+        this.stopIndex = child2.TokenStopIndex;
+      }
+    }
+
+    public override string ToString()
+    {
+      if (this.IsNil)
+        return "nil";
+      if (this.Type == 0)
+        return "<errornode>";
+      return this.Token == null ? string.Empty : this.Token.Text;
+    }
+  }
+}
+
+
+--- CommonTreeAdaptor.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.CommonTreeAdaptor
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public class CommonTreeAdaptor : BaseTreeAdaptor
+  {
+    public override object Create(IToken payload) => (object) new CommonTree(payload);
+
+    public override IToken CreateToken(int tokenType, string text)
+    {
+      return (IToken) new CommonToken(tokenType, text);
+    }
+
+    public override IToken CreateToken(IToken fromToken) => (IToken) new CommonToken(fromToken);
+
+    public override IToken GetToken(object t)
+    {
+      return t is CommonTree ? ((CommonTree) t).Token : (IToken) null;
+    }
+  }
+}
+
+
+--- CommonTreeNodeStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.CommonTreeNodeStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using Antlr.Runtime.Misc;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  [Serializable]
+  public class CommonTreeNodeStream : LookaheadStream<object>, ITreeNodeStream, IIntStream
+  {
+    public const int DEFAULT_INITIAL_BUFFER_SIZE = 100;
+    public const int INITIAL_CALL_STACK_SIZE = 10;
+    private readonly object _root;
+    protected ITokenStream tokens;
+    [NonSerialized]
+    private ITreeAdaptor _adaptor;
+    private readonly TreeIterator _it;
+    private Stack<int> _calls;
+    private bool _hasNilRoot;
+    private int _level;
+
+    public CommonTreeNodeStream(object tree)
+      : this((ITreeAdaptor) new CommonTreeAdaptor(), tree)
+    {
+    }
+
+    public CommonTreeNodeStream(ITreeAdaptor adaptor, object tree)
+    {
+      this._root = tree;
+      this._adaptor = adaptor;
+      this._it = new TreeIterator(adaptor, this._root);
+    }
+
+    public virtual string SourceName
+    {
+      get => this.TokenStream == null ? (string) null : this.TokenStream.SourceName;
+    }
+
+    public virtual ITokenStream TokenStream
+    {
+      get => this.tokens;
+      set => this.tokens = value;
+    }
+
+    public virtual ITreeAdaptor TreeAdaptor
+    {
+      get => this._adaptor;
+      set => this._adaptor = value;
+    }
+
+    public virtual object TreeSource => this._root;
+
+    public virtual bool UniqueNavigationNodes
+    {
+      get => false;
+      set
+      {
+      }
+    }
+
+    public virtual void Reset()
+    {
+      this.Clear();
+      this._it.Reset();
+      this._hasNilRoot = false;
+      this._level = 0;
+      if (this._calls == null)
+        return;
+      this._calls.Clear();
+    }
+
+    public override object NextElement()
+    {
+      this._it.MoveNext();
+      object current1 = this._it.Current;
+      if (current1 == this._it.up)
+      {
+        --this._level;
+        if (this._level == 0 && this._hasNilRoot)
+        {
+          this._it.MoveNext();
+          return this._it.Current;
+        }
+      }
+      else if (current1 == this._it.down)
+        ++this._level;
+      if (this._level == 0 && this.TreeAdaptor.IsNil(current1))
+      {
+        this._hasNilRoot = true;
+        this._it.MoveNext();
+        object current2 = this._it.Current;
+        ++this._level;
+        this._it.MoveNext();
+        current1 = this._it.Current;
+      }
+      return current1;
+    }
+
+    public override bool IsEndOfFile(object o) => this.TreeAdaptor.GetType(o) == -1;
+
+    public virtual int LA(int i) => this.TreeAdaptor.GetType(this.LT(i));
+
+    public virtual void Push(int index)
+    {
+      if (this._calls == null)
+        this._calls = new Stack<int>();
+      this._calls.Push(this._p);
+      this.Seek(index);
+    }
+
+    public virtual int Pop()
+    {
+      int index = this._calls.Pop();
+      this.Seek(index);
+      return index;
+    }
+
+    public virtual void ReplaceChildren(
+      object parent,
+      int startChildIndex,
+      int stopChildIndex,
+      object t)
+    {
+      if (parent == null)
+        return;
+      this.TreeAdaptor.ReplaceChildren(parent, startChildIndex, stopChildIndex, t);
+    }
+
+    public virtual string ToString(object start, object stop) => "n/a";
+
+    public virtual string ToTokenTypeString()
+    {
+      this.Reset();
+      StringBuilder stringBuilder = new StringBuilder();
+      for (int type = this.TreeAdaptor.GetType(this.LT(1)); type != -1; type = this.TreeAdaptor.GetType(this.LT(1)))
+      {
+        stringBuilder.Append(" ");
+        stringBuilder.Append(type);
+        this.Consume();
+      }
+      return stringBuilder.ToString();
+    }
+  }
+}
+
+
+--- DotTreeGenerator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.DotTreeGenerator
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public class DotTreeGenerator
+  {
+    private const string Footer = "}";
+    private const string NodeFormat = "  {0} [label=\"{1}\"];";
+    private const string EdgeFormat = "  {0} -> {1} // \"{2}\" -> \"{3}\"";
+    private readonly string[] HeaderLines = new string[8]
+    {
+      "digraph {",
+      "",
+      "\tordering=out;",
+      "\tranksep=.4;",
+      "\tbgcolor=\"lightgrey\"; node [shape=box, fixedsize=false, fontsize=12, fontname=\"Helvetica-bold\", fontcolor=\"blue\"",
+      "\t\twidth=.25, height=.25, color=\"black\", fillcolor=\"white\", style=\"filled, solid, bold\"];",
+      "\tedge [arrowsize=.5, color=\"black\", style=\"bold\"]",
+      ""
+    };
+    private Dictionary<object, int> nodeToNumberMap = new Dictionary<object, int>();
+    private int nodeNumber;
+
+    public virtual string ToDot(object tree, ITreeAdaptor adaptor)
+    {
+      StringBuilder stringBuilder = new StringBuilder();
+      foreach (string headerLine in this.HeaderLines)
+        stringBuilder.AppendLine(headerLine);
+      this.nodeNumber = 0;
+      IEnumerable<string> strings1 = this.DefineNodes(tree, adaptor);
+      this.nodeNumber = 0;
+      IEnumerable<string> strings2 = this.DefineEdges(tree, adaptor);
+      foreach (string str in strings1)
+        stringBuilder.AppendLine(str);
+      stringBuilder.AppendLine();
+      foreach (string str in strings2)
+        stringBuilder.AppendLine(str);
+      stringBuilder.AppendLine();
+      stringBuilder.AppendLine("}");
+      return stringBuilder.ToString();
+    }
+
+    public virtual string ToDot(ITree tree)
+    {
+      return this.ToDot((object) tree, (ITreeAdaptor) new CommonTreeAdaptor());
+    }
+
+    protected virtual IEnumerable<string> DefineNodes(object tree, ITreeAdaptor adaptor)
+    {
+      if (tree != null)
+      {
+        int n = adaptor.GetChildCount(tree);
+        if (n != 0)
+        {
+          yield return this.GetNodeText(adaptor, tree);
+          for (int i = 0; i < n; ++i)
+          {
+            object child = adaptor.GetChild(tree, i);
+            yield return this.GetNodeText(adaptor, child);
+            foreach (string t in this.DefineNodes(child, adaptor))
+              yield return t;
+          }
+        }
+      }
+    }
+
+    protected virtual IEnumerable<string> DefineEdges(object tree, ITreeAdaptor adaptor)
+    {
+      if (tree != null)
+      {
+        int n = adaptor.GetChildCount(tree);
+        if (n != 0)
+        {
+          string parentName = "n" + (object) this.GetNodeNumber(tree);
+          string parentText = adaptor.GetText(tree);
+          for (int i = 0; i < n; ++i)
+          {
+            object child = adaptor.GetChild(tree, i);
+            string childText = adaptor.GetText(child);
+            string childName = "n" + (object) this.GetNodeNumber(child);
+            yield return string.Format("  {0} -> {1} // \"{2}\" -> \"{3}\"", (object) parentName, (object) childName, (object) this.FixString(parentText), (object) this.FixString(childText));
+            foreach (string t in this.DefineEdges(child, adaptor))
+              yield return t;
+          }
+        }
+      }
+    }
+
+    protected virtual string GetNodeText(ITreeAdaptor adaptor, object t)
+    {
+      string text = adaptor.GetText(t);
+      return string.Format("  {0} [label=\"{1}\"];", (object) ("n" + (object) this.GetNodeNumber(t)), (object) this.FixString(text));
+    }
+
+    protected virtual int GetNodeNumber(object t)
+    {
+      int nodeNumber;
+      if (this.nodeToNumberMap.TryGetValue(t, out nodeNumber))
+        return nodeNumber;
+      this.nodeToNumberMap[t] = this.nodeNumber;
+      ++this.nodeNumber;
+      return this.nodeNumber - 1;
+    }
+
+    protected virtual string FixString(string text)
+    {
+      if (text != null)
+      {
+        text = Regex.Replace(text, "\"", "\\\\\"");
+        text = Regex.Replace(text, "\\t", "    ");
+        text = Regex.Replace(text, "\\n", "\\\\n");
+        text = Regex.Replace(text, "\\r", "\\\\r");
+        if (text.Length > 20)
+          text = text.Substring(0, 8) + "..." + text.Substring(text.Length - 8);
+      }
+      return text;
+    }
+  }
+}
+
+
+--- ITree.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.ITree
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System.Collections.Generic;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public interface ITree
+  {
+    ITree GetChild(int i);
+
+    int ChildCount { get; }
+
+    ITree Parent { get; set; }
+
+    bool HasAncestor(int ttype);
+
+    ITree GetAncestor(int ttype);
+
+    IList<ITree> GetAncestors();
+
+    int ChildIndex { get; set; }
+
+    void FreshenParentAndChildIndexes();
+
+    void AddChild(ITree t);
+
+    void SetChild(int i, ITree t);
+
+    object DeleteChild(int i);
+
+    void ReplaceChildren(int startChildIndex, int stopChildIndex, object t);
+
+    bool IsNil { get; }
+
+    int TokenStartIndex { get; set; }
+
+    int TokenStopIndex { get; set; }
+
+    ITree DupNode();
+
+    int Type { get; }
+
+    string Text { get; }
+
+    int Line { get; }
+
+    int CharPositionInLine { get; }
+
+    string ToStringTree();
+
+    string ToString();
+  }
+}
+
+
+--- ITreeAdaptor.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.ITreeAdaptor
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public interface ITreeAdaptor
+  {
+    object Create(IToken payload);
+
+    object Create(int tokenType, IToken fromToken);
+
+    object Create(int tokenType, IToken fromToken, string text);
+
+    object Create(IToken fromToken, string text);
+
+    object Create(int tokenType, string text);
+
+    object DupNode(object treeNode);
+
+    object DupNode(int type, object treeNode);
+
+    object DupNode(object treeNode, string text);
+
+    object DupNode(int type, object treeNode, string text);
+
+    object DupTree(object tree);
+
+    object Nil();
+
+    object ErrorNode(ITokenStream input, IToken start, IToken stop, RecognitionException e);
+
+    bool IsNil(object tree);
+
+    void AddChild(object t, object child);
+
+    object BecomeRoot(object newRoot, object oldRoot);
+
+    object RulePostProcessing(object root);
+
+    int GetUniqueID(object node);
+
+    object BecomeRoot(IToken newRoot, object oldRoot);
+
+    int GetType(object t);
+
+    void SetType(object t, int type);
+
+    string GetText(object t);
+
+    void SetText(object t, string text);
+
+    IToken GetToken(object t);
+
+    void SetTokenBoundaries(object t, IToken startToken, IToken stopToken);
+
+    int GetTokenStartIndex(object t);
+
+    int GetTokenStopIndex(object t);
+
+    object GetChild(object t, int i);
+
+    void SetChild(object t, int i, object child);
+
+    object DeleteChild(object t, int i);
+
+    int GetChildCount(object t);
+
+    object GetParent(object t);
+
+    void SetParent(object t, object parent);
+
+    int GetChildIndex(object t);
+
+    void SetChildIndex(object t, int index);
+
+    void ReplaceChildren(object parent, int startChildIndex, int stopChildIndex, object t);
+  }
+}
+
+
+--- ITreeNodeStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.ITreeNodeStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public interface ITreeNodeStream : IIntStream
+  {
+    object this[int i] { get; }
+
+    object LT(int k);
+
+    object TreeSource { get; }
+
+    ITokenStream TokenStream { get; }
+
+    ITreeAdaptor TreeAdaptor { get; }
+
+    bool UniqueNavigationNodes { get; set; }
+
+    string ToString(object start, object stop);
+
+    void ReplaceChildren(object parent, int startChildIndex, int stopChildIndex, object t);
+  }
+}
+
+
+--- ITreeVisitorAction.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.ITreeVisitorAction
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public interface ITreeVisitorAction
+  {
+    object Pre(object t);
+
+    object Post(object t);
+  }
+}
+
+
+--- ParseTree.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.ParseTree
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  [Serializable]
+  public class ParseTree : BaseTree
+  {
+    public object payload;
+    public List<IToken> hiddenTokens;
+
+    public ParseTree(object label) => this.payload = label;
+
+    public override string Text
+    {
+      get => this.ToString();
+      set
+      {
+      }
+    }
+
+    public override int TokenStartIndex
+    {
+      get => 0;
+      set
+      {
+      }
+    }
+
+    public override int TokenStopIndex
+    {
+      get => 0;
+      set
+      {
+      }
+    }
+
+    public override int Type
+    {
+      get => 0;
+      set
+      {
+      }
+    }
+
+    public override ITree DupNode() => (ITree) null;
+
+    public override string ToString()
+    {
+      if (!(this.payload is IToken))
+        return this.payload.ToString();
+      IToken payload = (IToken) this.payload;
+      return payload.Type == -1 ? "<EOF>" : payload.Text;
+    }
+
+    public virtual string ToStringWithHiddenTokens()
+    {
+      StringBuilder stringBuilder = new StringBuilder();
+      if (this.hiddenTokens != null)
+      {
+        for (int index = 0; index < this.hiddenTokens.Count; ++index)
+        {
+          IToken hiddenToken = this.hiddenTokens[index];
+          stringBuilder.Append(hiddenToken.Text);
+        }
+      }
+      string str = this.ToString();
+      if (!str.Equals("<EOF>"))
+        stringBuilder.Append(str);
+      return stringBuilder.ToString();
+    }
+
+    public virtual string ToInputString()
+    {
+      StringBuilder buf = new StringBuilder();
+      this.ToStringLeaves(buf);
+      return buf.ToString();
+    }
+
+    protected virtual void ToStringLeaves(StringBuilder buf)
+    {
+      if (this.payload is IToken)
+      {
+        buf.Append(this.ToStringWithHiddenTokens());
+      }
+      else
+      {
+        for (int index = 0; this.Children != null && index < this.Children.Count; ++index)
+          ((ParseTree) this.Children[index]).ToStringLeaves(buf);
+      }
+    }
+  }
+}
+
+
+--- RewriteCardinalityException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.RewriteCardinalityException
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  [Serializable]
+  public class RewriteCardinalityException : Exception
+  {
+    private readonly string _elementDescription;
+
+    public RewriteCardinalityException()
+    {
+    }
+
+    public RewriteCardinalityException(string elementDescription)
+      : this(elementDescription, elementDescription)
+    {
+      this._elementDescription = elementDescription;
+    }
+
+    public RewriteCardinalityException(string elementDescription, Exception innerException)
+      : this(elementDescription, elementDescription, innerException)
+    {
+    }
+
+    public RewriteCardinalityException(string message, string elementDescription)
+      : base(message)
+    {
+      this._elementDescription = elementDescription;
+    }
+
+    public RewriteCardinalityException(
+      string message,
+      string elementDescription,
+      Exception innerException)
+      : base(message, innerException)
+    {
+      this._elementDescription = elementDescription;
+    }
+
+    protected RewriteCardinalityException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      this._elementDescription = info != null ? info.GetString("ElementDescription") : throw new ArgumentNullException(nameof (info));
+    }
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      if (info == null)
+        throw new ArgumentNullException(nameof (info));
+      base.GetObjectData(info, context);
+      info.AddValue("ElementDescription", (object) this._elementDescription);
+    }
+  }
+}
+
+
+--- RewriteEarlyExitException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.RewriteEarlyExitException
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  [Serializable]
+  public class RewriteEarlyExitException : RewriteCardinalityException
+  {
+    public RewriteEarlyExitException()
+    {
+    }
+
+    public RewriteEarlyExitException(string elementDescription)
+      : base(elementDescription)
+    {
+    }
+
+    public RewriteEarlyExitException(string elementDescription, Exception innerException)
+      : base(elementDescription, innerException)
+    {
+    }
+
+    public RewriteEarlyExitException(string message, string elementDescription)
+      : base(message, elementDescription)
+    {
+    }
+
+    public RewriteEarlyExitException(
+      string message,
+      string elementDescription,
+      Exception innerException)
+      : base(message, elementDescription, innerException)
+    {
+    }
+
+    protected RewriteEarlyExitException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+    }
+  }
+}
+
+
+--- RewriteEmptyStreamException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.RewriteEmptyStreamException
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Runtime.Serialization;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  [Serializable]
+  public class RewriteEmptyStreamException : RewriteCardinalityException
+  {
+    public RewriteEmptyStreamException()
+    {
+    }
+
+    public RewriteEmptyStreamException(string elementDescription)
+      : base(elementDescription)
+    {
+    }
+
+    public RewriteEmptyStreamException(string elementDescription, Exception innerException)
+      : base(elementDescription, innerException)
+    {
+    }
+
+    public RewriteEmptyStreamException(string message, string elementDescription)
+      : base(message, elementDescription)
+    {
+    }
+
+    public RewriteEmptyStreamException(
+      string message,
+      string elementDescription,
+      Exception innerException)
+      : base(message, elementDescription, innerException)
+    {
+    }
+
+    protected RewriteEmptyStreamException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+    }
+  }
+}
+
+
+--- RewriteRuleElementStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.RewriteRuleElementStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  [Serializable]
+  public abstract class RewriteRuleElementStream
+  {
+    protected int cursor;
+    protected object singleElement;
+    protected IList elements;
+    protected bool dirty;
+    protected string elementDescription;
+    protected ITreeAdaptor adaptor;
+
+    public RewriteRuleElementStream(ITreeAdaptor adaptor, string elementDescription)
+    {
+      this.elementDescription = elementDescription;
+      this.adaptor = adaptor;
+    }
+
+    public RewriteRuleElementStream(
+      ITreeAdaptor adaptor,
+      string elementDescription,
+      object oneElement)
+      : this(adaptor, elementDescription)
+    {
+      this.Add(oneElement);
+    }
+
+    public RewriteRuleElementStream(
+      ITreeAdaptor adaptor,
+      string elementDescription,
+      IList elements)
+      : this(adaptor, elementDescription)
+    {
+      this.singleElement = (object) null;
+      this.elements = elements;
+    }
+
+    public virtual void Reset()
+    {
+      this.cursor = 0;
+      this.dirty = true;
+    }
+
+    public virtual void Add(object el)
+    {
+      if (el == null)
+        return;
+      if (this.elements != null)
+        this.elements.Add(el);
+      else if (this.singleElement == null)
+      {
+        this.singleElement = el;
+      }
+      else
+      {
+        this.elements = (IList) new List<object>(5);
+        this.elements.Add(this.singleElement);
+        this.singleElement = (object) null;
+        this.elements.Add(el);
+      }
+    }
+
+    public virtual object NextTree()
+    {
+      int count = this.Count;
+      return this.dirty || this.cursor >= count && count == 1 ? this.Dup(this.NextCore()) : this.NextCore();
+    }
+
+    protected virtual object NextCore()
+    {
+      int count = this.Count;
+      if (count == 0)
+        throw new RewriteEmptyStreamException(this.elementDescription);
+      if (this.cursor >= count)
+      {
+        if (count == 1)
+          return this.ToTree(this.singleElement);
+        throw new RewriteCardinalityException(this.elementDescription);
+      }
+      if (this.singleElement != null)
+      {
+        ++this.cursor;
+        return this.ToTree(this.singleElement);
+      }
+      object tree = this.ToTree(this.elements[this.cursor]);
+      ++this.cursor;
+      return tree;
+    }
+
+    protected abstract object Dup(object el);
+
+    protected virtual object ToTree(object el) => el;
+
+    public virtual bool HasNext
+    {
+      get
+      {
+        if (this.singleElement != null && this.cursor < 1)
+          return true;
+        return this.elements != null && this.cursor < this.elements.Count;
+      }
+    }
+
+    public virtual int Count
+    {
+      get
+      {
+        int num = 0;
+        if (this.singleElement != null)
+          num = 1;
+        return this.elements != null ? this.elements.Count : num;
+      }
+    }
+
+    public virtual string Description => this.elementDescription;
+  }
+}
+
+
+--- RewriteRuleNodeStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.RewriteRuleNodeStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  [Serializable]
+  public class RewriteRuleNodeStream : RewriteRuleElementStream
+  {
+    public RewriteRuleNodeStream(ITreeAdaptor adaptor, string elementDescription)
+      : base(adaptor, elementDescription)
+    {
+    }
+
+    public RewriteRuleNodeStream(
+      ITreeAdaptor adaptor,
+      string elementDescription,
+      object oneElement)
+      : base(adaptor, elementDescription, oneElement)
+    {
+    }
+
+    public RewriteRuleNodeStream(ITreeAdaptor adaptor, string elementDescription, IList elements)
+      : base(adaptor, elementDescription, elements)
+    {
+    }
+
+    public virtual object NextNode() => this.NextCore();
+
+    protected override object ToTree(object el) => this.adaptor.DupNode(el);
+
+    protected override object Dup(object el)
+    {
+      throw new NotSupportedException("dup can't be called for a node stream.");
+    }
+  }
+}
+
+
+--- RewriteRuleSubtreeStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.RewriteRuleSubtreeStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  [Serializable]
+  public class RewriteRuleSubtreeStream : RewriteRuleElementStream
+  {
+    public RewriteRuleSubtreeStream(ITreeAdaptor adaptor, string elementDescription)
+      : base(adaptor, elementDescription)
+    {
+    }
+
+    public RewriteRuleSubtreeStream(
+      ITreeAdaptor adaptor,
+      string elementDescription,
+      object oneElement)
+      : base(adaptor, elementDescription, oneElement)
+    {
+    }
+
+    public RewriteRuleSubtreeStream(
+      ITreeAdaptor adaptor,
+      string elementDescription,
+      IList elements)
+      : base(adaptor, elementDescription, elements)
+    {
+    }
+
+    public virtual object NextNode()
+    {
+      int count = this.Count;
+      if (this.dirty || this.cursor >= count && count == 1)
+        return this.adaptor.DupNode(this.NextCore());
+      object obj = this.NextCore();
+      while (this.adaptor.IsNil(obj) && this.adaptor.GetChildCount(obj) == 1)
+        obj = this.adaptor.GetChild(obj, 0);
+      return this.adaptor.DupNode(obj);
+    }
+
+    protected override object Dup(object el) => this.adaptor.DupTree(el);
+  }
+}
+
+
+--- RewriteRuleTokenStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.RewriteRuleTokenStream
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  [Serializable]
+  public class RewriteRuleTokenStream : RewriteRuleElementStream
+  {
+    public RewriteRuleTokenStream(ITreeAdaptor adaptor, string elementDescription)
+      : base(adaptor, elementDescription)
+    {
+    }
+
+    public RewriteRuleTokenStream(
+      ITreeAdaptor adaptor,
+      string elementDescription,
+      object oneElement)
+      : base(adaptor, elementDescription, oneElement)
+    {
+    }
+
+    public RewriteRuleTokenStream(ITreeAdaptor adaptor, string elementDescription, IList elements)
+      : base(adaptor, elementDescription, elements)
+    {
+    }
+
+    public virtual object NextNode() => this.adaptor.Create((IToken) this.NextCore());
+
+    public virtual IToken NextToken() => (IToken) this.NextCore();
+
+    protected override object ToTree(object el) => el;
+
+    protected override object Dup(object el)
+    {
+      throw new NotSupportedException("dup can't be called for a token stream.");
+    }
+  }
+}
+
+
+--- TemplateTreeRuleReturnScope`2.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.TemplateTreeRuleReturnScope`2
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public class TemplateTreeRuleReturnScope<TTemplate, TTree> : 
+    TreeRuleReturnScope<TTree>,
+    ITemplateRuleReturnScope<TTemplate>,
+    ITemplateRuleReturnScope
+  {
+    private TTemplate _template;
+
+    public TTemplate Template
+    {
+      get => this._template;
+      set => this._template = value;
+    }
+
+    object ITemplateRuleReturnScope.Template => (object) this.Template;
+  }
+}
+
+
+--- TreeFilter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.TreeFilter
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using Antlr.Runtime.Misc;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public class TreeFilter : TreeParser
+  {
+    protected ITokenStream originalTokenStream;
+    protected ITreeAdaptor originalAdaptor;
+
+    public TreeFilter(ITreeNodeStream input)
+      : this(input, new RecognizerSharedState())
+    {
+    }
+
+    public TreeFilter(ITreeNodeStream input, RecognizerSharedState state)
+      : base(input, state)
+    {
+      this.originalAdaptor = input.TreeAdaptor;
+      this.originalTokenStream = input.TokenStream;
+    }
+
+    public virtual void ApplyOnce(object t, Action whichRule)
+    {
+      if (t == null)
+        return;
+      try
+      {
+        this.SetState(new RecognizerSharedState());
+        this.SetTreeNodeStream((ITreeNodeStream) new CommonTreeNodeStream(this.originalAdaptor, t));
+        ((CommonTreeNodeStream) this.input).TokenStream = this.originalTokenStream;
+        this.BacktrackingLevel = 1;
+        whichRule();
+        this.BacktrackingLevel = 0;
+      }
+      catch (RecognitionException ex)
+      {
+      }
+    }
+
+    public virtual void Downup(object t)
+    {
+      TreeVisitor treeVisitor = new TreeVisitor((ITreeAdaptor) new CommonTreeAdaptor());
+      Func<object, object> preAction = (Func<object, object>) (o =>
+      {
+        this.ApplyOnce(o, new Action(this.Topdown));
+        return o;
+      });
+      Func<object, object> postAction = (Func<object, object>) (o =>
+      {
+        this.ApplyOnce(o, new Action(this.Bottomup));
+        return o;
+      });
+      treeVisitor.Visit(t, preAction, postAction);
+    }
+
+    protected virtual void Topdown()
+    {
+    }
+
+    protected virtual void Bottomup()
+    {
+    }
+  }
+}
+
+
+--- TreeIterator.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.TreeIterator
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public class TreeIterator : IEnumerator<object>, IDisposable, IEnumerator
+  {
+    protected ITreeAdaptor adaptor;
+    protected object root;
+    protected object tree;
+    protected bool firstTime = true;
+    private bool reachedEof;
+    public object up;
+    public object down;
+    public object eof;
+    protected Queue<object> nodes;
+
+    public TreeIterator(CommonTree tree)
+      : this((ITreeAdaptor) new CommonTreeAdaptor(), (object) tree)
+    {
+    }
+
+    public TreeIterator(ITreeAdaptor adaptor, object tree)
+    {
+      this.adaptor = adaptor;
+      this.tree = tree;
+      this.root = tree;
+      this.nodes = new Queue<object>();
+      this.down = adaptor.Create(2, "DOWN");
+      this.up = adaptor.Create(3, "UP");
+      this.eof = adaptor.Create(-1, "EOF");
+    }
+
+    public object Current { get; private set; }
+
+    public void Dispose()
+    {
+    }
+
+    public bool MoveNext()
+    {
+      if (this.firstTime)
+      {
+        this.firstTime = false;
+        if (this.adaptor.GetChildCount(this.tree) == 0)
+          this.nodes.Enqueue(this.eof);
+        this.Current = this.tree;
+      }
+      else if (this.nodes != null && this.nodes.Count > 0)
+        this.Current = this.nodes.Dequeue();
+      else if (this.tree == null)
+        this.Current = this.eof;
+      else if (this.adaptor.GetChildCount(this.tree) > 0)
+      {
+        this.tree = this.adaptor.GetChild(this.tree, 0);
+        this.nodes.Enqueue(this.tree);
+        this.Current = this.down;
+      }
+      else
+      {
+        object parent;
+        for (parent = this.adaptor.GetParent(this.tree); parent != null && this.adaptor.GetChildIndex(this.tree) + 1 >= this.adaptor.GetChildCount(parent); parent = this.adaptor.GetParent(this.tree))
+        {
+          this.nodes.Enqueue(this.up);
+          this.tree = parent;
+        }
+        if (parent == null)
+        {
+          this.tree = (object) null;
+          this.nodes.Enqueue(this.eof);
+          this.Current = this.nodes.Dequeue();
+        }
+        else
+        {
+          int i = this.adaptor.GetChildIndex(this.tree) + 1;
+          this.tree = this.adaptor.GetChild(parent, i);
+          this.nodes.Enqueue(this.tree);
+          this.Current = this.nodes.Dequeue();
+        }
+      }
+      bool flag = this.Current != this.eof || !this.reachedEof;
+      this.reachedEof = this.Current == this.eof;
+      return flag;
+    }
+
+    public void Reset()
+    {
+      this.firstTime = true;
+      this.tree = this.root;
+      this.nodes.Clear();
+    }
+  }
+}
+
+
+--- TreeParser.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.TreeParser
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System.Diagnostics;
+using System.Text.RegularExpressions;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public class TreeParser : BaseRecognizer
+  {
+    public const int DOWN = 2;
+    public const int UP = 3;
+    private static string dotdot = ".*[^.]\\.\\.[^.].*";
+    private static string doubleEtc = ".*\\.\\.\\.\\s+\\.\\.\\..*";
+    private static Regex dotdotPattern = new Regex(TreeParser.dotdot, RegexOptions.Compiled);
+    private static Regex doubleEtcPattern = new Regex(TreeParser.doubleEtc, RegexOptions.Compiled);
+    protected ITreeNodeStream input;
+
+    public TreeParser(ITreeNodeStream input) => this.input = input;
+
+    public TreeParser(ITreeNodeStream input, RecognizerSharedState state)
+      : base(state)
+    {
+      this.input = input;
+    }
+
+    public override void Reset()
+    {
+      base.Reset();
+      if (this.input == null)
+        return;
+      this.input.Seek(0);
+    }
+
+    public virtual void SetTreeNodeStream(ITreeNodeStream input) => this.input = input;
+
+    public virtual ITreeNodeStream GetTreeNodeStream() => this.input;
+
+    public override string SourceName => this.input.SourceName;
+
+    protected override object GetCurrentInputSymbol(IIntStream input)
+    {
+      return ((ITreeNodeStream) input).LT(1);
+    }
+
+    protected override object GetMissingSymbol(
+      IIntStream input,
+      RecognitionException e,
+      int expectedTokenType,
+      BitSet follow)
+    {
+      string text = "<missing " + this.TokenNames[expectedTokenType] + ">";
+      return ((ITreeNodeStream) e.Input).TreeAdaptor.Create((IToken) new CommonToken(expectedTokenType, text));
+    }
+
+    public override void MatchAny(IIntStream ignore)
+    {
+      this.state.errorRecovery = false;
+      this.state.failed = false;
+      this.input.Consume();
+      if (this.input.LA(1) != 2)
+        return;
+      this.input.Consume();
+      int num = 1;
+      while (num > 0)
+      {
+        switch (this.input.LA(1))
+        {
+          case -1:
+            return;
+          case 2:
+            ++num;
+            break;
+          case 3:
+            --num;
+            break;
+        }
+        this.input.Consume();
+      }
+    }
+
+    protected override object RecoverFromMismatchedToken(
+      IIntStream input,
+      int ttype,
+      BitSet follow)
+    {
+      throw new MismatchedTreeNodeException(ttype, (ITreeNodeStream) input);
+    }
+
+    public override string GetErrorHeader(RecognitionException e)
+    {
+      return this.GrammarFileName + ": node from " + (e.ApproximateLineInfo ? (object) "after " : (object) "") + "line " + (object) e.Line + ":" + (object) e.CharPositionInLine;
+    }
+
+    public override string GetErrorMessage(RecognitionException e, string[] tokenNames)
+    {
+      if (this != null)
+      {
+        ITreeAdaptor treeAdaptor = ((ITreeNodeStream) e.Input).TreeAdaptor;
+        e.Token = treeAdaptor.GetToken(e.Node);
+        if (e.Token == null)
+          e.Token = (IToken) new CommonToken(treeAdaptor.GetType(e.Node), treeAdaptor.GetText(e.Node));
+      }
+      return base.GetErrorMessage(e, tokenNames);
+    }
+
+    [Conditional("ANTLR_TRACE")]
+    public virtual void TraceIn(string ruleName, int ruleIndex)
+    {
+      this.TraceIn(ruleName, ruleIndex, this.input.LT(1));
+    }
+
+    [Conditional("ANTLR_TRACE")]
+    public virtual void TraceOut(string ruleName, int ruleIndex)
+    {
+      this.TraceOut(ruleName, ruleIndex, this.input.LT(1));
+    }
+  }
+}
+
+
+--- TreePatternLexer.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.TreePatternLexer
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System.Text;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public class TreePatternLexer
+  {
+    public const int Begin = 1;
+    public const int End = 2;
+    public const int Id = 3;
+    public const int Arg = 4;
+    public const int Percent = 5;
+    public const int Colon = 6;
+    public const int Dot = 7;
+    protected string pattern;
+    protected int p = -1;
+    protected int c;
+    protected int n;
+    public StringBuilder sval = new StringBuilder();
+    public bool error;
+
+    public TreePatternLexer(string pattern)
+    {
+      this.pattern = pattern;
+      this.n = pattern.Length;
+      this.Consume();
+    }
+
+    public virtual int NextToken()
+    {
+      this.sval.Length = 0;
+      while (this.c != -1)
+      {
+        if (this.c == 32 || this.c == 10 || this.c == 13 || this.c == 9)
+        {
+          this.Consume();
+        }
+        else
+        {
+          if (this.c >= 97 && this.c <= 122 || this.c >= 65 && this.c <= 90 || this.c == 95)
+          {
+            this.sval.Append((char) this.c);
+            this.Consume();
+            while (this.c >= 97 && this.c <= 122 || this.c >= 65 && this.c <= 90 || this.c >= 48 && this.c <= 57 || this.c == 95)
+            {
+              this.sval.Append((char) this.c);
+              this.Consume();
+            }
+            return 3;
+          }
+          if (this.c == 40)
+          {
+            this.Consume();
+            return 1;
+          }
+          if (this.c == 41)
+          {
+            this.Consume();
+            return 2;
+          }
+          if (this.c == 37)
+          {
+            this.Consume();
+            return 5;
+          }
+          if (this.c == 58)
+          {
+            this.Consume();
+            return 6;
+          }
+          if (this.c == 46)
+          {
+            this.Consume();
+            return 7;
+          }
+          if (this.c == 91)
+          {
+            this.Consume();
+            while (this.c != 93)
+            {
+              if (this.c == 92)
+              {
+                this.Consume();
+                if (this.c != 93)
+                  this.sval.Append('\\');
+                this.sval.Append((char) this.c);
+              }
+              else
+                this.sval.Append((char) this.c);
+              this.Consume();
+            }
+            this.Consume();
+            return 4;
+          }
+          this.Consume();
+          this.error = true;
+          return -1;
+        }
+      }
+      return -1;
+    }
+
+    protected virtual void Consume()
+    {
+      ++this.p;
+      if (this.p >= this.n)
+        this.c = -1;
+      else
+        this.c = (int) this.pattern[this.p];
+    }
+  }
+}
+
+
+--- TreePatternParser.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.TreePatternParser
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public class TreePatternParser
+  {
+    protected TreePatternLexer tokenizer;
+    protected int ttype;
+    protected TreeWizard wizard;
+    protected ITreeAdaptor adaptor;
+
+    public TreePatternParser(TreePatternLexer tokenizer, TreeWizard wizard, ITreeAdaptor adaptor)
+    {
+      this.tokenizer = tokenizer;
+      this.wizard = wizard;
+      this.adaptor = adaptor;
+      this.ttype = tokenizer.NextToken();
+    }
+
+    public virtual object Pattern()
+    {
+      if (this.ttype == 1)
+        return this.ParseTree();
+      if (this.ttype != 3)
+        return (object) null;
+      object node = this.ParseNode();
+      return this.ttype == -1 ? node : (object) null;
+    }
+
+    public virtual object ParseTree()
+    {
+      this.ttype = this.ttype == 1 ? this.tokenizer.NextToken() : throw new InvalidOperationException("No beginning.");
+      object node1 = this.ParseNode();
+      if (node1 == null)
+        return (object) null;
+      while (this.ttype == 1 || this.ttype == 3 || this.ttype == 5 || this.ttype == 7)
+      {
+        if (this.ttype == 1)
+        {
+          object tree = this.ParseTree();
+          this.adaptor.AddChild(node1, tree);
+        }
+        else
+        {
+          object node2 = this.ParseNode();
+          if (node2 == null)
+            return (object) null;
+          this.adaptor.AddChild(node1, node2);
+        }
+      }
+      this.ttype = this.ttype == 2 ? this.tokenizer.NextToken() : throw new InvalidOperationException("No end.");
+      return node1;
+    }
+
+    public virtual object ParseNode()
+    {
+      string str1 = (string) null;
+      if (this.ttype == 5)
+      {
+        this.ttype = this.tokenizer.NextToken();
+        if (this.ttype != 3)
+          return (object) null;
+        str1 = this.tokenizer.sval.ToString();
+        this.ttype = this.tokenizer.NextToken();
+        if (this.ttype != 6)
+          return (object) null;
+        this.ttype = this.tokenizer.NextToken();
+      }
+      if (this.ttype == 7)
+      {
+        this.ttype = this.tokenizer.NextToken();
+        TreeWizard.TreePattern node = (TreeWizard.TreePattern) new TreeWizard.WildcardTreePattern((IToken) new CommonToken(0, "."));
+        if (str1 != null)
+          node.label = str1;
+        return (object) node;
+      }
+      if (this.ttype != 3)
+        return (object) null;
+      string tokenName = this.tokenizer.sval.ToString();
+      this.ttype = this.tokenizer.NextToken();
+      if (tokenName.Equals("nil"))
+        return this.adaptor.Nil();
+      string text = tokenName;
+      string str2 = (string) null;
+      if (this.ttype == 4)
+      {
+        str2 = this.tokenizer.sval.ToString();
+        text = str2;
+        this.ttype = this.tokenizer.NextToken();
+      }
+      int tokenType = this.wizard.GetTokenType(tokenName);
+      if (tokenType == 0)
+        return (object) null;
+      object node1 = this.adaptor.Create(tokenType, text);
+      if (str1 != null && node1.GetType() == typeof (TreeWizard.TreePattern))
+        ((TreeWizard.TreePattern) node1).label = str1;
+      if (str2 != null && node1.GetType() == typeof (TreeWizard.TreePattern))
+        ((TreeWizard.TreePattern) node1).hasTextArg = true;
+      return node1;
+    }
+  }
+}
+
+
+--- TreeRewriter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.TreeRewriter
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using Antlr.Runtime.Misc;
+using System;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public class TreeRewriter : TreeParser
+  {
+    protected bool showTransformations;
+    protected ITokenStream originalTokenStream;
+    protected ITreeAdaptor originalAdaptor;
+    private Func<IAstRuleReturnScope> topdown_func;
+    private Func<IAstRuleReturnScope> bottomup_func;
+
+    public TreeRewriter(ITreeNodeStream input)
+      : this(input, new RecognizerSharedState())
+    {
+    }
+
+    public TreeRewriter(ITreeNodeStream input, RecognizerSharedState state)
+      : base(input, state)
+    {
+      this.originalAdaptor = input.TreeAdaptor;
+      this.originalTokenStream = input.TokenStream;
+      this.topdown_func = (Func<IAstRuleReturnScope>) (() => this.Topdown());
+      this.bottomup_func = (Func<IAstRuleReturnScope>) (() => this.Bottomup());
+    }
+
+    public virtual object ApplyOnce(object t, Func<IAstRuleReturnScope> whichRule)
+    {
+      if (t == null)
+        return (object) null;
+      try
+      {
+        this.SetState(new RecognizerSharedState());
+        this.SetTreeNodeStream((ITreeNodeStream) new CommonTreeNodeStream(this.originalAdaptor, t));
+        ((CommonTreeNodeStream) this.input).TokenStream = this.originalTokenStream;
+        this.BacktrackingLevel = 1;
+        IAstRuleReturnScope astRuleReturnScope = whichRule();
+        this.BacktrackingLevel = 0;
+        if (this.Failed)
+          return t;
+        if (this.showTransformations && astRuleReturnScope != null && !t.Equals(astRuleReturnScope.Tree) && astRuleReturnScope.Tree != null)
+          this.ReportTransformation(t, astRuleReturnScope.Tree);
+        return astRuleReturnScope != null && astRuleReturnScope.Tree != null ? astRuleReturnScope.Tree : t;
+      }
+      catch (RecognitionException ex)
+      {
+      }
+      return t;
+    }
+
+    public virtual object ApplyRepeatedly(object t, Func<IAstRuleReturnScope> whichRule)
+    {
+      bool flag = true;
+      while (flag)
+      {
+        object obj = this.ApplyOnce(t, whichRule);
+        flag = !t.Equals(obj);
+        t = obj;
+      }
+      return t;
+    }
+
+    public virtual object Downup(object t) => this.Downup(t, false);
+
+    public virtual object Downup(object t, bool showTransformations)
+    {
+      this.showTransformations = showTransformations;
+      t = new TreeVisitor((ITreeAdaptor) new CommonTreeAdaptor()).Visit(t, (Func<object, object>) (o => this.ApplyOnce(o, this.topdown_func)), (Func<object, object>) (o => this.ApplyRepeatedly(o, this.bottomup_func)));
+      return t;
+    }
+
+    protected virtual IAstRuleReturnScope Topdown() => (IAstRuleReturnScope) null;
+
+    protected virtual IAstRuleReturnScope Bottomup() => (IAstRuleReturnScope) null;
+
+    protected virtual void ReportTransformation(object oldTree, object newTree)
+    {
+      ITree tree1 = oldTree as ITree;
+      ITree tree2 = newTree as ITree;
+      Console.WriteLine("{0} -> {1}", tree1 != null ? (object) tree1.ToStringTree() : (object) "??", tree2 != null ? (object) tree2.ToStringTree() : (object) "??");
+    }
+  }
+}
+
+
+--- TreeRuleReturnScope`1.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.TreeRuleReturnScope`1
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  [Serializable]
+  public class TreeRuleReturnScope<TTree> : IRuleReturnScope<TTree>, IRuleReturnScope
+  {
+    private TTree _start;
+
+    public TTree Start
+    {
+      get => this._start;
+      set => this._start = value;
+    }
+
+    object IRuleReturnScope.Start => (object) this.Start;
+
+    TTree IRuleReturnScope<TTree>.Stop => default (TTree);
+
+    object IRuleReturnScope.Stop => (object) default (TTree);
+  }
+}
+
+
+--- TreeVisitor.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.TreeVisitor
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using Antlr.Runtime.Misc;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public class TreeVisitor
+  {
+    protected ITreeAdaptor adaptor;
+
+    public TreeVisitor(ITreeAdaptor adaptor) => this.adaptor = adaptor;
+
+    public TreeVisitor()
+      : this((ITreeAdaptor) new CommonTreeAdaptor())
+    {
+    }
+
+    public object Visit(object t, ITreeVisitorAction action)
+    {
+      bool flag = this.adaptor.IsNil(t);
+      if (action != null && !flag)
+        t = action.Pre(t);
+      for (int i = 0; i < this.adaptor.GetChildCount(t); ++i)
+        this.Visit(this.adaptor.GetChild(t, i), action);
+      if (action != null && !flag)
+        t = action.Post(t);
+      return t;
+    }
+
+    public object Visit(object t, Func<object, object> preAction, Func<object, object> postAction)
+    {
+      return this.Visit(t, (ITreeVisitorAction) new TreeVisitorAction(preAction, postAction));
+    }
+  }
+}
+
+
+--- TreeVisitorAction.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.TreeVisitorAction
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using Antlr.Runtime.Misc;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public class TreeVisitorAction : ITreeVisitorAction
+  {
+    private readonly Func<object, object> _preAction;
+    private readonly Func<object, object> _postAction;
+
+    public TreeVisitorAction(Func<object, object> preAction, Func<object, object> postAction)
+    {
+      this._preAction = preAction;
+      this._postAction = postAction;
+    }
+
+    public object Pre(object t) => this._preAction != null ? this._preAction(t) : t;
+
+    public object Post(object t) => this._postAction != null ? this._postAction(t) : t;
+  }
+}
+
+
+--- TreeWizard.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Antlr.Runtime.Tree.TreeWizard
+// Assembly: Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f
+// MVID: 770B825D-AB58-454E-B162-B363E6A4CCD6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Antlr3.Runtime.dll
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+#nullable disable
+namespace Antlr.Runtime.Tree
+{
+  public class TreeWizard
+  {
+    protected ITreeAdaptor adaptor;
+    protected IDictionary<string, int> tokenNameToTypeMap;
+
+    public TreeWizard(ITreeAdaptor adaptor) => this.adaptor = adaptor;
+
+    public TreeWizard(ITreeAdaptor adaptor, IDictionary<string, int> tokenNameToTypeMap)
+    {
+      this.adaptor = adaptor;
+      this.tokenNameToTypeMap = tokenNameToTypeMap;
+    }
+
+    public TreeWizard(ITreeAdaptor adaptor, string[] tokenNames)
+    {
+      this.adaptor = adaptor;
+      this.tokenNameToTypeMap = this.ComputeTokenTypes(tokenNames);
+    }
+
+    public TreeWizard(string[] tokenNames)
+      : this((ITreeAdaptor) new CommonTreeAdaptor(), tokenNames)
+    {
+    }
+
+    public virtual IDictionary<string, int> ComputeTokenTypes(string[] tokenNames)
+    {
+      IDictionary<string, int> tokenTypes = (IDictionary<string, int>) new Dictionary<string, int>();
+      if (tokenNames == null)
+        return tokenTypes;
+      for (int index = 4; index < tokenNames.Length; ++index)
+      {
+        string tokenName = tokenNames[index];
+        tokenTypes[tokenName] = index;
+      }
+      return tokenTypes;
+    }
+
+    public virtual int GetTokenType(string tokenName)
+    {
+      int num;
+      return this.tokenNameToTypeMap == null || !this.tokenNameToTypeMap.TryGetValue(tokenName, out num) ? 0 : num;
+    }
+
+    public IDictionary<int, IList> Index(object t)
+    {
+      IDictionary<int, IList> m = (IDictionary<int, IList>) new Dictionary<int, IList>();
+      this.IndexCore(t, m);
+      return m;
+    }
+
+    protected virtual void IndexCore(object t, IDictionary<int, IList> m)
+    {
+      if (t == null)
+        return;
+      int type = this.adaptor.GetType(t);
+      IList list;
+      if (!m.TryGetValue(type, out list) || list == null)
+      {
+        list = (IList) new List<object>();
+        m[type] = list;
+      }
+      list.Add(t);
+      int childCount = this.adaptor.GetChildCount(t);
+      for (int i = 0; i < childCount; ++i)
+        this.IndexCore(this.adaptor.GetChild(t, i), m);
+    }
+
+    public virtual IList Find(object t, int ttype)
+    {
+      IList nodes = (IList) new List<object>();
+      this.Visit(t, ttype, (TreeWizard.IContextVisitor) new TreeWizard.FindTreeWizardVisitor(nodes));
+      return nodes;
+    }
+
+    public virtual IList Find(object t, string pattern)
+    {
+      IList subtrees = (IList) new List<object>();
+      TreeWizard.TreePattern tpattern = (TreeWizard.TreePattern) new TreePatternParser(new TreePatternLexer(pattern), this, (ITreeAdaptor) new TreeWizard.TreePatternTreeAdaptor()).Pattern();
+      if (tpattern == null || tpattern.IsNil || tpattern.GetType() == typeof (TreeWizard.WildcardTreePattern))
+        return (IList) null;
+      int type = tpattern.Type;
+      this.Visit(t, type, (TreeWizard.IContextVisitor) new TreeWizard.FindTreeWizardContextVisitor(this, tpattern, subtrees));
+      return subtrees;
+    }
+
+    public virtual object FindFirst(object t, int ttype) => (object) null;
+
+    public virtual object FindFirst(object t, string pattern) => (object) null;
+
+    public void Visit(object t, int ttype, TreeWizard.IContextVisitor visitor)
+    {
+      this.VisitCore(t, (object) null, 0, ttype, visitor);
+    }
+
+    public void Visit(object t, int ttype, Action<object> action)
+    {
+      this.Visit(t, ttype, (TreeWizard.IContextVisitor) new TreeWizard.ActionVisitor(action));
+    }
+
+    protected virtual void VisitCore(
+      object t,
+      object parent,
+      int childIndex,
+      int ttype,
+      TreeWizard.IContextVisitor visitor)
+    {
+      if (t == null)
+        return;
+      if (this.adaptor.GetType(t) == ttype)
+        visitor.Visit(t, parent, childIndex, (IDictionary<string, object>) null);
+      int childCount = this.adaptor.GetChildCount(t);
+      for (int index = 0; index < childCount; ++index)
+        this.VisitCore(this.adaptor.GetChild(t, index), t, index, ttype, visitor);
+    }
+
+    public void Visit(object t, string pattern, TreeWizard.IContextVisitor visitor)
+    {
+      TreeWizard.TreePattern tpattern = (TreeWizard.TreePattern) new TreePatternParser(new TreePatternLexer(pattern), this, (ITreeAdaptor) new TreeWizard.TreePatternTreeAdaptor()).Pattern();
+      if (tpattern == null || tpattern.IsNil || tpattern.GetType() == typeof (TreeWizard.WildcardTreePattern))
+        return;
+      IDictionary<string, object> labels = (IDictionary<string, object>) new Dictionary<string, object>();
+      int type = tpattern.Type;
+      this.Visit(t, type, (TreeWizard.IContextVisitor) new TreeWizard.VisitTreeWizardContextVisitor(this, visitor, labels, tpattern));
+    }
+
+    public bool Parse(object t, string pattern, IDictionary<string, object> labels)
+    {
+      TreeWizard.TreePattern tpattern = (TreeWizard.TreePattern) new TreePatternParser(new TreePatternLexer(pattern), this, (ITreeAdaptor) new TreeWizard.TreePatternTreeAdaptor()).Pattern();
+      return this.ParseCore(t, tpattern, labels);
+    }
+
+    public bool Parse(object t, string pattern)
+    {
+      return this.Parse(t, pattern, (IDictionary<string, object>) null);
+    }
+
+    protected virtual bool ParseCore(
+      object t1,
+      TreeWizard.TreePattern tpattern,
+      IDictionary<string, object> labels)
+    {
+      if (t1 == null || tpattern == null || tpattern.GetType() != typeof (TreeWizard.WildcardTreePattern) && (this.adaptor.GetType(t1) != tpattern.Type || tpattern.hasTextArg && !this.adaptor.GetText(t1).Equals(tpattern.Text)))
+        return false;
+      if (tpattern.label != null && labels != null)
+        labels[tpattern.label] = t1;
+      int childCount1 = this.adaptor.GetChildCount(t1);
+      int childCount2 = tpattern.ChildCount;
+      if (childCount1 != childCount2)
+        return false;
+      for (int i = 0; i < childCount1; ++i)
+      {
+        if (!this.ParseCore(this.adaptor.GetChild(t1, i), (TreeWizard.TreePattern) tpattern.GetChild(i), labels))
+          return false;
+      }
+      return true;
+    }
+
+    public virtual object Create(string pattern)
+    {
+      return new TreePatternParser(new TreePatternLexer(pattern), this, this.adaptor).Pattern();
+    }
+
+    public static bool Equals(object t1, object t2, ITreeAdaptor adaptor)
+    {
+      return TreeWizard.EqualsCore(t1, t2, adaptor);
+    }
+
+    public bool Equals(object t1, object t2) => TreeWizard.EqualsCore(t1, t2, this.adaptor);
+
+    protected static bool EqualsCore(object t1, object t2, ITreeAdaptor adaptor)
+    {
+      if (t1 == null || t2 == null || adaptor.GetType(t1) != adaptor.GetType(t2) || !adaptor.GetText(t1).Equals(adaptor.GetText(t2)))
+        return false;
+      int childCount1 = adaptor.GetChildCount(t1);
+      int childCount2 = adaptor.GetChildCount(t2);
+      if (childCount1 != childCount2)
+        return false;
+      for (int i = 0; i < childCount1; ++i)
+      {
+        if (!TreeWizard.EqualsCore(adaptor.GetChild(t1, i), adaptor.GetChild(t2, i), adaptor))
+          return false;
+      }
+      return true;
+    }
+
+    public interface IContextVisitor
+    {
+      void Visit(object t, object parent, int childIndex, IDictionary<string, object> labels);
+    }
+
+    public abstract class Visitor : TreeWizard.IContextVisitor
+    {
+      public virtual void Visit(
+        object t,
+        object parent,
+        int childIndex,
+        IDictionary<string, object> labels)
+      {
+        this.Visit(t);
+      }
+
+      public abstract void Visit(object t);
+    }
+
+    private class ActionVisitor : TreeWizard.Visitor
+    {
+      private Action<object> _action;
+
+      public ActionVisitor(Action<object> action) => this._action = action;
+
+      public override void Visit(object t) => this._action(t);
+    }
+
+    public class TreePattern(IToken payload) : CommonTree(payload)
+    {
+      public string label;
+      public bool hasTextArg;
+
+      public override string ToString()
+      {
+        return this.label != null ? "%" + this.label + ":" : base.ToString();
+      }
+    }
+
+    public class WildcardTreePattern(IToken payload) : TreeWizard.TreePattern(payload)
+    {
+    }
+
+    public class TreePatternTreeAdaptor : CommonTreeAdaptor
+    {
+      public override object Create(IToken payload) => (object) new TreeWizard.TreePattern(payload);
+    }
+
+    private class FindTreeWizardVisitor : TreeWizard.Visitor
+    {
+      private IList _nodes;
+
+      public FindTreeWizardVisitor(IList nodes) => this._nodes = nodes;
+
+      public override void Visit(object t) => this._nodes.Add(t);
+    }
+
+    private class FindTreeWizardContextVisitor : TreeWizard.IContextVisitor
+    {
+      private TreeWizard _outer;
+      private TreeWizard.TreePattern _tpattern;
+      private IList _subtrees;
+
+      public FindTreeWizardContextVisitor(
+        TreeWizard outer,
+        TreeWizard.TreePattern tpattern,
+        IList subtrees)
+      {
+        this._outer = outer;
+        this._tpattern = tpattern;
+        this._subtrees = subtrees;
+      }
+
+      public void Visit(
+        object t,
+        object parent,
+        int childIndex,
+        IDictionary<string, object> labels)
+      {
+        if (!this._outer.ParseCore(t, this._tpattern, (IDictionary<string, object>) null))
+          return;
+        this._subtrees.Add(t);
+      }
+    }
+
+    private class VisitTreeWizardContextVisitor : TreeWizard.IContextVisitor
+    {
+      private TreeWizard _outer;
+      private TreeWizard.IContextVisitor _visitor;
+      private IDictionary<string, object> _labels;
+      private TreeWizard.TreePattern _tpattern;
+
+      public VisitTreeWizardContextVisitor(
+        TreeWizard outer,
+        TreeWizard.IContextVisitor visitor,
+        IDictionary<string, object> labels,
+        TreeWizard.TreePattern tpattern)
+      {
+        this._outer = outer;
+        this._visitor = visitor;
+        this._labels = labels;
+        this._tpattern = tpattern;
+      }
+
+      public void Visit(
+        object t,
+        object parent,
+        int childIndex,
+        IDictionary<string, object> unusedlabels)
+      {
+        this._labels.Clear();
+        if (!this._outer.ParseCore(t, this._tpattern, this._labels))
+          return;
+        this._visitor.Visit(t, parent, childIndex, this._labels);
+      }
+    }
+  }
+}
+

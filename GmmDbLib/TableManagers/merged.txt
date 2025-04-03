@@ -1,0 +1,169 @@
+
+--- MeterChanges.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: GmmDbLib.TableManagers.MeterChanges
+// Assembly: GmmDbLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: FBABFE79-334C-44CD-A4BC-A66429DECD0D
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\GmmDbLib.dll
+
+using GmmDbLib.DataSets;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Text;
+
+#nullable disable
+namespace GmmDbLib.TableManagers
+{
+  public static class MeterChanges
+  {
+    public static void UpdateMeterRowChanges(
+      BaseDbConnection db,
+      BaseTables.MeterRow changedMeterRow,
+      DbDataAdapter MeterTableAdapter)
+    {
+      if (MeterTableAdapter.SelectCommand == null || MeterTableAdapter.SelectCommand.Transaction == null)
+        throw new Exception("Can not find transaction to update MeterRow");
+      bool flag = false;
+      db.CheckMeterIdNotMovedToProductionDatabase(changedMeterRow.MeterID, MeterTableAdapter.SelectCommand);
+      BaseTables.MeterChangesDataTable changesDataTable = new BaseTables.MeterChangesDataTable();
+      DbDataAdapter dataAdapter = db.GetDataAdapter("SELECT * FROM MeterChanges WHERE MeterID = " + changedMeterRow.MeterID.ToString(), MeterTableAdapter.SelectCommand.Connection, MeterTableAdapter.SelectCommand.Transaction, out DbCommandBuilder _);
+      if (changedMeterRow.RowState != DataRowState.Added)
+      {
+        dataAdapter.Fill((DataTable) changesDataTable);
+        if (changesDataTable.Rows.Count == 0)
+        {
+          BaseTables.MeterChangesRow meterChangesRow = changesDataTable.NewMeterChangesRow();
+          foreach (DataColumn column in (InternalDataCollectionBase) changedMeterRow.Table.Columns)
+          {
+            if (changedMeterRow[column, DataRowVersion.Original] != DBNull.Value)
+              meterChangesRow[column.ColumnName] = changedMeterRow[column, DataRowVersion.Original];
+          }
+          meterChangesRow.ChangeDate = changedMeterRow["ProductionDate", DataRowVersion.Original] == DBNull.Value ? new DateTime(2010, 1, 1) : (DateTime) changedMeterRow["ProductionDate", DataRowVersion.Original];
+          db.InsertNewID((DataRow) meterChangesRow);
+          changesDataTable.AddMeterChangesRow(meterChangesRow);
+        }
+        foreach (DataColumn column in (InternalDataCollectionBase) changedMeterRow.Table.Columns)
+        {
+          if (changedMeterRow[column, DataRowVersion.Original] != DBNull.Value)
+          {
+            if (changedMeterRow[column] != DBNull.Value)
+            {
+              object obj = changedMeterRow[column, DataRowVersion.Original];
+              if (changedMeterRow[column.ColumnName].ToString() != obj.ToString())
+                flag = true;
+            }
+            else
+              flag = true;
+          }
+          else if (changedMeterRow[column] != DBNull.Value)
+            flag = true;
+        }
+      }
+      else
+        flag = true;
+      if (flag)
+      {
+        BaseTables.MeterChangesRow meterChangesRow = changesDataTable.NewMeterChangesRow();
+        db.InsertNewID((DataRow) meterChangesRow);
+        meterChangesRow.ChangeDate = DateTime.UtcNow;
+        foreach (DataColumn column in (InternalDataCollectionBase) changedMeterRow.Table.Columns)
+        {
+          if (changedMeterRow[column] != DBNull.Value)
+            meterChangesRow[column.ColumnName] = changedMeterRow[column];
+        }
+        changesDataTable.AddMeterChangesRow(meterChangesRow);
+        MeterTableAdapter.Update(changedMeterRow.Table);
+      }
+      if (changesDataTable.Rows.Count <= 0)
+        return;
+      dataAdapter.Update((DataTable) changesDataTable);
+    }
+
+    public static void UpdateMeterRowChanges(
+      BaseDbConnection db,
+      BaseTables.MeterDataTable changedMeterRowsTable,
+      DbDataAdapter MeterTableAdapter)
+    {
+      if (changedMeterRowsTable.Count == 0)
+        return;
+      if (MeterTableAdapter.SelectCommand == null || MeterTableAdapter.SelectCommand.Transaction == null)
+        throw new Exception("Can not find transaction to update MeterRow");
+      BaseTables.MeterChangesDataTable changesDataTable1 = new BaseTables.MeterChangesDataTable();
+      StringBuilder stringBuilder1 = new StringBuilder();
+      StringBuilder stringBuilder2 = stringBuilder1;
+      int meterId = changedMeterRowsTable[0].MeterID;
+      string str1 = "SELECT * FROM MeterChanges WHERE MeterID = " + meterId.ToString();
+      stringBuilder2.Append(str1);
+      for (int index = 1; index < changedMeterRowsTable.Count; ++index)
+      {
+        StringBuilder stringBuilder3 = stringBuilder1;
+        meterId = changedMeterRowsTable[index].MeterID;
+        string str2 = " OR MeterID = " + meterId.ToString();
+        stringBuilder3.Append(str2);
+      }
+      DbDataAdapter dataAdapter = db.GetDataAdapter(stringBuilder1.ToString(), MeterTableAdapter.SelectCommand.Connection, MeterTableAdapter.SelectCommand.Transaction, out DbCommandBuilder _);
+      dataAdapter.Fill((DataTable) changesDataTable1);
+      bool flag1 = false;
+      List<BaseTables.MeterChangesRow> meterChangesRowList = new List<BaseTables.MeterChangesRow>();
+      foreach (BaseTables.MeterRow meterRow in (TypedTableBase<BaseTables.MeterRow>) changedMeterRowsTable)
+      {
+        bool flag2 = false;
+        if (meterRow.RowState != DataRowState.Added)
+        {
+          BaseTables.MeterChangesDataTable changesDataTable2 = changesDataTable1;
+          meterId = meterRow.MeterID;
+          string filterExpression = "MeterID = " + meterId.ToString();
+          if (((BaseTables.MeterChangesRow[]) changesDataTable2.Select(filterExpression)).Length == 0)
+          {
+            BaseTables.MeterChangesRow meterChangesRow = changesDataTable1.NewMeterChangesRow();
+            foreach (DataColumn column in (InternalDataCollectionBase) meterRow.Table.Columns)
+            {
+              if (meterRow[column, DataRowVersion.Original] != DBNull.Value)
+                meterChangesRow[column.ColumnName] = meterRow[column, DataRowVersion.Original];
+            }
+            meterChangesRow.ChangeDate = meterRow["ProductionDate", DataRowVersion.Original] == DBNull.Value ? new DateTime(2010, 1, 1) : (DateTime) meterRow["ProductionDate", DataRowVersion.Original];
+            meterChangesRowList.Add(meterChangesRow);
+          }
+          foreach (DataColumn column in (InternalDataCollectionBase) meterRow.Table.Columns)
+          {
+            if (meterRow[column, DataRowVersion.Original] != DBNull.Value)
+            {
+              object obj = meterRow[column, DataRowVersion.Original];
+              if (meterRow[column.ColumnName].ToString() != obj.ToString())
+                flag2 = true;
+            }
+          }
+        }
+        else
+          flag2 = true;
+        if (flag2)
+        {
+          BaseTables.MeterChangesRow meterChangesRow = changesDataTable1.NewMeterChangesRow();
+          meterChangesRow.ChangeDate = DateTime.UtcNow;
+          foreach (DataColumn column in (InternalDataCollectionBase) meterRow.Table.Columns)
+          {
+            if (meterRow[column] != DBNull.Value)
+              meterChangesRow[column.ColumnName] = meterRow[column];
+          }
+          meterChangesRowList.Add(meterChangesRow);
+          flag1 = true;
+        }
+      }
+      if (flag1)
+        MeterTableAdapter.Update((DataTable) changedMeterRowsTable);
+      if (meterChangesRowList.Count <= 0)
+        return;
+      IdContainer newIds = db.GetNewIds(nameof (MeterChanges), meterChangesRowList.Count);
+      foreach (BaseTables.MeterChangesRow row in meterChangesRowList)
+      {
+        row.ChangeID = newIds.GetNextID();
+        changesDataTable1.AddMeterChangesRow(row);
+      }
+      dataAdapter.Update((DataTable) changesDataTable1);
+    }
+  }
+}
+

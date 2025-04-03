@@ -1,0 +1,37 @@
+<Window x:Class="HandlerLib.VolumeSimulator"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="VMCP Volume Simulator" Height="349" Width="414">
+  <Grid>
+    <Button Click="ButtonRunStop_Click" Name="ButtonRunStop" Content="RunStop" HorizontalAlignment="Right"
+            Margin="0,0,10,10" VerticalAlignment="Bottom" Width="118" Grid.ColumnSpan="2"/>
+    <Button Click="ButtonSetCom_Click" Name="ButtonSetCom" Content="Set com port" HorizontalAlignment="Left"
+            Margin="10,0,0,10" VerticalAlignment="Bottom" Width="118"/>
+    <Label Content="Volume [m³]:" HorizontalAlignment="Left" HorizontalContentAlignment="Right"
+           Margin="23,35,0,0" VerticalAlignment="Top" Width="211"/>
+    <TextBox Name="TextBoxVolume" HorizontalAlignment="Left" Height="23" Margin="239,38,0,0" TextWrapping="Wrap"
+             Text="1234,56789" VerticalAlignment="Top" Width="140"/>
+    <Label Content="Flow [m³/h]:" HorizontalAlignment="Left" HorizontalContentAlignment="Right"
+           Margin="23,66,0,0" VerticalAlignment="Top" Width="211"/>
+    <TextBox PreviewKeyDown="TextBoxFlow_PreviewKeyDown" LostFocus="TextBoxFlow_LostFocus" Name="TextBoxFlow"
+             HorizontalAlignment="Left" Height="23" Margin="239,69,0,0" TextWrapping="Wrap" Text="0,123"
+             VerticalAlignment="Top" Width="140"/>
+    <Label Content="Cycle time [s]:" HorizontalAlignment="Left" HorizontalContentAlignment="Right"
+           Margin="23,97,0,0" VerticalAlignment="Top" Width="211"/>
+    <TextBox LostFocus="TextBoxCycleTime_LostFocus" PreviewKeyDown="TextBoxCycleTime_PreviewKeyDown"
+             Name="TextBoxCycleTime" HorizontalAlignment="Left" Height="23" Margin="239,100,0,0"
+             TextWrapping="Wrap" Text="4" VerticalAlignment="Top" Width="140"/>
+    <Label Content="Seconds to next protocol:" HorizontalAlignment="Left" HorizontalContentAlignment="Right"
+           Margin="23,127,0,0" VerticalAlignment="Top" Width="211"/>
+    <TextBox Name="TextBoxSecondsToProtocol" HorizontalAlignment="Left" Height="23" Margin="239,130,0,0"
+             TextWrapping="Wrap" Text="0" IsEnabled="false" VerticalAlignment="Top" Width="140"/>
+    <Label Content="Protocol count:" HorizontalAlignment="Left" HorizontalContentAlignment="Right"
+           Margin="23,158,0,0" VerticalAlignment="Top" Width="211" RenderTransformOrigin="0.474,1.923"/>
+    <TextBox Name="TextBoxProtocolCount" HorizontalAlignment="Left" Height="23" Margin="239,161,0,0"
+             TextWrapping="Wrap" Text="0" IsEnabled="false" VerticalAlignment="Top" Width="140"/>
+    <Label Content="Volume meter ID:" HorizontalAlignment="Left" HorizontalContentAlignment="Right"
+           Margin="23,7,0,0" VerticalAlignment="Top" Width="211"/>
+    <TextBox x:Name="TextBoxVolumeMeterID" HorizontalAlignment="Left" Height="23" Margin="239,10,0,0"
+             TextWrapping="Wrap" Text="12345678" VerticalAlignment="Top" Width="140"/>
+  </Grid>
+</Window>

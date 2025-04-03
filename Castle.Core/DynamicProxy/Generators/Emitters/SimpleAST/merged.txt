@@ -1,0 +1,1648 @@
+
+--- AddressOfReferenceExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.AddressOfReferenceExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class AddressOfReferenceExpression : Expression
+  {
+    private readonly Reference reference;
+
+    public AddressOfReferenceExpression(Reference reference) => this.reference = reference;
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      ArgumentsUtil.EmitLoadOwnerAndReference(this.reference.OwnerReference, gen);
+      this.reference.LoadAddressOfReference(gen);
+    }
+  }
+}
+
+
+--- ArgumentReference.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.ArgumentReference
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class ArgumentReference : TypeReference
+  {
+    public ArgumentReference(Type argumentType)
+      : base(argumentType)
+    {
+      this.Position = -1;
+    }
+
+    public ArgumentReference(Type argumentType, int position)
+      : base(argumentType)
+    {
+      this.Position = position;
+    }
+
+    internal int Position { get; set; }
+
+    public override void LoadReference(ILGenerator gen)
+    {
+      if (this.Position == -1)
+        throw new ProxyGenerationException("ArgumentReference unitialized");
+      switch (this.Position)
+      {
+        case 0:
+          gen.Emit(OpCodes.Ldarg_0);
+          break;
+        case 1:
+          gen.Emit(OpCodes.Ldarg_1);
+          break;
+        case 2:
+          gen.Emit(OpCodes.Ldarg_2);
+          break;
+        case 3:
+          gen.Emit(OpCodes.Ldarg_3);
+          break;
+        default:
+          gen.Emit(OpCodes.Ldarg_S, this.Position);
+          break;
+      }
+    }
+
+    public override void StoreReference(ILGenerator gen)
+    {
+      if (this.Position == -1)
+        throw new ProxyGenerationException("ArgumentReference unitialized");
+      gen.Emit(OpCodes.Starg, this.Position);
+    }
+
+    public override void LoadAddressOfReference(ILGenerator gen)
+    {
+      throw new NotSupportedException();
+    }
+  }
+}
+
+
+--- AssignArgumentStatement.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.AssignArgumentStatement
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class AssignArgumentStatement : Statement
+  {
+    private readonly ArgumentReference argument;
+    private readonly Expression expression;
+
+    public AssignArgumentStatement(ArgumentReference argument, Expression expression)
+    {
+      this.argument = argument;
+      this.expression = expression;
+    }
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      ArgumentsUtil.EmitLoadOwnerAndReference((Reference) this.argument, gen);
+      this.expression.Emit(member, gen);
+    }
+  }
+}
+
+
+--- AssignArrayStatement.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.AssignArrayStatement
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class AssignArrayStatement : Statement
+  {
+    private readonly Reference targetArray;
+    private readonly int targetPosition;
+    private readonly Expression value;
+
+    public AssignArrayStatement(Reference targetArray, int targetPosition, Expression value)
+    {
+      this.targetArray = targetArray;
+      this.targetPosition = targetPosition;
+      this.value = value;
+    }
+
+    public override void Emit(IMemberEmitter member, ILGenerator il)
+    {
+      ArgumentsUtil.EmitLoadOwnerAndReference(this.targetArray, il);
+      il.Emit(OpCodes.Ldc_I4, this.targetPosition);
+      this.value.Emit(member, il);
+      il.Emit(OpCodes.Stelem_Ref);
+    }
+  }
+}
+
+
+--- AssignStatement.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.AssignStatement
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class AssignStatement : Statement
+  {
+    private readonly Reference target;
+    private readonly Expression expression;
+
+    public AssignStatement(Reference target, Expression expression)
+    {
+      this.target = target;
+      this.expression = expression;
+    }
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      ArgumentsUtil.EmitLoadOwnerAndReference(this.target.OwnerReference, gen);
+      this.expression.Emit(member, gen);
+      this.target.StoreReference(gen);
+    }
+  }
+}
+
+
+--- AsTypeReference.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.AsTypeReference
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class AsTypeReference : Reference
+  {
+    private readonly Reference reference;
+    private readonly Type type;
+
+    public AsTypeReference(Reference reference, Type type)
+    {
+      if (reference == null)
+        throw new ArgumentNullException(nameof (reference));
+      if (type == null)
+        throw new ArgumentNullException(nameof (type));
+      this.reference = reference;
+      this.type = type;
+      if (reference != this.OwnerReference)
+        return;
+      this.OwnerReference = (Reference) null;
+    }
+
+    public override void LoadAddressOfReference(ILGenerator gen)
+    {
+      this.reference.LoadAddressOfReference(gen);
+    }
+
+    public override void LoadReference(ILGenerator gen)
+    {
+      this.reference.LoadReference(gen);
+      gen.Emit(OpCodes.Isinst, this.type);
+    }
+
+    public override void StoreReference(ILGenerator gen) => this.reference.StoreReference(gen);
+  }
+}
+
+
+--- BindDelegateExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.BindDelegateExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class BindDelegateExpression : Expression
+  {
+    private readonly ConstructorInfo delegateCtor;
+    private readonly Expression owner;
+    private readonly MethodInfo methodToBindTo;
+
+    public BindDelegateExpression(
+      Type @delegate,
+      Expression owner,
+      MethodInfo methodToBindTo,
+      GenericTypeParameterBuilder[] genericTypeParams)
+    {
+      this.delegateCtor = @delegate.GetConstructors()[0];
+      this.methodToBindTo = methodToBindTo;
+      if (@delegate.IsGenericTypeDefinition)
+      {
+        this.delegateCtor = TypeBuilder.GetConstructor(@delegate.MakeGenericType((Type[]) genericTypeParams), this.delegateCtor);
+        this.methodToBindTo = methodToBindTo.MakeGenericMethod((Type[]) genericTypeParams);
+      }
+      this.owner = owner;
+    }
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      this.owner.Emit(member, gen);
+      gen.Emit(OpCodes.Dup);
+      if (this.methodToBindTo.IsFinal)
+        gen.Emit(OpCodes.Ldftn, this.methodToBindTo);
+      else
+        gen.Emit(OpCodes.Ldvirtftn, this.methodToBindTo);
+      gen.Emit(OpCodes.Newobj, this.delegateCtor);
+    }
+  }
+}
+
+
+--- ByRefReference.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.ByRefReference
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class ByRefReference : TypeReference
+  {
+    private readonly LocalReference localReference;
+
+    public ByRefReference(LocalReference localReference)
+      : base(localReference.Type)
+    {
+      this.localReference = localReference;
+    }
+
+    public override void LoadAddressOfReference(ILGenerator gen)
+    {
+      this.localReference.LoadAddressOfReference(gen);
+    }
+
+    public override void LoadReference(ILGenerator gen)
+    {
+      this.localReference.LoadAddressOfReference(gen);
+    }
+
+    public override void StoreReference(ILGenerator gen) => throw new NotImplementedException();
+  }
+}
+
+
+--- ConstReference.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.ConstReference
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class ConstReference : TypeReference
+  {
+    private readonly object value;
+
+    public ConstReference(object value)
+      : base(value.GetType())
+    {
+      this.value = value.GetType().IsPrimitive || value is string ? value : throw new ProxyGenerationException("Invalid type to ConstReference");
+    }
+
+    public override void Generate(ILGenerator gen)
+    {
+    }
+
+    public override void LoadReference(ILGenerator gen)
+    {
+      OpCodeUtil.EmitLoadOpCodeForConstantValue(gen, this.value);
+    }
+
+    public override void StoreReference(ILGenerator gen)
+    {
+      throw new NotImplementedException("ConstReference.StoreReference");
+    }
+
+    public override void LoadAddressOfReference(ILGenerator gen)
+    {
+      throw new NotSupportedException();
+    }
+  }
+}
+
+
+--- ConstructorInvocationStatement.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.ConstructorInvocationStatement
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class ConstructorInvocationStatement : Statement
+  {
+    private readonly ConstructorInfo cmethod;
+    private readonly Expression[] args;
+
+    public ConstructorInvocationStatement(ConstructorInfo method, params Expression[] args)
+    {
+      if (method == null)
+        throw new ArgumentNullException(nameof (method));
+      if (args == null)
+        throw new ArgumentNullException(nameof (args));
+      this.cmethod = method;
+      this.args = args;
+    }
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      gen.Emit(OpCodes.Ldarg_0);
+      foreach (Expression expression in this.args)
+        expression.Emit(member, gen);
+      gen.Emit(OpCodes.Call, this.cmethod);
+    }
+  }
+}
+
+
+--- ConvertExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.ConvertExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class ConvertExpression : Expression
+  {
+    private readonly Expression right;
+    private Type fromType;
+    private Type target;
+
+    public ConvertExpression(Type targetType, Expression right)
+      : this(targetType, typeof (object), right)
+    {
+    }
+
+    public ConvertExpression(Type targetType, Type fromType, Expression right)
+    {
+      this.target = targetType;
+      this.fromType = fromType;
+      this.right = right;
+    }
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      this.right.Emit(member, gen);
+      if (this.fromType == this.target)
+        return;
+      if (this.fromType.IsByRef)
+        this.fromType = this.fromType.GetElementType();
+      if (this.target.IsByRef)
+        this.target = this.target.GetElementType();
+      if (this.target.IsValueType)
+      {
+        if (this.fromType.IsValueType)
+          throw new NotImplementedException("Cannot convert between distinct value types");
+        if (LdindOpCodesDictionary.Instance[this.target] != LdindOpCodesDictionary.EmptyOpCode)
+        {
+          gen.Emit(OpCodes.Unbox, this.target);
+          OpCodeUtil.EmitLoadIndirectOpCodeForType(gen, this.target);
+        }
+        else
+          gen.Emit(OpCodes.Unbox_Any, this.target);
+      }
+      else if (this.fromType.IsValueType)
+      {
+        gen.Emit(OpCodes.Box, this.fromType);
+        ConvertExpression.EmitCastIfNeeded(typeof (object), this.target, gen);
+      }
+      else
+        ConvertExpression.EmitCastIfNeeded(this.fromType, this.target, gen);
+    }
+
+    private static void EmitCastIfNeeded(Type from, Type target, ILGenerator gen)
+    {
+      if (target.IsGenericParameter)
+        gen.Emit(OpCodes.Unbox_Any, target);
+      else if (from.IsGenericParameter)
+        gen.Emit(OpCodes.Box, from);
+      else if (target.IsGenericType && target != from)
+      {
+        gen.Emit(OpCodes.Castclass, target);
+      }
+      else
+      {
+        if (!target.IsSubclassOf(from))
+          return;
+        gen.Emit(OpCodes.Castclass, target);
+      }
+    }
+  }
+}
+
+
+--- DefaultValueExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.DefaultValueExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class DefaultValueExpression : Expression
+  {
+    private readonly Type type;
+
+    public DefaultValueExpression(Type type) => this.type = type;
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      if (this.IsPrimitiveOrClass(this.type))
+        OpCodeUtil.EmitLoadOpCodeForDefaultValueOfType(gen, this.type);
+      else if (this.type.IsValueType || this.type.IsGenericParameter)
+      {
+        LocalBuilder local = gen.DeclareLocal(this.type);
+        gen.Emit(OpCodes.Ldloca_S, local);
+        gen.Emit(OpCodes.Initobj, this.type);
+        gen.Emit(OpCodes.Ldloc, local);
+      }
+      else
+      {
+        if (!this.type.IsByRef)
+          throw new ProxyGenerationException("Can't emit default value for type " + (object) this.type);
+        this.EmitByRef(gen);
+      }
+    }
+
+    private bool IsPrimitiveOrClass(Type type)
+    {
+      if (type.IsPrimitive && type != typeof (IntPtr))
+        return true;
+      return (type.IsClass || type.IsInterface) && !type.IsGenericParameter && !type.IsByRef;
+    }
+
+    private void EmitByRef(ILGenerator gen)
+    {
+      Type elementType = this.type.GetElementType();
+      if (this.IsPrimitiveOrClass(elementType))
+      {
+        OpCodeUtil.EmitLoadOpCodeForDefaultValueOfType(gen, elementType);
+        OpCodeUtil.EmitStoreIndirectOpCodeForType(gen, elementType);
+      }
+      else
+      {
+        if (!elementType.IsGenericParameter && !elementType.IsValueType)
+          throw new ProxyGenerationException("Can't emit default value for reference of type " + (object) elementType);
+        gen.Emit(OpCodes.Initobj, elementType);
+      }
+    }
+  }
+}
+
+
+--- Expression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.Expression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public abstract class Expression : IILEmitter
+  {
+    public abstract void Emit(IMemberEmitter member, ILGenerator gen);
+  }
+}
+
+
+--- ExpressionStatement.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.ExpressionStatement
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class ExpressionStatement : Statement
+  {
+    private readonly Expression expression;
+
+    public ExpressionStatement(Expression expression) => this.expression = expression;
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      this.expression.Emit(member, gen);
+    }
+  }
+}
+
+
+--- FieldReference.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.FieldReference
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Diagnostics;
+using System.Reflection;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  [DebuggerDisplay("{fieldbuilder.Name} ({fieldbuilder.FieldType})")]
+  public class FieldReference : Castle.DynamicProxy.Generators.Emitters.SimpleAST.Reference
+  {
+    private readonly FieldInfo field;
+    private readonly FieldBuilder fieldbuilder;
+    private readonly bool isStatic;
+
+    public FieldReference(FieldInfo field)
+    {
+      this.field = field;
+      if ((field.Attributes & FieldAttributes.Static) == FieldAttributes.PrivateScope)
+        return;
+      this.isStatic = true;
+      this.owner = (Castle.DynamicProxy.Generators.Emitters.SimpleAST.Reference) null;
+    }
+
+    public FieldReference(FieldBuilder fieldbuilder)
+    {
+      this.fieldbuilder = fieldbuilder;
+      this.field = (FieldInfo) fieldbuilder;
+      if ((fieldbuilder.Attributes & FieldAttributes.Static) == FieldAttributes.PrivateScope)
+        return;
+      this.isStatic = true;
+      this.owner = (Castle.DynamicProxy.Generators.Emitters.SimpleAST.Reference) null;
+    }
+
+    public FieldBuilder Fieldbuilder => this.fieldbuilder;
+
+    public FieldInfo Reference => this.field;
+
+    public override void LoadReference(ILGenerator gen)
+    {
+      if (this.isStatic)
+        gen.Emit(OpCodes.Ldsfld, this.Reference);
+      else
+        gen.Emit(OpCodes.Ldfld, this.Reference);
+    }
+
+    public override void StoreReference(ILGenerator gen)
+    {
+      if (this.isStatic)
+        gen.Emit(OpCodes.Stsfld, this.Reference);
+      else
+        gen.Emit(OpCodes.Stfld, this.Reference);
+    }
+
+    public override void LoadAddressOfReference(ILGenerator gen)
+    {
+      if (this.isStatic)
+        gen.Emit(OpCodes.Ldsflda, this.Reference);
+      else
+        gen.Emit(OpCodes.Ldflda, this.Reference);
+    }
+  }
+}
+
+
+--- IfNullExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.IfNullExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class IfNullExpression : Expression
+  {
+    private readonly Expression ifNotNull;
+    private readonly Expression ifNull;
+    private readonly Reference reference;
+
+    public IfNullExpression(Reference reference, Expression ifNull, Expression ifNotNull)
+    {
+      this.reference = reference;
+      this.ifNull = ifNull;
+      this.ifNotNull = ifNotNull;
+    }
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      ArgumentsUtil.EmitLoadOwnerAndReference(this.reference, gen);
+      Label label = gen.DefineLabel();
+      gen.Emit(OpCodes.Brtrue_S, label);
+      this.ifNull.Emit(member, gen);
+      gen.MarkLabel(label);
+      this.ifNotNull.Emit(member, gen);
+    }
+  }
+}
+
+
+--- IILEmitter.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.IILEmitter
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public interface IILEmitter
+  {
+    void Emit(IMemberEmitter member, ILGenerator gen);
+  }
+}
+
+
+--- IndirectReference.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.IndirectReference
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class IndirectReference : TypeReference
+  {
+    public IndirectReference(TypeReference byRefReference)
+      : base((Reference) byRefReference, byRefReference.Type.GetElementType())
+    {
+      if (!byRefReference.Type.IsByRef)
+        throw new ArgumentException("Expected an IsByRef reference", nameof (byRefReference));
+    }
+
+    public static TypeReference WrapIfByRef(TypeReference reference)
+    {
+      return !reference.Type.IsByRef ? reference : (TypeReference) new IndirectReference(reference);
+    }
+
+    public static TypeReference[] WrapIfByRef(TypeReference[] references)
+    {
+      TypeReference[] typeReferenceArray = new TypeReference[references.Length];
+      for (int index = 0; index < references.Length; ++index)
+        typeReferenceArray[index] = IndirectReference.WrapIfByRef(references[index]);
+      return typeReferenceArray;
+    }
+
+    public override void LoadReference(ILGenerator gen)
+    {
+      OpCodeUtil.EmitLoadIndirectOpCodeForType(gen, this.Type);
+    }
+
+    public override void StoreReference(ILGenerator gen)
+    {
+      OpCodeUtil.EmitStoreIndirectOpCodeForType(gen, this.Type);
+    }
+
+    public override void LoadAddressOfReference(ILGenerator gen)
+    {
+    }
+  }
+}
+
+
+--- LiteralIntExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.LiteralIntExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class LiteralIntExpression : Expression
+  {
+    private readonly int value;
+
+    public LiteralIntExpression(int value) => this.value = value;
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      switch (this.value)
+      {
+        case -1:
+          gen.Emit(OpCodes.Ldc_I4_M1);
+          break;
+        case 0:
+          gen.Emit(OpCodes.Ldc_I4_0);
+          break;
+        case 1:
+          gen.Emit(OpCodes.Ldc_I4_1);
+          break;
+        case 2:
+          gen.Emit(OpCodes.Ldc_I4_2);
+          break;
+        case 3:
+          gen.Emit(OpCodes.Ldc_I4_3);
+          break;
+        case 4:
+          gen.Emit(OpCodes.Ldc_I4_4);
+          break;
+        case 5:
+          gen.Emit(OpCodes.Ldc_I4_5);
+          break;
+        case 6:
+          gen.Emit(OpCodes.Ldc_I4_6);
+          break;
+        case 7:
+          gen.Emit(OpCodes.Ldc_I4_7);
+          break;
+        case 8:
+          gen.Emit(OpCodes.Ldc_I4_8);
+          break;
+        default:
+          gen.Emit(OpCodes.Ldc_I4, this.value);
+          break;
+      }
+    }
+  }
+}
+
+
+--- LoadArrayElementExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.LoadArrayElementExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class LoadArrayElementExpression : Expression
+  {
+    private readonly ConstReference index;
+    private readonly Reference arrayReference;
+    private readonly Type returnType;
+
+    public LoadArrayElementExpression(int index, Reference arrayReference, Type returnType)
+      : this(new ConstReference((object) index), arrayReference, returnType)
+    {
+    }
+
+    public LoadArrayElementExpression(
+      ConstReference index,
+      Reference arrayReference,
+      Type returnType)
+    {
+      this.index = index;
+      this.arrayReference = arrayReference;
+      this.returnType = returnType;
+    }
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      ArgumentsUtil.EmitLoadOwnerAndReference(this.arrayReference, gen);
+      ArgumentsUtil.EmitLoadOwnerAndReference((Reference) this.index, gen);
+      gen.Emit(OpCodes.Ldelem, this.returnType);
+    }
+  }
+}
+
+
+--- LoadRefArrayElementExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.LoadRefArrayElementExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class LoadRefArrayElementExpression : Expression
+  {
+    private readonly ConstReference index;
+    private readonly Reference arrayReference;
+
+    public LoadRefArrayElementExpression(int index, Reference arrayReference)
+      : this(new ConstReference((object) index), arrayReference)
+    {
+    }
+
+    public LoadRefArrayElementExpression(ConstReference index, Reference arrayReference)
+    {
+      this.index = index;
+      this.arrayReference = arrayReference;
+    }
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      ArgumentsUtil.EmitLoadOwnerAndReference(this.arrayReference, gen);
+      ArgumentsUtil.EmitLoadOwnerAndReference((Reference) this.index, gen);
+      gen.Emit(OpCodes.Ldelem_Ref);
+    }
+  }
+}
+
+
+--- LocalReference.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.LocalReference
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class LocalReference(Type type) : TypeReference(type)
+  {
+    private LocalBuilder localbuilder;
+
+    public override void Generate(ILGenerator gen)
+    {
+      this.localbuilder = gen.DeclareLocal(this.Type);
+    }
+
+    public override void LoadReference(ILGenerator gen)
+    {
+      gen.Emit(OpCodes.Ldloc, this.localbuilder);
+    }
+
+    public override void StoreReference(ILGenerator gen)
+    {
+      gen.Emit(OpCodes.Stloc, this.localbuilder);
+    }
+
+    public override void LoadAddressOfReference(ILGenerator gen)
+    {
+      gen.Emit(OpCodes.Ldloca, this.localbuilder);
+    }
+  }
+}
+
+
+--- MethodInvocationExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.MethodInvocationExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class MethodInvocationExpression : Expression
+  {
+    protected readonly MethodInfo method;
+    protected readonly Expression[] args;
+    protected readonly Reference owner;
+
+    public MethodInvocationExpression(MethodInfo method, params Expression[] args)
+      : this((Reference) SelfReference.Self, method, args)
+    {
+    }
+
+    public MethodInvocationExpression(MethodEmitter method, params Expression[] args)
+      : this((Reference) SelfReference.Self, (MethodInfo) method.MethodBuilder, args)
+    {
+    }
+
+    public MethodInvocationExpression(
+      Reference owner,
+      MethodEmitter method,
+      params Expression[] args)
+      : this(owner, (MethodInfo) method.MethodBuilder, args)
+    {
+    }
+
+    public MethodInvocationExpression(Reference owner, MethodInfo method, params Expression[] args)
+    {
+      this.owner = owner;
+      this.method = method;
+      this.args = args;
+    }
+
+    public bool VirtualCall { get; set; }
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      ArgumentsUtil.EmitLoadOwnerAndReference(this.owner, gen);
+      foreach (Expression expression in this.args)
+        expression.Emit(member, gen);
+      if (this.VirtualCall)
+        gen.Emit(OpCodes.Callvirt, this.method);
+      else
+        gen.Emit(OpCodes.Call, this.method);
+    }
+  }
+}
+
+
+--- MethodTokenExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.MethodTokenExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Tokens;
+using System;
+using System.Reflection;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class MethodTokenExpression : Expression
+  {
+    private readonly MethodInfo method;
+    private readonly Type declaringType;
+
+    public MethodTokenExpression(MethodInfo method)
+    {
+      this.method = method;
+      this.declaringType = method.DeclaringType;
+    }
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      gen.Emit(OpCodes.Ldtoken, this.method);
+      if (this.declaringType == null)
+        throw new GeneratorException("declaringType can't be null for this situation");
+      gen.Emit(OpCodes.Ldtoken, this.declaringType);
+      MethodInfo methodFromHandle1 = MethodBaseMethods.GetMethodFromHandle1;
+      MethodInfo methodFromHandle2 = MethodBaseMethods.GetMethodFromHandle2;
+      gen.Emit(OpCodes.Call, methodFromHandle2);
+      gen.Emit(OpCodes.Castclass, typeof (MethodInfo));
+    }
+  }
+}
+
+
+--- MultiStatementExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.MultiStatementExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Collections.Generic;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class MultiStatementExpression : Expression
+  {
+    private readonly List<Statement> statements = new List<Statement>();
+
+    public void AddStatement(Statement statement) => this.statements.Add(statement);
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      this.statements.ForEach((Action<Statement>) (s => s.Emit(member, gen)));
+    }
+  }
+}
+
+
+--- NewArrayExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.NewArrayExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class NewArrayExpression : Expression
+  {
+    private readonly int size;
+    private readonly Type arrayType;
+
+    public NewArrayExpression(int size, Type arrayType)
+    {
+      this.size = size;
+      this.arrayType = arrayType;
+    }
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      gen.Emit(OpCodes.Ldc_I4, this.size);
+      gen.Emit(OpCodes.Newarr, this.arrayType);
+    }
+  }
+}
+
+
+--- NewInstanceExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.NewInstanceExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class NewInstanceExpression : Expression
+  {
+    private readonly Type type;
+    private readonly Type[] constructorArgs;
+    private readonly Expression[] arguments;
+    private ConstructorInfo constructor;
+
+    public NewInstanceExpression(ConstructorInfo constructor, params Expression[] args)
+    {
+      this.constructor = constructor;
+      this.arguments = args;
+    }
+
+    public NewInstanceExpression(Type target, Type[] constructor_args, params Expression[] args)
+    {
+      this.type = target;
+      this.constructorArgs = constructor_args;
+      this.arguments = args;
+    }
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      foreach (Expression expression in this.arguments)
+        expression.Emit(member, gen);
+      if (this.constructor == null)
+        this.constructor = this.type.GetConstructor(this.constructorArgs);
+      if (this.constructor == null)
+        throw new ProxyGenerationException("Could not find constructor matching specified arguments");
+      gen.Emit(OpCodes.Newobj, this.constructor);
+    }
+  }
+}
+
+
+--- NopStatement.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.NopStatement
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class NopStatement : Statement
+  {
+    public override void Emit(IMemberEmitter member, ILGenerator gen) => gen.Emit(OpCodes.Nop);
+  }
+}
+
+
+--- NullCoalescingOperatorExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.NullCoalescingOperatorExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class NullCoalescingOperatorExpression : Expression
+  {
+    private readonly Expression expression;
+    private readonly Expression @default;
+
+    public NullCoalescingOperatorExpression(Expression expression, Expression @default)
+    {
+      if (expression == null)
+        throw new ArgumentNullException(nameof (expression));
+      if (@default == null)
+        throw new ArgumentNullException(nameof (@default));
+      this.expression = expression;
+      this.@default = @default;
+    }
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      this.expression.Emit(member, gen);
+      gen.Emit(OpCodes.Dup);
+      Label label = gen.DefineLabel();
+      gen.Emit(OpCodes.Brtrue_S, label);
+      gen.Emit(OpCodes.Pop);
+      this.@default.Emit(member, gen);
+      gen.MarkLabel(label);
+    }
+  }
+}
+
+
+--- NullExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.NullExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class NullExpression : Expression
+  {
+    public static readonly NullExpression Instance = new NullExpression();
+
+    protected NullExpression()
+    {
+    }
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen) => gen.Emit(OpCodes.Ldnull);
+  }
+}
+
+
+--- Reference.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.Reference
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public abstract class Reference
+  {
+    protected Reference owner = (Reference) SelfReference.Self;
+
+    protected Reference()
+    {
+    }
+
+    protected Reference(Reference owner) => this.owner = owner;
+
+    public Reference OwnerReference
+    {
+      get => this.owner;
+      set => this.owner = value;
+    }
+
+    public virtual Expression ToExpression() => (Expression) new ReferenceExpression(this);
+
+    public virtual Expression ToAddressOfExpression()
+    {
+      return (Expression) new AddressOfReferenceExpression(this);
+    }
+
+    public virtual void Generate(ILGenerator gen)
+    {
+    }
+
+    public abstract void LoadAddressOfReference(ILGenerator gen);
+
+    public abstract void LoadReference(ILGenerator gen);
+
+    public abstract void StoreReference(ILGenerator gen);
+  }
+}
+
+
+--- ReferenceExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.ReferenceExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class ReferenceExpression : Expression
+  {
+    private readonly Reference reference;
+
+    public ReferenceExpression(Reference reference) => this.reference = reference;
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      ArgumentsUtil.EmitLoadOwnerAndReference(this.reference, gen);
+    }
+  }
+}
+
+
+--- ReferencesToObjectArrayExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.ReferencesToObjectArrayExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class ReferencesToObjectArrayExpression : Expression
+  {
+    private readonly TypeReference[] args;
+
+    public ReferencesToObjectArrayExpression(params TypeReference[] args) => this.args = args;
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      LocalBuilder local = gen.DeclareLocal(typeof (object[]));
+      gen.Emit(OpCodes.Ldc_I4, this.args.Length);
+      gen.Emit(OpCodes.Newarr, typeof (object));
+      gen.Emit(OpCodes.Stloc, local);
+      for (int index = 0; index < this.args.Length; ++index)
+      {
+        gen.Emit(OpCodes.Ldloc, local);
+        gen.Emit(OpCodes.Ldc_I4, index);
+        TypeReference typeReference = this.args[index];
+        ArgumentsUtil.EmitLoadOwnerAndReference((Reference) typeReference, gen);
+        if (typeReference.Type.IsByRef)
+          throw new NotSupportedException();
+        if (typeReference.Type.IsValueType)
+          gen.Emit(OpCodes.Box, typeReference.Type.UnderlyingSystemType);
+        if (typeReference.Type.IsGenericParameter)
+          gen.Emit(OpCodes.Box, typeReference.Type);
+        gen.Emit(OpCodes.Stelem_Ref);
+      }
+      gen.Emit(OpCodes.Ldloc, local);
+    }
+  }
+}
+
+
+--- ReturnReferenceExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.ReturnReferenceExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class ReturnReferenceExpression(Type argumentType) : TypeReference(argumentType)
+  {
+    public override void LoadReference(ILGenerator gen)
+    {
+    }
+
+    public override void StoreReference(ILGenerator gen)
+    {
+    }
+
+    public override void LoadAddressOfReference(ILGenerator gen)
+    {
+      throw new NotSupportedException();
+    }
+  }
+}
+
+
+--- ReturnStatement.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.ReturnStatement
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class ReturnStatement : Statement
+  {
+    private readonly Reference reference;
+    private readonly Expression expression;
+
+    public ReturnStatement()
+    {
+    }
+
+    public ReturnStatement(Reference reference) => this.reference = reference;
+
+    public ReturnStatement(Expression expression) => this.expression = expression;
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      if (this.reference != null)
+        ArgumentsUtil.EmitLoadOwnerAndReference(this.reference, gen);
+      else if (this.expression != null)
+        this.expression.Emit(member, gen);
+      else if (member.ReturnType != typeof (void))
+        OpCodeUtil.EmitLoadOpCodeForDefaultValueOfType(gen, member.ReturnType);
+      gen.Emit(OpCodes.Ret);
+    }
+  }
+}
+
+
+--- SelfReference.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.SelfReference
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class SelfReference : Reference
+  {
+    public static readonly SelfReference Self = new SelfReference();
+
+    protected SelfReference()
+      : base((Reference) null)
+    {
+    }
+
+    public override void LoadReference(ILGenerator gen) => gen.Emit(OpCodes.Ldarg_0);
+
+    public override void StoreReference(ILGenerator gen) => gen.Emit(OpCodes.Ldarg_0);
+
+    public override void LoadAddressOfReference(ILGenerator gen)
+    {
+      throw new NotSupportedException();
+    }
+  }
+}
+
+
+--- Statement.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.Statement
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public abstract class Statement : IILEmitter
+  {
+    public abstract void Emit(IMemberEmitter member, ILGenerator gen);
+  }
+}
+
+
+--- ThrowStatement.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.ThrowStatement
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class ThrowStatement : Statement
+  {
+    private readonly Type exceptionType;
+    private readonly string errorMessage;
+
+    public ThrowStatement(Type exceptionType, string errorMessage)
+    {
+      this.exceptionType = exceptionType;
+      this.errorMessage = errorMessage;
+    }
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      new NewInstanceExpression(this.exceptionType.GetConstructor(new Type[1]
+      {
+        typeof (string)
+      }), new Expression[1]
+      {
+        new ConstReference((object) this.errorMessage).ToExpression()
+      }).Emit(member, gen);
+      gen.Emit(OpCodes.Throw);
+    }
+  }
+}
+
+
+--- TypeReference.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.TypeReference
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using System;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public abstract class TypeReference : Reference
+  {
+    private readonly Type type;
+
+    protected TypeReference(Type argumentType)
+      : this((Reference) null, argumentType)
+    {
+    }
+
+    protected TypeReference(Reference owner, Type type)
+      : base(owner)
+    {
+      this.type = type;
+    }
+
+    public Type Type => this.type;
+  }
+}
+
+
+--- TypeTokenExpression.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: Castle.DynamicProxy.Generators.Emitters.SimpleAST.TypeTokenExpression
+// Assembly: Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc
+// MVID: D1A7705D-6DF2-4847-8662-5721BEF57E6F
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Castle.Core.dll
+
+using Castle.DynamicProxy.Tokens;
+using System;
+using System.Reflection.Emit;
+
+#nullable disable
+namespace Castle.DynamicProxy.Generators.Emitters.SimpleAST
+{
+  public class TypeTokenExpression : Expression
+  {
+    private readonly Type type;
+
+    public TypeTokenExpression(Type type) => this.type = type;
+
+    public override void Emit(IMemberEmitter member, ILGenerator gen)
+    {
+      gen.Emit(OpCodes.Ldtoken, this.type);
+      gen.Emit(OpCodes.Call, TypeMethods.GetTypeFromHandle);
+    }
+  }
+}
+

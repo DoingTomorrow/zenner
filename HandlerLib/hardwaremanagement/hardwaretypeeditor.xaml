@@ -1,0 +1,153 @@
+<Window x:Class="HandlerLib.HardwareTypeEditor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Loaded="Window_Loaded" Title="Hardware Type Editor" Height="650.854" Width="1031.542"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico" WindowState="Maximized">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="3"/>
+      <Setter Property="Control.Padding" Value="3"/>
+    </Style>
+    <Style x:Key="HexStyle" TargetType="{x:Type TextBlock}">
+      <Setter Property="Control.Background" Value="Yellow"/>
+    </Style>
+    <Style x:Key="WrapStyle">
+      <Setter Property="TextBlock.TextWrapping" Value="Wrap"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StackPanel DockPanel.Dock="Top">
+      <Menu Name="menuMain">
+        <MenuItem Name="MenuItemServiceFunctions" Header="Service functions">
+          <MenuItem Click="MenuItemShowReleasedFirmwareForSapNumber_Click"
+                    Name="MenuItemShowReleasedFirmwareForSapNumber" Header="Show released firmwares for SAP number ..."/>
+          <MenuItem Click="MenuItemShowReleasedFirmwareForHardwareType_Click"
+                    Name="MenuItemShowReleasedFirmwareForHardwareType"
+                    Header="Show released firmwares for selected HardwareType"/>
+          <MenuItem Click="MenuItemShowReleasedFirmwareForHardwareName_Click"
+                    Name="MenuItemShowReleasedFirmwareForHardwareName"
+                    Header="Show released firmwares for selected HardwareName"/>
+          <Separator/>
+          <MenuItem Click="MenuItemShowAllReleasedFirmwareForSapNumber_Click"
+                    Name="MenuItemShowAllReleasedFirmwareForSapNumber"
+                    Header="Show all released firmwares for SAP number ..."/>
+          <MenuItem Click="MenuItemShowAllReleasedFirmwareForHardwareType_Click"
+                    Name="MenuItemShowAllReleasedFirmwareForHardwareType"
+                    Header="Show all released firmwares for selected HardwareType"/>
+          <MenuItem Click="MenuItemShowAllReleasedFirmwareForHardwareName_Click"
+                    Name="MenuItemShowAllReleasedFirmwareForHardwareName"
+                    Header="Show all released firmwares for selected HardwareName"/>
+          <Separator/>
+          <MenuItem Click="MenuItemShowAllCompatibilities_Click" Name="MenuItemShowAllCompatibilities"
+                    Header="Show all compatibilities"/>
+        </MenuItem>
+      </Menu>
+      <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="56"/>
+    </StackPanel>
+    <Border DockPanel.Dock="Right" BorderBrush="Black" BorderThickness="2" Padding="5">
+      <DockPanel>
+        <StackPanel Name="StackPanelButtons" DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
+          <Button Click="ButtonShowCompatibleFirmwares_Click" Name="ButtonShowCompatibleFirmwares"
+                  Content="Show compatible firmware's"/>
+          <Button Click="ButtonCreateHardwareType_Click" Name="ButtonCreateHardwareType"
+                  Content="Create new hardware type"/>
+          <Button Click="ButtonChangeHardware_Click" Name="ButtonChangeHardware"
+                  Content="Change existing hardware type"/>
+        </StackPanel>
+        <GroupBox Header="Second database" DockPanel.Dock="Top">
+          <StackPanel>
+            <Button Click="ButtonCompareSelected_Click" Name="ButtonCompareSelected" Content="Compare selected"/>
+            <Button Click="ButtonCompareAll_Click" Name="ButtonCompareAll" Content="Compare all"/>
+            <Button Click="ButtonCopySelected_Click" Name="ButtonCopySelected" Content="Copy selected"/>
+          </StackPanel>
+        </GroupBox>
+        <StackPanel/>
+      </DockPanel>
+    </Border>
+    <DockPanel Dock="Bottom">
+      <DockPanel Dock="Bottom">
+        <GroupBox DockPanel.Dock="Left" Header="Firmware data from handler" Height="84" Margin="10,0,0,5" Width="496">
+          <Grid>
+            <Label Content="Loaded firmware:" HorizontalAlignment="Left" Margin="2,5,0,0" VerticalAlignment="Top"
+                   Width="125" Height="32"/>
+            <TextBox Name="TextBoxFirmwareFromHandlerHex" HorizontalAlignment="Left" Height="23" Margin="113,4,0,0"
+                     TextWrapping="Wrap" VerticalAlignment="Top" Width="120" IsReadOnly="true"/>
+            <TextBox Name="TextBoxFirmwareFromHandler" HorizontalAlignment="Left" Height="23" Margin="238,5,0,0"
+                     TextWrapping="Wrap" VerticalAlignment="Top" Width="243" IsReadOnly="true"/>
+            <Label Content="Loaded hardware version: 0x" HorizontalAlignment="Left" Margin="2,32,0,-7.2"
+                   VerticalAlignment="Top" Width="231" Height="32"/>
+            <TextBox Name="TextBoxHardwareVersionFromHandler" HorizontalAlignment="Left" Height="23" Margin="238,34,0,0"
+                     TextWrapping="Wrap" VerticalAlignment="Top" Width="86" IsReadOnly="true"/>
+            <Button Click="ButtonUseDataFromHandler_Click" Name="ButtonUseDataFromHandler" Margin="329,34,3,3">
+              <TextBlock TextWrapping="Wrap" TextAlignment="Center" Text="Use data from handler"/>
+            </Button>
+          </Grid>
+        </GroupBox>
+        <TextBox Name="TextBoxInfo" TextWrapping="Wrap" IsReadOnly="true" HorizontalAlignment="Stretch" Margin="5"/>
+      </DockPanel>
+      <StackPanel MinWidth="700" Margin="5">
+        <Grid Margin="2">
+          <Label Content="HardwareName:" HorizontalAlignment="Left" Height="23" Margin="10,0,0,0" Width="194"
+                 HorizontalContentAlignment="Right" Padding="5,0" VerticalAlignment="Top"/>
+          <ComboBox Name="ComboBoxHardwareName" Height="23" Margin="209,0,10,0" VerticalAlignment="Top"
+                    IsReadOnly="true"/>
+        </Grid>
+        <Grid Margin="2">
+          <Label Content="FirmwareVersion: 0x" HorizontalAlignment="Left" Height="23" Margin="10,0,0,0" Width="194"
+                 HorizontalContentAlignment="Right" Padding="5,0" VerticalAlignment="Top"/>
+          <TextBox TextChanged="TextBoxFirmwareVersion_TextChanged" Name="TextBoxFirmwareVersionHex" Height="23"
+                   Margin="209,0,329.4,0" VerticalAlignment="Top"/>
+          <TextBox Name="TextBoxFirmwareVersionStr" Height="23" Margin="0,0,10.4,0" VerticalAlignment="Top"
+                   HorizontalAlignment="Right" Width="143" IsReadOnlyCaretVisible="true"/>
+          <TextBox Name="TextBoxFirmwareVersionDec" Height="23" Margin="0,0,172.4,0" VerticalAlignment="Top"
+                   HorizontalAlignment="Right" Width="133" IsReadOnlyCaretVisible="true"/>
+        </Grid>
+        <Grid Margin="2">
+          <Label Content="HardwareVersion: 0x" HorizontalAlignment="Left" Height="23" Margin="10,0,0,0" Width="194"
+                 HorizontalContentAlignment="Right" Padding="5,0" VerticalAlignment="Top"/>
+          <TextBox Name="TextBoxHardwareVersion" Height="23" Margin="209,0,10,0" VerticalAlignment="Top"/>
+        </Grid>
+        <Grid Margin="2">
+          <Label Content="HardwareResource:" HorizontalAlignment="Left" Height="23" Margin="10,0,0,0" Width="194"
+                 HorizontalContentAlignment="Right" Padding="5,0" VerticalAlignment="Top"/>
+          <TextBox Name="TextBoxHardwareResource" Height="23" Margin="209,0,10,0" VerticalAlignment="Top"/>
+        </Grid>
+        <Grid Margin="2">
+          <Label Content="Description:" HorizontalAlignment="Left" Height="23" Margin="10,0,0,0" Width="194"
+                 HorizontalContentAlignment="Right" Padding="5,0" VerticalAlignment="Top"/>
+          <TextBox Name="TextBoxDescription" Height="23" Margin="209,0,10,0" VerticalAlignment="Top"/>
+        </Grid>
+        <Grid Margin="2">
+          <Label Content="TestInfo:" HorizontalAlignment="Left" Height="23" Margin="10,0,0,0" Width="194"
+                 HorizontalContentAlignment="Right" Padding="5,0" VerticalAlignment="Top"/>
+          <TextBox Name="TextBoxTestinfo" Height="23" Margin="209,0,10,0" VerticalAlignment="Top"/>
+        </Grid>
+        <Grid Margin="2">
+          <Label Content="HardwareOptions:" HorizontalAlignment="Left" Height="23" Margin="10,0,0,0" Width="194"
+                 HorizontalContentAlignment="Right" Padding="5,0" VerticalAlignment="Top"/>
+          <TextBox Name="TextBoxHardwareOptions" Height="23" Margin="209,0,10,0" VerticalAlignment="Top"/>
+        </Grid>
+      </StackPanel>
+    </DockPanel>
+    <DataGrid SelectionChanged="DataGridOverview_SelectionChanged" LoadingRow="DataGridOverview_LoadingRow"
+              MouseDoubleClick="DataGridOverview_MouseDoubleClick" Name="DataGridOverview" Margin="5"
+              ClipboardCopyMode="IncludeHeader" IsReadOnly="true" SelectionMode="Single"
+              AutoGenerateColumns="false">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="HardwareName" Binding="{Binding HardwareName}"/>
+        <DataGridTextColumn Header="HardwareTypeID" Binding="{Binding HardwareTypeID}"/>
+        <DataGridTextColumn Header="MapID" Binding="{Binding MapID}"/>
+        <DataGridTextColumn Header="Initial firmware version" HeaderStyle="{StaticResource WrapStyle}"
+                            Binding="{Binding FirmwareVersion}"/>
+        <DataGridTextColumn Header="Compatible firmwares" HeaderStyle="{StaticResource WrapStyle}"
+                            Binding="{Binding CompatibleFirmwares}"/>
+        <DataGridTextColumn Header="HardwareVersion" Binding="{Binding HardwareVersion}"/>
+        <DataGridTextColumn Header="HardwareResource" Binding="{Binding HardwareResource}"/>
+        <DataGridTextColumn Header="Description" ElementStyle="{StaticResource WrapStyle}" Binding="{Binding Description}"/>
+        <DataGridTextColumn Header="HardwareOptions" Binding="{Binding HardwareOptions}"/>
+        <DataGridTextColumn Header="Testinfo" Binding="{Binding Testinfo}"/>
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</Window>

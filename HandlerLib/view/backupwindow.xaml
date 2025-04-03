@@ -1,0 +1,113 @@
+<Window x:Class="HandlerLib.BackupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:y="clr-namespace:HandlerLib"
+        xmlns:wpf="clr-namespace:CommonWPF;assembly=CommonWPF"
+        Height="600" Width="1020" WindowStartupLocation="CenterScreen" Icon="../ZR.ico" Title="Backups"
+        MinWidth="800" MinHeight="600">
+  <FrameworkElement.Resources>
+    <wpf:UtcToLocalDateTimeConverter x:Key="UtcToLocalDateTimeConverter"/>
+  </FrameworkElement.Resources>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="5"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+      <TextBox Name="txtInfo" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontFamily="Consolas"
+               FontSize="11" Background="WhiteSmoke"/>
+    </ScrollViewer>
+    <GridSplitter Grid.Column="1" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext"
+                  HorizontalAlignment="Stretch"/>
+    <Grid Column="2" Margin="0,0,4,0">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="5"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Row="0">
+          <Label Content="from:" Margin="0,20,0,0" HorizontalAlignment="Left" Width="38" Height="26"
+                 VerticalAlignment="Top"/>
+          <DatePicker SelectedDateChanged="DatePickerProductionStartDate_SelectedDateChanged"
+                      x:Name="DatePickerProductionStartDate" HorizontalAlignment="Left" Margin="39,23,0,0"
+                      VerticalAlignment="Top" Width="128" SelectedDateFormat="Short" IsHitTestVisible="true"/>
+          <Label Content="to:" HorizontalAlignment="Left" Margin="14,42,0,0" Height="26" VerticalAlignment="Top"/>
+          <DatePicker x:Name="DatePickerProductionEndDate" HorizontalAlignment="Left" Margin="39,46,0,0"
+                      VerticalAlignment="Top" Width="128" SelectedDateFormat="Short"/>
+          <y:TimeControl x:Name="txtProductionStartTime" HorizontalAlignment="Left" Margin="174,24,0,0"
+                         VerticalAlignment="Top"/>
+          <y:TimeControl x:Name="txtProductionEndTime" HorizontalAlignment="Left" Margin="174,47,0,0"
+                         VerticalAlignment="Top"/>
+          <Button Click="ButtonStartSearch_Click" Name="ButtonStartSearch" Content="Search"
+                  HorizontalAlignment="Left" Margin="344,101,0,0" VerticalAlignment="Top" Width="75"/>
+          <Button Click="ButtonStop_Click" Name="ButtonStop" Content="Stop" HorizontalAlignment="Left"
+                  Margin="423,101,0,0" VerticalAlignment="Top" Width="75" IsEnabled="false"/>
+          <Label Content="Serialnumber:" HorizontalAlignment="Left" Margin="26,72,0,0" VerticalAlignment="Top"/>
+          <Label Content="MeterID:" HorizontalAlignment="Left" Margin="268,73,0,0" VerticalAlignment="Top"/>
+          <TextBox KeyDown="Input_KeyDown" Name="txtSerialnumber" HorizontalAlignment="Left" Height="23"
+                   Margin="111,75,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="128"
+                   ToolTip="'%' and '_' wildcards"/>
+          <TextBox KeyDown="Input_KeyDown" Name="txtMeterID" HorizontalAlignment="Left" Height="23"
+                   Margin="326,75,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="128"/>
+          <Label Content="Order Number:" HorizontalAlignment="Left" Margin="19,95,0,0" VerticalAlignment="Top"/>
+          <TextBox KeyDown="Input_KeyDown" Name="txtOrderNumber" HorizontalAlignment="Left" Height="23"
+                   Margin="111,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="128"/>
+          <Label Content="Production date" Margin="26,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"
+                 Width="96"/>
+          <Label Content="from:" HorizontalAlignment="Left" Margin="244,20,0,0" VerticalAlignment="Top"/>
+          <DatePicker SelectedDateChanged="DatePickerApprovalStartDate_SelectedDateChanged"
+                      x:Name="DatePickerApprovalStartDate" HorizontalAlignment="Left" Margin="282,23,0,0"
+                      VerticalAlignment="Top" Width="130" SelectedDateFormat="Short" IsHitTestVisible="true"/>
+          <Label Content="to:" HorizontalAlignment="Left" Margin="258,42,0,0" VerticalAlignment="Top"/>
+          <DatePicker x:Name="DatePickerApprovalEndDate" HorizontalAlignment="Left" Margin="282,46,0,0"
+                      VerticalAlignment="Top" Width="130" SelectedDateFormat="Short"/>
+          <y:TimeControl x:Name="txtApprovalStartTime" HorizontalAlignment="Left" Margin="420,24,0,0"
+                         VerticalAlignment="Top"/>
+          <y:TimeControl x:Name="txtApprovalEndTime" HorizontalAlignment="Left" Margin="420,47,0,0" VerticalAlignment="Top"/>
+          <Label Content="Approval date" HorizontalAlignment="Left" Margin="270,2,0,0" VerticalAlignment="Top"/>
+          <Label Name="LabelCount" Content="0" Margin="248,98,0,0" HorizontalContentAlignment="Right" Height="26"
+                 VerticalAlignment="Top" HorizontalAlignment="Left" Width="95"/>
+          <DataGrid SelectedCellsChanged="DataGridMeter_SelectedCellsChanged" Name="DataGridMeter" SelectionUnit="Cell"
+                    CanUserAddRows="false" Margin="0,129,0,3" AutoGenerateColumns="false" CanUserResizeColumns="true"
+                    HeadersVisibility="Column" ItemsSource="{Binding}">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="MeterID" Binding="{Binding [MeterID], Mode=OneWay}"/>
+              <DataGridTextColumn Header="MeterInfoID" Binding="{Binding [MeterInfoID], Mode=OneWay}"/>
+              <DataGridTextColumn Header="SerialNr" Binding="{Binding [SerialNr], Mode=OneWay}"/>
+              <DataGridTextColumn Header="ProductionDate"
+                                  Binding="{Binding [ProductionDate], Mode=OneWay, Converter={StaticResource UtcToLocalDateTimeConverter}}"/>
+              <DataGridTextColumn Header="ApprovalDate"
+                                  Binding="{Binding [ApprovalDate], Mode=OneWay, Converter={StaticResource UtcToLocalDateTimeConverter}}"/>
+              <DataGridTextColumn Header="OrderNr" Binding="{Binding [OrderNr], Mode=OneWay}"/>
+            </DataGrid.Columns>
+          </DataGrid>
+        </Grid>
+        <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch"/>
+        <Grid Row="2">
+          <DataGrid SelectedCellsChanged="DataGridMeterData_SelectedCellsChanged" Name="DataGridMeterData"
+                    SelectionUnit="Cell" CanUserAddRows="false" Margin="0,0,0,42" AutoGenerateColumns="false"
+                    CanUserResizeColumns="true" HeadersVisibility="Column" ItemsSource="{Binding}">
+            <FrameworkElement.Resources>
+              <Style TargetType="{x:Type DataGridRow}">
+              </Style>
+            </FrameworkElement.Resources>
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="TimePoint"
+                                  Binding="{Binding [TimePoint], Mode=OneWay, Converter={StaticResource UtcToLocalDateTimeConverter}}"/>
+              <DataGridTextColumn Header="PValueID" Binding="{Binding [PValueID], Mode=OneWay}"/>
+              <DataGridTextColumn Header="PValue (HardwareTypeID)" Binding="{Binding [PValue], Mode=OneWay}"/>
+              <DataGridTextColumn Header="PValueBinary" Binding="{Binding [PValueBinary], Mode=OneWay}"/>
+              <DataGridTextColumn Header="SyncStatus" Binding="{Binding [SyncStatus], Mode=OneWay}"/>
+            </DataGrid.Columns>
+          </DataGrid>
+          <Button Click="ButtonOpen_Click" Name="ButtonOpen" Content="Open" Margin="0,0,10,9"
+                  HorizontalAlignment="Right" Width="75" Height="22" VerticalAlignment="Bottom"/>
+          <ComboBox Name="ComboBoxFwTypes" HorizontalAlignment="Left" Margin="4,0,0,9" VerticalAlignment="Bottom"
+                    Width="176"/>
+        </Grid>
+      </Grid>
+    </Grid>
+  </Grid>
+</Window>

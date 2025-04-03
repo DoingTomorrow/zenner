@@ -1,0 +1,140 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: CorporateDesign.ZennerCoroprateDesign
+// Assembly: CorporateDesign, Version=1.0.0.1, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: A8E4207C-C514-4462-ABDA-E7AD3E3FE0A6
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CorporateDesign.dll
+
+using System.ComponentModel;
+using System.Drawing;
+using System.IO;
+using System.Windows.Forms;
+
+#nullable disable
+namespace CorporateDesign
+{
+  public class ZennerCoroprateDesign : UserControl
+  {
+    private Panel CorporateTopPanel;
+    private PictureBox pictureBoxZählerGraphik;
+    private PictureBox pictureBoxDesign;
+    private Image DesignImage;
+    private PictureBox pictureBoxZenner;
+    private PictureBox pictureBox1;
+    private System.ComponentModel.Container components = (System.ComponentModel.Container) null;
+
+    public ZennerCoroprateDesign()
+    {
+      this.InitializeComponent();
+      string str = Path.Combine(Application.StartupPath, "design.bmp");
+      if (!File.Exists(str))
+        return;
+      try
+      {
+        this.DesignImage = Image.FromFile(str);
+      }
+      catch
+      {
+        return;
+      }
+      this.CorporateTopPanel.Controls.Clear();
+      this.CorporateTopPanel.BackColor = Color.White;
+      PictureBox pictureBox1 = new PictureBox();
+      PictureBox pictureBox2 = new PictureBox();
+      PictureBox pictureBox3 = new PictureBox();
+      PictureBox pictureBox4 = new PictureBox();
+      PictureBox pictureBox5 = new PictureBox();
+      pictureBox1.BackColor = Color.Black;
+      pictureBox2.BackColor = Color.Black;
+      pictureBox3.BackColor = Color.Black;
+      pictureBox4.BackColor = Color.Black;
+      pictureBox5.BackColor = Color.Black;
+      pictureBox1.BorderStyle = BorderStyle.None;
+      pictureBox2.BorderStyle = BorderStyle.None;
+      pictureBox3.BorderStyle = BorderStyle.None;
+      pictureBox4.BorderStyle = BorderStyle.None;
+      pictureBox5.BorderStyle = BorderStyle.None;
+      pictureBox1.Height = 1;
+      pictureBox2.Width = 1;
+      pictureBox3.Height = 1;
+      pictureBox4.Width = 1;
+      pictureBox5.Width = 1;
+      pictureBox1.Dock = DockStyle.Top;
+      pictureBox2.Dock = DockStyle.Left;
+      pictureBox4.Dock = DockStyle.Left;
+      pictureBox5.Dock = DockStyle.Right;
+      pictureBox3.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+      pictureBox3.Location = new Point(11, this.CorporateTopPanel.Height - 1);
+      pictureBox3.Width = this.CorporateTopPanel.Width - 11;
+      this.CorporateTopPanel.Controls.Add((Control) pictureBox1);
+      this.CorporateTopPanel.Controls.Add((Control) pictureBox2);
+      this.CorporateTopPanel.Controls.Add((Control) pictureBox3);
+      this.pictureBoxDesign = new PictureBox();
+      this.pictureBoxDesign.BackColor = SystemColors.Control;
+      this.CorporateTopPanel.Controls.Add((Control) this.pictureBoxDesign);
+      this.pictureBoxDesign.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+      this.pictureBoxDesign.SizeMode = PictureBoxSizeMode.AutoSize;
+      this.pictureBoxDesign.Image = this.DesignImage;
+      this.pictureBoxDesign.Location = new Point(this.CorporateTopPanel.Size.Width - this.DesignImage.Size.Width - 2, 2);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing && this.components != null)
+        this.components.Dispose();
+      base.Dispose(disposing);
+    }
+
+    private void InitializeComponent()
+    {
+      ComponentResourceManager componentResourceManager = new ComponentResourceManager(typeof (ZennerCoroprateDesign));
+      this.CorporateTopPanel = new Panel();
+      this.pictureBox1 = new PictureBox();
+      this.pictureBoxZählerGraphik = new PictureBox();
+      this.pictureBoxZenner = new PictureBox();
+      this.CorporateTopPanel.SuspendLayout();
+      ((ISupportInitialize) this.pictureBox1).BeginInit();
+      ((ISupportInitialize) this.pictureBoxZählerGraphik).BeginInit();
+      ((ISupportInitialize) this.pictureBoxZenner).BeginInit();
+      this.SuspendLayout();
+      this.CorporateTopPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+      this.CorporateTopPanel.BackColor = Color.White;
+      this.CorporateTopPanel.Controls.Add((Control) this.pictureBox1);
+      this.CorporateTopPanel.Controls.Add((Control) this.pictureBoxZählerGraphik);
+      this.CorporateTopPanel.Controls.Add((Control) this.pictureBoxZenner);
+      this.CorporateTopPanel.Location = new Point(0, 0);
+      this.CorporateTopPanel.Name = "CorporateTopPanel";
+      this.CorporateTopPanel.Size = new Size(458, 40);
+      this.CorporateTopPanel.TabIndex = 0;
+      this.pictureBox1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+      this.pictureBox1.Image = (Image) componentResourceManager.GetObject("pictureBox1.Image");
+      this.pictureBox1.Location = new Point(0, 30);
+      this.pictureBox1.Name = "pictureBox1";
+      this.pictureBox1.Size = new Size(458, 10);
+      this.pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+      this.pictureBox1.TabIndex = 3;
+      this.pictureBox1.TabStop = false;
+      this.pictureBoxZählerGraphik.Image = (Image) componentResourceManager.GetObject("pictureBoxZählerGraphik.Image");
+      this.pictureBoxZählerGraphik.Location = new Point(0, 0);
+      this.pictureBoxZählerGraphik.Name = "pictureBoxZählerGraphik";
+      this.pictureBoxZählerGraphik.Size = new Size(151, 30);
+      this.pictureBoxZählerGraphik.SizeMode = PictureBoxSizeMode.StretchImage;
+      this.pictureBoxZählerGraphik.TabIndex = 1;
+      this.pictureBoxZählerGraphik.TabStop = false;
+      this.pictureBoxZenner.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+      this.pictureBoxZenner.Image = (Image) componentResourceManager.GetObject("pictureBoxZenner.Image");
+      this.pictureBoxZenner.Location = new Point(345, 0);
+      this.pictureBoxZenner.Name = "pictureBoxZenner";
+      this.pictureBoxZenner.Size = new Size(113, 30);
+      this.pictureBoxZenner.TabIndex = 2;
+      this.pictureBoxZenner.TabStop = false;
+      this.Controls.Add((Control) this.CorporateTopPanel);
+      this.Name = nameof (ZennerCoroprateDesign);
+      this.Size = new Size(458, 40);
+      this.CorporateTopPanel.ResumeLayout(false);
+      ((ISupportInitialize) this.pictureBox1).EndInit();
+      ((ISupportInitialize) this.pictureBoxZählerGraphik).EndInit();
+      ((ISupportInitialize) this.pictureBoxZenner).EndInit();
+      this.ResumeLayout(false);
+    }
+  }
+}

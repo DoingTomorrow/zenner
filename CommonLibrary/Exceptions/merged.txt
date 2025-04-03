@@ -1,0 +1,400 @@
+
+--- AccessDeniedException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Exceptions.AccessDeniedException
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Exceptions
+{
+  [Serializable]
+  public class AccessDeniedException : Exception
+  {
+    public string Right { get; private set; }
+
+    public AccessDeniedException(string right, string message)
+      : base(message)
+    {
+      this.Right = right;
+    }
+  }
+}
+
+
+--- ConnectionOpenException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Exceptions.ConnectionOpenException
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Exceptions
+{
+  [Serializable]
+  public class ConnectionOpenException : Exception
+  {
+    public SortedList<string, string> Settings { get; private set; }
+
+    public ConnectionOpenException(SortedList<string, string> settings, string message)
+      : base(message)
+    {
+      this.Settings = settings;
+    }
+  }
+}
+
+
+--- CurrentOverloadException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Exceptions.CurrentOverloadException
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Exceptions
+{
+  [Serializable]
+  public class CurrentOverloadException : Exception
+  {
+    public CurrentOverloadException(string message)
+      : base(message)
+    {
+    }
+
+    public CurrentOverloadException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+  }
+}
+
+
+--- FailedToReadException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Exceptions.FailedToReadException
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Exceptions
+{
+  public class FailedToReadException : Exception
+  {
+    public string Serialnumber { get; private set; }
+
+    public FailedToReadException(string serialnumber) => this.Serialnumber = serialnumber;
+  }
+}
+
+
+--- FramingErrorException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Exceptions.FramingErrorException
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Exceptions
+{
+  [Serializable]
+  public class FramingErrorException : Exception
+  {
+    public FramingErrorException(string message)
+      : base(message)
+    {
+    }
+
+    public FramingErrorException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+  }
+}
+
+
+--- HttpPacketIsNotCompleteException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Exceptions.HttpPacketIsNotCompleteException
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Exceptions
+{
+  [Serializable]
+  public class HttpPacketIsNotCompleteException : Exception
+  {
+    public int MissedBytes { get; private set; }
+
+    public HttpPacketIsNotCompleteException(int missedBytes) => this.MissedBytes = missedBytes;
+  }
+}
+
+
+--- InvalidConnectionException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Exceptions.InvalidConnectionException
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Exceptions
+{
+  [Serializable]
+  public class InvalidConnectionException : Exception
+  {
+    public byte[] Buffer { get; private set; }
+
+    public InvalidConnectionException(string message)
+      : this(message, (byte[]) null)
+    {
+    }
+
+    public InvalidConnectionException(string message, byte[] buffer)
+      : base(message)
+    {
+      this.Buffer = buffer;
+    }
+
+    public InvalidConnectionException(Exception innerException, byte[] buffer)
+      : base(innerException.Message, innerException)
+    {
+      this.Buffer = buffer;
+    }
+
+    public override string ToString()
+    {
+      return this.Buffer == null ? base.ToString() : base.ToString() + " Buffer: " + BitConverter.ToString(this.Buffer);
+    }
+  }
+}
+
+
+--- InvalidDBAccessException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Exceptions.InvalidDBAccessException
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Exceptions
+{
+  [Serializable]
+  public class InvalidDBAccessException(string message, Exception innerException) : Exception(message, innerException)
+  {
+  }
+}
+
+
+--- InvalidJobException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Exceptions.InvalidJobException
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Exceptions
+{
+  [Serializable]
+  public class InvalidJobException : Exception
+  {
+    public Job Job { get; private set; }
+
+    public InvalidJobException(Job job, string message)
+      : base(message)
+    {
+      this.Job = job;
+    }
+
+    public InvalidJobException(Job job, Exception innerException)
+      : base(innerException.Message, innerException)
+    {
+      this.Job = job;
+    }
+  }
+}
+
+
+--- InvalidMeterException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Exceptions.InvalidMeterException
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using ZENNER.CommonLibrary.Entities;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Exceptions
+{
+  [Serializable]
+  public class InvalidMeterException : Exception
+  {
+    public Meter Meter { get; private set; }
+
+    public InvalidMeterException(Meter meter, string message)
+      : base(message)
+    {
+      this.Meter = meter;
+    }
+
+    public InvalidMeterException(Meter meter, Exception innerException)
+      : base(innerException.Message, innerException)
+    {
+      this.Meter = meter;
+    }
+  }
+}
+
+
+--- InvalidResponceException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Exceptions.InvalidResponceException
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Exceptions
+{
+  [Serializable]
+  public class InvalidResponceException : Exception
+  {
+    public byte[] Buffer { get; private set; }
+
+    public InvalidResponceException(string message)
+      : this(message, (byte[]) null)
+    {
+    }
+
+    public InvalidResponceException(string message, byte[] buffer)
+      : base(message)
+    {
+      this.Buffer = buffer;
+    }
+
+    public InvalidResponceException(Exception innerException, byte[] buffer)
+      : base(innerException.Message, innerException)
+    {
+      this.Buffer = buffer;
+    }
+
+    public override string ToString()
+    {
+      return this.Buffer == null ? base.ToString() : base.ToString() + " Buffer: " + BitConverter.ToString(this.Buffer);
+    }
+  }
+}
+
+
+--- InvalidSettingsException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Exceptions.InvalidSettingsException
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Exceptions
+{
+  [Serializable]
+  public class InvalidSettingsException : Exception
+  {
+    public SortedList<string, string> Settings { get; private set; }
+
+    public InvalidSettingsException(SortedList<string, string> settings, string message)
+      : base(message)
+    {
+      this.Settings = settings;
+    }
+  }
+}
+
+
+--- NACK_Exception.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Exceptions.NACK_Exception
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Exceptions
+{
+  [Serializable]
+  public class NACK_Exception(string message) : Exception(message)
+  {
+  }
+}
+
+
+--- ServerException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: ZENNER.CommonLibrary.Exceptions.ServerException
+// Assembly: CommonLibrary, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f5405c50fba4c3ca
+// MVID: 53447886-5C7B-49AE-B18C-3692A1E343CC
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\CommonLibrary.dll
+
+using System;
+
+#nullable disable
+namespace ZENNER.CommonLibrary.Exceptions
+{
+  [Serializable]
+  public class ServerException(string message, Exception innerException) : Exception(message, innerException)
+  {
+  }
+}
+

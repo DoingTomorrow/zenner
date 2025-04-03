@@ -1,0 +1,1280 @@
+
+--- AssemblyInfo.cs ---
+
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyCopyright("AForge © 2012")]
+[assembly: AssemblyTitle("AForge.Video")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("AForge")]
+[assembly: AssemblyProduct("AForge.NET")]
+[assembly: Guid("09501c39-859a-41c4-abad-15ec20e026af")]
+[assembly: AssemblyTrademark("")]
+[assembly: ComVisible(false)]
+[assembly: AssemblyFileVersion("2.2.5.0")]
+[assembly: AssemblyVersion("2.2.5.0")]
+
+
+--- AsyncVideoSource.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.AsyncVideoSource
+// Assembly: AForge.Video, Version=2.2.5.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401
+// MVID: 869827A8-29D1-478E-B314-48676C61CBC2
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.dll
+
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Threading;
+
+#nullable disable
+namespace AForge.Video
+{
+  public class AsyncVideoSource : IVideoSource
+  {
+    private readonly IVideoSource nestedVideoSource;
+    private Bitmap lastVideoFrame;
+    private Thread imageProcessingThread;
+    private AutoResetEvent isNewFrameAvailable;
+    private AutoResetEvent isProcessingThreadAvailable;
+    private bool skipFramesIfBusy;
+    private int framesProcessed;
+
+    public event NewFrameEventHandler NewFrame;
+
+    public event VideoSourceErrorEventHandler VideoSourceError
+    {
+      add => this.nestedVideoSource.VideoSourceError += value;
+      remove => this.nestedVideoSource.VideoSourceError -= value;
+    }
+
+    public event PlayingFinishedEventHandler PlayingFinished
+    {
+      add => this.nestedVideoSource.PlayingFinished += value;
+      remove => this.nestedVideoSource.PlayingFinished -= value;
+    }
+
+    public IVideoSource NestedVideoSource => this.nestedVideoSource;
+
+    public bool SkipFramesIfBusy
+    {
+      get => this.skipFramesIfBusy;
+      set => this.skipFramesIfBusy = value;
+    }
+
+    public string Source => this.nestedVideoSource.Source;
+
+    public int FramesReceived => this.nestedVideoSource.FramesReceived;
+
+    public long BytesReceived => this.nestedVideoSource.BytesReceived;
+
+    public int FramesProcessed
+    {
+      get
+      {
+        int framesProcessed = this.framesProcessed;
+        this.framesProcessed = 0;
+        return framesProcessed;
+      }
+    }
+
+    public bool IsRunning
+    {
+      get
+      {
+        bool isRunning = this.nestedVideoSource.IsRunning;
+        if (!isRunning)
+          this.Free();
+        return isRunning;
+      }
+    }
+
+    public AsyncVideoSource(IVideoSource nestedVideoSource)
+    {
+      this.nestedVideoSource = nestedVideoSource;
+    }
+
+    public AsyncVideoSource(IVideoSource nestedVideoSource, bool skipFramesIfBusy)
+    {
+      this.nestedVideoSource = nestedVideoSource;
+      this.skipFramesIfBusy = skipFramesIfBusy;
+    }
+
+    public void Start()
+    {
+      if (this.IsRunning)
+        return;
+      this.framesProcessed = 0;
+      this.isNewFrameAvailable = new AutoResetEvent(false);
+      this.isProcessingThreadAvailable = new AutoResetEvent(true);
+      this.imageProcessingThread = new Thread(new ThreadStart(this.imageProcessingThread_Worker));
+      this.imageProcessingThread.Start();
+      this.nestedVideoSource.NewFrame += new NewFrameEventHandler(this.nestedVideoSource_NewFrame);
+      this.nestedVideoSource.Start();
+    }
+
+    public void SignalToStop() => this.nestedVideoSource.SignalToStop();
+
+    public void WaitForStop()
+    {
+      this.nestedVideoSource.WaitForStop();
+      this.Free();
+    }
+
+    public void Stop()
+    {
+      this.nestedVideoSource.Stop();
+      this.Free();
+    }
+
+    private void Free()
+    {
+      if (this.imageProcessingThread == null)
+        return;
+      this.nestedVideoSource.NewFrame -= new NewFrameEventHandler(this.nestedVideoSource_NewFrame);
+      this.isProcessingThreadAvailable.WaitOne();
+      this.lastVideoFrame = (Bitmap) null;
+      this.isNewFrameAvailable.Set();
+      this.imageProcessingThread.Join();
+      this.imageProcessingThread = (Thread) null;
+      this.isNewFrameAvailable.Close();
+      this.isNewFrameAvailable = (AutoResetEvent) null;
+      this.isProcessingThreadAvailable.Close();
+      this.isProcessingThreadAvailable = (AutoResetEvent) null;
+    }
+
+    private void nestedVideoSource_NewFrame(object sender, NewFrameEventArgs eventArgs)
+    {
+      if (this.NewFrame == null)
+        return;
+      if (this.skipFramesIfBusy)
+      {
+        if (!this.isProcessingThreadAvailable.WaitOne(0, false))
+          return;
+      }
+      else
+        this.isProcessingThreadAvailable.WaitOne();
+      this.lastVideoFrame = AsyncVideoSource.CloneImage(eventArgs.Frame);
+      this.isNewFrameAvailable.Set();
+    }
+
+    private void imageProcessingThread_Worker()
+    {
+      while (true)
+      {
+        this.isNewFrameAvailable.WaitOne();
+        if (this.lastVideoFrame != null)
+        {
+          if (this.NewFrame != null)
+            this.NewFrame((object) this, new NewFrameEventArgs(this.lastVideoFrame));
+          this.lastVideoFrame.Dispose();
+          this.lastVideoFrame = (Bitmap) null;
+          ++this.framesProcessed;
+          this.isProcessingThreadAvailable.Set();
+        }
+        else
+          break;
+      }
+    }
+
+    private static Bitmap CloneImage(Bitmap source)
+    {
+      BitmapData bitmapData = source.LockBits(new Rectangle(0, 0, source.Width, source.Height), ImageLockMode.ReadOnly, source.PixelFormat);
+      Bitmap bitmap = AsyncVideoSource.CloneImage(bitmapData);
+      source.UnlockBits(bitmapData);
+      if (source.PixelFormat == PixelFormat.Format1bppIndexed || source.PixelFormat == PixelFormat.Format4bppIndexed || source.PixelFormat == PixelFormat.Format8bppIndexed || source.PixelFormat == PixelFormat.Indexed)
+      {
+        ColorPalette palette1 = source.Palette;
+        ColorPalette palette2 = bitmap.Palette;
+        int length = palette1.Entries.Length;
+        for (int index = 0; index < length; ++index)
+          palette2.Entries[index] = palette1.Entries[index];
+        bitmap.Palette = palette2;
+      }
+      return bitmap;
+    }
+
+    private static Bitmap CloneImage(BitmapData sourceData)
+    {
+      int width = sourceData.Width;
+      int height = sourceData.Height;
+      Bitmap bitmap = new Bitmap(width, height, sourceData.PixelFormat);
+      BitmapData bitmapdata = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
+      SystemTools.CopyUnmanagedMemory(bitmapdata.Scan0, sourceData.Scan0, height * sourceData.Stride);
+      bitmap.UnlockBits(bitmapdata);
+      return bitmap;
+    }
+  }
+}
+
+
+--- ByteArrayUtils.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.ByteArrayUtils
+// Assembly: AForge.Video, Version=2.2.5.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401
+// MVID: 869827A8-29D1-478E-B314-48676C61CBC2
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.dll
+
+using System;
+
+#nullable disable
+namespace AForge.Video
+{
+  internal static class ByteArrayUtils
+  {
+    public static bool Compare(byte[] array, byte[] needle, int startIndex)
+    {
+      int length = needle.Length;
+      int index1 = 0;
+      int index2 = startIndex;
+      while (index1 < length)
+      {
+        if ((int) array[index2] != (int) needle[index1])
+          return false;
+        ++index1;
+        ++index2;
+      }
+      return true;
+    }
+
+    public static int Find(byte[] array, byte[] needle, int startIndex, int sourceLength)
+    {
+      int length = needle.Length;
+      while (sourceLength >= length)
+      {
+        int num = Array.IndexOf<byte>(array, needle[0], startIndex, sourceLength - length + 1);
+        if (num == -1)
+          return -1;
+        int index1 = 0;
+        for (int index2 = num; index1 < length && (int) array[index2] == (int) needle[index1]; ++index2)
+          ++index1;
+        if (index1 == length)
+          return num;
+        sourceLength -= num - startIndex + 1;
+        startIndex = num + 1;
+      }
+      return -1;
+    }
+  }
+}
+
+
+--- IVideoSource.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.IVideoSource
+// Assembly: AForge.Video, Version=2.2.5.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401
+// MVID: 869827A8-29D1-478E-B314-48676C61CBC2
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.dll
+
+#nullable disable
+namespace AForge.Video
+{
+  public interface IVideoSource
+  {
+    event NewFrameEventHandler NewFrame;
+
+    event VideoSourceErrorEventHandler VideoSourceError;
+
+    event PlayingFinishedEventHandler PlayingFinished;
+
+    string Source { get; }
+
+    int FramesReceived { get; }
+
+    long BytesReceived { get; }
+
+    bool IsRunning { get; }
+
+    void Start();
+
+    void SignalToStop();
+
+    void WaitForStop();
+
+    void Stop();
+  }
+}
+
+
+--- JPEGStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.JPEGStream
+// Assembly: AForge.Video, Version=2.2.5.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401
+// MVID: 869827A8-29D1-478E-B314-48676C61CBC2
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.dll
+
+using System;
+using System.Drawing;
+using System.IO;
+using System.Net;
+using System.Text;
+using System.Threading;
+
+#nullable disable
+namespace AForge.Video
+{
+  public class JPEGStream : IVideoSource
+  {
+    private const int bufferSize = 1048576;
+    private const int readSize = 1024;
+    private string source;
+    private string login;
+    private string password;
+    private IWebProxy proxy;
+    private int framesReceived;
+    private long bytesReceived;
+    private bool useSeparateConnectionGroup;
+    private bool preventCaching = true;
+    private int frameInterval;
+    private int requestTimeout = 10000;
+    private bool forceBasicAuthentication;
+    private Thread thread;
+    private ManualResetEvent stopEvent;
+
+    public event NewFrameEventHandler NewFrame;
+
+    public event VideoSourceErrorEventHandler VideoSourceError;
+
+    public event PlayingFinishedEventHandler PlayingFinished;
+
+    public bool SeparateConnectionGroup
+    {
+      get => this.useSeparateConnectionGroup;
+      set => this.useSeparateConnectionGroup = value;
+    }
+
+    public bool PreventCaching
+    {
+      get => this.preventCaching;
+      set => this.preventCaching = value;
+    }
+
+    public int FrameInterval
+    {
+      get => this.frameInterval;
+      set => this.frameInterval = value;
+    }
+
+    public virtual string Source
+    {
+      get => this.source;
+      set => this.source = value;
+    }
+
+    public string Login
+    {
+      get => this.login;
+      set => this.login = value;
+    }
+
+    public string Password
+    {
+      get => this.password;
+      set => this.password = value;
+    }
+
+    public IWebProxy Proxy
+    {
+      get => this.proxy;
+      set => this.proxy = value;
+    }
+
+    public int FramesReceived
+    {
+      get
+      {
+        int framesReceived = this.framesReceived;
+        this.framesReceived = 0;
+        return framesReceived;
+      }
+    }
+
+    public long BytesReceived
+    {
+      get
+      {
+        long bytesReceived = this.bytesReceived;
+        this.bytesReceived = 0L;
+        return bytesReceived;
+      }
+    }
+
+    public int RequestTimeout
+    {
+      get => this.requestTimeout;
+      set => this.requestTimeout = value;
+    }
+
+    public bool IsRunning
+    {
+      get
+      {
+        if (this.thread != null)
+        {
+          if (!this.thread.Join(0))
+            return true;
+          this.Free();
+        }
+        return false;
+      }
+    }
+
+    public bool ForceBasicAuthentication
+    {
+      get => this.forceBasicAuthentication;
+      set => this.forceBasicAuthentication = value;
+    }
+
+    public JPEGStream()
+    {
+    }
+
+    public JPEGStream(string source) => this.source = source;
+
+    public void Start()
+    {
+      if (this.IsRunning)
+        return;
+      if (this.source == null || this.source == string.Empty)
+        throw new ArgumentException("Video source is not specified.");
+      this.framesReceived = 0;
+      this.bytesReceived = 0L;
+      this.stopEvent = new ManualResetEvent(false);
+      this.thread = new Thread(new ThreadStart(this.WorkerThread));
+      this.thread.Name = this.source;
+      this.thread.Start();
+    }
+
+    public void SignalToStop()
+    {
+      if (this.thread == null)
+        return;
+      this.stopEvent.Set();
+    }
+
+    public void WaitForStop()
+    {
+      if (this.thread == null)
+        return;
+      this.thread.Join();
+      this.Free();
+    }
+
+    public void Stop()
+    {
+      if (!this.IsRunning)
+        return;
+      this.stopEvent.Set();
+      this.thread.Abort();
+      this.WaitForStop();
+    }
+
+    private void Free()
+    {
+      this.thread = (Thread) null;
+      this.stopEvent.Close();
+      this.stopEvent = (ManualResetEvent) null;
+    }
+
+    private void WorkerThread()
+    {
+      byte[] buffer = new byte[1048576];
+      HttpWebRequest httpWebRequest = (HttpWebRequest) null;
+      WebResponse webResponse = (WebResponse) null;
+      Stream stream = (Stream) null;
+      Random random = new Random((int) DateTime.Now.Ticks);
+      while (!this.stopEvent.WaitOne(0, false))
+      {
+        int num1 = 0;
+        try
+        {
+          DateTime now = DateTime.Now;
+          if (!this.preventCaching)
+            httpWebRequest = (HttpWebRequest) WebRequest.Create(this.source);
+          else
+            httpWebRequest = (HttpWebRequest) WebRequest.Create(this.source + (object) (char) (this.source.IndexOf('?') == -1 ? 63 : 38) + "fake=" + random.Next().ToString());
+          if (this.proxy != null)
+            httpWebRequest.Proxy = this.proxy;
+          httpWebRequest.Timeout = this.requestTimeout;
+          if (this.login != null && this.password != null && this.login != string.Empty)
+            httpWebRequest.Credentials = (ICredentials) new NetworkCredential(this.login, this.password);
+          if (this.useSeparateConnectionGroup)
+            httpWebRequest.ConnectionGroupName = this.GetHashCode().ToString();
+          if (this.forceBasicAuthentication)
+          {
+            string base64String = Convert.ToBase64String(Encoding.Default.GetBytes(string.Format("{0}:{1}", (object) this.login, (object) this.password)));
+            httpWebRequest.Headers["Authorization"] = "Basic " + base64String;
+          }
+          webResponse = httpWebRequest.GetResponse();
+          stream = webResponse.GetResponseStream();
+          stream.ReadTimeout = this.requestTimeout;
+          while (!this.stopEvent.WaitOne(0, false))
+          {
+            if (num1 > 1047552)
+              num1 = 0;
+            int num2;
+            if ((num2 = stream.Read(buffer, num1, 1024)) != 0)
+            {
+              num1 += num2;
+              this.bytesReceived += (long) num2;
+            }
+            else
+              break;
+          }
+          if (!this.stopEvent.WaitOne(0, false))
+          {
+            ++this.framesReceived;
+            if (this.NewFrame != null)
+            {
+              Bitmap frame = (Bitmap) Image.FromStream((Stream) new MemoryStream(buffer, 0, num1));
+              this.NewFrame((object) this, new NewFrameEventArgs(frame));
+              frame.Dispose();
+            }
+          }
+          if (this.frameInterval > 0)
+          {
+            int millisecondsTimeout = this.frameInterval - (int) DateTime.Now.Subtract(now).TotalMilliseconds;
+            if (millisecondsTimeout > 0)
+            {
+              if (this.stopEvent.WaitOne(millisecondsTimeout, false))
+                break;
+            }
+          }
+        }
+        catch (ThreadAbortException ex)
+        {
+          break;
+        }
+        catch (Exception ex)
+        {
+          if (this.VideoSourceError != null)
+            this.VideoSourceError((object) this, new VideoSourceErrorEventArgs(ex.Message));
+          Thread.Sleep(250);
+        }
+        finally
+        {
+          if (httpWebRequest != null)
+          {
+            httpWebRequest.Abort();
+            httpWebRequest = (HttpWebRequest) null;
+          }
+          if (stream != null)
+          {
+            stream.Close();
+            stream = (Stream) null;
+          }
+          if (webResponse != null)
+          {
+            webResponse.Close();
+            webResponse = (WebResponse) null;
+          }
+        }
+        if (this.stopEvent.WaitOne(0, false))
+          break;
+      }
+      if (this.PlayingFinished == null)
+        return;
+      this.PlayingFinished((object) this, ReasonToFinishPlaying.StoppedByUser);
+    }
+  }
+}
+
+
+--- MJPEGStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.MJPEGStream
+// Assembly: AForge.Video, Version=2.2.5.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401
+// MVID: 869827A8-29D1-478E-B314-48676C61CBC2
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.dll
+
+using System;
+using System.Drawing;
+using System.IO;
+using System.Net;
+using System.Text;
+using System.Threading;
+
+#nullable disable
+namespace AForge.Video
+{
+  public class MJPEGStream : IVideoSource
+  {
+    private const int bufSize = 1048576;
+    private const int readSize = 1024;
+    private string source;
+    private string login;
+    private string password;
+    private IWebProxy proxy;
+    private int framesReceived;
+    private long bytesReceived;
+    private bool useSeparateConnectionGroup = true;
+    private int requestTimeout = 10000;
+    private bool forceBasicAuthentication;
+    private Thread thread;
+    private ManualResetEvent stopEvent;
+    private ManualResetEvent reloadEvent;
+    private string userAgent = "Mozilla/5.0";
+
+    public event NewFrameEventHandler NewFrame;
+
+    public event VideoSourceErrorEventHandler VideoSourceError;
+
+    public event PlayingFinishedEventHandler PlayingFinished;
+
+    public bool SeparateConnectionGroup
+    {
+      get => this.useSeparateConnectionGroup;
+      set => this.useSeparateConnectionGroup = value;
+    }
+
+    public string Source
+    {
+      get => this.source;
+      set
+      {
+        this.source = value;
+        if (this.thread == null)
+          return;
+        this.reloadEvent.Set();
+      }
+    }
+
+    public string Login
+    {
+      get => this.login;
+      set => this.login = value;
+    }
+
+    public string Password
+    {
+      get => this.password;
+      set => this.password = value;
+    }
+
+    public IWebProxy Proxy
+    {
+      get => this.proxy;
+      set => this.proxy = value;
+    }
+
+    public string HttpUserAgent
+    {
+      get => this.userAgent;
+      set => this.userAgent = value;
+    }
+
+    public int FramesReceived
+    {
+      get
+      {
+        int framesReceived = this.framesReceived;
+        this.framesReceived = 0;
+        return framesReceived;
+      }
+    }
+
+    public long BytesReceived
+    {
+      get
+      {
+        long bytesReceived = this.bytesReceived;
+        this.bytesReceived = 0L;
+        return bytesReceived;
+      }
+    }
+
+    public int RequestTimeout
+    {
+      get => this.requestTimeout;
+      set => this.requestTimeout = value;
+    }
+
+    public bool IsRunning
+    {
+      get
+      {
+        if (this.thread != null)
+        {
+          if (!this.thread.Join(0))
+            return true;
+          this.Free();
+        }
+        return false;
+      }
+    }
+
+    public bool ForceBasicAuthentication
+    {
+      get => this.forceBasicAuthentication;
+      set => this.forceBasicAuthentication = value;
+    }
+
+    public MJPEGStream()
+    {
+    }
+
+    public MJPEGStream(string source) => this.source = source;
+
+    public void Start()
+    {
+      if (this.IsRunning)
+        return;
+      if (this.source == null || this.source == string.Empty)
+        throw new ArgumentException("Video source is not specified.");
+      this.framesReceived = 0;
+      this.bytesReceived = 0L;
+      this.stopEvent = new ManualResetEvent(false);
+      this.reloadEvent = new ManualResetEvent(false);
+      this.thread = new Thread(new ThreadStart(this.WorkerThread));
+      this.thread.Name = this.source;
+      this.thread.Start();
+    }
+
+    public void SignalToStop()
+    {
+      if (this.thread == null)
+        return;
+      this.stopEvent.Set();
+    }
+
+    public void WaitForStop()
+    {
+      if (this.thread == null)
+        return;
+      this.thread.Join();
+      this.Free();
+    }
+
+    public void Stop()
+    {
+      if (!this.IsRunning)
+        return;
+      this.stopEvent.Set();
+      this.thread.Abort();
+      this.WaitForStop();
+    }
+
+    private void Free()
+    {
+      this.thread = (Thread) null;
+      this.stopEvent.Close();
+      this.stopEvent = (ManualResetEvent) null;
+      this.reloadEvent.Close();
+      this.reloadEvent = (ManualResetEvent) null;
+    }
+
+    private void WorkerThread()
+    {
+      byte[] numArray = new byte[1048576];
+      byte[] needle1 = new byte[3]
+      {
+        byte.MaxValue,
+        (byte) 216,
+        byte.MaxValue
+      };
+      int num1 = 3;
+      ASCIIEncoding asciiEncoding = new ASCIIEncoding();
+      while (!this.stopEvent.WaitOne(0, false))
+      {
+        this.reloadEvent.Reset();
+        HttpWebRequest httpWebRequest = (HttpWebRequest) null;
+        WebResponse webResponse = (WebResponse) null;
+        Stream stream = (Stream) null;
+        string s = (string) null;
+        bool flag = false;
+        int num2 = 0;
+        int offset = 0;
+        int startIndex = 0;
+        int num3 = 1;
+        int index1 = 0;
+        try
+        {
+          httpWebRequest = (HttpWebRequest) WebRequest.Create(this.source);
+          if (this.userAgent != null)
+            httpWebRequest.UserAgent = this.userAgent;
+          if (this.proxy != null)
+            httpWebRequest.Proxy = this.proxy;
+          httpWebRequest.Timeout = this.requestTimeout;
+          if (this.login != null && this.password != null && this.login != string.Empty)
+            httpWebRequest.Credentials = (ICredentials) new NetworkCredential(this.login, this.password);
+          if (this.useSeparateConnectionGroup)
+            httpWebRequest.ConnectionGroupName = this.GetHashCode().ToString();
+          if (this.forceBasicAuthentication)
+          {
+            string base64String = Convert.ToBase64String(Encoding.Default.GetBytes(string.Format("{0}:{1}", (object) this.login, (object) this.password)));
+            httpWebRequest.Headers["Authorization"] = "Basic " + base64String;
+          }
+          webResponse = httpWebRequest.GetResponse();
+          string contentType = webResponse.ContentType;
+          string[] strArray = contentType.Split('/');
+          int num4;
+          byte[] needle2;
+          if (strArray[0] == "application" && strArray[1] == "octet-stream")
+          {
+            num4 = 0;
+            needle2 = new byte[0];
+          }
+          else
+          {
+            int num5 = strArray[0] == "multipart" && contentType.Contains("mixed") ? contentType.IndexOf("boundary", 0) : throw new Exception("Invalid content type.");
+            if (num5 != -1)
+              num5 = contentType.IndexOf("=", num5 + 8);
+            if (num5 == -1)
+            {
+              num4 = 0;
+              needle2 = new byte[0];
+            }
+            else
+            {
+              s = contentType.Substring(num5 + 1).Trim(' ', '"');
+              needle2 = asciiEncoding.GetBytes(s);
+              num4 = needle2.Length;
+              flag = false;
+            }
+          }
+          stream = webResponse.GetResponseStream();
+          stream.ReadTimeout = this.requestTimeout;
+label_45:
+          while (!this.stopEvent.WaitOne(0, false))
+          {
+            if (!this.reloadEvent.WaitOne(0, false))
+            {
+              if (offset > 1047552)
+              {
+                int num6;
+                num2 = num6 = 0;
+                startIndex = num6;
+                offset = num6;
+              }
+              int num7;
+              if ((num7 = stream.Read(numArray, offset, 1024)) == 0)
+                throw new ApplicationException();
+              offset += num7;
+              num2 += num7;
+              this.bytesReceived += (long) num7;
+              if (num4 != 0 && !flag)
+              {
+                startIndex = ByteArrayUtils.Find(numArray, needle2, 0, num2);
+                if (startIndex != -1)
+                {
+                  for (int index2 = startIndex - 1; index2 >= 0; --index2)
+                  {
+                    byte num8 = numArray[index2];
+                    switch (num8)
+                    {
+                      case 10:
+                      case 13:
+                        goto label_32;
+                      default:
+                        s = ((char) num8).ToString() + s;
+                        continue;
+                    }
+                  }
+label_32:
+                  needle2 = asciiEncoding.GetBytes(s);
+                  num4 = needle2.Length;
+                  flag = true;
+                }
+                else
+                  continue;
+              }
+              if (num3 == 1 && num2 >= num1)
+              {
+                index1 = ByteArrayUtils.Find(numArray, needle1, startIndex, num2);
+                if (index1 != -1)
+                {
+                  startIndex = index1 + num1;
+                  num2 = offset - startIndex;
+                  num3 = 2;
+                }
+                else
+                {
+                  num2 = num1 - 1;
+                  startIndex = offset - num2;
+                }
+              }
+              while (true)
+              {
+                if (num3 == 2 && num2 != 0 && num2 >= num4)
+                {
+                  int num9 = ByteArrayUtils.Find(numArray, num4 != 0 ? needle2 : needle1, startIndex, num2);
+                  if (num9 != -1)
+                  {
+                    int num10 = num9;
+                    int num11 = offset - num10;
+                    ++this.framesReceived;
+                    if (this.NewFrame != null && !this.stopEvent.WaitOne(0, false))
+                    {
+                      Bitmap frame = (Bitmap) Image.FromStream((Stream) new MemoryStream(numArray, index1, num9 - index1));
+                      this.NewFrame((object) this, new NewFrameEventArgs(frame));
+                      frame.Dispose();
+                    }
+                    int sourceIndex = num9 + num4;
+                    num2 = offset - sourceIndex;
+                    Array.Copy((Array) numArray, sourceIndex, (Array) numArray, 0, num2);
+                    offset = num2;
+                    startIndex = 0;
+                    num3 = 1;
+                  }
+                  else if (num4 != 0)
+                  {
+                    num2 = num4 - 1;
+                    startIndex = offset - num2;
+                  }
+                  else
+                  {
+                    num2 = 0;
+                    startIndex = offset;
+                  }
+                }
+                else
+                  goto label_45;
+              }
+            }
+            else
+              break;
+          }
+        }
+        catch (ApplicationException ex)
+        {
+          Thread.Sleep(250);
+        }
+        catch (ThreadAbortException ex)
+        {
+          break;
+        }
+        catch (Exception ex)
+        {
+          if (this.VideoSourceError != null)
+            this.VideoSourceError((object) this, new VideoSourceErrorEventArgs(ex.Message));
+          Thread.Sleep(250);
+        }
+        finally
+        {
+          httpWebRequest?.Abort();
+          stream?.Close();
+          webResponse?.Close();
+        }
+        if (this.stopEvent.WaitOne(0, false))
+          break;
+      }
+      if (this.PlayingFinished == null)
+        return;
+      this.PlayingFinished((object) this, ReasonToFinishPlaying.StoppedByUser);
+    }
+  }
+}
+
+
+--- NewFrameEventArgs.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.NewFrameEventArgs
+// Assembly: AForge.Video, Version=2.2.5.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401
+// MVID: 869827A8-29D1-478E-B314-48676C61CBC2
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.dll
+
+using System;
+using System.Drawing;
+
+#nullable disable
+namespace AForge.Video
+{
+  public class NewFrameEventArgs : EventArgs
+  {
+    private Bitmap frame;
+
+    public NewFrameEventArgs(Bitmap frame) => this.frame = frame;
+
+    public Bitmap Frame => this.frame;
+  }
+}
+
+
+--- NewFrameEventHandler.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.NewFrameEventHandler
+// Assembly: AForge.Video, Version=2.2.5.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401
+// MVID: 869827A8-29D1-478E-B314-48676C61CBC2
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.dll
+
+#nullable disable
+namespace AForge.Video
+{
+  public delegate void NewFrameEventHandler(object sender, NewFrameEventArgs eventArgs);
+}
+
+
+--- PlayingFinishedEventHandler.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.PlayingFinishedEventHandler
+// Assembly: AForge.Video, Version=2.2.5.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401
+// MVID: 869827A8-29D1-478E-B314-48676C61CBC2
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.dll
+
+#nullable disable
+namespace AForge.Video
+{
+  public delegate void PlayingFinishedEventHandler(object sender, ReasonToFinishPlaying reason);
+}
+
+
+--- ReasonToFinishPlaying.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.ReasonToFinishPlaying
+// Assembly: AForge.Video, Version=2.2.5.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401
+// MVID: 869827A8-29D1-478E-B314-48676C61CBC2
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.dll
+
+#nullable disable
+namespace AForge.Video
+{
+  public enum ReasonToFinishPlaying
+  {
+    EndOfStreamReached,
+    StoppedByUser,
+    DeviceLost,
+    VideoSourceError,
+  }
+}
+
+
+--- ScreenCaptureStream.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.ScreenCaptureStream
+// Assembly: AForge.Video, Version=2.2.5.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401
+// MVID: 869827A8-29D1-478E-B314-48676C61CBC2
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.dll
+
+using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Threading;
+
+#nullable disable
+namespace AForge.Video
+{
+  public class ScreenCaptureStream : IVideoSource
+  {
+    private Rectangle region;
+    private int frameInterval = 100;
+    private int framesReceived;
+    private Thread thread;
+    private ManualResetEvent stopEvent;
+
+    public event NewFrameEventHandler NewFrame;
+
+    public event VideoSourceErrorEventHandler VideoSourceError;
+
+    public event PlayingFinishedEventHandler PlayingFinished;
+
+    public virtual string Source => "Screen Capture";
+
+    public Rectangle Region
+    {
+      get => this.region;
+      set => this.region = value;
+    }
+
+    public int FrameInterval
+    {
+      get => this.frameInterval;
+      set => this.frameInterval = Math.Max(0, value);
+    }
+
+    public int FramesReceived
+    {
+      get
+      {
+        int framesReceived = this.framesReceived;
+        this.framesReceived = 0;
+        return framesReceived;
+      }
+    }
+
+    public long BytesReceived => 0;
+
+    public bool IsRunning
+    {
+      get
+      {
+        if (this.thread != null)
+        {
+          if (!this.thread.Join(0))
+            return true;
+          this.Free();
+        }
+        return false;
+      }
+    }
+
+    public ScreenCaptureStream(Rectangle region) => this.region = region;
+
+    public ScreenCaptureStream(Rectangle region, int frameInterval)
+    {
+      this.region = region;
+      this.FrameInterval = frameInterval;
+    }
+
+    public void Start()
+    {
+      if (this.IsRunning)
+        return;
+      this.framesReceived = 0;
+      this.stopEvent = new ManualResetEvent(false);
+      this.thread = new Thread(new ThreadStart(this.WorkerThread));
+      this.thread.Name = this.Source;
+      this.thread.Start();
+    }
+
+    public void SignalToStop()
+    {
+      if (this.thread == null)
+        return;
+      this.stopEvent.Set();
+    }
+
+    public void WaitForStop()
+    {
+      if (this.thread == null)
+        return;
+      this.thread.Join();
+      this.Free();
+    }
+
+    public void Stop()
+    {
+      if (!this.IsRunning)
+        return;
+      this.stopEvent.Set();
+      this.thread.Abort();
+      this.WaitForStop();
+    }
+
+    private void Free()
+    {
+      this.thread = (Thread) null;
+      this.stopEvent.Close();
+      this.stopEvent = (ManualResetEvent) null;
+    }
+
+    private void WorkerThread()
+    {
+      int width = this.region.Width;
+      int height = this.region.Height;
+      int x = this.region.Location.X;
+      int y = this.region.Location.Y;
+      Size size = this.region.Size;
+      Bitmap frame = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+      Graphics graphics = Graphics.FromImage((Image) frame);
+      while (!this.stopEvent.WaitOne(0, false))
+      {
+        DateTime now = DateTime.Now;
+        try
+        {
+          graphics.CopyFromScreen(x, y, 0, 0, size, CopyPixelOperation.SourceCopy);
+          ++this.framesReceived;
+          if (this.NewFrame != null)
+            this.NewFrame((object) this, new NewFrameEventArgs(frame));
+          if (this.frameInterval > 0)
+          {
+            int millisecondsTimeout = this.frameInterval - (int) DateTime.Now.Subtract(now).TotalMilliseconds;
+            if (millisecondsTimeout > 0)
+            {
+              if (this.stopEvent.WaitOne(millisecondsTimeout, false))
+                break;
+            }
+          }
+        }
+        catch (ThreadAbortException ex)
+        {
+          break;
+        }
+        catch (Exception ex)
+        {
+          if (this.VideoSourceError != null)
+            this.VideoSourceError((object) this, new VideoSourceErrorEventArgs(ex.Message));
+          Thread.Sleep(250);
+        }
+        if (this.stopEvent.WaitOne(0, false))
+          break;
+      }
+      graphics.Dispose();
+      frame.Dispose();
+      if (this.PlayingFinished == null)
+        return;
+      this.PlayingFinished((object) this, ReasonToFinishPlaying.StoppedByUser);
+    }
+  }
+}
+
+
+--- VideoException.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.VideoException
+// Assembly: AForge.Video, Version=2.2.5.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401
+// MVID: 869827A8-29D1-478E-B314-48676C61CBC2
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.dll
+
+using System;
+
+#nullable disable
+namespace AForge.Video
+{
+  public class VideoException(string message) : Exception(message)
+  {
+  }
+}
+
+
+--- VideoSourceErrorEventArgs.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.VideoSourceErrorEventArgs
+// Assembly: AForge.Video, Version=2.2.5.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401
+// MVID: 869827A8-29D1-478E-B314-48676C61CBC2
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.dll
+
+using System;
+
+#nullable disable
+namespace AForge.Video
+{
+  public class VideoSourceErrorEventArgs : EventArgs
+  {
+    private string description;
+
+    public VideoSourceErrorEventArgs(string description) => this.description = description;
+
+    public string Description => this.description;
+  }
+}
+
+
+--- VideoSourceErrorEventHandler.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: AForge.Video.VideoSourceErrorEventHandler
+// Assembly: AForge.Video, Version=2.2.5.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401
+// MVID: 869827A8-29D1-478E-B314-48676C61CBC2
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\AForge.Video.dll
+
+#nullable disable
+namespace AForge.Video
+{
+  public delegate void VideoSourceErrorEventHandler(
+    object sender,
+    VideoSourceErrorEventArgs eventArgs);
+}
+

@@ -1,0 +1,96 @@
+
+--- DownloadManager.cs ---
+
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Business.Modules.DownloadManager
+// Assembly: MSS.Business, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 64DA76B1-4684-48DF-AFDA-4106EF3D1AF4
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Business.dll
+
+using AutoMapper;
+using MSS.Business.DTO;
+using MSS.Business.Modules.StructuresManagement;
+using MSS.Business.Modules.WCFRelated;
+using MSS.Core.Model.Meters;
+using MSS.Core.Model.Structures;
+using MSS.DTO.Meters;
+using MSS.DTO.Structures;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+
+#nullable disable
+namespace MSS.Business.Modules
+{
+  public class DownloadManager
+  {
+    public Dictionary<Guid, object> GetEntitiesDictionary(
+      IEnumerable<Meter> meterList,
+      IEnumerable<Location> locationList,
+      IEnumerable<Tenant> tenantList)
+    {
+      Dictionary<Guid, object> entitiesDictionary = new Dictionary<Guid, object>();
+      foreach (Meter meter in meterList)
+        entitiesDictionary.Add(meter.Id, (object) meter);
+      foreach (Location location in locationList)
+        entitiesDictionary.Add(location.Id, (object) location);
+      foreach (Tenant tenant in tenantList)
+        entitiesDictionary.Add(tenant.Id, (object) tenant);
+      return entitiesDictionary;
+    }
+
+    public IEnumerable<StructureNodeDTO> SearchStructures(
+      StructureTypeEnum structureType,
+      string searchText,
+      out List<StructureNodeLinks> structureNodesLinksList)
+    {
+      IEnumerable<StructureNodeDTO> structureNodeDtos = (IEnumerable<StructureNodeDTO>) new List<StructureNodeDTO>();
+      StructureNodeDTOListsSerializable structureListsSerializable = (StructureNodeDTOListsSerializable) null;
+      using (ServiceClient serviceClient = new ServiceClient(MSS.Business.Utils.AppContext.Current.GetParameterValue<string>("ServerIp")))
+        structureListsSerializable = serviceClient.GetStructures(searchText, structureType);
+      if (structureListsSerializable != null)
+      {
+        Mapper.CreateMap<StructureNodeTypeSerializableDTO, StructureNodeType>();
+        Mapper.CreateMap<StructureNodeSerializableDTO, StructureNode>().ForMember((Expression<Func<StructureNode, object>>) (m => m.NodeType), (Action<IMemberConfigurationExpression<StructureNodeSerializableDTO>>) (a =>
+        {
+          IMemberConfigurationExpression<StructureNodeSerializableDTO> configurationExpression = a;
+          ParameterExpression parameterExpression1 = Expression.Parameter(typeof (StructureNodeSerializableDTO), "e");
+          // ISSUE: method reference
+          MethodInfo methodFromHandle1 = (MethodInfo) MethodBase.GetMethodFromHandle(__methodref (Mapper.Map));
+          Expression[] expressionArray1 = new Expression[1];
+          // ISSUE: method reference
+          MethodInfo methodFromHandle2 = (MethodInfo) MethodBase.GetMethodFromHandle(__methodref (Enumerable.FirstOrDefault));
+          ParameterExpression parameterExpression2;
+          // ISSUE: field reference
+          // ISSUE: method reference
+          // ISSUE: method reference
+          // ISSUE: method reference
+          Expression[] expressionArray2 = new Expression[2]
+          {
+            (Expression) Expression.Property((Expression) Expression.Field((Expression) Expression.Constant((object) this, typeof (DownloadManager.\u003C\u003Ec__DisplayClass1_0)), FieldInfo.GetFieldFromHandle(__fieldref (DownloadManager.\u003C\u003Ec__DisplayClass1_0.structureListsSerializable))), (MethodInfo) MethodBase.GetMethodFromHandle(__methodref (StructureNodeDTOListsSerializable.get_strucureNodeTypesEnumerable))),
+            (Expression) Expression.Lambda<Func<StructureNodeTypeSerializableDTO, bool>>((Expression) Expression.Equal(x.Id, (Expression) Expression.Property((Expression) parameterExpression1, (MethodInfo) MethodBase.GetMethodFromHandle(__methodref (StructureNodeSerializableDTO.get_NodeType))), false, (MethodInfo) MethodBase.GetMethodFromHandle(__methodref (Guid.op_Equality))), parameterExpression2)
+          };
+          expressionArray1[0] = (Expression) Expression.Call((Expression) null, methodFromHandle2, expressionArray2);
+          Expression<Func<StructureNodeSerializableDTO, StructureNodeType>> sourceMember = Expression.Lambda<Func<StructureNodeSerializableDTO, StructureNodeType>>((Expression) Expression.Call((Expression) null, methodFromHandle1, expressionArray1), parameterExpression1);
+          configurationExpression.MapFrom<StructureNodeType>(sourceMember);
+        }));
+        Mapper.CreateMap<StructureNodeLinksSerializableDTO, StructureNodeLinks>();
+        Mapper.CreateMap<StructureNodeTypeSerializableDTO, StructureNodeType>();
+        Mapper.CreateMap<MeterSerializableDTO, Meter>();
+        Mapper.CreateMap<LocationSerializableDTO, Location>();
+        Mapper.CreateMap<TenantSerializableDTO, Tenant>();
+        Mapper.Map<IEnumerable<StructureNodeSerializableDTO>, IEnumerable<StructureNode>>(structureListsSerializable.structureNodeList);
+        structureNodesLinksList = (List<StructureNodeLinks>) Mapper.Map<IEnumerable<StructureNodeLinksSerializableDTO>, IEnumerable<StructureNodeLinks>>(structureListsSerializable.structureNodesLinksList);
+        IEnumerable<StructureNodeType> structureNodeTypeList = Mapper.Map<IEnumerable<StructureNodeTypeSerializableDTO>, IEnumerable<StructureNodeType>>(structureListsSerializable.strucureNodeTypesEnumerable);
+        IEnumerable<StructureNode> nodesToBeColored = Mapper.Map<IEnumerable<StructureNodeSerializableDTO>, IEnumerable<StructureNode>>(structureListsSerializable.structureNodesResultEnumerable);
+        Dictionary<Guid, object> entitiesDictionary = this.GetEntitiesDictionary(Mapper.Map<IEnumerable<MeterSerializableDTO>, IEnumerable<Meter>>(structureListsSerializable.meterList), Mapper.Map<IEnumerable<LocationSerializableDTO>, IEnumerable<Location>>(structureListsSerializable.locationList), Mapper.Map<IEnumerable<TenantSerializableDTO>, IEnumerable<Tenant>>(structureListsSerializable.tenantList));
+        return (IEnumerable<StructureNodeDTO>) StructuresHelper.GetTreeFromList(structureNodeTypeList, (IEnumerable<StructureNodeLinks>) structureNodesLinksList, nodesToBeColored, entitiesDictionary);
+      }
+      structureNodesLinksList = (List<StructureNodeLinks>) null;
+      return (IEnumerable<StructureNodeDTO>) null;
+    }
+  }
+}
+

@@ -1,0 +1,92 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Jobs.DeleteJobDefinitionDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="NoResize" Height="330" Width="450"
+                             Title="{Binding Path=MSS_Client_Jobs_DeleteJobDefinition_Title, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="50"/>
+      </Grid.RowDefinitions>
+      <Grid Margin="25,10,-25,40" RowSpan="2">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="4*"/>
+          <RowDefinition Height="2*"/>
+          <RowDefinition Height="2*"/>
+          <RowDefinition Height="2*"/>
+          <RowDefinition Height="2*"/>
+          <RowDefinition Height="2*"/>
+          <RowDefinition Height="2*"/>
+          <RowDefinition Height="2*"/>
+          <RowDefinition Height="2*"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="2*"/>
+          <ColumnDefinition Width="4*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.ColumnSpan="2" HorizontalAlignment="Center" Foreground="#595151" FontWeight="Bold"
+                   TextAlignment="Center" Margin="120 10 120 0" TextWrapping="Wrap"
+                   Text="{Binding Path=MSS_Client_Jobs_DeleteJobDefinition_DeleteConfirmationMessage, Source={StaticResource Resources}}"/>
+        <Label Grid.Row="1" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Client_Jobs_Dialogs_Protocol, Source={StaticResource Resources}}"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource AppTextBlockGrayStyle}"/>
+        <Label Grid.Row="2" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Client_Jobs_Dialogs_Type, Source={StaticResource Resources}}"/>
+        <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource AppTextBlockGrayStyle}"/>
+        <Label Grid.Row="3" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Client_Jobs_Dialogs_Reccurence, Source={StaticResource Resources}}"/>
+        <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource AppTextBlockGrayStyle}"/>
+        <Label Grid.Row="4" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Client_Jobs_Dialogs_Duration, Source={StaticResource Resources}}"/>
+        <TextBlock Grid.Row="4" Grid.Column="1" Style="{StaticResource AppTextBlockGrayStyle}"/>
+        <Label Grid.Row="5" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Client_Jobs_Dialogs_Unit, Source={StaticResource Resources}}"/>
+        <TextBlock Grid.Row="5" Grid.Column="1" Style="{StaticResource AppTextBlockGrayStyle}"/>
+        <Label Grid.Row="6" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Client_Jobs_Dialogs_Horizon, Source={StaticResource Resources}}"/>
+        <TextBlock Grid.Row="6" Grid.Column="1" Style="{StaticResource AppTextBlockGrayStyle}"/>
+        <Label Grid.Row="7" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Client_Jobs_Dialogs_Offset, Source={StaticResource Resources}}"/>
+        <TextBlock Grid.Row="7" Grid.Column="1" Style="{StaticResource AppTextBlockGrayStyle}"/>
+        <Label Grid.Row="8" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Client_Jobs_Dialogs_TimeOfReading, Source={StaticResource Resources}}"/>
+        <TextBlock Grid.Row="8" Grid.Column="1" Style="{StaticResource AppTextBlockGrayStyle}"/>
+      </Grid>
+      <Grid Row="1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Column="1">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="OkButton" Grid.Column="0" Background="White" BorderBrush="LightGray" Height="25" Width="73"
+                  Style="{StaticResource AppButtonStyle}"
+                  Content="{Binding Path=MSS_MessageCodes_OK, Source={StaticResource Resources}}"/>
+          <Button x:Name="CanceButton" Grid.Column="1" Background="White" BorderBrush="LightGray" Height="25"
+                  Width="73" Style="{StaticResource AppButtonStyle}"
+                  Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"/>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

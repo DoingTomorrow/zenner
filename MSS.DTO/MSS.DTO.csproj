@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.DTO.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1CE6CA5B-DA9A-4B6B-B349-73DA7050D559}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>MSS.DTO</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>MSS.DTO</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MSS.Core">
+      <HintPath>lib\MSS.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MSSArchive.Core">
+      <HintPath>lib\MSSArchive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DTOBase.cs" />
+    <Compile Include="Sync\ISerializableObject.cs" />
+    <Compile Include="Sync\SerializedSyncResponse.cs" />
+    <Compile Include="Sync\SimpleMetadata.cs" />
+    <Compile Include="Sync\ApplicationSync.cs" />
+    <Compile Include="Sync\SimpleSyncObject.cs" />
+    <Compile Include="Structures\DirectionDTO.cs" />
+    <Compile Include="Structures\FloorNameDTO.cs" />
+    <Compile Include="Structures\LocationSerializableSync.cs" />
+    <Compile Include="Structures\MinomatSerializableDTO.cs" />
+    <Compile Include="Structures\ScenarioDTO.cs" />
+    <Compile Include="Structures\Structure.cs" />
+    <Compile Include="Structures\StructureNodeEquipmentSettingsSerializableSync.cs" />
+    <Compile Include="Structures\StructureNodeLinksSerializableSync.cs" />
+    <Compile Include="Structures\StructureNodeSerializableSync.cs" />
+    <Compile Include="Structures\TenantSerializableSync.cs" />
+    <Compile Include="Structures\LocationSerializableDTO.cs" />
+    <Compile Include="Structures\StructureNodeDTOListsSerializable.cs" />
+    <Compile Include="Structures\StructureNodeLinksSerializableDTO.cs" />
+    <Compile Include="Structures\StructureNodeSerializableDTO.cs" />
+    <Compile Include="Structures\StructureNodeTypeSerializableDTO.cs" />
+    <Compile Include="Structures\TenantDTO.cs" />
+    <Compile Include="Structures\TenantSerializableDTO.cs" />
+    <Compile Include="Structures\LocationDTO.cs" />
+    <Compile Include="Reporting\AutomatedExportJobDTO.cs" />
+    <Compile Include="Reporting\AutomatedExportJobTypeDTO.cs" />
+    <Compile Include="Reporting\AutomatedExportJobPeriodicityDTO.cs" />
+    <Compile Include="Reporting\JobLogsDTO.cs" />
+    <Compile Include="Reporting\MinomatCommunicationLogDTO.cs" />
+    <Compile Include="Reporting\ReadingValuesForChartDTO.cs" />
+    <Compile Include="Reporting\StructureType.cs" />
+    <Compile Include="Providers\ProviderDTO.cs" />
+    <Compile Include="Orders\ExecuteOrderStructureNode.cs" />
+    <Compile Include="Orders\OrderMessagesSerializableSync.cs" />
+    <Compile Include="Orders\OrderUserSerializableSync.cs" />
+    <Compile Include="Orders\OrderSerializableSync.cs" />
+    <Compile Include="Orders\OrderDTO.cs" />
+    <Compile Include="Orders\OrderSerializableStructure.cs" />
+    <Compile Include="Orders\ReadingValuesDTO.cs" />
+    <Compile Include="Minomat\MinomatForMDMDTO.cs" />
+    <Compile Include="Minomat\MinomatDTO.cs" />
+    <Compile Include="Minomat\MinomatImportDTO.cs" />
+    <Compile Include="Minomat\MinomatMetersSerializableSync.cs" />
+    <Compile Include="Minomat\MinomatRadioDetailsSerializableSync.cs" />
+    <Compile Include="Minomat\MinomatSerializableSync.cs" />
+    <Compile Include="Users\UserDeviceTypeSettingsDTO.cs" />
+    <Compile Include="Users\CountryDTO.cs" />
+    <Compile Include="Users\OperationDTO.cs" />
+    <Compile Include="Users\RoleDTO.cs" />
+    <Compile Include="Users\UserDTO.cs" />
+    <Compile Include="Users\UserEditDTO.cs" />
+    <Compile Include="Meters\ChannelDTO.cs" />
+    <Compile Include="Meters\ConnectedDeviceTypeDTO.cs" />
+    <Compile Include="Meters\MeasureUnitDTO.cs" />
+    <Compile Include="Meters\MeterDTO.cs" />
+    <Compile Include="Meters\MeterMBusRadioSerializableSync.cs" />
+    <Compile Include="Meters\MeterRadioDetailsSerializableSync.cs" />
+    <Compile Include="Meters\MeterReadingValueDTO.cs" />
+    <Compile Include="Meters\MeterReadingValuesDto.cs" />
+    <Compile Include="Meters\MeterReplacementHistorySerializableDTO.cs" />
+    <Compile Include="Meters\MeterReplacementHistorySerializableSync.cs" />
+    <Compile Include="Meters\MeterSerializableDTO.cs" />
+    <Compile Include="Meters\MeterSerializableSync.cs" />
+    <Compile Include="Meters\NoteSerializableSync.cs" />
+    <Compile Include="Meters\NoteTypeSerializableSync.cs" />
+    <Compile Include="Meters\ReplacedMeterDTO.cs" />
+    <Compile Include="Meters\RoomTypeDTO.cs" />
+    <Compile Include="MessageHandler\MessageTypeEnum.cs" />
+    <Compile Include="Message\Message.cs" />
+    <Compile Include="MDM\MDMConfigsDTO.cs" />
+    <Compile Include="Jobs\IntervalDto.cs" />
+    <Compile Include="Jobs\JobDefinitionDto.cs" />
+    <Compile Include="Jobs\MssReadingJobDto.cs" />
+    <Compile Include="Clients\LanguageDTO.cs" />
+    <Compile Include="Clients\EnumObj.cs" />
+    <Compile Include="Clients\MyClient.cs" />
+    <Compile Include="Archive\ArchiveJobDTO.cs" />
+    <Compile Include="Archive\ArchiveLocationDTO.cs" />
+    <Compile Include="Archive\ArchiveMeterDTO.cs" />
+    <Compile Include="Archive\ArchiveMeterReadingValueDTO.cs" />
+    <Compile Include="Archive\ArchiveMinomatDTO.cs" />
+    <Compile Include="Archive\ArchiveStructureNodeDTO.cs" />
+    <Compile Include="Archive\ArchiveTenantDTO.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

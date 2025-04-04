@@ -1,0 +1,20 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Reactive.Core", "System.Reactive.Core.csproj", "{047EADC1-7F5F-4191-A484-1B458BAA18B6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{047EADC1-7F5F-4191-A484-1B458BAA18B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{047EADC1-7F5F-4191-A484-1B458BAA18B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{047EADC1-7F5F-4191-A484-1B458BAA18B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{047EADC1-7F5F-4191-A484-1B458BAA18B6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,27 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Jobs.AssignStructureDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c" Height="310"
+                             Width="500" Title="{Binding Title, Mode=TwoWay}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

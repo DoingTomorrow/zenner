@@ -1,0 +1,106 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.NewsAndUpdates.UpdatesAndNews"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="CanMinimize" Height="410" Width="600"
+                             Title="{Binding Path=MSS_News, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="30"/>
+        <RowDefinition Height="43*"/>
+        <RowDefinition Height="248*"/>
+        <RowDefinition Height="0*"/>
+        <RowDefinition Height="51"/>
+      </Grid.RowDefinitions>
+      <ContentPresenter Grid.Row="2" HorizontalAlignment="Right" Margin="0,95,10,95" Width="0"
+                        Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+      <Grid Row="1" Margin="0 0 5 0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="100"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock TextWrapping="Wrap" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                   Style="{StaticResource AppTextBlockBlackStyle}"
+                   Text="{Binding Path=MSS_Client_News_Subject, Source={StaticResource Resources}}"/>
+        <Label Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Height="30" Width="443"
+               Margin="0,4,0,0" Foreground="Black" BorderBrush="DarkGray" BorderThickness="1.5"
+               Content="{Binding Path=Subject, Mode=TwoWay}"/>
+      </Grid>
+      <Grid Row="2">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="100"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <ScrollViewer Grid.Column="1" Margin="0,0,20,0">
+          <telerik:RadRichTextBox x:Name="richTextBox" MinHeight="160" MaxWidth="438" HorizontalScrollBarVisibility="Hidden"
+                                  IsSpellCheckingEnabled="false" BorderThickness="1" Width="440"/>
+        </ScrollViewer>
+        <TextBlock TextWrapping="Wrap" Grid.Column="0" Grid.Row="2" VerticalAlignment="Top"
+                   HorizontalAlignment="Right" Style="{StaticResource AppTextBlockBlackStyle}"
+                   Text="{Binding Path=MSS_Client_News_StartDate, Source={StaticResource Resources}}"/>
+        <Label Grid.Column="1" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Top" Height="30"
+               Width="443" Margin="0,4,0,0" Foreground="Black" BorderBrush="DarkGray" BorderThickness="1.5"
+               Content="{Binding Path=StartDate, Mode=TwoWay}"/>
+        <telerik:HtmlDataProvider x:Name="HtmlProvider" Grid.Column="0" RichTextBox="{Binding ElementName=richTextBox}"
+                                  Html="{Binding HtmlString, Mode=TwoWay}"/>
+        <TextBlock TextWrapping="Wrap" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                   Style="{StaticResource AppTextBlockBlackStyle}"
+                   Text="{Binding Path=MSS_Client_News_Description, Source={StaticResource Resources}}"/>
+      </Grid>
+      <Button Name="LeftButton" Grid.Row="4" HorizontalAlignment="Right" Margin="0,0,70,0" Width="32"
+              IsEnabled="{Binding IsEnabledLeftButton, Mode=TwoWay}" Command="{Binding LeftClickCommand}">
+        <Control.Template>
+          <ControlTemplate>
+            <Image Name="leftBtnImage" Source="pack://application:,,,/Styles;component/Images/Universal/previous.png"
+                   Width="32" Height="32"/>
+            <ControlTemplate.Triggers>
+              <Trigger Property="UIElement.IsMouseOver" Value="true">
+                <Setter TargetName="leftBtnImage" Property="Image.Source"
+                        Value="pack://application:,,,/Styles;component/Images/Universal/previous_click.png"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Control.Template>
+      </Button>
+      <Button Name="RightButton" Grid.Row="4" HorizontalAlignment="Right" Margin="0,0,20,0" Width="32"
+              IsEnabled="{Binding IsEnabledRightButton, Mode=TwoWay}" Command="{Binding RightClickCommand}">
+        <Control.Template>
+          <ControlTemplate>
+            <Image Name="rightBtnImage" Source="pack://application:,,,/Styles;component/Images/Universal/next.png"
+                   Width="32" Height="32"/>
+            <ControlTemplate.Triggers>
+              <Trigger Property="UIElement.IsMouseOver" Value="true">
+                <Setter TargetName="rightBtnImage" Property="Image.Source"
+                        Value="pack://application:,,,/Styles;component/Images/Universal/next_click.png"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Control.Template>
+      </Button>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

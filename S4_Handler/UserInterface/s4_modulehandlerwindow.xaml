@@ -1,0 +1,96 @@
+<Window x:Class="S4_Handler.UserInterface.S4_ModuleHandlerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:S4_Handler.UserInterface"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Title="Module Handler" Height="488" Width="754" WindowStartupLocation="CenterOwner">
+  <FrameworkElement.Resources>
+    <sys:Double x:Key="ButtonWidth">200</sys:Double>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="2"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+    </Style>
+    <Style TargetType="{x:Type ComboBox}">
+      <Setter Property="FrameworkElement.Margin" Value="2"/>
+    </Style>
+    <Style TargetType="{x:Type TextBox}">
+      <Setter Property="FrameworkElement.Margin" Value="2"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StartupLib:GmmCorporateControl DockPanel.Dock="Top" HorizontalAlignment="Stretch"/>
+    <GroupBox DockPanel.Dock="Right">
+      <DockPanel Name="DockPanelButtons">
+        <StackPanel Name="StackPanelBottomButtoms" DockPanel.Dock="Bottom">
+          <Button Name="ButtomBreak" Content="Break"/>
+        </StackPanel>
+        <StackPanel Name="StackPanelTopButtoms">
+          <Button Click="ButtonShowModuleCommands_Click" Name="ButtonShowModuleCommands"
+                  Content="Show module commands"/>
+          <GroupBox Name="GroupBoxManagedMap" Header="Map manageding functions">
+            <StackPanel>
+              <Button x:Name="ButtonShowParameter" Content="Show parameters" IsEnabled="false"/>
+              <Button Click="ButtonShowMemory_Click" x:Name="ButtonShowMemory" Content="Show memory" IsEnabled="false"/>
+            </StackPanel>
+          </GroupBox>
+          <GroupBox Name="GroupBoxOutputModule" Header="Output module" Visibility="Collapsed">
+            <StackPanel>
+              <Label Content="Impulse value Liter/Impulse:"/>
+              <TextBox KeyDown="TextBoxImpulseValue_KeyDown" Name="TextBoxImpulseValue"/>
+              <Button Click="ButtonReadImpulseValue_Click" x:Name="ButtonReadImpulseValue" Content="Read impulse value"/>
+              <Button Click="ButtonWriteImpulseValue_Click" x:Name="ButtonWriteImpulseValue" Content="Write imulse value"/>
+            </StackPanel>
+          </GroupBox>
+        </StackPanel>
+      </DockPanel>
+    </GroupBox>
+    <Grid x:Name="GridGraphics">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <GroupBox Header="Type" Grid.ColumnSpan="2">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Right" Width="{StaticResource ButtonWidth}">
+            <Button Content="Open"/>
+          </StackPanel>
+          <TextBlock/>
+        </DockPanel>
+      </GroupBox>
+      <DockPanel Grid.Row="1" Grid.ColumnSpan="2">
+        <GridSplitter DockPanel.Dock="Top" Height="2" HorizontalAlignment="Stretch"/>
+        <GroupBox Header="Backup">
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Right" Width="{StaticResource ButtonWidth}">
+              <Button Content="Load from data base"/>
+            </StackPanel>
+            <TextBlock/>
+          </DockPanel>
+        </GroupBox>
+      </DockPanel>
+      <GroupBox Header="Connected" Grid.Row="2" Grid.ColumnSpan="2">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Right" Width="{StaticResource ButtonWidth}">
+            <Button Click="ButtonConnect_Click" Name="ButtonConnect" Content="Connect"/>
+            <Button Click="ButtonRead_Click" Name="ButtonRead" Content="Read"/>
+            <Button Click="ButtonReadSelection_Click" Name="ButtonReadSelection" Content="Read ranges selection"/>
+          </StackPanel>
+          <TextBox Name="TextBoxConnected"/>
+        </DockPanel>
+      </GroupBox>
+      <GroupBox Header="Work" Grid.Row="3" Grid.ColumnSpan="2">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Right" Width="{StaticResource ButtonWidth}">
+            <Button Content="Write"/>
+          </StackPanel>
+          <TextBlock/>
+        </DockPanel>
+      </GroupBox>
+    </Grid>
+  </DockPanel>
+</Window>

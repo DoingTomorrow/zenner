@@ -1,0 +1,959 @@
+<UserControl x:Class="MSS.Client.UI.Tablet.View.Structures.StructuresUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:attachedProperties="clr-namespace:MSS.Client.UI.Common.AttachedProperties;assembly=MSS.Client.UI.Common">
+  <FrameworkElement.Resources>
+    <Style x:Key="EditPhysicalStrucuresTreeItemMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="{Binding EditPhysicalStructuresVisibility}"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding ElementName=treeListView, Path=SelectedItems.Count}" Value="1"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="SetEvaluationFactorButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding ElementName=fixedTreeListView, Path=SelectedItems.Count}" Value="1"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="RemovePhysicalStuctureRootTreeItemMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="{Binding RemovePhysicalStructuresVisibility}"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding IsRootItemSelected}" Value="false">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="DeletePhysycalStructureRootTreeItemMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="{Binding DeletePhysicalStructuresVisibility}"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding IsRootItemSelected}" Value="false">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="ReadingValuesTreeItemMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding ElementName=treeListView, Path=SelectedItems.Count}" Value="1"/>
+            <Condition Binding="{Binding ElementName=treeListView, Path=SelectedItem.LockedBy}" Value="{x:Null}"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="ReadingValuesLogicalTreeItemMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding ElementName=logicalTreeListView, Path=SelectedItems.Count}" Value="1"/>
+            <Condition Binding="{Binding ElementName=logicalTreeListView, Path=SelectedItem.LockedBy}" Value="{x:Null}"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="ReadingValuesFixedTreeItemMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding ElementName=fixedTreeListView, Path=SelectedItems.Count}" Value="1"/>
+            <Condition Binding="{Binding ElementName=fixedTreeListView, Path=SelectedItem.LockedBy}" Value="{x:Null}"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="ExportTreeItemsMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="{Binding ExportPhysicalStructuresVisibility}"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding IsRootItemSelected}" Value="false">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding ElementName=treeListView, Path=SelectedItems.LockedBy, Converter={StaticResource IsNullConverter}}"
+                     Value="False">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="ExportLogicalTreeItemsMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="{Binding ExportLogicalStructuresVisibility}"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding IsRootLogicalItemSelected}" Value="false">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding ElementName=logicalTreeListView, Path=SelectedItems.LockedBy, Converter={StaticResource IsNullConverter}}"
+                     Value="False">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="ExportFixedTreeItemsMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="{Binding ExportFixedStructuresVisibility}"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding IsRootFixedItemSelected}" Value="false">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding ElementName=fixedTreeListView, Path=SelectedItems.LockedBy, Converter={StaticResource IsNullConverter}}"
+                     Value="False">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="ExportOneFixedStructureMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="{Binding ExportFixedStructureDevicesVisibility}"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding IsRootFixedItemSelected}" Value="false">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding ElementName=fixedTreeListView, Path=SelectedItems.LockedBy, Converter={StaticResource IsNullConverter}}"
+                     Value="False">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="EditLogicalTreeItemMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="{Binding EditLogicalStructuresVisibility}"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding ElementName=logicalTreeListView, Path=SelectedItems.Count}" Value="1"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="DeleteLogicalRootTreeItemMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="{Binding DeleteLogicalStructuresVisibility}"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding IsRootLogicalItemSelected}" Value="false">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="RemoveLogicalRootTreeItemMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="{Binding RemoveLogicalStructuresVisibility}"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding IsRootLogicalItemSelected}" Value="false">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding ElementName=logicalTreeListView, Path=SelectedItem.LockedBy, Converter={StaticResource IsNullConverter}}"
+                     Value="False">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="EditFixedTreeItemMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="{Binding EditFixedStructuresVisibility}"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding ElementName=fixedTreeListView, Path=SelectedItems.Count}" Value="1"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="DeleteFixedRootTreeItemMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding IsRootFixedItemSelected}" Value="True"/>
+            <Condition Binding="{Binding DeleteFixedStructuresVisibility}" Value="True"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="RemoveFixedRootTreeItemMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding IsRootFixedItemSelected}" Value="True"/>
+            <Condition Binding="{Binding ElementName=fixedTreeListView, Path=SelectedItem.LockedBy}" Value="{x:Null}"/>
+            <Condition Binding="{Binding RemoveFixedStructuresVisibility}" Value="True"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style TargetType="{x:Type telerik:TreeListViewRow}" BasedOn="{StaticResource TreeListViewRowStyle}">
+      <Setter Property="Control.Background" Value="{Binding BackgroundColor}"/>
+    </Style>
+    <Style x:Key="UnlockPhysicalStructureButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding ElementName=treeListView, Path=SelectedItems.Count}" Value="1"/>
+            <Condition Binding="{Binding ElementName=treeListView, Path=SelectedItem.LockedBy, Converter={StaticResource IsNotNullConverter}}"
+                       Value="True"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="UnlockLogicalStructureButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding ElementName=logicalTreeListView, Path=SelectedItems.Count}" Value="1"/>
+            <Condition Binding="{Binding ElementName=logicalTreeListView, Path=SelectedItem.LockedBy, Converter={StaticResource IsNotNullConverter}}"
+                       Value="True"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="UnlockFixedStructureButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding ElementName=fixedTreeListView, Path=SelectedItems.Count}" Value="1"/>
+            <Condition Binding="{Binding ElementName=fixedTreeListView, Path=SelectedItem.LockedBy, Converter={StaticResource IsNotNullConverter}}"
+                       Value="True"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+  </FrameworkElement.Resources>
+  <telerik:RadTabControl Margin="3" HeaderBackground="#EDEDED" Template="{StaticResource RadTabControlControlTemplateTest}"
+                         SelectedIndex="{Binding SelectedIndex, Mode=TwoWay, IsAsync=true}">
+    <telerik:RadTabItem Header="{Binding MSS_Client_Structures_Physical_Structures, Source={StaticResource Resources}}"
+                        Visibility="{Binding IsPhysicalTabVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                        IsSelected="{Binding IsPhysicalTabSelected, Mode=TwoWay}">
+      <telerik:RadBusyIndicator IsBusy="{Binding IsBusy, Mode=TwoWay}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <WrapPanel Background="#ededed" Orientation="Horizontal">
+            <Button Name="ExpandPhysicalStr" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    Command="{Binding ExpandStructureCommand}" CommandParameter="{Binding ElementName=treeListView}"
+                    ToolTip="{Binding Path=MSS_Client_Expand_All, Source={StaticResource Resources}}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/expand.png"/>
+                <TextBlock Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Expand_All, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="CollapsePhysicalStr" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    Command="{Binding CollapseStructureCommand}" CommandParameter="{Binding ElementName=treeListView}"
+                    ToolTip="{Binding Path=MSS_Client_Collapse_All, Source={StaticResource Resources}}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/collapse.png"/>
+                <TextBlock Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Collapse_All, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnCreateStructure" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    IsEnabled="{Binding CreatePhysicalStructuresVisibility}"
+                    ToolTip="{Binding Path=MSS_Client_Structures_Create_Structures, Source={StaticResource Resources}}"
+                    Command="{Binding CreatePhysicalStructureCommand}"
+                    CommandParameter="{Binding ElementName=treeListView}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/add.png"/>
+                <TextBlock Name="txtblockCreateStructure" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Structures_Create_Structures, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnEditStructure"
+                    Style="{StaticResource EditPhysicalStrucuresTreeItemMustBeSelectedButtonStyle}" Height="40"
+                    Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Structures_Edit_Structures, Source={StaticResource Resources}}"
+                    Command="{Binding EditSelectedPhysicalStructureCommand}"
+                    CommandParameter="{Binding ElementName=treeListView}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"/>
+                <TextBlock Name="txtblockEditStructure" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Structures_Edit_Structures, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnRemoveSelectedStructure"
+                    Style="{StaticResource RemovePhysicalStuctureRootTreeItemMustBeSelectedButtonStyle}" Height="40"
+                    Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Structures_Remove_Structures, Source={StaticResource Resources}}"
+                    Command="{Binding RemoveSelectedPhysicalStructureCommand}"
+                    Visibility="{Binding IsRemoveVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                    CommandParameter="{Binding ElementName=treeListView, Path=SelectedItems}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+                <TextBlock Name="textBlockRemoveStructure" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Structures_Remove_Structures, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnDeleteSelectedStructure"
+                    Style="{StaticResource DeletePhysycalStructureRootTreeItemMustBeSelectedButtonStyle}" Height="40"
+                    Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Structures_Delete_Structures, Source={StaticResource Resources}}"
+                    Command="{Binding DeleteSelectedPhysicalStructureCommand}"
+                    CommandParameter="{Binding ElementName=treeListView, Path=SelectedItems}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+                <TextBlock Name="textBlockDeleteStructure" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Structures_Delete_Structures, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="UnlockPhysicalStructureButton" Style="{StaticResource UnlockPhysicalStructureButtonStyle}"
+                    Height="40" Width="Auto" Command="{Binding UnlockPhysicalStructureCommand}"
+                    CommandParameter="{Binding ElementName=treeListView, Path=SelectedItem}"
+                    ToolTip="{Binding Path=MSS_Client_UserControl_UnlockStructure_Tooltip, Source={StaticResource Resources}}"
+                    Visibility="{Binding UnlockStructureVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/unlock.png"/>
+                <TextBlock Name="UnlockPhysicalStructureTextBox" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_UnlockStructure, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnReadingValues" Style="{StaticResource ReadingValuesTreeItemMustBeSelectedButtonStyle}"
+                    Height="40" Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Structures_ReadingValues, Source={StaticResource Resources}}"
+                    Command="{Binding ViewReadingValuesCommand}" CommandParameter="{Binding ElementName=treeListView}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/view-reading-values.png"/>
+                <TextBlock Name="textBlockReadingValues" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Structures_ReadingValues, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnExportToFile" Style="{StaticResource ExportTreeItemsMustBeSelectedButtonStyle}"
+                    Height="40" Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Export, Source={StaticResource Resources}}"
+                    Command="{Binding ExportToFileCommand}" CommandParameter="{Binding ElementName=treeListView}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/export.png"/>
+                <TextBlock Name="textBlockExportToFile" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_ExportToFile, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnImportFromFile" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Import, Source={StaticResource Resources}}"
+                    Command="{Binding ImportFromFileCommand}" IsEnabled="{Binding ImportPhysicalStructuresVisibility}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/import.png"/>
+                <TextBlock Name="textBlockImportFromFile" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_ImportFromFile, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnImportTranslationRules" Style="{StaticResource CommandButtonStyle}" Height="40"
+                    Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_ImportTranslationRules, Source={StaticResource Resources}}"
+                    Command="{Binding ImportTranslationRulesCommand}"
+                    Visibility="{Binding ImportPhysicalStructuresVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/import.png"/>
+                <TextBlock Name="textBlockImportTranslationRules" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_ImportTranslationRules, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+          </WrapPanel>
+          <Grid Row="0">
+            <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-83,0,0"
+                              Content="{Binding MessageUserControlPhysical, Mode=TwoWay}"/>
+          </Grid>
+          <Grid x:Name="StructureRootGrid" Background="Transparent" Row="1">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <FrameworkElement.Resources>
+              <DataTemplate x:Key="FirstColumnCellTemplate">
+                <StackPanel Orientation="Horizontal">
+                  <Image Source="{Binding Image}"/>
+                  <TextBlock Margin="5" Text="{Binding Name}"/>
+                </StackPanel>
+              </DataTemplate>
+              <Style TargetType="{x:Type telerik:RadTreeViewItem}">
+                <Setter Property="telerik:RadTreeViewItem.IsExpanded" Value="true"/>
+              </Style>
+            </FrameworkElement.Resources>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="113*"/>
+            </Grid.ColumnDefinitions>
+            <telerik:RadTreeListView x:Name="treeListView" Grid.Row="1" SelectionMode="Extended" AutoGenerateColumns="false"
+                                     VerticalAlignment="Stretch" Margin="5" CanUserFreezeColumns="false" CanUserReorderColumns="false"
+                                     RowIndicatorVisibility="Collapsed" CanUserDeleteRows="false"
+                                     ItemsSource="{Binding StructureNodeCollection, IsAsync=true}" IsBusy="{Binding IsBusy}"
+                                     SelectedItem="{Binding SelectedItem}" IsExpandedBinding="{Binding IsExpanded, Mode=TwoWay}"
+                                     IsExpandableBinding="{Binding IsEmpty, Converter={StaticResource InverseBooleanConverter}}"
+                                     AutoExpandItems="{Binding StructureExpanded, Mode=TwoWay}"
+                                     attachedProperties:MouseDoubleClick.Command="{Binding EditSelectedPhysicalStructureCommand}"
+                                     attachedProperties:MouseDoubleClick.CommandParameter="{Binding RelativeSource={RelativeSource Self}}">
+              <telerik:GridViewDataControl.ChildTableDefinitions>
+                <telerik:TreeListViewTableDefinition ItemsSource="{Binding SubNodes}"/>
+              </telerik:GridViewDataControl.ChildTableDefinitions>
+              <telerik:GridViewDataControl.Columns>
+                <telerik:GridViewDataColumn CellTemplate="{StaticResource FirstColumnCellTemplate}" IsReadOnly="true"
+                                            DataMemberBinding="{Binding Name}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_Name, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding Entity.SerialNumber}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_SerialNumber, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding Entity.PrimaryAddress}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_PrimaryAddress, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding Entity.Manufacturer}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_Manufacturer, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding Entity.Medium}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_Medium, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding Entity.DeviceType}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_DeviceType, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding Entity.ConfigDate}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_InstallationDate, Source={StaticResource Resources}}"/>
+                <telerik:GridViewCheckBoxColumn IsReadOnly="true"
+                                                DataMemberBinding="{Binding Entity.ReadingEnabled, Converter={StaticResource IsNotNullOrFalseConverter}}"
+                                                Header="{Binding Path=MSS_Client_Structures_Header_Enabled, Source={StaticResource Resources}}"/>
+                <telerik:GridViewCheckBoxColumn IsReadOnly="true"
+                                                DataMemberBinding="{Binding Entity.IsReplaced, Converter={StaticResource IsNotNullOrFalseConverter}}"
+                                                Header="{Binding Path=MSS_Client_Structures_Header_Replaced, Source={StaticResource Resources}}"/>
+                <telerik:GridViewCheckBoxColumn IsReadOnly="true"
+                                                DataMemberBinding="{Binding LockedBy, Converter={StaticResource IsNotNullConverter}}"
+                                                Header="{Binding Path=MSS_Client_Structures_Header_Locked, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding Description}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_Description, Source={StaticResource Resources}}"/>
+              </telerik:GridViewDataControl.Columns>
+            </telerik:RadTreeListView>
+            <telerik:RadDataPager PageIndexChanged="OnPageIndexChange" Name="RadDataPager" Grid.Row="2" FontSize="12"
+                                  Margin="0,-1,0,0" IsTotalItemCountFixed="true" DisplayMode="FirstLastPreviousNextNumeric, Text"
+                                  PageSize="{Binding PageSize, Mode=TwoWay}" Source="{Binding Items, ElementName=treeListView}"/>
+          </Grid>
+        </Grid>
+      </telerik:RadBusyIndicator>
+    </telerik:RadTabItem>
+    <telerik:RadTabItem Header="{Binding MSS_Client_Structures_Logical_Structures, Source={StaticResource Resources}}"
+                        IsSelected="{Binding IsLogicalTabSelected, Mode=TwoWay}"
+                        Visibility="{Binding IsLogicalTabVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+      <telerik:RadBusyIndicator IsBusy="{Binding IsBusy, Mode=TwoWay}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <WrapPanel Background="#ededed" Orientation="Horizontal">
+            <Button Name="ExpandLogicalStr" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    Command="{Binding ExpandStructureCommand}"
+                    CommandParameter="{Binding ElementName=logicalTreeListView}"
+                    ToolTip="{Binding Path=MSS_Client_Expand_All, Source={StaticResource Resources}}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/expand.png"/>
+                <TextBlock Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Expand_All, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="CollapseLogicalStr" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    Command="{Binding CollapseStructureCommand}"
+                    CommandParameter="{Binding ElementName=logicalTreeListView}"
+                    ToolTip="{Binding Path=MSS_Client_Collapse_All, Source={StaticResource Resources}}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/collapse.png"/>
+                <TextBlock Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Collapse_All, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnCreateLogicalStructure" Style="{StaticResource CommandButtonStyle}" Height="40"
+                    Width="Auto" IsEnabled="{Binding CreateLogicalStructuresVisibility}"
+                    ToolTip="{Binding Path=MSS_Client_Structures_Create_Structures, Source={StaticResource Resources}}"
+                    Command="{Binding CreateLogicalStructureCommand}"
+                    CommandParameter="{Binding ElementName=logicalTreeListView}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/add.png"/>
+                <TextBlock Name="txtblockCreateLogicalStructure" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Structures_Create_Structures, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnEditLogicalStructure"
+                    Style="{StaticResource EditLogicalTreeItemMustBeSelectedButtonStyle}" Height="40" Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Structures_Edit_Structures, Source={StaticResource Resources}}"
+                    Command="{Binding EditSelectedLogicalStructureCommand}"
+                    CommandParameter="{Binding ElementName=logicalTreeListView}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"/>
+                <TextBlock Name="txtblockEditLogicalStructure" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Structures_Edit_Structures, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnRemoveSelectedLogicalStructure"
+                    Style="{StaticResource RemoveLogicalRootTreeItemMustBeSelectedButtonStyle}" Height="40"
+                    Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Structures_Remove_Structures, Source={StaticResource Resources}}"
+                    Command="{Binding RemoveSelectedLogicalStructureCommand}"
+                    CommandParameter="{Binding ElementName=logicalTreeListView}"
+                    Visibility="{Binding IsRemoveVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+                <TextBlock Name="textBlockRemoveLogicalStructure" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Structures_Remove_Structures, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnDeleteSelectedLogicalStructure"
+                    Style="{StaticResource DeleteLogicalRootTreeItemMustBeSelectedButtonStyle}" Height="40"
+                    Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Structures_Delete_Structures, Source={StaticResource Resources}}"
+                    Command="{Binding DeleteSelectedLogicalStructureCommand}"
+                    CommandParameter="{Binding ElementName=logicalTreeListView, Path=SelectedItems}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+                <TextBlock Name="textBlockDeleteLogicalStructure" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Structures_Delete_Structures, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="UnlockLogicalStructureButton" Style="{StaticResource UnlockLogicalStructureButtonStyle}"
+                    Height="40" Width="Auto" Command="{Binding UnlockLogicalStructureCommand}"
+                    CommandParameter="{Binding ElementName=logicalTreeListView, Path=SelectedItem}"
+                    ToolTip="{Binding Path=MSS_Client_UserControl_UnlockStructure_Tooltip, Source={StaticResource Resources}}"
+                    Visibility="{Binding UnlockStructureVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+              <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/unlock.png"/>
+                <TextBlock Name="UnlockLogicalStructureTextBox" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_UnlockStructure, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnLogicalReadingValues"
+                    Style="{StaticResource ReadingValuesLogicalTreeItemMustBeSelectedButtonStyle}" Height="40"
+                    Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Structures_ReadingValues, Source={StaticResource Resources}}"
+                    Command="{Binding ViewReadingValuesCommand}"
+                    CommandParameter="{Binding ElementName=logicalTreeListView}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/view-reading-values.png"/>
+                <TextBlock Name="textBlockLogicalReadingValues" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Structures_ReadingValues, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnExportToFileLogical"
+                    Style="{StaticResource ExportLogicalTreeItemsMustBeSelectedButtonStyle}" Height="40" Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Export, Source={StaticResource Resources}}"
+                    Command="{Binding ExportToFileCommand}"
+                    CommandParameter="{Binding ElementName=logicalTreeListView}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/export.png"/>
+                <TextBlock Name="textBlockExportToFileLogical" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_ExportToFile, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnImportFromFileLogical" Style="{StaticResource CommandButtonStyle}" Height="40"
+                    Width="Auto" ToolTip="{Binding Path=MSS_Client_Import, Source={StaticResource Resources}}"
+                    Command="{Binding ImportFromFileCommand}" IsEnabled="{Binding ImportLogicalStructuresVisibility}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/import.png"/>
+                <TextBlock Name="textBlockImportFromFileLogical" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_ImportFromFile, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+          </WrapPanel>
+          <Grid Row="0">
+            <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-73,0,0"
+                              Content="{Binding MessageUserControlLogical, Mode=TwoWay}"/>
+          </Grid>
+          <Grid x:Name="LogicalStructureRootGrid" Background="Transparent" Row="1">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <FrameworkElement.Resources>
+              <DataTemplate x:Key="FirstColumnCellTemplate">
+                <StackPanel Orientation="Horizontal">
+                  <Image Source="{Binding Image}"/>
+                  <TextBlock Margin="5" Text="{Binding Name}"/>
+                </StackPanel>
+              </DataTemplate>
+              <Style TargetType="{x:Type telerik:RadTreeViewItem}">
+                <Setter Property="telerik:RadTreeViewItem.IsExpanded" Value="true"/>
+              </Style>
+            </FrameworkElement.Resources>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="113*"/>
+            </Grid.ColumnDefinitions>
+            <telerik:RadTreeListView x:Name="logicalTreeListView" Grid.Row="1" SelectionMode="Extended" AutoGenerateColumns="false"
+                                     VerticalAlignment="Stretch" Margin="5" CanUserFreezeColumns="false" CanUserReorderColumns="false"
+                                     RowIndicatorVisibility="Collapsed" CanUserDeleteRows="false"
+                                     ItemsSource="{Binding LogicalStructureNodeCollection, IsAsync=true}" IsBusy="{Binding IsBusy}"
+                                     SelectedItem="{Binding SelectedLogicalItem}"
+                                     AutoExpandItems="{Binding LogicalStructureExpanded, Mode=TwoWay}"
+                                     IsExpandedBinding="{Binding IsExpanded, Mode=TwoWay}"
+                                     IsExpandableBinding="{Binding IsEmpty, Converter={StaticResource InverseBooleanConverter}}"
+                                     attachedProperties:MouseDoubleClick.Command="{Binding EditSelectedLogicalStructureCommand}"
+                                     attachedProperties:MouseDoubleClick.CommandParameter="{Binding RelativeSource={RelativeSource Self}}">
+              <telerik:GridViewDataControl.ChildTableDefinitions>
+                <telerik:TreeListViewTableDefinition ItemsSource="{Binding SubNodes}"/>
+              </telerik:GridViewDataControl.ChildTableDefinitions>
+              <telerik:GridViewDataControl.Columns>
+                <telerik:GridViewDataColumn CellTemplate="{StaticResource FirstColumnCellTemplate}" IsReadOnly="true"
+                                            DataMemberBinding="{Binding Name}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_Name, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding NodeType.Name}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_NodeType, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding Description}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_Description, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding Entity.SerialNumber}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_SerialNumber, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding Entity.DeviceType}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_DeviceType, Source={StaticResource Resources}}"/>
+                <telerik:GridViewCheckBoxColumn IsReadOnly="true"
+                                                DataMemberBinding="{Binding LockedBy, Converter={StaticResource IsNotNullConverter}}"
+                                                Header="{Binding Path=MSS_Client_Structures_Header_Locked, Source={StaticResource Resources}}"/>
+              </telerik:GridViewDataControl.Columns>
+            </telerik:RadTreeListView>
+            <telerik:RadDataPager PageIndexChanged="OnPageIndexChange" Name="LogicalRadDataPager" Grid.Row="2" FontSize="12"
+                                  Margin="0,-1,0,0" IsTotalItemCountFixed="true" DisplayMode="FirstLastPreviousNextNumeric, Text"
+                                  PageSize="{Binding PageSize, Mode=TwoWay}"
+                                  Source="{Binding Items, ElementName=logicalTreeListView}"/>
+          </Grid>
+        </Grid>
+      </telerik:RadBusyIndicator>
+    </telerik:RadTabItem>
+    <telerik:RadTabItem Header="{Binding MSS_Client_Structures_Fixed_Physical_Structures, Source={StaticResource Resources}}"
+                        IsSelected="{Binding IsFixedTabSelected, Mode=TwoWay}"
+                        Visibility="{Binding IsFixedTabVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+      <telerik:RadBusyIndicator IsBusy="{Binding IsBusy, Mode=TwoWay}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <WrapPanel Background="#ededed" Orientation="Horizontal">
+            <Button Name="ExpandFixedStr" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    Command="{Binding ExpandStructureCommand}"
+                    CommandParameter="{Binding ElementName=fixedTreeListView}"
+                    ToolTip="{Binding Path=MSS_Client_Expand_All, Source={StaticResource Resources}}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/expand.png"/>
+                <TextBlock Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Expand_All, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="CollapseFixedStr" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    Command="{Binding CollapseStructureCommand}"
+                    CommandParameter="{Binding ElementName=fixedTreeListView}"
+                    ToolTip="{Binding Path=MSS_Client_Collapse_All, Source={StaticResource Resources}}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/collapse.png"/>
+                <TextBlock Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Collapse_All, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnCreateFixedStructure" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    IsEnabled="{Binding CreateFixedStructuresVisibility}"
+                    ToolTip="{Binding Path=MSS_Client_Structures_Create_Structures, Source={StaticResource Resources}}"
+                    Command="{Binding CreateFixedStructureCommand}"
+                    CommandParameter="{Binding ElementName=fixedTreeListView}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/add.png"/>
+                <TextBlock Name="txtblockCreateFixedStructure" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Structures_Create_Structures, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnEditFixedStructure" Style="{StaticResource EditFixedTreeItemMustBeSelectedButtonStyle}"
+                    Height="40" Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Structures_Edit_Structures, Source={StaticResource Resources}}"
+                    Command="{Binding EditSelectedFixedStructureCommand}"
+                    CommandParameter="{Binding ElementName=fixedTreeListView}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"/>
+                <TextBlock Name="txtblockEditFixedStructure" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Structures_Edit_Structures, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnRemoveSelectedFixedStructure"
+                    Style="{StaticResource RemoveFixedRootTreeItemMustBeSelectedButtonStyle}" Height="40" Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Structures_Remove_Structures, Source={StaticResource Resources}}"
+                    Command="{Binding RemoveSelectedFixedStructureCommand}"
+                    CommandParameter="{Binding ElementName=fixedTreeListView, Path=SelectedItems}"
+                    Visibility="{Binding IsRemoveVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+                <TextBlock Name="textBlockRemoveFixedStructure" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Structures_Remove_Structures, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnDeleteSelectedFixedStructure"
+                    Style="{StaticResource DeleteFixedRootTreeItemMustBeSelectedButtonStyle}" Height="40" Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Structures_Delete_Structures, Source={StaticResource Resources}}"
+                    Command="{Binding DeleteSelectedFixedStructureCommand}"
+                    CommandParameter="{Binding ElementName=fixedTreeListView, Path=SelectedItems}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+                <TextBlock Name="textBlockDeleteFixedStructure" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Structures_Delete_Structures, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="RadioTestRunDialog" Style="{StaticResource EditFixedTreeItemMustBeSelectedButtonStyle}"
+                    Height="40" Width="Auto" ToolTip="RadioTestRunDialog" Command="{Binding RadioTestRunDialog}"
+                    CommandParameter="{Binding ElementName=fixedTreeListView}"
+                    Visibility="{Binding InstallationOrderAttachTestVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+              <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"/>
+                <TextBlock x:Name="RadioTestRunDialogTextBlock" Text="RadioTR" Style="{StaticResource TextForImageButton}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="AssignRadioTestRunDialog" Style="{StaticResource EditFixedTreeItemMustBeSelectedButtonStyle}"
+                    Height="40" Width="Auto" ToolTip="RadioTestRunDialog" Command="{Binding AssignRadioTestRunDialog}"
+                    CommandParameter="{Binding ElementName=fixedTreeListView}"
+                    Visibility="{Binding InstallationOrderAttachTestVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+              <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"/>
+                <TextBlock x:Name="AssignRadioTestRunDialogTextBlock" Text="Assign TR"
+                           Style="{StaticResource TextForImageButton}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="UnlockFixedStructureButton" Style="{StaticResource UnlockFixedStructureButtonStyle}"
+                    Height="40" Width="Auto" Command="{Binding UnlockFixedStructureCommand}"
+                    CommandParameter="{Binding ElementName=fixedTreeListView, Path=SelectedItem}"
+                    ToolTip="{Binding Path=MSS_Client_UserControl_UnlockStructure_Tooltip, Source={StaticResource Resources}}"
+                    Visibility="{Binding UnlockStructureVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+              <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/unlock.png"/>
+                <TextBlock Name="UnlockFixedStructureTextBox" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_UnlockStructure, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnFixedReadingValues"
+                    Style="{StaticResource ReadingValuesFixedTreeItemMustBeSelectedButtonStyle}" Height="40"
+                    Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Structures_ReadingValues, Source={StaticResource Resources}}"
+                    Command="{Binding ViewReadingValuesCommand}"
+                    CommandParameter="{Binding ElementName=fixedTreeListView}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/view-reading-values.png"/>
+                <TextBlock Name="textBlockFixedReadingValues" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_Structures_ReadingValues, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnExportToFileFixed" Style="{StaticResource ExportFixedTreeItemsMustBeSelectedButtonStyle}"
+                    Height="40" Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Export, Source={StaticResource Resources}}"
+                    Command="{Binding ExportToFileCommand}" CommandParameter="{Binding ElementName=fixedTreeListView}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/export.png"/>
+                <TextBlock Name="textBlockExportToFileFixed" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_ExportToFile, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnExportStructureFixed"
+                    Style="{StaticResource ExportOneFixedStructureMustBeSelectedButtonStyle}" Height="40" Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Export, Source={StaticResource Resources}}"
+                    Command="{Binding ExportStructureToFileCommand}"
+                    CommandParameter="{Binding ElementName=fixedTreeListView}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/export.png"/>
+                <TextBlock Name="textBlockExportStructureFixed" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_ExportStructureToFile, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnImportFromFileFixed" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    ToolTip="{Binding Path=MSS_Client_Import, Source={StaticResource Resources}}"
+                    Command="{Binding ImportFromFileCommand}" IsEnabled="{Binding ImportFixedStructuresVisibility}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/import.png"/>
+                <TextBlock Name="textBlockImportFromFileFixed" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_ImportFromFile, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnImportFromSasFixed" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    Visibility="{Binding EvaluationFactorVisibility, Converter={StaticResource BoolToVisibilityConverter}}"
+                    ToolTip="{Binding Path=MSS_Client_SASImport, Source={StaticResource Resources}}"
+                    Command="{Binding ImportFromSasXmlCommand}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/import.png"/>
+                <TextBlock Name="textBlockImportFromSasFixed" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_SASImport, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="btnSetEvalFactorFixed" Style="{StaticResource SetEvaluationFactorButtonStyle}" Height="40"
+                    Width="Auto"
+                    Visibility="{Binding EvaluationFactorVisibility, Converter={StaticResource BoolToVisibilityConverter}}"
+                    ToolTip="{Binding Path=MSS_Client_Import, Source={StaticResource Resources}}"
+                    Command="{Binding SetEvaluationFactorCommand}"
+                    CommandParameter="{Binding ElementName=fixedTreeListView, Path=SelectedItem}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/set-evaluation-factor.png"/>
+                <TextBlock Name="textBlockSetEvalFactorFixed" Style="{StaticResource TextForImageButton}"
+                           Text="{Binding Path=MSS_Client_SetEvaluationFactor, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+          </WrapPanel>
+          <Grid Row="0">
+            <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-73,0,0"
+                              Content="{Binding MessageUserControlFixed, Mode=TwoWay}"/>
+          </Grid>
+          <Grid x:Name="FixedStructureRootGrid" Background="Transparent" Row="1">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <FrameworkElement.Resources>
+              <DataTemplate x:Key="FirstColumnCellTemplate">
+                <StackPanel Orientation="Horizontal">
+                  <Image Source="{Binding Image}"/>
+                  <TextBlock Margin="5" Text="{Binding Name}"/>
+                </StackPanel>
+              </DataTemplate>
+            </FrameworkElement.Resources>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="113*"/>
+            </Grid.ColumnDefinitions>
+            <telerik:RadTreeListView x:Name="fixedTreeListView" Grid.Row="1" SelectionMode="Extended" AutoGenerateColumns="false"
+                                     VerticalAlignment="Stretch" Margin="5" CanUserFreezeColumns="false" CanUserReorderColumns="false"
+                                     RowIndicatorVisibility="Collapsed" CanUserDeleteRows="false"
+                                     ItemsSource="{Binding FixedStructureNodeCollection, IsAsync=true}"
+                                     SelectedItem="{Binding SelectedFixedItem}"
+                                     AutoExpandItems="{Binding FixedStructureExpanded, Mode=TwoWay}"
+                                     IsExpandedBinding="{Binding IsExpanded, Mode=TwoWay}"
+                                     IsExpandableBinding="{Binding IsEmpty, Converter={StaticResource InverseBooleanConverter}}"
+                                     IsBusy="{Binding IsBusy}"
+                                     attachedProperties:MouseDoubleClick.Command="{Binding EditSelectedFixedStructureCommand}"
+                                     attachedProperties:MouseDoubleClick.CommandParameter="{Binding RelativeSource={RelativeSource Self}}">
+              <telerik:GridViewDataControl.ChildTableDefinitions>
+                <telerik:TreeListViewTableDefinition ItemsSource="{Binding SubNodes}"/>
+              </telerik:GridViewDataControl.ChildTableDefinitions>
+              <telerik:GridViewDataControl.Columns>
+                <telerik:GridViewDataColumn CellTemplate="{StaticResource FirstColumnCellTemplate}" IsReadOnly="true"
+                                            DataMemberBinding="{Binding Name}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_Name, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding NodeType.Name}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_NodeType, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding Entity.ShortDeviceNo}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_ShortDeviceNr, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding Entity.SerialNumber}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_SerialNumber, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding Entity.DeviceType}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_DeviceType, Source={StaticResource Resources}}"/>
+                <telerik:GridViewCheckBoxColumn IsReadOnly="true"
+                                                DataMemberBinding="{Binding LockedBy, Converter={StaticResource IsNotNullConverter}}"
+                                                Header="{Binding Path=MSS_Client_Structures_Header_Locked, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding Description}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_Description, Source={StaticResource Resources}}"/>
+              </telerik:GridViewDataControl.Columns>
+            </telerik:RadTreeListView>
+            <telerik:RadDataPager PageIndexChanged="OnPageIndexChange" Name="FixedRadDataPager" Grid.Row="2" FontSize="12"
+                                  Margin="0,-1,0,0" IsTotalItemCountFixed="true" DisplayMode="FirstLastPreviousNextNumeric, Text"
+                                  PageSize="{Binding PageSize, Mode=TwoWay}" Source="{Binding Items, ElementName=fixedTreeListView}"/>
+          </Grid>
+        </Grid>
+      </telerik:RadBusyIndicator>
+    </telerik:RadTabItem>
+  </telerik:RadTabControl>
+</UserControl>

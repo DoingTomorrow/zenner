@@ -1,0 +1,75 @@
+<Window x:Class="S4_Handler.UserInterface.S4_MapDataWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico" Title="Map Data" Height="939.07"
+        Width="891.2" WindowStartupLocation="CenterScreen">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="2"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" DockPanel.Dock="Top"/>
+    <TextBlock Name="TextBlockStatus" DockPanel.Dock="Top" Margin="6" Text="Status"/>
+    <DockPanel Dock="Right">
+      <ProgressBar Name="ProgressBar1" DockPanel.Dock="Top" Margin="10" MinHeight="20"/>
+      <Button Click="ButtonBreak_Click" Name="ButtonBreak" DockPanel.Dock="Bottom" Content="Break"
+              IsEnabled="false"/>
+      <StackPanel>
+        <Button Click="ButtonX_Click" Name="ButtonShowDeviceDate" Content="Show saved date and time"/>
+        <GroupBox Header="Event logger data">
+          <StackPanel>
+            <Button Click="ButtonX_Click" Name="ButtonShowEventLoggerData" Content="Show event logger data" Margin="2"/>
+            <Button Click="ButtonX_Click" Name="ButtonClearEventLoggerData" Content="Clear event logger data"
+                    Margin="2"/>
+          </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Month logger data">
+          <StackPanel>
+            <Button Click="ButtonX_Click" Name="ButtonShowMonthLoggerData" Content="Show month logger data" Margin="2"/>
+            <Button Click="ButtonX_Click" Name="ButtonClearMonthLoggerData" Content="Clear month logger data"
+                    Margin="2"/>
+          </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Diagnostic data">
+          <StackPanel>
+            <GroupBox Header="Data by selected unit">
+              <StackPanel>
+                <Button Click="ButtonX_Click" Name="ButtonShowDiagnosticData" Content="Show diagnostic data"/>
+                <Button Click="ButtonX_Click" Name="ButtonReadAndShowDiagnosticData"
+                        Content="Read and show diagnostic data"/>
+              </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Internal data. [qm based]">
+              <StackPanel>
+                <Button Click="ButtonX_Click" Name="ButtonShowDiagnosticDataInternal" Content="Show diagnostic data"/>
+                <Button Click="ButtonX_Click" Name="ButtonReadAndShowDiagnosticDataInternal"
+                        Content="Read and show diagnostic data"/>
+              </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Changes in memory (Need write to device)">
+              <StackPanel>
+                <Button Click="ButtonX_Click" Name="ButtonInitDiagnosticAndLoggers" Content="Init diagnostic and loggers"
+                        Margin="2"/>
+                <Button Click="ButtonX_Click" Name="ButtonSetDiagnosticAndLoggers" Content="Set diagnostic and loggers"
+                        Margin="2"/>
+              </StackPanel>
+            </GroupBox>
+            <Button Click="ButtonX_Click" x:Name="ButtonShowBackup" Content="Show backup blocks" Margin="2"/>
+          </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Show calibration changes">
+          <StackPanel>
+            <Button Click="ButtonX_Click" Name="ButtonShowCalibrationsFromBackup" Content="Changes from backup"
+                    Margin="2"/>
+            <Button Click="ButtonX_Click" Name="ButtonShowCalibrationsFromType" Content="Changes from type" Margin="2"/>
+          </StackPanel>
+        </GroupBox>
+        <Button Click="ButtonX_Click" Name="ButtonShowPCB_Assembly" Content="Show PCB assembly"/>
+      </StackPanel>
+    </DockPanel>
+    <TextBox Name="TextBoxCommandResult"/>
+  </DockPanel>
+</Window>

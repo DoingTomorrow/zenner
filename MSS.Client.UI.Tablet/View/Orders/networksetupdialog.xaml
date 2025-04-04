@@ -1,0 +1,171 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Orders.NetworkSetupDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:customControls="clr-namespace:MSS.Client.UI.Tablet.CustomControls"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" Width="950" Height="650" BorderThickness="0" GlowBrush="Black"
+                             ShowInTaskbar="false" WindowStartupLocation="CenterScreen" WindowState="Maximized"
+                             WindowTitleBrush="#00608c" Title="{Binding Title}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary>
+          <DataTemplate x:Key="ListBoxItemTemplate">
+            <Grid Height="60" Margin="5 0 0 0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Button x:Name="SlaveButton" Grid.Column="0" Width="150" Height="40" Margin="10 0 10 0"
+                      Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}, Path=DataContext.MinomatSlaveStartCommand}"
+                      CommandParameter="{Binding ElementName=SlavesListBox, Path=SelectedItem}">
+                <FrameworkElement.Style>
+                  <Style BasedOn="{StaticResource CommandButtonStyle}" TargetType="{x:Type Button}">
+                    <Setter Property="ContentControl.Content">
+                      <Setter.Value>
+                        <StackPanel Width="100" Height="Auto" Background="Transparent" Orientation="Horizontal">
+                          <Path Width="23" Height="23" Margin="2 0 0 0"
+                                Data="M 12.5,9.2999878 L 22,16 12.5,22.700012 M 16,3.1000061 C 8.9000244,3.1000061 3.1000061,8.8999939 3.1000061,16 3.1000061,23.100006 8.9000244,28.899994 16,28.899994 23.100037,28.899994 28.900024,23.100006 28.900024,16 28.900024,8.8999939 23.100037,3.1000061 16,3.1000061 M 16,0 C 24.799988,0 32,7.2000122 32,16 32,24.799988 24.799988,32 16,32 7.2000122,32 0,24.799988 0,16 0,7.2000122 7.2000122,0 16,0 Z"
+                                Fill="#00608C" Stretch="Fill"/>
+                          <TextBlock Margin="5,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12"
+                                     FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap"
+                                     Text="{Binding Path=MSS_Client_StartSlave, Source={StaticResource Resources}}"/>
+                        </StackPanel>
+                      </Setter.Value>
+                    </Setter>
+                  </Style>
+                </FrameworkElement.Style>
+              </Button>
+              <Image Grid.Column="1" Style="{StaticResource SmallIconImageStyle}" Source="{Binding ImageLocation}"/>
+              <StackPanel Grid.Column="2" HorizontalAlignment="Center" Orientation="Horizontal">
+                <Image Margin="5 0 0 0" Style="{StaticResource SmallIconImageStructureStyle}"
+                       Source="{Binding Slave.Image}"/>
+                <Label Style="{StaticResource AppLabelStyle}" Content="{Binding Slave.Name}"/>
+              </StackPanel>
+              <Label Grid.Column="3" HorizontalAlignment="Center" Style="{StaticResource AppLabelStyle}"
+                     Content="{Binding NodeId}"/>
+              <Label Grid.Column="4" HorizontalAlignment="Center" Style="{StaticResource AppLabelStyle}"
+                     Content="{Binding SignalStrength}"/>
+              <Label Name="SlaveLastStartOn" Grid.Column="5" HorizontalAlignment="Center"
+                     Style="{StaticResource AppLabelStyle}" Content="{Binding Path=LastStartOn, Mode=TwoWay}"/>
+              <Label Name="SlaveLastRegisteredOn" Grid.Column="6" HorizontalAlignment="Center"
+                     Style="{StaticResource AppLabelStyle}" Content="{Binding Path=LastRegisteredOn, Mode=TwoWay}"/>
+            </Grid>
+          </DataTemplate>
+        </ResourceDictionary>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="90"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Background="WhiteSmoke" Orientation="Horizontal">
+      <customControls:TabletButton ButtonPath="M15.64501,22.555007L16.64501,22.555007 16.64501,24.962987 18.895011,24.962987 18.895011,25.962987 16.64501,25.962987 16.64501,28.116996 15.64501,28.116996 15.64501,25.962987 13.39501,25.962987 13.39501,24.962987 15.64501,24.962987z M15.904995,20.477995C13.303979,20.477995 11.188986,22.613986 11.188987,25.239967 11.188986,27.864972 13.303979,29.999987 15.904995,29.999987 18.505981,29.999987 20.621981,27.864972 20.621981,25.239967 20.621981,22.613986 18.505981,20.477995 15.904995,20.477995z M4.5720086,12.165007C3.154006,12.165007 2.0000038,13.33001 2.0000038,14.762015 2.0000038,16.19402 3.154006,17.359024 4.5720086,17.359024 5.9900115,17.359024 7.1440139,16.19402 7.1440136,14.762015 7.1440139,13.33001 5.9900115,12.165007 4.5720086,12.165007z M17.287007,2.0000095C16.500005,2.0000095 15.860003,2.6850138 15.860003,3.5250177 15.860003,3.840394 15.950003,4.1338329 16.104006,4.3774385L16.134466,4.4209785 16.382335,4.7040424 16.489644,4.7899361C16.717427,4.9546967 16.991881,5.0510254 17.287007,5.0510254 18.07401,5.0510254 18.715012,4.3660221 18.715012,3.5250177 18.715012,2.6850138 18.07401,2.0000095 17.287007,2.0000095z M17.287007,0C19.177012,0 20.715017,1.5810089 20.715017,3.5250177 20.715017,5.4700279 19.177012,7.0510359 17.287007,7.0510359 16.519193,7.0510359 15.809637,6.7901077 15.237724,6.3498487L15.161886,6.2885075 8.3820886,12.224756 8.4811715,12.380007C8.9016628,13.075089 9.1440178,13.890606 9.1440179,14.762015 9.1440178,15.9503 8.6933577,17.034655 7.9548759,17.851415L7.9044186,17.90462 11.099797,20.522044 11.157984,20.4606C12.373986,19.236232 14.052988,18.477991 15.904995,18.47799 19.608979,18.477991 22.621984,21.510956 22.621984,25.239967 22.621984,28.967026 19.608979,31.99999 15.904995,31.99999 12.200981,31.99999 9.188984,28.967026 9.1889845,25.239967 9.1889844,24.191183 9.427238,23.197457 9.8521318,22.310779L9.9330238,22.15195 6.1692915,19.068972 6.1423979,19.079652C5.6524582,19.26036 5.1234784,19.35903 4.5720086,19.35903 2.0510039,19.35903 0,17.297024 0,14.762015 0,12.227007 2.0510039,10.165 4.5720086,10.165 5.3598228,10.165 6.1017382,10.366368 6.749507,10.720611L6.9395998,10.830631 14.030535,4.6219578 14.014298,4.5726728C13.914032,4.2416 13.859997,3.8897076 13.859997,3.5250177 13.859997,1.5810089 15.397002,0 17.287007,0z"
+                                   ButtonCommand="{Binding RegisterSlavesCommand}"
+                                   ButtonText="{Binding Path=FixedNetworkSetup_RegisterSlaves, Source={StaticResource Resources}}"/>
+      <customControls:TabletButton ButtonPath="M18.377005,20.576004L11.141004,20.585999 9.9820001,24.072006 19.920005,24.057999z M14.360006,11.507004C14.290006,11.514008,14.222006,11.526001,14.151006,11.529007L11.969,18.097 17.276007,18.089005z M14.052999,5.201004C15.801,5.201004 17.221007,6.6190033 17.221007,8.3690033 17.221007,9.1010132 16.963004,9.7660065 16.547004,10.302002L25.669005,30.891006 23.395003,31.899002 21.023001,26.544006 9.1550043,26.561005 7.3480046,32 4.9860046,31.21701 11.829,10.625C11.246,10.05101 10.883001,9.253006 10.883001,8.3690033 10.883001,6.6190033 12.301,5.201004 14.052999,5.201004z M21.256003,3.2000122C22.592002,4.5240021 23.421004,6.3410034 23.421004,8.3460083 23.421004,10.331009 22.606002,12.13501 21.291007,13.455002L19.940001,12.09201C20.905005,11.119003 21.501006,9.7990112 21.501006,8.3460083 21.501006,6.8730011 20.891005,5.5380096 19.905005,4.5630035z M6.750005,3.0839996L8.1250046,4.427002C7.0550053,5.4120026 6.3870056,6.803009 6.3870056,8.3460083 6.3870056,9.8690033 7.0389989,11.24501 8.0860031,12.229004L6.7130025,13.570999C5.3279999,12.241013 4.4669998,10.391006 4.4669998,8.3460083 4.4669998,6.2810059 5.3439987,4.4160004 6.750005,3.0839996z M24.360007,0.066009521C26.536002,2.1829987 27.886,5.1130066 27.886,8.3450012 27.886,11.557999 26.552001,14.475006 24.397002,16.588013L23.045005,15.225006C24.848006,13.459 25.966002,11.027008 25.966002,8.3450012 25.966002,5.6460114 24.835006,3.1990051 23.008002,1.4290009L23.485007,0.95100403z M3.5980006,0L4.4440048,0.82701111 4.9710052,1.3440094C3.0920034,3.1190033 1.9220013,5.6010132 1.9220014,8.3460083 1.9220013,11.072006 3.0760007,13.539001 4.9340027,15.312012L3.5610018,16.654999C1.3650021,14.535004 2.1254414E-07,11.594009 0,8.3460083 2.1254414E-07,5.0780029 1.3810009,2.1230011 3.5980006,0z"
+                                   ButtonCommand="{Binding StartGsmTestCommand}"
+                                   ButtonText="{Binding Path=FixedNetworkSetup_StartGSMTest, Source={StaticResource Resources}}"/>
+      <customControls:TabletButton ButtonPath="M13.944254,20.7L26.044089,20.7C26.344085,20.7 26.544082,20.9 26.544082,21.2 26.544082,21.5 26.344085,21.7 26.044089,21.7L13.944254,21.7C13.644258,21.7 13.444261,21.5 13.444261,21.2 13.344263,20.9 13.644258,20.7 13.944254,20.7z M13.944254,18L26.044089,18C26.344085,18 26.544082,18.2 26.544082,18.5 26.544082,18.8 26.344085,19 26.044089,19L13.944254,19C13.644258,19 13.444261,18.8 13.444261,18.5 13.344263,18.3 13.644258,18 13.944254,18z M9.5443144,16.5C9.7443113,16.5 9.9443092,16.5 10.244305,16.6 11.144293,17 11.544287,17.9 11.144293,18.8L6.0443621,31C5.8443651,31.6 5.2443733,32 4.6443806,32 4.0443897,32 3.444397,31.7 3.0444031,31.2L0.24444199,26.6C-0.25555229,25.800001 0.044445038,24.800001 0.84443283,24.300001 1.6444225,23.800001 2.6444092,24.1 3.1444016,24.899999L4.2443867,26.7 8.0443354,17.5C8.2443323,16.9,8.9443226,16.5,9.5443144,16.5z M8.7443256,6.8000001L8.7443256,8.4 10.344303,8.4 10.344303,6.8000001z M8.2443323,5.7000002L10.844296,5.7000002C11.144293,5.7,11.34429,5.9000001,11.34429,6.2000002L11.34429,8.8000001C11.34429,9.1,11.144293,9.3,10.844296,9.3L8.2443323,9.3C7.9443359,9.3,7.744339,9.1,7.744339,8.8000001L7.744339,6.3000001C7.6443405,6.0000001,7.9443359,5.7,8.2443323,5.7000002z M7.9443359,0L19.744175,0C20.044171,0,20.244168,0.099999905,20.444166,0.30000019L30.544027,10.4C30.744025,10.6,30.844024,10.9,30.844024,11.1L30.844024,27.5C30.844024,30,28.844051,32,26.344085,32L8.9443226,32C8.3443308,32 7.9443359,31.5 7.9443359,31 7.9443359,30.399999 8.4443293,30 8.9443226,30L26.444084,30C27.744066,30,28.844051,28.899999,28.844051,27.6L28.844051,12.2 22.944131,12.2C21.044157,12.2,19.544178,11.1,18.844188,9.3999999L14.044253,9.3999999C13.744257,9.4000001 13.54426,9.2 13.54426,8.9 13.54426,8.6 13.744257,8.4000001 14.044253,8.4L18.64419,8.4C18.64419,8.2,18.544192,8.0000001,18.544192,7.8000001L18.544192,6.8000001 14.044253,6.8000001C13.744257,6.8000001 13.54426,6.6000001 13.54426,6.3000001 13.54426,6.0000001 13.744257,5.8000001 14.044253,5.8000001L18.544192,5.8000001 18.544192,2 7.9443359,2C6.5443554,2,5.5443687,3.0999999,5.5443687,4.5L5.5443687,18C5.5443687,18.6 5.0443764,19 4.5443821,19 3.9443913,19 3.5443974,18.5 3.5443974,18L3.5443974,4.5C3.444397,2,5.4443703,0,7.9443359,0z"
+                                   ButtonCommand="{Binding CheckRoutingTableCommand}"
+                                   ButtonText="{Binding Path=FixedNetworkSetup_CheckRoutingTable, Source={StaticResource Resources}}"/>
+      <customControls:TabletButton ButtonPath="M12.5,9.2999878L22,16 12.5,22.700012z M16,3.1000061C8.9000244,3.1000061 3.1000061,8.8999939 3.1000061,16 3.1000061,23.100006 8.9000244,28.899994 16,28.899994 23.100037,28.899994 28.900024,23.100006 28.900024,16 28.900024,8.8999939 23.100037,3.1000061 16,3.1000061z M16,0C24.799988,0 32,7.2000122 32,16 32,24.799988 24.799988,32 16,32 7.2000122,32 0,24.799988 0,16 0,7.2000122 7.2000122,0 16,0z"
+                                   ButtonCommand="{Binding MinomatMasterStartCommand}"
+                                   ButtonText="{Binding Path=FixedNetworkSetup_StartMaster, Source={StaticResource Resources}}"
+                                   IsEnabled="{Binding Path=IsStartMasterEnabled}"/>
+      <customControls:TabletButton ButtonPath="M20.78124,20.445021C19.998222,20.445021 19.213205,20.739019 18.616192,21.32802 18.039179,21.896019 17.72117,22.650021 17.72117,23.45002 17.72117,24.247021 18.036179,24.996019 18.608191,25.559019 19.265205,26.208019 20.172228,26.51202 21.066248,26.42202L19.859221,25.233019C19.580214,24.958019 19.425209,24.590019 19.425209,24.198019 19.425209,23.806021 19.580214,23.437019 19.862221,23.160019L20.498234,22.53302C21.072247,21.96702,22.006269,21.966021,22.580282,22.531019L23.805309,23.73802C23.898312,22.858019 23.590305,21.968019 22.93429,21.32102 22.341276,20.736019 21.562258,20.445021 20.78124,20.445021z M11.904038,14.11602C12.057042,14.11602 12.210045,14.17402 12.327048,14.28902 12.560053,14.51802 12.560053,14.89102 12.327048,15.121019 12.093042,15.35102 11.715034,15.35102 11.481029,15.121019 11.248023,14.89102 11.248023,14.51802 11.481029,14.28902 11.598031,14.17402 11.751035,14.11602 11.904038,14.11602z M11.829037,13.522019C11.491029,13.52302 11.220022,13.62702 11.009018,13.83402 10.801013,14.03902 10.689011,14.32102 10.696011,14.62802 10.703011,14.99102 10.872015,15.34902 11.159021,15.61102L17.327162,21.230021 17.351162,21.19302C17.501165,20.972019 17.675169,20.76302 17.870174,20.57102 18.070179,20.37402 18.287184,20.201019 18.514189,20.052019L18.527189,20.045019 12.835059,13.982019C12.568053,13.69702,12.201045,13.53002,11.829037,13.522019z M21.20225,11.56102C21.031246,11.56102,20.860243,11.62502,20.72924,11.75302L16.298138,16.118019 16.651146,16.49402 17.19516,17.073019 21.674261,12.66102C21.798264,12.54002 21.865265,12.37802 21.865265,12.20702 21.865265,12.03602 21.798264,11.87502 21.674261,11.75302 21.544258,11.62502 21.373255,11.56102 21.20225,11.56102z M21.20125,10.50002C21.64226,10.50002 22.083271,10.66502 22.420279,10.996019 22.748285,11.31902 22.928289,11.74902 22.928289,12.20702 22.928289,12.66502 22.748285,13.09602 22.419279,13.41802L17.923176,17.848021 19.542213,19.57202 19.606215,19.552019C19.987223,19.441019 20.382233,19.385019 20.776241,19.38402 21.828264,19.38302 22.880289,19.77602 23.680307,20.56402 24.852333,21.719019 25.205341,23.44702 24.579327,24.965019L24.277321,25.695021 21.834265,23.288019C21.673262,23.128019,21.408255,23.13002,21.244251,23.29002L20.607237,23.917019C20.530235,23.993019 20.488234,24.093019 20.488234,24.198019 20.488234,24.30402 20.529236,24.40202 20.605236,24.476019L23.065292,26.89802 22.311275,27.20002C21.808264,27.40202 21.281252,27.500019 20.759241,27.500019 19.693216,27.500019 18.647192,27.08902 17.862175,26.316019 17.086157,25.552019 16.659147,24.534019 16.659147,23.45002 16.659147,23.04302 16.719149,22.64402 16.836151,22.264019L16.847151,22.23102 14.263092,19.87602 10.207999,23.87002 8.9449711,24.281019 9.36798,23.032021 13.384072,19.076019 10.443005,16.396019C9.9409933,15.93902 9.646987,15.30202 9.6329861,14.64902 9.6219864,14.04702 9.8459911,13.489019 10.263,13.07702 10.68001,12.66702 11.241023,12.44602 11.849037,12.46002 12.506052,12.47302 13.148067,12.76302 13.610077,13.25502L15.571122,15.343019 19.983223,10.996019C20.319231,10.666019,20.760241,10.50002,21.20125,10.50002z M2.0009899,9.9999504L2,10 2,28 30,28 30,10.000014z M3,2L3,8.0000143 29,8.0000143 29,5 10.087952,5C9.7599487,5,9.4519653,4.8390503,9.2659912,4.5679932L7.4899902,2z M2,0L8.0149536,0C8.3429565,0,8.6499634,0.16101074,8.8369751,0.43200684L10.612,3 30,3C30.552979,3,31,3.4470215,31,4L31,8 31.00099,8.0000143 31.102358,8.0051556C31.607109,8.0562916,32,8.4815826,32,9L32,29C32,29.55304,31.552979,30,31,30L1,30C0.44696045,30,0,29.55304,0,29L0,9C0,8.4470215,0.44696045,8,1,8L1,1C1,0.44702148,1.4469604,0,2,0z"
+                                   ButtonCommand="{Binding NetworkOptimizationCommand}"
+                                   ButtonText="{Binding Path=FixedNetworkSetup_NetworkOptimization, Source={StaticResource Resources}}"
+                                   IsEnabled="{Binding IsNetworkOptimizationEnabled, Mode=TwoWay}"/>
+      <customControls:TabletButton ButtonPath="M9.9000245,6.000003L6.0000001,9.8999988 12.100037,16.000007 6.0000001,22.100002 9.9000245,25.999997 16,19.900018 22.100037,25.999997 26,22.100002 19.900024,16.000007 26,9.8999988 22.100037,6.000003 16,12.099997z M16,0C24.799988,0 32,7.2000005 32,16.000007 32,24.800016 24.799988,32.000001 16,32.000001 7.2000123,32.000001 8.3946347E-08,24.800016 0,16.000007 8.3946347E-08,7.2000005 7.2000123,0 16,0z"
+                                   ButtonCommand="{Binding CancelWindowCommand}"
+                                   ButtonText="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"/>
+    </StackPanel>
+    <ContentPresenter Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Width="Auto" Height="28" Margin="0 0 10 0"
+                      Panel.ZIndex="2" Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+    <telerik:RadBusyIndicator x:Name="BusyIndicator" Grid.Row="1" Grid.ColumnSpan="2" BusyContent="{Binding BusyContent}"
+                              IsBusy="{Binding ShowProgressCircle, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="50"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Row="0" Background="DarkGray">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <StackPanel Grid.Column="1" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Left">
+            <Image HorizontalAlignment="Center" Style="{StaticResource SmallIconImageStructureStyle}"
+                   Source="{Binding SelectedMaster.Image}"/>
+            <Label HorizontalAlignment="Center" Style="{StaticResource AppLabelStyle}"
+                   Content="{Binding Path=SelectedMaster.Name}"/>
+            <Label Name="MasterLastStartOn" Margin="32 0 0 0" HorizontalAlignment="Left"
+                   Style="{StaticResource AppLabelStyle}" Content="{Binding LastMinomatMasterStartedOn}"/>
+            <Label Name="GSMTestStatus" Margin="32 0 0 0" Style="{StaticResource AppLabelStyle}"
+                   Content="{Binding FixedNetworkSetup_GSMTestStatus, Source={StaticResource Resources}}"/>
+            <Label Name="GSMStatus" Style="{StaticResource AppLabelStyle}"
+                   Content="{Binding FixedNetworkSetup_GSMStatus, Converter={StaticResource GSMStatusToStringConverter}}"/>
+            <Label Name="GSMStatusDate" Style="{StaticResource AppLabelStyle}"
+                   Content="{Binding FixedNetworkSetup_GSMStatusDate}"/>
+          </StackPanel>
+        </Grid>
+        <Grid Row="1" Height="40" Margin="0 10 0 0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label Grid.Column="1" HorizontalAlignment="Center" FontWeight="Bold"
+                 Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_FoundInRoutingTable, Source={StaticResource Resources}}"/>
+          <Label Grid.Column="2" HorizontalAlignment="Center" FontWeight="Bold"
+                 Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=FixedNetworkSetup_Headers_GsmId, Source={StaticResource Resources}}"/>
+          <Label Grid.Column="3" HorizontalAlignment="Center" FontWeight="Bold"
+                 Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=FixedNetworkSetup_Headers_NodeId, Source={StaticResource Resources}}"/>
+          <Label Grid.Column="4" HorizontalAlignment="Center" FontWeight="Bold"
+                 Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=FixedNetworkSetup_Headers_SignalStrength, Source={StaticResource Resources}}"/>
+          <Label Grid.Column="5" HorizontalAlignment="Center" FontWeight="Bold"
+                 Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=FixedNetworkSetup_Headers_LastStartOn, Source={StaticResource Resources}}"/>
+          <Label Grid.Column="6" HorizontalAlignment="Center" FontWeight="Bold"
+                 Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=FixedNetworkSetup_Headers_LastRegisteredOn, Source={StaticResource Resources}}"/>
+        </Grid>
+        <ListBox Name="SlavesListBox" Grid.Row="2" Margin="0 0 0 0"
+                 ItemTemplate="{StaticResource ListBoxItemTemplate}" SelectionMode="Single"
+                 ItemsSource="{Binding SlavesList, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}"
+                 SelectedItem="{Binding Path=SelectedListBoxItem, Mode=OneWayToSource}"/>
+      </Grid>
+    </telerik:RadBusyIndicator>
+  </Grid>
+</common:ResizableMetroWindow>

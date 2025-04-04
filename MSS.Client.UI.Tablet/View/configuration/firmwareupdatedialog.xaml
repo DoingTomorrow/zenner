@@ -1,0 +1,51 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Configuration.FirmwareUpdateDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ShowCloseButton="false" Height="180" Width="400"
+                             Title="{Binding MSS_Client_FirmwareUpdate_Title, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <telerik:RadComboBox Grid.Row="0" Style="{StaticResource RadComboBoxStyle}" Width="205" Height="28"
+                           HorizontalAlignment="Center" ItemsSource="{Binding FirmwareUpdatesCollection}"
+                           Visibility="{Binding IsFirmwareDropDownVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                           SelectedValue="{Binding SelectedFirmwareUpdate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+      <telerik:RadProgressBar Height="28" Width="205" IsIndeterminate="false" Minimum="0" Maximum="100"
+                              Value="{Binding ProgressBarValue}"
+                              Visibility="{Binding IsProgressBarVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+      <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Button Style="{StaticResource CommandButtonStyle}" Margin="0 0 10 0" Height="40" Width="Auto"
+                Command="{Binding UpdateFirmwareCommad}" IsEnabled="{Binding AreButtonsEnabled}">
+          <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+            <TextBlock Margin="10 0 10 0" Text="{Binding MSS_Client_UpdateFirmware, Source={StaticResource Resources}}"/>
+          </StackPanel>
+        </Button>
+        <Button Style="{StaticResource CommandButtonStyle}" Margin="10 0 0 0" Height="40" Width="Auto"
+                Command="{Binding CancelWindowCommand}" IsEnabled="{Binding AreButtonsEnabled}">
+          <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+            <TextBlock Margin="10 0 10 0" Text="{Binding MSS_CLOSE_BUTTON, Source={StaticResource Resources}}"/>
+          </StackPanel>
+        </Button>
+      </StackPanel>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

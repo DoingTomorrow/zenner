@@ -1,0 +1,141 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Archive.ViewArchiveMinomatDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="CanMinimize" Height="560" Width="800"
+                             Title="{Binding MSS_Client_DataCollectors_EditDataCollector_Title, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="50"/>
+      </Grid.RowDefinitions>
+      <AdornerDecorator Grid.Row="0">
+        <Grid Margin="0,0,10,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="3*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="3*"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Style="{StaticResource AppSubTitleStyle}"
+                     Text="{Binding Path=MSS_Client_Archive_ViewMinomat_Master, Source={StaticResource Resources}}"/>
+          <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewMinomat_MasterRadioID, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="1" Grid.Column="1" IsReadOnly="true" Height="25" Width="200"
+                   Style="{StaticResource TextBoxErrorStyle}" Text="{Binding RadioId}"/>
+          <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewMinomat_IsMaster, Source={StaticResource Resources}}"/>
+          <CheckBox Name="isMaster" Grid.Row="2" Grid.Column="1" Margin="6,2,6,2" IsEnabled="false"
+                    IsChecked="{Binding IsMaster}"/>
+          <CheckBox Grid.Row="3" Grid.Column="1" Margin="6,2,6,2" IsEnabled="false"
+                    IsChecked="{Binding IsInMasterPool, Mode=TwoWay}"/>
+          <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource AppLabelStyle}" VerticalAlignment="Center"
+                 Content="{Binding Path=MSS_Client_Archive_ViewMinomat_IsInMasterPool, Source={StaticResource Resources}}"/>
+          <TextBlock Grid.Row="4" Grid.Column="0" Style="{StaticResource AppSubTitleStyle}"
+                     Text="{Binding Path=MSS_Client_Archive_ViewMinomat_ProviderInfo, Source={StaticResource Resources}}"/>
+          <TextBlock Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="25,0,0,0" Grid.Column="2"
+                     Style="{StaticResource AppSubTitleStyle}"
+                     Text="{Binding Path=MSS_Client_Archive_ViewMinomat_Communication_Information, Source={StaticResource Resources}}"/>
+          <Label Grid.Row="5" Grid.Column="0" Style="{StaticResource AppLabelStyle}" Margin="0,0,0,1"
+                 VerticalAlignment="Bottom"
+                 Content="{Binding Path=MSS_Client_Archive_ViewMinomat_ProviderName, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="5" Grid.Column="1" IsReadOnly="true" Height="25" Width="200"
+                   Style="{StaticResource TextBoxErrorStyle}" MaxLength="8"
+                   Text="{Binding ProviderName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"/>
+          <Label Grid.Row="6" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewMinomat_PIN, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="6" Height="25" Width="200" Grid.Column="1"
+                   Style="{StaticResource TextBoxErrorStyleMinomat}" IsReadOnly="true" Text="{Binding SimPin}"/>
+          <Label Grid.Row="7" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewMinomat_AccessPoint, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="7" Grid.Column="1" Height="25" Width="200"
+                   Style="{StaticResource TextBoxErrorStyleMinomat}" IsReadOnly="true" Text="{Binding AccessPoint}"/>
+          <Label Grid.Row="8" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewMinomat_UserID, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="8" Grid.Column="1" Height="25" Width="200"
+                   Style="{StaticResource TextBoxErrorStyleMinomat}" IsReadOnly="true" Text="{Binding UserId}"/>
+          <Label Grid.Row="9" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewMinomat_UserPassword, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="9" Grid.Column="1" Height="25" Width="200"
+                   Style="{StaticResource TextBoxErrorStyleMinomat}" IsReadOnly="true" Text="{Binding UserPassword}"/>
+          <Label Grid.Row="5" Grid.Column="2" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewMinomat_Challenge, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="5" Grid.Column="3" Height="25" Width="200"
+                   Style="{StaticResource TextBoxErrorStyleMinomat}" IsReadOnly="true" Text="{Binding Challenge}"/>
+          <Label Grid.Row="6" Grid.Column="2" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewMinomat_GSMID, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="6" Grid.Column="3" Height="25" Width="200"
+                   Style="{StaticResource TextBoxErrorStyleMinomat}" IsReadOnly="true" Text="{Binding GsmId}"/>
+          <Label Grid.Row="7" Grid.Column="2" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewMinomat_SessionKey, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="7" Grid.Column="3" Height="25" Width="200"
+                   Style="{StaticResource TextBoxErrorStyleMinomat}" IsReadOnly="true" Text="{Binding SessionKey}"/>
+          <Label Grid.Row="8" Grid.Column="2" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewMinomat_Polling, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="8" Grid.Column="3" Height="25" Width="200"
+                   Style="{StaticResource TextBoxErrorStyleMinomat}" IsReadOnly="true" Text="{Binding Polling}"/>
+          <Label Grid.Row="9" Grid.Column="2" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewMinomat_HostAndPort, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="9" Grid.Column="3" Height="25" Width="200"
+                   Style="{StaticResource TextBoxErrorStyleMinomat}" IsReadOnly="true" Text="{Binding HostAndPort}"/>
+          <Label Grid.Row="10" Grid.Column="2" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewMinomat_Url, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="10" Grid.Column="3" Height="25" Width="200"
+                   Style="{StaticResource TextBoxErrorStyleMinomat}" IsReadOnly="true" Text="{Binding Url}"/>
+        </Grid>
+      </AdornerDecorator>
+      <Grid Row="1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Column="1">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="CancelButton1" Grid.Column="1" IsCancel="true" Foreground="#595151"
+                  Style="{StaticResource AppButtonStyle}" Background="White" Height="25" Width="73"
+                  BorderBrush="LightGray"
+                  Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                  Command="{Binding CancelWindowCommand}"/>
+        </Grid>
+        <Grid Column="0">
+          <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right"
+                            Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

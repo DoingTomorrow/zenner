@@ -1,0 +1,156 @@
+<Window x:Class="S4_Handler.UserInterface.S4_TestWindows2"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico" Title="Test window for developers"
+        Height="655.277" Width="852.93" WindowStartupLocation="CenterScreen">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="2"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" DockPanel.Dock="Top"/>
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" FlowDirection="RightToLeft">
+      <Button Click="ButtonTestWindow_Click" Name="ButtonTestWindow" Content="Main test window"/>
+    </StackPanel>
+    <StackPanel Orientation="Horizontal">
+      <StackPanel>
+        <GroupBox Header="Function Tests">
+          <StackPanel>
+            <Button Click="Button_Click" Name="Button_GetVersion" Content="GetVersion"/>
+            <Button Click="Button_Click" Name="Button_ReadDeviceLoop" Content="Read device loop"/>
+            <Button Click="Button_Click" Name="Button_Display" Content="Display"/>
+            <Button Click="Button_Click" Name="Button_NFC_Test" Content="NFC-Test"/>
+            <Button Click="Button_Click" Name="Button_IUW_Test" Content="IUW Tests"/>
+            <Button Click="Button_Click" Name="Button_CommunicationTest" Content="Communication test"/>
+            <Button Click="Button_Click" Name="ButtonRunCurrentSelftest" Content="Run current selftest"/>
+            <Button Click="Button_Click" Name="ButtonShowFirmwareTests" Content="Show firmware tests"/>
+          </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Developer functions">
+          <StackPanel>
+            <Button Click="ButtonShowUsedHandlerVariables_Click" Name="ButtonShowUsedHandlerVariables"
+                    Content="Show used handler variables"/>
+            <Button Click="ButtonRadioOffTimes_Click" Name="ButtonRadioOffTimes" Content="RadioOffTimes"/>
+            <Button Click="ButtonDeleteAllSmartFunctions_Click" Name="ButtonDeleteAllSmartFunctions"
+                    Content="DeleteAllSmartFunctions"/>
+            <Button Click="ButtonSetAllSmartFunctions_Click" Name="ButtonSetAllSmartFunctions"
+                    Content="SetAllSmartFunctions"/>
+            <GroupBox Header="Set NDC module state">
+              <ComboBox SelectionChanged="ComboBoxNdcModuleState_SelectionChanged" Name="ComboBoxNdcModuleState">
+                <ComboBoxItem Content="Off"/>
+                <ComboBoxItem Content="Connected"/>
+                <ComboBoxItem Content="Starting"/>
+                <ComboBoxItem Content="NotSupportedScenario"/>
+              </ComboBox>
+            </GroupBox>
+          </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Test commands">
+          <StackPanel>
+            <CheckBox Name="CheckBoxLoopCommand" Content="Loop command"/>
+            <GroupBox Header="Worked loops">
+              <TextBlock Name="TextBlockLoops" Text="0" HorizontalAlignment="Center"/>
+            </GroupBox>
+            <Button Click="Button_Click" Name="ButtonWriteAndReset" Content="Write and Reset"/>
+            <Button Click="Button_Click" Name="ButtonWriteAndSleep" Content="Write and Sleep toggel"/>
+            <Button Click="Button_Click" Name="ButtonReInitMeasurement" Content="Re-Init measurement"/>
+          </StackPanel>
+        </GroupBox>
+      </StackPanel>
+      <StackPanel>
+        <GroupBox Header="Volume Tests">
+          <StackPanel>
+            <Button Click="Button_Click" Name="Button_TdcInternals" Content="TDC internals"/>
+            <Button Click="Button_Click" Name="Button_LoadDefaultCalibration" Content="Load calibration check curves"/>
+            <GroupBox Header="Volume simulation">
+              <StackPanel>
+                <DockPanel Margin="3">
+                  <Label DockPanel.Dock="Left" Content="Simulated volume:"/>
+                  <Label DockPanel.Dock="Right" Content="m³/h"/>
+                  <TextBox Name="TextBoxSimulatedVolume" Text="0" VerticalAlignment="Center"/>
+                </DockPanel>
+                <Button Click="ButtonSetSimulatedVolume_Click" Name="ButtonSetSimulatedVolume"
+                        Content="Set simulated volume"/>
+              </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Month logger">
+              <StackPanel>
+                <Button Click="ButtonShowMonthLogger_Click" Name="ButtonShowMonthLogger" Content="Show from memory"/>
+                <Button Click="ButtonClearMonthLogger_Click" Name="ButtonClearMonthLogger" Content="Clear month logger"/>
+                <DockPanel Margin="3">
+                  <Label DockPanel.Dock="Left" Content="Volume increment:"/>
+                  <TextBox Name="TextBoxSimMonthVolInc" Text="12345678" VerticalAlignment="Center"/>
+                </DockPanel>
+                <DockPanel Margin="3">
+                  <Label DockPanel.Dock="Left" Content="Fill start time"/>
+                  <TextBox Name="TextBoxSimMonthDateTime" Text="Device time" VerticalAlignment="Center"/>
+                </DockPanel>
+                <Button Click="ButtonFillMonthLogger_Click" Name="ButtonFillMonthLogger" Content="Fill month logger"/>
+                <Button Click="ButtonAddValueToMonthLogger_Click" Name="ButtonAddValueToMonthLogger"
+                        Content="Add value to month logger"/>
+              </StackPanel>
+            </GroupBox>
+          </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Protected commands">
+          <StackPanel>
+            <Button Click="Button_Click" Name="ButtonShowCommandProtection" Content="Show command protection"/>
+          </StackPanel>
+        </GroupBox>
+      </StackPanel>
+      <StackPanel>
+        <GroupBox Header="Event logger">
+          <StackPanel>
+            <Button Click="ButtonShowEventLogger_Click" Name="ButtonShowEventLogger" Content="Show event logger"/>
+            <Button Click="ButtonReadAndShowEventLoggerFromMemory_Click" Name="ButtonReadAndShowEventLoggerFromMemory"
+                    Content="Read memory and show logger from memory"/>
+            <Button Click="ButtonShowEventLoggerFromMemory_Click" Name="ButtonShowEventLoggerFromMemory"
+                    Content="Show logger from Memory"/>
+            <Button Click="ButtonShowEventLoggerState_Click" Name="ButtonShowEventLoggerState"
+                    Content="Show logger state"/>
+            <Button Click="ButtonShowEventLoggerStateDiff_Click" Name="ButtonShowEventLoggerStateDiff"
+                    Content="Show logger state diff" IsEnabled="false"/>
+            <Button Click="ButtonClearEventLogger_Click" Name="ButtonClearEventLogger" Content="Clear event logger"/>
+            <GroupBox Header="Simulate event">
+              <StackPanel>
+                <Label Content="New event time:"/>
+                <TextBox Name="TextBoxNewEventTime"/>
+                <Label Content="Number of events:"/>
+                <TextBox Name="TextBoxNumberOfEvents" Text="1"/>
+                <Button Click="ButtonAddRamdomEvent_Click" Name="ButtonAddRamdomEvent" Content="Add random event(s)"/>
+                <GroupBox Header="Selected event">
+                  <StackPanel>
+                    <ComboBox Name="ComboBoxEvents"/>
+                    <Label Content="Event parameter:"/>
+                    <TextBox Name="TextBoxEventParam" Text="0"/>
+                    <Button Click="ButtonAddSelectedEvent_Click" Name="ButtonAddSelectedEvent" Content="Add selected event(s)"/>
+                  </StackPanel>
+                </GroupBox>
+              </StackPanel>
+            </GroupBox>
+          </StackPanel>
+        </GroupBox>
+      </StackPanel>
+      <StackPanel>
+        <StackPanel>
+          <GroupBox Header="Type commands">
+            <StackPanel>
+              <Button Click="ButtonAddNewMap_Click" Name="Button_AddNewMap" Content="Add new map" IsEnabled="true"/>
+              <Button Click="Button_HardwareTypeEditor_Click" Name="Button_HardwareTypeManagerIUW"
+                      Content="HardwareType Editor IUW" VerticalAlignment="Top" IsEnabled="true"/>
+              <Button Click="Button_HardwareTypeEditor_Click" Name="Button_HardwareTypeManagerMiCon"
+                      Content="HardwareType Editor MiCon" IsEnabled="true"/>
+              <Button Click="Button_HardwareTypeEditor_Click" Name="Button_HardwareTypeManagerMinoConnect"
+                      Content="HWType Editor MinoConnect" IsEnabled="true"/>
+              <Button Click="Button_HardwareTypeEditor_Click" x:Name="Button_HardwareTypeManagerNDC"
+                      Content="HardwareType Editor NDC" IsEnabled="true"/>
+            </StackPanel>
+          </GroupBox>
+        </StackPanel>
+      </StackPanel>
+    </StackPanel>
+  </DockPanel>
+</Window>

@@ -1,0 +1,40 @@
+<UserControl x:Class="MSS.Client.UI.Desktop.View.Meters.MetersUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+  <telerik:RadTabControl Margin="3" HeaderBackground="#EDEDED" Template="{StaticResource RadTabControlControlTemplateTest}">
+    <telerik:RadTabItem Header="Exception Handling">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid Row="0">
+          <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-58,0,0"
+                            Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+        </Grid>
+        <Grid Row="1">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Name="button_UnhandledException" Grid.Row="0" Width="200" Height="30" Margin="10"
+                  Content="ThowUnhandledException" Command="{Binding ThowUnhandledExceptionCommand}"/>
+          <Button Name="button_HandledException" Grid.Row="1" Width="200" Height="30" Margin="10"
+                  Content="ThowHandledException" Command="{Binding ThowHandledExceptionCommand}"/>
+          <Button Name="button_Success" Grid.Row="2" Width="200" Height="30" Margin="10" Content="ShowSuccessMessage"
+                  Command="{Binding ShowSuccessMessageCommand}"/>
+          <Button Name="button_Cancel" Grid.Row="3" Width="200" Height="30" Margin="10" Content="ShowCancelMessage"
+                  Command="{Binding ShowCancelMessageCommand}"/>
+          <Button Name="button_Validation" Grid.Row="4" Width="200" Height="30" Margin="10"
+                  Content="ShowValidationMessage" Command="{Binding ShowValidationMessageCommand}"/>
+        </Grid>
+      </Grid>
+    </telerik:RadTabItem>
+  </telerik:RadTabControl>
+</UserControl>

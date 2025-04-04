@@ -1,0 +1,56 @@
+<UserControl x:Class="MSS.Client.UI.Desktop.View.Archive.SearchOrdersUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="50"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid Row="0">
+      <StackPanel Orientation="Horizontal" Margin="30,0,0,0">
+        <TextBox x:Name="SearchOrderByInstallationNumberTextBox" Style="{StaticResource AppTextBoxStyle}"
+                 Width="200" Margin="2,6,3,5" Height="25">
+          <UIElement.InputBindings>
+            <KeyBinding Key="Enter" Command="{Binding SearchOrderByInstallationNumberCommand}"
+                        CommandParameter="{Binding Text, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}"/>
+          </UIElement.InputBindings>
+        </TextBox>
+        <Image Source="pack://application:,,,/Styles;component/Images/Universal/search.png" Margin="5" Height="16"
+               Width="16">
+          <UIElement.InputBindings>
+            <MouseBinding MouseAction="LeftClick" Command="{Binding SearchOrderByInstallationNumberCommand}"
+                          CommandParameter="{Binding Path=Text, ElementName=SearchOrderByInstallationNumberTextBox}"/>
+          </UIElement.InputBindings>
+        </Image>
+      </StackPanel>
+    </Grid>
+    <Grid Row="1">
+      <telerik:RadGridView x:Name="ArchiveOrderView" RowIndicatorVisibility="Collapsed" CanUserFreezeColumns="false"
+                           IsReadOnly="true" ColumnWidth="*" AutoGenerateColumns="false" CanUserSelect="false"
+                           CanUserSortColumns="true" AlternateRowBackground="#EDEDED" AlternationCount="2"
+                           ItemsSource="{Binding ArchiveOrdersDTO}">
+        <telerik:GridViewDataControl.Columns>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding InstallationNumber}"
+                                      Header="{Binding Path=MSS_Client_OrderControl_Header_ReadingNumber, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding RootNodeName}"
+                                      Header="{Binding Path=MSS_Client_OrderControl_Header_RootNodeName, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding RootNodeDescription}"
+                                      Header="{Binding Path=MSS_Client_OrderControl_Header_RootNodeDescription, Source={StaticResource Resources}}"/>
+          <telerik:GridViewCheckBoxColumn DataMemberBinding="{Binding Exported}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_Exported, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding Status}"
+                                      Header="{Binding Path=MSS_Client_OrderControl_Header_Status, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding IsLocked}"
+                                      Header="{Binding Path=MSS_Client_OrderControl_Header_IsLocked, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding DeviceNumber}"
+                                      Header="{Binding Path=MSS_Client_OrderControl_Header_DeviceNumber, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding OrderUsers}"
+                                      Header="{Binding Path=MSS_Client_OrderControl_Header_AssignedUser, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding OrderType}"
+                                      Header="{Binding Path=MSS_Client_OrderControl_Header_OrderType, Source={StaticResource Resources}}"/>
+        </telerik:GridViewDataControl.Columns>
+      </telerik:RadGridView>
+    </Grid>
+  </Grid>
+</UserControl>

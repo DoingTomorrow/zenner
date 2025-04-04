@@ -1,0 +1,155 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Orders.ManuallyAssignMetersDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:customControls="clr-namespace:MSS.Client.UI.Tablet.CustomControls"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:telerikInput="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Input"
+                             xmlns:attachedProperties="clr-namespace:MSS.Client.UI.Common.AttachedProperties;assembly=MSS.Client.UI.Common"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" Height="650" Width="950" BorderThickness="0" GlowBrush="Black"
+                             ShowInTaskbar="false" WindowStartupLocation="CenterScreen" WindowState="Maximized"
+                             WindowTitleBrush="#00608c" Title="{Binding Title}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="90"/>
+      <RowDefinition Height="50"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Background="WhiteSmoke" Orientation="Horizontal">
+      <customControls:TabletButton ButtonPath="M1.5599976,19.225006L13.84201,19.225006 13.787018,19.369003C13.364014,20.522003 13.132996,21.766998 13.132996,23.065002 13.132996,24.363007 13.364014,25.608002 13.787018,26.761002L13.84201,26.904999 1.5599976,26.904999C0.69900513,26.904999,0,26.205002,0,25.345001L0,20.783005C0,19.923004,0.69900513,19.225006,1.5599976,19.225006z M22.575012,17.796997L22.575012,21.979004 18.393005,21.979004 18.393005,24.630005 22.575012,24.630005 22.575012,28.811996 25.226013,28.811996 25.226013,24.630005 29.40802,24.630005 29.40802,21.979004 25.226013,21.979004 25.226013,17.796997z M23.894012,14.957993C28.371002,14.957993 32,18.585999 32,23.065002 32,27.539001 28.371002,31.169998 23.894012,31.169998 19.416992,31.169998 15.787994,27.539001 15.787994,23.065002 15.787994,18.585999 19.416992,14.957993 23.894012,14.957993z M1.5599976,9.5269928L23.382019,9.5269928C24.243011,9.5269928,24.94101,10.225006,24.94101,11.085007L24.94101,12.354004 24.720001,12.335007C24.446991,12.313995 24.171997,12.302994 23.894012,12.302994 20.186005,12.302994 16.908997,14.188995 14.973999,17.052002L14.876007,17.203995 1.5599976,17.203995C0.69900513,17.203995,0,16.505997,0,15.645004L0,11.085007C0,10.225006,0.69900513,9.5269928,1.5599976,9.5269928z M4.5920105,2.0679932C3.6170044,2.0679932 2.821991,2.8619995 2.821991,3.8379974 2.821991,4.8159943 3.6170044,5.6080017 4.5920105,5.6080017 5.5679932,5.6080017 6.3619995,4.8159943 6.3619995,3.8379974 6.3619995,2.8619995 5.5679932,2.0679932 4.5920105,2.0679932z M1.5599976,0L23.382019,0C24.243011,0,24.94101,0.69799805,24.94101,1.5579987L24.94101,6.1199951C24.94101,6.9819946,24.243011,7.6779938,23.382019,7.6779938L1.5599976,7.6779938C0.69900513,7.6779938,0,6.9819946,0,6.1199951L0,1.5579987C0,0.69799805,0.69900513,0,1.5599976,0z"
+                                   ButtonCommand="{Binding AssignDevicesCommand}"
+                                   ButtonText="{Binding AssignMeters_Expert_AssignDevices, Source={StaticResource Resources}}"/>
+      <customControls:TabletButton ButtonPath="M9.9000245,6.000003L6.0000001,9.8999988 12.100037,16.000007 6.0000001,22.100002 9.9000245,25.999997 16,19.900018 22.100037,25.999997 26,22.100002 19.900024,16.000007 26,9.8999988 22.100037,6.000003 16,12.099997z M16,0C24.799988,0 32,7.2000005 32,16.000007 32,24.800016 24.799988,32.000001 16,32.000001 7.2000123,32.000001 8.3946347E-08,24.800016 0,16.000007 8.3946347E-08,7.2000005 7.2000123,0 16,0z"
+                                   ButtonCommand="{Binding CancelWindowCommand}"
+                                   ButtonText="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"/>
+    </StackPanel>
+    <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="18" Foreground="#00608c" Margin="20 0 0 0"
+               Text="{Binding NoOfSelectedDevicesLabel}"/>
+    <ContentPresenter Grid.Row="0" Grid.Column="2" Width="Auto" Height="28" Margin="0 0 10 0" HorizontalAlignment="Right"
+                      VerticalAlignment="Center" Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+    <Grid Row="1" ColumnSpan="3">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="20 0 10 0">
+        <Label Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Address, Source={StaticResource Resources}}"/>
+        <telerikInput:RadComboBox Style="{StaticResource RadComboBoxStructureStyle}" Height="40" Width="220" IsEditable="true"
+                                  ItemsSource="{Binding AddressList}" Text="{Binding SelectedAddressesText, Mode=TwoWay}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Content="{Binding Text}"
+                        Command="{Binding DataContext.OnCheckChangedAddressCommand, RelativeSource={RelativeSource AncestorType=telerikInput:RadComboBox}}"/>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </telerikInput:RadComboBox>
+      </StackPanel>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10 0 10 0">
+        <Label Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Floor, Source={StaticResource Resources}}"/>
+        <telerikInput:RadComboBox Style="{StaticResource RadComboBoxStructureStyle}" IsEditable="true" Height="40" Width="220"
+                                  ItemsSource="{Binding FloorList}" Text="{Binding SelectedFloorsText, Mode=TwoWay}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Content="{Binding Text}"
+                        Command="{Binding DataContext.OnCheckChangedFloorCommand, RelativeSource={RelativeSource AncestorType=telerikInput:RadComboBox}}"/>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </telerikInput:RadComboBox>
+      </StackPanel>
+      <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10 0 20 0">
+        <Label Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Position, Source={StaticResource Resources}}"/>
+        <telerikInput:RadComboBox Style="{StaticResource RadComboBoxStructureStyle}" IsEditable="true" Height="40" Width="220"
+                                  ItemsSource="{Binding PositionList}" Text="{Binding SelectedPositionsText, Mode=TwoWay}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Content="{Binding Text}"
+                        Command="{Binding DataContext.OnCheckChangedPositionCommand, RelativeSource={RelativeSource AncestorType=telerikInput:RadComboBox}}"/>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </telerikInput:RadComboBox>
+      </StackPanel>
+    </Grid>
+    <Grid Row="2" ColumnSpan="3">
+      <telerik:RadBusyIndicator x:Name="BusyIndicator"
+                                IsBusy="{Binding ShowProgressCircle, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                BusyContent="{Binding MSS_ExecuteInstallationOrder_RegisteringMeters, Source={StaticResource Resources}}">
+        <telerik:RadGridView x:Name="TenantsGridView" RowIndicatorVisibility="Collapsed" CanUserFreezeColumns="false"
+                             telerik:StyleManager.Theme="Windows8" IsReadOnly="true" BorderThickness="1"
+                             AutoGenerateColumns="false" IsFilteringAllowed="false" AlternateRowBackground="#EDEDED"
+                             ShowGroupPanel="false" AlternationCount="2" SelectionMode="Multiple"
+                             ItemsSource="{Binding TenantsInfoCollection}"
+                             attachedProperties:PreviewMouseUp.Command="{Binding UpdateDeviceCountCommand}"
+                             attachedProperties:PreviewMouseUp.CommandParameter="{Binding RelativeSource={RelativeSource Self}}">
+          <attachedProperties:SelectedItemsHelperRadGrid.MySelectedItems>
+            <Binding Mode="TwoWay">              <!-- constructor argument:
+                   SelectedItems
+              -->
+
+            </Binding>
+          </attachedProperties:SelectedItemsHelperRadGrid.MySelectedItems>
+          <FrameworkElement.Resources>
+            <Style TargetType="{x:Type telerik:GridViewRow}">
+              <Style.Triggers>
+                <Trigger Property="RadRowItem.IsSelected" Value="true">
+                  <Setter Property="Control.Foreground" Value="#FF00608C"/>
+                </Trigger>
+              </Style.Triggers>
+            </Style>
+          </FrameworkElement.Resources>
+          <telerik:GridViewDataControl.Columns>
+            <telerik:GridViewDataColumn Width="0.5*" TextAlignment="Right" HeaderTextAlignment="Center"
+                                        DataMemberBinding="{Binding Tenant.TenantNr}"
+                                        Header="{Binding Path=TenantsGrid_No, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn Width="3*" TextAlignment="Left" HeaderTextAlignment="Center"
+                                        Header="{Binding Path=TenantsGrid_TenantName, Source={StaticResource Resources}}">
+              <telerik:GridViewColumn.CellTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal">
+                    <Image Style="{StaticResource SmallIconImageStyle}" Margin="5 0 5 0" Source="{Binding ImageLocation}"/>
+                    <Label Style="{StaticResource AppLabelStyle}" Content="{Binding Tenant.Name}"/>
+                  </StackPanel>
+                </DataTemplate>
+              </telerik:GridViewColumn.CellTemplate>
+            </telerik:GridViewDataColumn>
+            <telerik:GridViewDataColumn Width="3.5*" TextAlignment="Left" HeaderTextAlignment="Center"
+                                        DataMemberBinding="{Binding Address}"
+                                        Header="{Binding Path=TenantsGrid_Address, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn Width="1.5*" TextAlignment="Center" HeaderTextAlignment="Center"
+                                        DataMemberBinding="{Binding FloorPosition}"
+                                        Header="{Binding Path=TenantsGrid_FloorPosition, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn Width="*" TextAlignment="Center" HeaderTextAlignment="Center"
+                                        DataMemberBinding="{Binding NoOfDevices}"
+                                        Header="{Binding Path=TenantsGrid_NoOfDevices, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn Width="2*" TextAlignment="Center" HeaderTextAlignment="Center"
+                                        DataMemberBinding="{Binding RecAsRegDevices}"
+                                        Header="{Binding Path=TenantsGrid_RecAsRegDevices, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn Width="1.5*" TextAlignment="Center" HeaderTextAlignment="Center"
+                                        DataMemberBinding="{Binding OpenDevicesString}"
+                                        Header="{Binding Path=TenantsGrid_OpenDevices, Source={StaticResource Resources}}"/>
+          </telerik:GridViewDataControl.Columns>
+        </telerik:RadGridView>
+      </telerik:RadBusyIndicator>
+    </Grid>
+  </Grid>
+</common:ResizableMetroWindow>

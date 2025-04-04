@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\SQLite.SyncClient.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9516FE19-77A7-4B5C-866C-52CD89895A38}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>SQLite.SyncClient</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="SQLitePCL">
+      <HintPath>lib\SQLitePCL.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\AtomEntryInfoWrapper.cs" />
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\AtomHelper.cs" />
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\EntryInfoWrapper.cs" />
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\FormatterConstants.cs" />
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\FormatterUtilities.cs" />
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\JsonElementTypes.cs" />
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\JsonEntryInfoWrapper.cs" />
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\JsonHelper.cs" />
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\ODataAtomReader.cs" />
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\ODataAtomWriter.cs" />
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\ODataJsonReader.cs" />
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\ODataJsonWriter.cs" />
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\ReaderItemType.cs" />
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\ReflectionExtensionMethods.cs" />
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\ReflectionUtility.cs" />
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\SyncReader.cs" />
+    <Compile Include="Microsoft\Synchronization\Services\Formatters\SyncWriter.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\CacheController.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\CacheControllerBehavior.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\CacheRefreshStatistics.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\CacheRequest.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\CacheRequestResult.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\ChangeSet.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\CacheRequestType.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SerializationFormat.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\AsyncWorkManagerException.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\CacheControllerException.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\HttpCacheRequestHandler.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\HttpState.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\OfflineSyncProvider.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SyncProgressEvent.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SyncStage.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\ExceptionUtility.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\JsonNodeType.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\JsonComplexTextMode.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\StringHandleConstStringType.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\Keys.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\StringHandle.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\ValueHandleType.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\ValueHandleConstStringType.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\ValueHandle.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlBufferReader.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlConverter.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlJsonReader2.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlJsonReader.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlJsonWriter.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlNode.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlElementNode.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlAttributeNode.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlEndElementNode.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlTextNode.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlAtomicTextNode.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlComplexTextNode.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlWhitespaceTextNode.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlCDataNode.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlAttributeTextNode.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlInitialNode.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlDeclarationNode.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlCommentNode.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlEndOfFileNode.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\XmlClosedNode.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\TableAttribute.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\ColumnAttribute.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\PrimaryKeyAttribute.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\AutoIncrementAttribute.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\IndexedAttribute.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\IgnoreAttribute.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\UniqueAttribute.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\MaxLengthAttribute.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\CollationAttribute.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\SQLiteConfiguration.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\ScopeInfoTable.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\SQLiteConstants.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\SQLiteContext.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\SQLiteHelper.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\SQLiteManager.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\TableMapping.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\Orm.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\SQLiteOfflineEntity.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\SQLite\NativeMethods.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\Common\ChangeSetResponse.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\Common\AsyncHelpers.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\Common\Conflict.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\Common\IOfflineEntity.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\Common\OfflineEntityMetadata.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\Common\OfflineSchema.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\Common\SyncBlob.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\Common\SyncConflict.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\Common\SyncConflictResolution.cs" />
+    <Compile Include="Microsoft\Synchronization\ClientServices\Common\SyncError.cs" />
+    <Compile Include="SQLite\SQLiteException.cs" />
+    <Compile Include="SQLite\NotNullConstraintViolationException.cs" />
+    <Compile Include="SQLite\SQLiteOpenFlags.cs" />
+    <Compile Include="SQLite\CreateFlags.cs" />
+    <Compile Include="SQLite\SQLiteConnection.cs" />
+    <Compile Include="SQLite\SQLiteConnectionString.cs" />
+    <Compile Include="SQLite\TableAttribute.cs" />
+    <Compile Include="SQLite\ColumnAttribute.cs" />
+    <Compile Include="SQLite\PrimaryKeyAttribute.cs" />
+    <Compile Include="SQLite\AutoIncrementAttribute.cs" />
+    <Compile Include="SQLite\IndexedAttribute.cs" />
+    <Compile Include="SQLite\IgnoreAttribute.cs" />
+    <Compile Include="SQLite\UniqueAttribute.cs" />
+    <Compile Include="SQLite\MaxLengthAttribute.cs" />
+    <Compile Include="SQLite\CollationAttribute.cs" />
+    <Compile Include="SQLite\NotNullAttribute.cs" />
+    <Compile Include="SQLite\TableMapping.cs" />
+    <Compile Include="SQLite\Orm.cs" />
+    <Compile Include="SQLite\SQLiteCommand.cs" />
+    <Compile Include="SQLite\PreparedSqlLiteInsertCommand.cs" />
+    <Compile Include="SQLite\BaseTableQuery.cs" />
+    <Compile Include="SQLite\TableQuery`1.cs" />
+    <Compile Include="SQLite\SQLite3.cs" />
+    <Compile Include="SQLite\SQLiteAsyncConnection.cs" />
+    <Compile Include="SQLite\AsyncTableQuery`1.cs" />
+    <Compile Include="SQLite\CreateTablesResult.cs" />
+    <Compile Include="SQLite\SQLiteConnectionPool.cs" />
+    <Compile Include="SQLite\SQLiteConnectionWithLock.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

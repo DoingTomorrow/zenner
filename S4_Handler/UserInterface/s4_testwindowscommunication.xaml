@@ -1,0 +1,62 @@
+<Window x:Class="S4_Handler.UserInterface.S4_TestWindowCommunication"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico"
+        Title="Communication group functions" Height="577.6" Width="751"
+        WindowStartupLocation="CenterScreen">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="2"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StartupLib:GmmCorporateControl DockPanel.Dock="Top" HorizontalAlignment="Stretch"/>
+    <DockPanel>
+      <DockPanel Dock="Right">
+        <ProgressBar Name="ProgressBar1" DockPanel.Dock="Top" Margin="2" Height="15"/>
+        <Button Click="ButtonBreak_Click" Name="ButtonBreak" DockPanel.Dock="Bottom" Content="Break" Margin="2"
+                IsEnabled="false"/>
+        <StackPanel>
+          <Button Click="ButtonCommand_Click" Name="ButtonReadCommunicationStatus" Content="Read communication setup"/>
+          <Button Click="ButtonCommand_Click" Name="ButtonClearCommunicationGroups"
+                  Content="Clear communication groups"/>
+          <Separator/>
+          <Button Click="ButtonCommand_Click" Name="ButtonReadAvailableGroupDefinition"
+                  Content="Read available group definition"/>
+          <Button Click="ButtonCommand_Click" Name="ButtonReadAvailableGroupData" Content="Read available group data"/>
+          <Separator/>
+          <Button Click="ButtonCommand_Click" Name="ButtonReadAllGroupDefinitions"
+                  Content="Read all group definitions"/>
+          <Button Click="ButtonCommand_Click" Name="ButtonReadAllGroupData" Content="Read all group data"/>
+          <Separator/>
+          <GroupBox Header="By group number">
+            <StackPanel>
+              <TextBox Name="TextBoxGroupNumber" Text="0"/>
+              <Button Click="ButtonCommand_Click" Name="ButtonReadSelectedGroupDefinition"
+                      Content="Read group definition"/>
+              <Button Click="ButtonCommand_Click" Name="ButtonReadSelectedGroupData" Content="Read group data"/>
+              <Separator/>
+            </StackPanel>
+          </GroupBox>
+          <GroupBox Header="Scenario">
+            <StackPanel>
+              <ComboBox Name="ComboBoxScenarioNumber"/>
+              <Button Click="ButtonCommand_Click" Name="ButtonReadAvailableScenarios" Content="Read available scenarios"/>
+              <Button Click="ButtonCommand_Click" Name="ButtonSetGroupsForScenario" Content="Set groups for scenario"/>
+            </StackPanel>
+          </GroupBox>
+          <Button Click="ButtonCommand_Click" Name="ButtonAddCommunicationGroupSensus"
+                  Content="Add communication group Sensus"/>
+          <Button Click="ButtonCommand_Click" Name="ButtonRunScalingTest" Content="Run scaling test"/>
+        </StackPanel>
+      </DockPanel>
+      <DockPanel>
+        <TextBlock Name="TextBlockStatus" DockPanel.Dock="Top" Margin="6" Text="Status"/>
+        <TextBox Name="TextBoxDemoCommandResult" Margin="2" VerticalScrollBarVisibility="Auto"
+                 HorizontalScrollBarVisibility="Auto" FontFamily="Courier New"/>
+      </DockPanel>
+    </DockPanel>
+  </DockPanel>
+</Window>

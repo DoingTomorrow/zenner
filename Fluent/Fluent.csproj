@@ -1,0 +1,414 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Fluent.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{533C77D1-0DF2-4030-9A5B-DE0745C4B4E4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>Fluent</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+    <ApplicationVersion>2.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>Fluent</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="IKeyTipedControl.cs" />
+    <Compile Include="RibbonTabItem.cs" />
+    <Compile Include="KeyTipAdorner.cs" />
+    <Compile Include="IScalableRibbonControl.cs" />
+    <Compile Include="IDropDownControl.cs" />
+    <Compile Include="IRibbonControl.cs" />
+    <Compile Include="IQuickAccessItemProvider.cs" />
+    <Compile Include="InRibbonGallery.cs" />
+    <Compile Include="RibbonControlSize.cs" />
+    <Compile Include="RibbonTabsContainer.cs" />
+    <Compile Include="ScrollData.cs" />
+    <Compile Include="DropDownButton.cs" />
+    <Compile Include="RibbonControl.cs" />
+    <Compile Include="Spinner.cs" />
+    <Compile Include="StatusBar.cs" />
+    <Compile Include="ContextMenuResizeMode.cs" />
+    <Compile Include="ContextMenu.cs" />
+    <Compile Include="ComboBox.cs" />
+    <Compile Include="BackstageTabControl.cs" />
+    <Compile Include="ApplicationMenuRightContentExtractorConverter.cs" />
+    <Compile Include="ApplicationMenu.cs" />
+    <Compile Include="RibbonToolBarRow.cs" />
+    <Compile Include="RibbonLocalization.cs" />
+    <Compile Include="TextBox.cs" />
+    <Compile Include="StatusBarItem.cs" />
+    <Compile Include="RibbonGroupsContainer.cs" />
+    <Compile Include="GalleryItemPlaceholder.cs" />
+    <Compile Include="ColorGalleryMode.cs" />
+    <Compile Include="ColorGradientItemTemplateSelector.cs" />
+    <Compile Include="MoreColorsExecutingEventArgs.cs" />
+    <Compile Include="ColorGallery.cs" />
+    <Compile Include="ScreenTip.cs" />
+    <Compile Include="ScreenTipHelpEventArgs.cs" />
+    <Compile Include="MenuItem.cs" />
+    <Compile Include="KeyTipService.cs" />
+    <Compile Include="ToolTipService.cs" />
+    <Compile Include="SplitButton.cs" />
+    <Compile Include="MenuPanel.cs" />
+    <Compile Include="Ribbon.cs" />
+    <Compile Include="RibbonScrollViewer.cs" />
+    <Compile Include="GalleryGroupIcon.cs" />
+    <Compile Include="FrameworkHelper.cs" />
+    <Compile Include="BackstageAdorner.cs" />
+    <Compile Include="Backstage.cs" />
+    <Compile Include="RibbonItemsControl.cs" />
+    <Compile Include="RadioButton.cs" />
+    <Compile Include="BackstageTabItem.cs" />
+    <Compile Include="RibbonTabControl.cs" />
+    <Compile Include="QuickAccessToolBar.cs" />
+    <Compile Include="RibbonToolBar.cs" />
+    <Compile Include="RibbonToolBarControlGroupDefinition.cs" />
+    <Compile Include="GalleryItem.cs" />
+    <Compile Include="Gallery.cs" />
+    <Compile Include="Button.cs" />
+    <Compile Include="QuickAccessMenuItem.cs" />
+    <Compile Include="QuickAccessItemsProvider.cs" />
+    <Compile Include="RibbonToolBarControlGroup.cs" />
+    <Compile Include="GalleryGroupFilter.cs" />
+    <Compile Include="GroupSeparatorMenuItem.cs" />
+    <Compile Include="RibbonToolBarLayoutDefinition.cs" />
+    <Compile Include="NativeMethods.cs" />
+    <Compile Include="DismissPopupMode.cs" />
+    <Compile Include="DismissPopupEventHandler.cs" />
+    <Compile Include="DismissPopupEventArgs.cs" />
+    <Compile Include="PopupService.cs" />
+    <Compile Include="GalleryGroupContainer.cs" />
+    <Compile Include="ObjectToImageConverter.cs" />
+    <Compile Include="KeyTip.cs" />
+    <Compile Include="KeyTranslator.cs" />
+    <Compile Include="GrayscaleEffect.cs" />
+    <Compile Include="RibbonMenu.cs" />
+    <Compile Include="GalleryPanel.cs" />
+    <Compile Include="ContextMenuService.cs" />
+    <Compile Include="RibbonContextualGroupsContainer.cs" />
+    <Compile Include="RibbonToolBarControlDefinition.cs" />
+    <Compile Include="RibbonGroupBoxState.cs" />
+    <Compile Include="RibbonGroupBox.cs" />
+    <Compile Include="RibbonTitleBar.cs" />
+    <Compile Include="DpiHelper.cs" />
+    <Compile Include="RibbonWindow.cs" />
+    <Compile Include="StatusBarPanel.cs" />
+    <Compile Include="CheckBox.cs" />
+    <Compile Include="ToggleButton.cs" />
+    <Compile Include="SeparatorTabItem.cs" />
+    <Compile Include="RibbonContextualTabGroup.cs" />
+    <Compile Include="TwoLineLabel.cs" />
+    <Compile Include="IconConverter.cs" />
+    <Compile Include="StatusBarMenuItem.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\defaultsmallicon.png" />
+    <Resource Include="themes\office2010\effects\grayscale.ps" />
+    <Resource Include="themes\office2010\images\applicationmenu.png" />
+    <Resource Include="themes\office2010\images\backstagecorner.png" />
+    <Resource Include="themes\office2010\images\captionbuttonclose.png" />
+    <Resource Include="themes\office2010\images\captionbuttonmaximize.png" />
+    <Resource Include="themes\office2010\images\captionbuttonminimize.png" />
+    <Resource Include="themes\office2010\images\captionbuttonnormalize.png" />
+    <Resource Include="themes\office2010\images\checked.png" />
+    <Resource Include="themes\office2010\images\copy.png" />
+    <Resource Include="themes\office2010\images\cut.png" />
+    <Resource Include="themes\office2010\images\dialoglauncher.png" />
+    <Resource Include="themes\office2010\images\helpsmall.png" />
+    <Resource Include="themes\office2010\images\morecolors.png" />
+    <Resource Include="themes\office2010\images\paste.png" />
+    <Resource Include="themes\office2010\images\quickaccesstoolbardropdown.png" />
+    <Resource Include="themes\office2010\images\quickaccesstoolbarextender.png" />
+    <Resource Include="themes\office2010\images\resizegrip.png" />
+    <Resource Include="themes\office2010\images\ribboncollapse.png" />
+    <Resource Include="themes\office2010\images\ribbonexpand.png" />
+    <Resource Include="themes\office2010\images\ribbonpin.png" />
+    <Resource Include="themes\office2010\images\warningsmall.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="themes\generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2007\blue.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2007\colors\colors.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2007\colors\colorsblue.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2007\common.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2007\fonts.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\black.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\blue.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\colors\colors.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\colors\colorsblack.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\colors\colorsblue.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\colors\colorssilver.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\common.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\applicationmenu.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\applicationmenuitem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\backstagecontrols.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\backstagee.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\backstagetabcontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\backstagetabitem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\button.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\checkbox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\colorgallery.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\combobox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\comboboxitem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\dropdownbutton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\emptyfocusstyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\gallery.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\gallerygroupcontainer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\galleryitem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\inribbongallery.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\keytip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\menu.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\menuitem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\menuseparator.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\quickaccesstoolbar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\radiobutton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\ribbon.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\ribboncontextualtabgroup.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\ribbongroupbox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\ribbonmenu.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\ribbonscrollviewer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\ribbonseparator.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\ribbonstatusbar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\ribbontabcontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\ribbontabitem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\ribbontextbox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\ribbontitlebar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\ribbontoolbar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\ribbontoolbarcontrolgroup.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\screentip.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\scrollbar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\scrollbarwhite.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\separatortabitem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\slider.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\spinner.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\splitbutton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\statusbar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\textbox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\togglebutton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\controls\twolinelabel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\fonts.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\ribbonwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\office2010\silver.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

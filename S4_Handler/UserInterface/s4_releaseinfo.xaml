@@ -1,0 +1,39 @@
+<Window x:Class="S4_Handler.S4_ReleaseInfo"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico" Title="Release Info" Height="800"
+        Width="1000" WindowStartupLocation="CenterOwner">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="5"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+    </Style>
+    <Style TargetType="{x:Type GroupBox}">
+      <Setter Property="FrameworkElement.Margin" Value="3"/>
+      <Setter Property="Control.BorderBrush" Value="Black"/>
+      <Setter Property="Control.Foreground" Value="Black"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel Margin="10">
+    <StartupLib:GmmCorporateControl HorizontalAlignment="Stretch" DockPanel.Dock="Top"/>
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" FlowDirection="RightToLeft">
+      <Button Click="ButtonWriteTypeDoc_Click" Name="ButtonWriteTypeDoc"
+              Content="Write TypeDoc and show excel file" IsEnabled="false"/>
+      <Button Click="ButtonWriteTestTypeDoc_Click" Name="ButtonWriteTestTypeDoc"
+              Content="Create Test-TypeDoc and show excel file"/>
+    </StackPanel>
+    <StackPanel DockPanel.Dock="Bottom">
+      <Label Content="TypeDoc path:"/>
+      <TextBox Name="TextBoxPath"/>
+      <DockPanel>
+        <Button Click="ButtonSelect_Click" Name="ButtonSelect" DockPanel.Dock="Right" Content="Select TypeDoc"/>
+        <Label Content="TypeDoc file:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+        <Grid>
+          <TextBox TextChanged="TextBoxFile_TextChanged" Name="TextBoxFile" VerticalAlignment="Center"/>
+        </Grid>
+      </DockPanel>
+    </StackPanel>
+    <TextBox Name="TextBoxOut" VerticalScrollBarVisibility="Visible" Padding="10" FontFamily="Courier New"/>
+  </DockPanel>
+</Window>

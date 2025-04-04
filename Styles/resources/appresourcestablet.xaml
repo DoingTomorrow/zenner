@@ -1,0 +1,1228 @@
+<ResourceDictionary x:Class="Styles.Resources.AppResourcesTablet"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:helpers="clr-namespace:Telerik.Windows.Controls.ColorEditor.Helpers;assembly=Telerik.Windows.Controls.Input"
+                    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+  <Style TargetType="{x:Type GridViewHeaderCell}" BasedOn="{StaticResource {x:Type GridViewHeaderCell}}">
+    <Setter Property="Control.FontSize" Value="18"/>
+  </Style>
+  <Style x:Key="AvailableNodesGridStyle" BasedOn="{StaticResource GridViewRowStyle}"
+         TargetType="{x:Type GridViewRow}"/>
+  <Style x:Key="ExecuteInstallationOrderDeleteTEnantOrMeterStyle"
+         BasedOn="{StaticResource {x:Type telerik:RadRadioButton}}"
+         TargetType="{x:Type telerik:RadRadioButton}">
+    <Setter Property="UIElement.IsEnabled" Value="true"/>
+    <Setter Property="UIElement.Opacity" Value="1"/>
+    <Style.Triggers>
+      <MultiDataTrigger>
+        <MultiDataTrigger.Conditions>
+          <Condition Binding="{Binding SelectedMeterStructureNode, Mode=TwoWay}" Value="{x:Null}"/>
+          <Condition Binding="{Binding SelectedTenantStructureNode, Mode=TwoWay}" Value="{x:Null}"/>
+        </MultiDataTrigger.Conditions>
+        <Setter Property="UIElement.IsEnabled" Value="false"/>
+        <Setter Property="UIElement.Opacity" Value="0.5"/>
+      </MultiDataTrigger>
+      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True">
+        <TriggerBase.EnterActions>
+          <BeginStoryboard>
+            <Storyboard>
+              <ColorAnimation Duration="0:0:1.5" From="DarkSlateGray" Storyboard.TargetProperty="Background.Color"
+                              To="WhiteSmoke"/>
+            </Storyboard>
+          </BeginStoryboard>
+        </TriggerBase.EnterActions>
+      </DataTrigger>
+    </Style.Triggers>
+  </Style>
+  <Style x:Key="ExecuteInstallationOrderDeleteMasterOrSlaveStyle"
+         BasedOn="{StaticResource {x:Type telerik:RadRadioButton}}"
+         TargetType="{x:Type telerik:RadRadioButton}">
+    <Setter Property="UIElement.IsEnabled" Value="true"/>
+    <Setter Property="UIElement.Opacity" Value="1"/>
+    <Style.Triggers>
+      <MultiDataTrigger>
+        <MultiDataTrigger.Conditions>
+          <Condition Binding="{Binding SelectedMasterStructureNode, Mode=TwoWay}" Value="{x:Null}"/>
+          <Condition Binding="{Binding SelectedSlaveStructureNode, Mode=TwoWay}" Value="{x:Null}"/>
+        </MultiDataTrigger.Conditions>
+        <Setter Property="UIElement.IsEnabled" Value="false"/>
+        <Setter Property="UIElement.Opacity" Value="0.5"/>
+      </MultiDataTrigger>
+      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True">
+        <TriggerBase.EnterActions>
+          <BeginStoryboard>
+            <Storyboard>
+              <ColorAnimation Duration="0:0:1.5" From="DarkSlateGray" Storyboard.TargetProperty="Background.Color"
+                              To="WhiteSmoke"/>
+            </Storyboard>
+          </BeginStoryboard>
+        </TriggerBase.EnterActions>
+      </DataTrigger>
+    </Style.Triggers>
+  </Style>
+  <Style x:Key="AppTextBoxStyle" TargetType="{x:Type TextBox}">
+    <Setter Property="FrameworkElement.Margin" Value="10 0 10 0"/>
+    <Setter Property="FrameworkElement.Height" Value="35"/>
+    <Setter Property="Control.VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Control.FontSize" Value="16"/>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <ScrollViewer x:Name="PART_ContentHost" Margin="0" Background="#EDEDED" BorderBrush="DarkGray"
+                        BorderThickness="1"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="AppOrderTextBoxStyle" BasedOn="{StaticResource AppTextBoxStyle}"
+         TargetType="{x:Type TextBox}">
+    <Setter Property="FrameworkElement.Width" Value="205"/>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <ScrollViewer x:Name="PART_ContentHost" Margin="0" Background="#EDEDED" BorderBrush="DarkGray"
+                        BorderThickness="1"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="AppTextBlockGrayStyle" TargetType="{x:Type TextBlock}">
+    <Setter Property="FrameworkElement.Margin" Value="10 0 10 0"/>
+    <Setter Property="TextBlock.Foreground" Value="#595151"/>
+    <Setter Property="TextBlock.FontSize" Value="20"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style x:Key="AppLabelStyle" TargetType="{x:Type Label}">
+    <Setter Property="Control.Foreground" Value="#595151"/>
+    <Setter Property="Control.FontSize" Value="20"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Right"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style x:Key="AppLabelFontSize30" TargetType="{x:Type Label}">
+    <Setter Property="Control.Foreground" Value="#595151"/>
+    <Setter Property="Control.FontSize" Value="30"/>
+    <Setter Property="Control.FontWeight" Value="DemiBold"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Right"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style x:Key="AppSubTitleStyle" TargetType="{x:Type TextBlock}">
+    <Setter Property="TextBlock.Foreground" Value="#595151"/>
+    <Setter Property="TextBlock.FontSize" Value="16"/>
+    <Setter Property="TextBlock.FontWeight" Value="ExtraBold"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Right"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style x:Key="AppHeaderButtonStyle" TargetType="{x:Type StackPanel}">
+    <Setter Property="Panel.Background" Value="Transparent"/>
+    <Setter Property="FrameworkElement.Width" Value="Auto"/>
+    <Setter Property="FrameworkElement.Height" Value="Auto"/>
+  </Style>
+  <Style x:Key="AppTextBlockBlackStyle" TargetType="{x:Type TextBlock}">
+    <Setter Property="TextBlock.FontWeight" Value="Normal"/>
+    <Setter Property="TextBlock.Foreground" Value="Black"/>
+    <Setter Property="TextBlock.FontSize" Value="16"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Center"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+    <Setter Property="FrameworkElement.Margin" Value="0 0 5 0"/>
+    <Setter Property="TextBlock.Padding" Value="5"/>
+  </Style>
+  <Style x:Key="AppTextBlockLightGrayStyle" TargetType="{x:Type TextBlock}">
+    <Setter Property="TextBlock.FontWeight" Value="Thin"/>
+    <Setter Property="TextBlock.FontSize" Value="16"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+    <Setter Property="TextBlock.Foreground" Value="#77778b"/>
+    <Setter Property="FrameworkElement.Margin" Value="20 10 0 0"/>
+  </Style>
+  <Style x:Key="AppRadioButtonStyle" TargetType="{x:Type RadioButton}">
+    <Setter Property="FrameworkElement.Margin" Value="20 0 0 0"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+    <Setter Property="FrameworkElement.Width" Value="25"/>
+    <Setter Property="FrameworkElement.Height" Value="25"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type RadioButton}">
+          <Image x:Name="SelectedImage"
+                 Source="pack://application:,,,/Styles;component/Images/Universal/radio_unchecked.png"/>
+          <ControlTemplate.Triggers>
+            <Trigger Property="ToggleButton.IsChecked" Value="True">
+              <Setter TargetName="SelectedImage" Property="Image.Source"
+                      Value="pack://application:,,,/Styles;component/Images/Universal/radio_checked.png"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="SmallIconImageStyle" TargetType="{x:Type Image}">
+    <Setter Property="FrameworkElement.Width" Value="23"/>
+    <Setter Property="FrameworkElement.Height" Value="23"/>
+  </Style>
+  <Style x:Key="SmallIconImageStructureStyle" BasedOn="{StaticResource SmallIconImageStyle}"
+         TargetType="{x:Type Image}">
+    <Setter Property="FrameworkElement.Margin" Value="0,0,3,0"/>
+  </Style>
+  <Style x:Key="AppCheckBoxButtonStyle" TargetType="{x:Type CheckBox}">
+    <Setter Property="FrameworkElement.Margin" Value="20 0 0 0"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+    <Setter Property="FrameworkElement.Width" Value="25"/>
+    <Setter Property="FrameworkElement.Height" Value="25"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type CheckBox}">
+          <Image x:Name="TickImage"
+                 Source="pack://application:,,,/Styles;component/Images/Universal/checkbox_unchecked.png"/>
+          <ControlTemplate.Triggers>
+            <Trigger Property="ToggleButton.IsChecked" Value="True">
+              <Setter TargetName="TickImage" Property="Image.Source"
+                      Value="pack://application:,,,/Styles;component/Images/Universal/checkbox_checked.png"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <ControlTemplate x:Key="TabItemTemplate" TargetType="{x:Type RadTabItem}">
+    <Grid x:Name="wrapper">
+      <Border x:Name="NormalVisual" Background="Transparent"/>
+      <Border x:Name="SelectionVisual" Background="#99d9ea" CornerRadius="1" Opacity="0"/>
+      <telerik:LayoutTransformControl x:Name="OrientationTransform">
+        <ContentControl x:Name="HeaderElement" Margin="{TemplateBinding Control.Padding}"
+                        Content="{TemplateBinding HeaderedContentControl.Header}"
+                        ContentTemplate="{TemplateBinding HeaderedContentControl.HeaderTemplate}" FontWeight="Bold"
+                        Foreground="#00608C"/>
+      </telerik:LayoutTransformControl>
+      <VisualStateManager.VisualStateGroups>
+        <VisualStateGroup x:Name="CommonStateGroup">
+          <VisualState x:Name="Normal"/>
+          <VisualState x:Name="Selected">
+            <Storyboard>
+              <DoubleAnimation Duration="0" Storyboard.TargetName="SelectionVisual"
+                               Storyboard.TargetProperty="(UIElement.Opacity)" To="1"/>
+              <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetName="HeaderElement" Storyboard.TargetProperty="Foreground">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                  <ObjectKeyFrame.Value>
+                    <LinearGradientBrush>
+                      <GradientStop Offset="0.0" Color="White"/>
+                      <GradientStop Offset="1.0" Color="White"/>
+                    </LinearGradientBrush>
+                  </ObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+              </ObjectAnimationUsingKeyFrames>
+              <ObjectAnimationUsingKeyFrames Storyboard.TargetName="HeaderElement" Storyboard.TargetProperty="FontWeight">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                  <ObjectKeyFrame.Value>
+                    <FontWeight>Bold</FontWeight>
+                  </ObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+              </ObjectAnimationUsingKeyFrames>
+            </Storyboard>
+          </VisualState>
+        </VisualStateGroup>
+      </VisualStateManager.VisualStateGroups>
+    </Grid>
+  </ControlTemplate>
+  <Style BasedOn="{StaticResource RadTabItemStyle}" TargetType="{x:Type RadTabItem}">
+    <Setter Property="Control.Template" Value="{StaticResource TabItemTemplate}"/>
+    <Setter Property="Control.FontSize" Value="16"/>
+  </Style>
+  <Style TargetType="{x:Type RadTabControl}"/>
+  <ControlTemplate x:Key="RadTabControlControlTemplateTest" TargetType="{x:Type RadTabControl}">
+    <Grid>
+      <telerik:RadDockPanel LastChildFill="true">
+        <telerik:LayoutTransformControl x:Name="HeaderDockedElement" telerik:RadDockPanel.Dock="Top" IsTabStop="false">
+          <Grid SnapsToDevicePixels="true">
+            <Border x:Name="HeaderBackground" Background="{TemplateBinding RadTabControlBase.HeaderBackground}"
+                    Visibility="{TemplateBinding RadTabControlBase.BackgroundVisibility}"/>
+            <Border BorderBrush="#FF848484" BorderThickness="0,0,0,1"/>
+            <telerik:RadDockPanel ZIndex="10">
+              <ScrollViewer x:Name="ScrollViewerElement" Margin="2,4,2,0" BorderThickness="0" IsTabStop="false"
+                            VerticalScrollBarVisibility="Disabled"
+                            HorizontalScrollBarVisibility="{Binding (ScrollViewer.HorizontalScrollBarVisibility), RelativeSource={RelativeSource TemplatedParent}}">
+                <FrameworkElement.Style>
+                  <Style TargetType="{x:Type ScrollViewer}">
+                    <Setter Property="Control.HorizontalContentAlignment" Value="Left"/>
+                  </Style>
+                </FrameworkElement.Style>
+                <ItemsPresenter/>
+              </ScrollViewer>
+            </telerik:RadDockPanel>
+          </Grid>
+        </telerik:LayoutTransformControl>
+        <Border x:Name="ContentBorder" Background="{TemplateBinding Control.Background}"
+                BorderBrush="{TemplateBinding Control.BorderBrush}" CornerRadius="0,0,5,5"
+                Padding="{TemplateBinding Control.Padding}"
+                BorderThickness="{Binding BorderThickness, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+          <Grid>
+            <ContentPresenter x:Name="ContentElement"
+                              ContentTemplate="{TemplateBinding RadTabControlBase.SelectedContentTemplate}"/>
+          </Grid>
+        </Border>
+      </telerik:RadDockPanel>
+    </Grid>
+  </ControlTemplate>
+  <Style x:Key="CalendarStyle" TargetType="{x:Type RadCalendar}">
+    <Setter Property="FrameworkElement.Margin" Value="20 5 0 0"/>
+    <Setter Property="FrameworkElement.Width" Value="250"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+  </Style>
+  <Style x:Key="ErrorImageStyle" TargetType="{x:Type Image}">
+    <Setter Property="Image.Source"
+            Value="pack://application:,,,/Styles;component/Images/Settings/light-red.png"/>
+    <Setter Property="UIElement.Visibility" Value="Hidden"/>
+    <Setter Property="FrameworkElement.Width" Value="20"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+  </Style>
+  <Style x:Key="RadComboBoxStructureStyle" BasedOn="{StaticResource RadComboBoxStyle}"
+         TargetType="{x:Type RadComboBox}">
+    <Setter Property="FrameworkElement.Height" Value="28"/>
+    <Setter Property="FrameworkElement.Width" Value="205"/>
+    <Setter Property="FrameworkElement.Margin" Value="2 0 0 0"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+    <Setter Property="Control.Background" Value="#EDEDED"/>
+    <Setter Property="Control.BorderBrush" Value="DarkGray"/>
+  </Style>
+  <DataTemplate x:Key="ImageComboBoxTemplate">
+    <Grid MaxHeight="100">
+      <StackPanel Orientation="Horizontal">
+        <TextBlock FontWeight="Bold" Text="{Binding Name, Mode=TwoWay}"/>
+        <Image Width="95" Height="95" Source="{Binding Image500x500, Mode=OneWay}"/>
+      </StackPanel>
+    </Grid>
+  </DataTemplate>
+  <DataTemplate x:Key="SelectedImageComboBoxTemplate">
+    <Grid>
+      <TextBlock FontWeight="Bold" Text="{Binding Name, Mode=TwoWay}"/>
+    </Grid>
+  </DataTemplate>
+  <Style TargetType="{x:Type RadTreeView}">
+    <Setter Property="telerik:StyleManager.Theme" Value="Windows8Touch"/>
+  </Style>
+  <Style x:Key="AppTextBoxStructureStyle" TargetType="{x:Type TextBox}">
+    <Setter Property="Control.BorderBrush" Value="LightGray"/>
+    <Setter Property="FrameworkElement.Height" Value="30"/>
+    <Setter Property="FrameworkElement.Width" Value="210"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+    <Setter Property="Control.VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Control.FontSize" Value="16"/>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <ScrollViewer x:Name="PART_ContentHost" Margin="0" Background="#EDEDED" BorderBrush="DarkGray"
+                        BorderThickness="1"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="BorderStyleShadoweffect" TargetType="{x:Type Border}">
+    <Setter Property="UIElement.Effect">
+      <Setter.Value>
+        <DropShadowEffect BlurRadius="20" Direction="-90" Opacity="1" ShadowDepth="-20" Color="#00608c"/>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="GridStyleShadoweffect" TargetType="{x:Type Grid}">
+    <Setter Property="Panel.Background" Value="White"/>
+    <Setter Property="FrameworkElement.Margin" Value="20"/>
+  </Style>
+  <Style TargetType="{x:Type ResizeGrip}">
+    <Setter Property="FrameworkElement.MinWidth"
+            Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
+    <Setter Property="FrameworkElement.MinHeight"
+            Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}"/>
+    <Setter Property="FrameworkElement.Margin" Value="0,0,0,0"/>
+  </Style>
+  <Style x:Key="ToolStyle" TargetType="{x:Type ToolTip}">
+    <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="true"/>
+    <Setter Property="ToolTip.HasDropShadow" Value="true"/>
+    <Setter Property="Control.Foreground" Value="White"/>
+    <Setter Property="ToolTip.Placement" Value="Top"/>
+    <Setter Property="ToolTip.VerticalOffset" Value="-15"/>
+    <Setter Property="ToolTip.HorizontalOffset" Value="25"/>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ToolTip}">
+          <StackPanel Orientation="Horizontal">
+            <Border Name="Border" Width="{TemplateBinding FrameworkElement.Width}"
+                    Height="{TemplateBinding FrameworkElement.Height}" Margin="13,1,0,0">
+              <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                  <GradientBrush.GradientStops>
+                    <GradientStopCollection>
+                      <GradientStop Offset="0.0" Color="{DynamicResource ControlLightColor}"/>
+                      <GradientStop Offset="1.0" Color="{DynamicResource ControlMediumColor}"/>
+                    </GradientStopCollection>
+                  </GradientBrush.GradientStops>
+                </LinearGradientBrush>
+              </Border.Background>
+              <Border.BorderBrush>
+                <SolidColorBrush Color="{DynamicResource BorderMediumColor}"/>
+              </Border.BorderBrush>
+              <ContentPresenter Margin="4" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                Content="{Binding Path=/ErrorContent}"/>
+            </Border>
+          </StackPanel>
+          <ControlTemplate.Triggers>
+            <Trigger Property="ToolTip.HasDropShadow" Value="true">
+              <Setter TargetName="Border" Property="Border.CornerRadius" Value="0"/>
+              <Setter TargetName="Border" Property="UIElement.SnapsToDevicePixels" Value="true"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Color x:Key="ControlLightColor">#DE3914</Color>
+  <Color x:Key="ControlMediumColor">#DE3914</Color>
+  <LinearGradientBrush x:Key="MenuPopupBrush" StartPoint="0.5,0" EndPoint="0.5,1">
+    <GradientStop Offset="0" Color="{DynamicResource ControlLightColor}"/>
+    <GradientStop Offset="0.5" Color="{DynamicResource ControlMediumColor}"/>
+    <GradientStop Offset="1" Color="{DynamicResource ControlLightColor}"/>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="ProgressBarIndicatorAnimatedFill" StartPoint="0,0" EndPoint="1,0">
+    <GradientBrush.GradientStops>
+      <GradientStopCollection>
+        <GradientStop Offset="0" Color="#000000FF"/>
+        <GradientStop Offset="0.4" Color="#600000FF"/>
+        <GradientStop Offset="0.6" Color="#600000FF"/>
+        <GradientStop Offset="1" Color="#000000FF"/>
+      </GradientStopCollection>
+    </GradientBrush.GradientStops>
+  </LinearGradientBrush>
+  <Style x:Key="TextBoxErrorStyle" TargetType="{x:Type TextBox}">
+    <Setter Property="Control.VerticalContentAlignment" Value="Center"/>
+    <Setter Property="FrameworkElement.Height" Value="40"/>
+    <Setter Property="FrameworkElement.Width" Value="220"/>
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" Margin="0,0,3,0" HorizontalAlignment="Right"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.FontSize" Value="16"/>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <ScrollViewer x:Name="PART_ContentHost" Margin="0" Background="#EDEDED" BorderBrush="DarkGray"
+                        BorderThickness="1"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="WriteNodeStyle" BasedOn="{StaticResource {x:Type Button}}" TargetType="{x:Type Button}">
+    <Setter Property="UIElement.IsEnabled" Value="true"/>
+    <Setter Property="UIElement.Opacity" Value="1"/>
+    <Style.Triggers>
+      <DataTrigger Binding="{Binding IsWriteButtonEnabled, Mode=TwoWay}" Value="False">
+        <Setter Property="UIElement.IsEnabled" Value="false"/>
+        <Setter Property="UIElement.Opacity" Value="0.5"/>
+      </DataTrigger>
+    </Style.Triggers>
+  </Style>
+  <Style x:Key="ReadNodeStyle" BasedOn="{StaticResource {x:Type Button}}" TargetType="{x:Type Button}">
+    <Setter Property="UIElement.IsEnabled" Value="true"/>
+    <Setter Property="UIElement.Opacity" Value="1"/>
+    <Style.Triggers>
+      <DataTrigger Binding="{Binding IsReadButtonEnabled, Mode=TwoWay}" Value="False">
+        <Setter Property="UIElement.IsEnabled" Value="false"/>
+        <Setter Property="UIElement.Opacity" Value="0.5"/>
+      </DataTrigger>
+    </Style.Triggers>
+  </Style>
+  <Style x:Key="TextBoxErrorStyleMinomat" TargetType="{x:Type TextBox}">
+    <Setter Property="Control.VerticalContentAlignment" Value="Center"/>
+    <Setter Property="FrameworkElement.Height" Value="40"/>
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" Margin="0,0,3,0" HorizontalAlignment="Right"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.FontSize" Value="16"/>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <ScrollViewer x:Name="PART_ContentHost" Margin="0" Background="#EDEDED" BorderBrush="DarkGray"
+                        BorderThickness="1"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Style.Triggers>
+      <DataTrigger Binding="{Binding IsChecked, ElementName=isMaster}" Value="False">
+        <Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
+      </DataTrigger>
+    </Style.Triggers>
+  </Style>
+  <Style x:Key="LoginUsernameBoxErrorStyle" TargetType="{x:Type TextBox}">
+    <Setter Property="FrameworkElement.Height" Value="33"/>
+    <Setter Property="Control.VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.FontSize" Value="16"/>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <ScrollViewer x:Name="PART_ContentHost" Margin="0" Background="#EDEDED" BorderBrush="DarkGray"
+                        BorderThickness="1"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="RadListBoxErrorStyle" TargetType="{x:Type telerik:RadListBox}">
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" Margin="0,0,3,0" HorizontalAlignment="Right"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.FontSize" Value="16"/>
+    <Setter Property="Control.Background" Value="#EDEDED"/>
+    <Setter Property="Control.BorderBrush" Value="DarkGray"/>
+  </Style>
+  <Style x:Key="RadMaskedTextInputErrorStyle" TargetType="{x:Type RadMaskedTextInput}">
+    <Setter Property="Control.VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Control.VerticalContentAlignment" Value="Stretch"/>
+    <Setter Property="FrameworkElement.Height" Value="40"/>
+    <Setter Property="FrameworkElement.Width" Value="220"/>
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" Margin="0,0,3,0" HorizontalAlignment="Right"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.FontSize" Value="16"/>
+  </Style>
+  <Style x:Key="RadComboBoxErrorStyle" BasedOn="{StaticResource RadComboBoxStyle}"
+         TargetType="{x:Type RadComboBox}">
+    <Setter Property="FrameworkElement.Height" Value="40"/>
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" Margin="0,0,3,0" HorizontalAlignment="Right"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.FontSize" Value="16"/>
+    <Setter Property="Control.Background" Value="#EDEDED"/>
+    <Setter Property="Control.BorderBrush" Value="DarkGray"/>
+  </Style>
+  <Style x:Key="RadComboBoxWithTextErrorStyle" BasedOn="{StaticResource RadComboBoxStyle}"
+         TargetType="{x:Type RadComboBox}">
+    <Setter Property="FrameworkElement.Height" Value="40"/>
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" Margin="0,0,40,0" HorizontalAlignment="Right"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.FontSize" Value="16"/>
+    <Setter Property="Control.Background" Value="#EDEDED"/>
+    <Setter Property="Control.BorderBrush" Value="DarkGray"/>
+  </Style>
+  <Style x:Key="RadNumericUpDownErrorStyle" BasedOn="{StaticResource RadNumericUpDownStyle}"
+         TargetType="{x:Type RadNumericUpDown}">
+    <Setter Property="FrameworkElement.Height" Value="40"/>
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" Margin="0,0,40,0" HorizontalAlignment="Right"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.FontSize" Value="16"/>
+    <Setter Property="Control.Background" Value="#EDEDED"/>
+    <Setter Property="Control.BorderBrush" Value="DarkGray"/>
+  </Style>
+  <Style x:Key="RadDateTimePickerErrorStyle" TargetType="{x:Type RadDateTimePicker}">
+    <Setter Property="FrameworkElement.Height" Value="40"/>
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" Margin="0,0,23,0" HorizontalAlignment="Right"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.FontSize" Value="16"/>
+    <Setter Property="Control.Background" Value="#EDEDED"/>
+    <Setter Property="Control.BorderBrush" Value="DarkGray"/>
+  </Style>
+  <Style x:Key="CommandButtonStyle" BasedOn="{StaticResource {x:Type Button}}" TargetType="{x:Type Button}">
+    <Setter Property="FrameworkElement.Height" Value="50"/>
+    <Setter Property="FrameworkElement.Width" Value="90"/>
+    <Setter Property="Control.FontSize" Value="20"/>
+    <Setter Property="Control.BorderBrush" Value="#EDEDED"/>
+    <Setter Property="Control.Background" Value="White"/>
+    <Setter Property="Control.Padding" Value="0,0,0,4"/>
+  </Style>
+  <Style x:Key="AddDeviceButtonStyle" BasedOn="{StaticResource {x:Type Button}}"
+         TargetType="{x:Type Button}">
+    <Setter Property="FrameworkElement.Height" Value="40"/>
+    <Setter Property="FrameworkElement.Width" Value="40"/>
+    <Setter Property="Control.FontSize" Value="26"/>
+    <Setter Property="Control.BorderBrush" Value="#EDEDED"/>
+    <Setter Property="Control.Background" Value="White"/>
+    <Setter Property="Control.Foreground" Value="DimGray"/>
+    <Setter Property="ContentControl.Content" Value="+"/>
+    <Setter Property="Control.Padding" Value="0,0,0,8"/>
+  </Style>
+  <Style x:Key="TextForImageButton" TargetType="{x:Type TextBlock}">
+    <Setter Property="FrameworkElement.Margin" Value="10 -3 10 -3"/>
+    <Setter Property="TextBlock.FontWeight" Value="Normal"/>
+  </Style>
+  <Style x:Key="RadPanelBarItemStyleWithoutSelection" TargetType="{x:Type RadPanelBarItem}">
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type RadPanelBarItem}">
+          <Grid x:Name="RootElement" SnapsToDevicePixels="true">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid x:Name="HeaderRow" Margin="5,0" Background="Transparent">
+              <ContentControl x:Name="Header" Margin="{TemplateBinding Control.Padding}"
+                              HorizontalAlignment="{TemplateBinding Control.HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding Control.VerticalContentAlignment}"
+                              ContentTemplate="{TemplateBinding HeaderedItemsControl.HeaderTemplate}"
+                              FontWeight="{TemplateBinding Control.FontWeight}"/>
+              <Rectangle x:Name="FocusVisual" IsHitTestVisible="false" Opacity="0.2" StrokeThickness="1"
+                         Visibility="Collapsed"/>
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <ControlTemplate x:Key="ErrorTemplate">
+    <Grid>
+      <AdornedElementPlaceholder/>
+      <Path x:Name="ErrorImage" Height="35" Margin="0 0 -40 0" HorizontalAlignment="Right"
+            Data="M 402.198,281.152 C 385.279,281.152 365.874,287.45 342.941,300.374 321.161,312.758 296.933,333.386 270.976,361.86 L 261.651,372.265 298.083,400.487 306.113,392.569 C 334.158,365.281 343.626,357.83 346.795,355.815 310.47,482.709 291.785,559.388 291.785,592.398 291.785,605.536 295.566,616.158 302.944,624.184 310.541,632.32 321.052,636.567 333.329,636.567 345.786,636.567 360.582,631.564 378.583,621.305 395.466,611.622 420.955,590.672 456.452,557.229 L 466.244,548.048 433.086,515.759 424.123,524.144 C 392.622,553.772 378.834,563.131 375.702,566.3 376.242,553.088 383.802,514.821 414.943,410.1 439.963,326.546 439.963,317.799 439.963,313.625 439.963,303.758 436.148,295.371 428.874,289.359 422.251,283.925 413.288,281.152 402.198,281.152 M 401.478,133.629 C 372.787,133.629 349.601,156.885 349.601,185.43 349.601,214.159 372.787,237.341 401.478,237.341 430.17,237.341 453.392,214.159 453.392,185.43 453.392,156.885 430.17,133.629 401.478,133.629 M 383.983,0 C 595.665,7E-06 768,172.256 768,384 768,595.711 595.665,768 383.983,768 172.192,768 -4E-06,595.711 0,384 -4E-06,172.256 172.192,7E-06 383.983,0 Z"
+            Fill="#DE3914" Stretch="Uniform"/>
+      <Canvas x:Name="ErrorTextBlock" Margin="0 0 -40 0" HorizontalAlignment="Right" ClipToBounds="false"
+              Opacity="0">
+        <StackPanel Orientation="Horizontal">
+          <Path Height="20" Margin="0 7 -2 0" VerticalAlignment="Top" Data="M 520,0 L 520,657.20001 0,328.60001 Z"
+                Fill="#DE3914" Stretch="Uniform"/>
+          <Border Width="200" Background="#DE3914" BorderBrush="#DE3914" BorderThickness="1" CornerRadius="10">
+            <TextBlock MinHeight="35" FontSize="20" Foreground="White" Padding="5" TextAlignment="Center"
+                       TextWrapping="Wrap" Text="{Binding CurrentItem.ErrorContent}"/>
+            <UIElement.Effect>
+              <DropShadowEffect Opacity="0.5" Color="DarkRed"/>
+            </UIElement.Effect>
+          </Border>
+        </StackPanel>
+      </Canvas>
+    </Grid>
+    <ControlTemplate.Triggers>
+      <Trigger SourceName="ErrorImage" Property="UIElement.IsMouseOver" Value="true">
+        <Setter TargetName="ErrorTextBlock" Property="UIElement.Opacity" Value="1"/>
+      </Trigger>
+    </ControlTemplate.Triggers>
+  </ControlTemplate>
+  <Style x:Key="BusyProgressBarStyle" BasedOn="{StaticResource {x:Type telerik:RadProgressBar}}"
+         TargetType="{x:Type telerik:RadProgressBar}">
+    <Setter Property="FrameworkElement.Height" Value="60"/>
+    <Setter Property="FrameworkElement.Width" Value="420"/>
+    <Setter Property="RangeBase.Maximum" Value="100"/>
+  </Style>
+  <Style BasedOn="{StaticResource RadWindowStyle}" TargetType="{x:Type RadWindow}">
+    <Setter Property="WindowBase.CanClose" Value="false"/>
+    <Setter Property="WindowBase.CanMove" Value="false"/>
+    <Setter Property="WindowBase.ResizeMode" Value="NoResize"/>
+    <Setter Property="FrameworkElement.Margin" Value="10"/>
+    <Setter Property="Control.Foreground" Value="#105176"/>
+  </Style>
+  <Style BasedOn="{StaticResource RadComboBoxStyle}" TargetType="{x:Type RadComboBox}">
+    <Setter Property="Control.FontSize" Value="20"/>
+    <Setter Property="Control.Foreground" Value="#105176"/>
+    <Setter Property="Validation.ErrorTemplate" Value="{StaticResource ErrorTemplate}"/>
+  </Style>
+  <Style x:Key="ComboBoxTextBoxStyle" TargetType="{x:Type ComboBox}">
+    <Setter Property="Control.BorderThickness" Value="1, 1, 1, 1"/>
+    <Setter Property="Control.BorderBrush" Value="Transparent"/>
+    <Setter Property="Control.FontSize" Value="20"/>
+    <Setter Property="Control.Foreground" Value="#105176"/>
+    <Setter Property="Control.Padding" Value="5,2,5,2"/>
+    <Setter Property="FrameworkElement.MinHeight" Value="36"/>
+    <Setter Property="Control.VerticalContentAlignment" Value="Center"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Stretch"/>
+  </Style>
+  <Style TargetType="{x:Type ScrollViewer}">
+    <Setter Property="ScrollViewer.PanningMode" Value="VerticalOnly"/>
+  </Style>
+  <Style TargetType="{x:Type Label}">
+    <Setter Property="Control.Foreground" Value="#105176"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Right"/>
+    <Setter Property="Control.FontSize" Value="20"/>
+    <Setter Property="FrameworkElement.Margin" Value="0,0,10,0"/>
+  </Style>
+  <Style x:Key="TextContentStyle" TargetType="{x:Type TextBlock}">
+    <Setter Property="TextBlock.Foreground" Value="#105176"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Top"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Center"/>
+    <Setter Property="TextBlock.FontSize" Value="20"/>
+    <Setter Property="FrameworkElement.Margin" Value="5 0 5 0"/>
+    <Setter Property="TextBlock.TextWrapping" Value="Wrap"/>
+    <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+  </Style>
+  <Style TargetType="{x:Type DataGridCell}">
+    <Setter Property="UIElement.Focusable" Value="false"/>
+    <Setter Property="Control.BorderThickness" Value="0"/>
+    <Setter Property="TextElement.FontWeight" Value="SemiBold"/>
+    <Setter Property="TextElement.FontSize" Value="20"/>
+    <Setter Property="TextElement.Foreground" Value="#105176"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+    <Setter Property="Control.Background" Value="Transparent"/>
+    <Style.Triggers>
+      <Trigger Property="DataGridCell.IsSelected" Value="true">
+        <Setter Property="Control.Foreground" Value="White"/>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+  <Style TargetType="{x:Type ComboBoxItem}">
+    <Style.Triggers>
+      <Trigger Property="ListBoxItem.IsSelected" Value="true">
+        <Setter Property="Control.Background" Value="Black"/>
+      </Trigger>
+    </Style.Triggers>
+    <Style.Resources>
+      <SolidColorBrush Color="Black" x:Key="{x:Static SystemColors.HighlightBrushKey}"/>
+    </Style.Resources>
+  </Style>
+  <Style BasedOn="{StaticResource {x:Type RadTimePicker}}" TargetType="{x:Type RadTimePicker}">
+    <Setter Property="Control.Foreground" Value="White"/>
+    <Setter Property="Control.Background" Value="#105176"/>
+    <Setter Property="FrameworkElement.Height" Value="35"/>
+    <Setter Property="FrameworkElement.Width" Value="250"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Top"/>
+    <Setter Property="Control.FontSize" Value="20"/>
+    <Setter Property="FrameworkElement.Margin" Value="10,0,0,0"/>
+    <Setter Property="Control.Padding" Value="5"/>
+    <Setter Property="Validation.ErrorTemplate" Value="{StaticResource ErrorTemplate}"/>
+  </Style>
+  <Style BasedOn="{StaticResource {x:Type RadDatePicker}}" TargetType="{x:Type RadDatePicker}">
+    <Setter Property="Control.Foreground" Value="White"/>
+    <Setter Property="Control.Background" Value="#105176"/>
+    <Setter Property="FrameworkElement.Height" Value="35"/>
+    <Setter Property="FrameworkElement.Width" Value="250"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Top"/>
+    <Setter Property="Control.FontSize" Value="20"/>
+    <Setter Property="FrameworkElement.Margin" Value="10,0,0,0"/>
+    <Setter Property="Control.Padding" Value="5"/>
+    <Setter Property="Validation.ErrorTemplate" Value="{StaticResource ErrorTemplate}"/>
+  </Style>
+  <Style BasedOn="{StaticResource {x:Type telerik:Tile}}" TargetType="{x:Type telerik:Tile}">
+    <Setter Property="Control.Background" Value="#105176"/>
+    <Setter Property="telerik:Tile.TileType" Value="Double"/>
+  </Style>
+  <Style x:Key="UserControlStyle" TargetType="{x:Type UserControl}">
+    <Setter Property="Control.Background" Value="#F5F8FF"/>
+  </Style>
+  <Style BasedOn="{StaticResource RadRadioButtonStyle}" TargetType="{x:Type telerik:RadRadioButton}">
+    <Setter Property="FrameworkElement.Width" Value="255"/>
+    <Setter Property="Control.FontSize" Value="20"/>
+    <Setter Property="Control.FontWeight" Value="DemiBold"/>
+    <Setter Property="Control.Foreground" Value="White"/>
+    <Setter Property="Control.BorderThickness" Value="1"/>
+    <Setter Property="Control.BorderBrush" Value="#D4D4D4"/>
+    <Setter Property="Control.Background" Value="#848484"/>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type telerik:RadRadioButton}">
+          <Grid SnapsToDevicePixels="true">
+            <Border x:Name="OuterBorder" Background="{TemplateBinding Control.Background}"
+                    BorderBrush="{TemplateBinding Control.BorderBrush}"
+                    BorderThickness="{TemplateBinding Control.BorderThickness}"
+                    CornerRadius="{TemplateBinding telerik:RadRadioButton.CornerRadius}"/>
+            <Border x:Name="OuterMouseOverBorder"
+                    BorderBrush="{DynamicResource {x:Static telerik:Windows8TouchResourceKey.InvertedBrush}}"
+                    BorderThickness="{TemplateBinding Control.BorderThickness}"
+                    CornerRadius="{TemplateBinding telerik:RadRadioButton.CornerRadius}" Opacity="0"/>
+            <Border x:Name="OuterPressedBorder"
+                    Background="{DynamicResource {x:Static telerik:Windows8TouchResourceKey.InvertedGradientBrush}}"
+                    BorderBrush="{DynamicResource {x:Static telerik:Windows8TouchResourceKey.MediumBrush}}"
+                    BorderThickness="{TemplateBinding Control.BorderThickness}"
+                    CornerRadius="{TemplateBinding telerik:RadRadioButton.CornerRadius}" Visibility="Collapsed"/>
+            <Border x:Name="FocusVisual"
+                    BorderBrush="{DynamicResource {x:Static telerik:Windows8TouchResourceKey.InvertedBrush}}"
+                    BorderThickness="{TemplateBinding Control.BorderThickness}"
+                    CornerRadius="{TemplateBinding telerik:RadRadioButton.CornerRadius}" Opacity="0.3"
+                    Visibility="Collapsed" Background="{x:Null}"/>
+            <Border x:Name="CheckedVisual" Background="#ED1C24" BorderBrush="{TemplateBinding Control.BorderBrush}"
+                    BorderThickness="{TemplateBinding Control.BorderThickness}"
+                    CornerRadius="{TemplateBinding telerik:RadRadioButton.CornerRadius}" Opacity="0"/>
+            <Border x:Name="MouseOverCheckedVisual"
+                    BorderBrush="{DynamicResource {x:Static telerik:Windows8TouchResourceKey.InvertedBrush}}"
+                    BorderThickness="{TemplateBinding Control.BorderThickness}"
+                    CornerRadius="{TemplateBinding telerik:RadRadioButton.CornerRadius}" Opacity="0"/>
+            <ContentPresenter x:Name="Content" Margin="{TemplateBinding Control.Padding}"
+                              HorizontalAlignment="{TemplateBinding Control.HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding Control.VerticalContentAlignment}"
+                              Content="{TemplateBinding ContentControl.Content}"
+                              ContentStringFormat="{TemplateBinding ContentControl.ContentStringFormat}"
+                              ContentTemplate="{TemplateBinding ContentControl.ContentTemplate}" RecognizesAccessKey="true"/>
+            <VisualStateManager.VisualStateGroups>
+              <VisualStateGroup x:Name="CommonStates">
+                <VisualState x:Name="Normal"/>
+                <VisualState x:Name="MouseOver">
+                  <Storyboard>
+                    <DoubleAnimation Duration="0" Storyboard.TargetName="OuterMouseOverBorder"
+                                     Storyboard.TargetProperty="(UIElement.Opacity)" To="0.3"/>
+                  </Storyboard>
+                </VisualState>
+                <VisualState x:Name="Pressed">
+                  <Storyboard>
+                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="OuterPressedBorder" Storyboard.TargetProperty="Visibility">
+                      <DiscreteObjectKeyFrame KeyTime="0">
+                        <ObjectKeyFrame.Value>
+                          <Visibility>Visible</Visibility>
+                        </ObjectKeyFrame.Value>
+                      </DiscreteObjectKeyFrame>
+                    </ObjectAnimationUsingKeyFrames>
+                  </Storyboard>
+                </VisualState>
+                <VisualState x:Name="Disabled">
+                  <Storyboard>
+                    <DoubleAnimation Duration="0" Storyboard.TargetName="OuterBorder" Storyboard.TargetProperty="Opacity" To="0.5"/>
+                    <DoubleAnimation Duration="0" Storyboard.TargetName="Content" Storyboard.TargetProperty="Opacity" To="0.5"/>
+                  </Storyboard>
+                </VisualState>
+                <VisualState x:Name="DisabledChecked">
+                  <Storyboard>
+                    <DoubleAnimation Duration="0" Storyboard.TargetName="Content" Storyboard.TargetProperty="Opacity" To="0.5"/>
+                  </Storyboard>
+                </VisualState>
+                <VisualState x:Name="MouseOverChecked">
+                  <Storyboard>
+                    <DoubleAnimation Duration="0" Storyboard.TargetName="MouseOverCheckedVisual" Storyboard.TargetProperty="Opacity"
+                                     To="0.5"/>
+                  </Storyboard>
+                </VisualState>
+              </VisualStateGroup>
+              <VisualStateGroup x:Name="BackgroundVisibility">
+                <VisualState x:Name="BackgroundIsHidden">
+                  <Storyboard>
+                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="OuterBorder" Storyboard.TargetProperty="Visibility">
+                      <DiscreteObjectKeyFrame KeyTime="0">
+                        <ObjectKeyFrame.Value>
+                          <Visibility>Collapsed</Visibility>
+                        </ObjectKeyFrame.Value>
+                      </DiscreteObjectKeyFrame>
+                    </ObjectAnimationUsingKeyFrames>
+                  </Storyboard>
+                </VisualState>
+                <VisualState x:Name="BackgroundIsVisible"/>
+              </VisualStateGroup>
+              <VisualStateGroup x:Name="CheckStates">
+                <VisualState x:Name="Checked">
+                  <Storyboard>
+                    <DoubleAnimation Duration="0" Storyboard.TargetName="CheckedVisual" Storyboard.TargetProperty="Opacity" To="1"/>
+                  </Storyboard>
+                </VisualState>
+                <VisualState x:Name="Unchecked"/>
+              </VisualStateGroup>
+              <VisualStateGroup x:Name="FocusStatesGroup">
+                <VisualState x:Name="Unfocused">
+                  <Storyboard>
+                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="FocusVisual" Storyboard.TargetProperty="Visibility">
+                      <DiscreteObjectKeyFrame KeyTime="0:0:0.15">
+                        <ObjectKeyFrame.Value>
+                          <Visibility>Collapsed</Visibility>
+                        </ObjectKeyFrame.Value>
+                      </DiscreteObjectKeyFrame>
+                    </ObjectAnimationUsingKeyFrames>
+                  </Storyboard>
+                </VisualState>
+                <VisualState x:Name="Focused">
+                  <Storyboard>
+                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="FocusVisual" Storyboard.TargetProperty="Visibility">
+                      <DiscreteObjectKeyFrame KeyTime="0:0:0.115">
+                        <ObjectKeyFrame.Value>
+                          <Visibility>Visible</Visibility>
+                        </ObjectKeyFrame.Value>
+                      </DiscreteObjectKeyFrame>
+                    </ObjectAnimationUsingKeyFrames>
+                  </Storyboard>
+                </VisualState>
+              </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="AppButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="FrameworkElement.Margin" Value="5"/>
+    <Setter Property="FrameworkElement.Height" Value="50"/>
+    <Setter Property="FrameworkElement.Width" Value="180"/>
+    <Setter Property="Control.FontSize" Value="20"/>
+    <Setter Property="Control.Foreground" Value="Black"/>
+    <Setter Property="Control.FontWeight" Value="DemiBold"/>
+    <Setter Property="Control.BorderThickness" Value="0"/>
+    <Setter Property="Control.BorderBrush" Value="#D4D4D4"/>
+    <Setter Property="Control.Background" Value="#D4D4D4"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Bottom"/>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Border Background="{TemplateBinding Control.Background}">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Style.Triggers>
+      <Trigger Property="UIElement.IsEnabled" Value="false">
+        <Setter Property="Control.Foreground" Value="DarkGray"/>
+        <Setter Property="Control.Background" Value="#D4D4D4"/>
+      </Trigger>
+      <Trigger Property="UIElement.IsMouseOver" Value="true">
+        <Setter Property="Control.Foreground" Value="White"/>
+        <Setter Property="Control.Background" Value="#ED1C24"/>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+  <Style BasedOn="{StaticResource {x:Type DataGrid}}" TargetType="{x:Type DataGrid}">
+    <Setter Property="DataGrid.RowDetailsVisibilityMode" Value="Collapsed"/>
+    <Setter Property="Control.Background" Value="#F2F8FF"/>
+    <Setter Property="DataGrid.RowStyle">
+      <Setter.Value>
+        <Style TargetType="{x:Type DataGridRow}">
+          <Setter Property="FrameworkElement.MinHeight" Value="52"/>
+          <Style.Triggers>
+            <Trigger Property="DataGridRow.IsSelected" Value="true">
+              <Setter Property="Control.Background" Value="#ED1C24"/>
+            </Trigger>
+          </Style.Triggers>
+        </Style>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="DataGrid.RowHeaderStyle">
+      <Setter.Value>
+        <Style TargetType="{x:Type DataGridRowHeader}">
+          <Setter Property="Control.Template">
+            <Setter.Value>
+              <ControlTemplate TargetType="{x:Type DataGridRowHeader}">
+                <Border BorderBrush="DarkGray" BorderThickness="0 0 1 1">
+                  <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                </Border>
+              </ControlTemplate>
+            </Setter.Value>
+          </Setter>
+        </Style>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="DataGrid.ColumnHeaderStyle">
+      <Setter.Value>
+        <Style TargetType="{x:Type DataGridColumnHeader}">
+          <Setter Property="Control.FontSize" Value="20"/>
+          <Setter Property="Control.FontWeight" Value="DemiBold"/>
+        </Style>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="AppDataGridStyle" BasedOn="{StaticResource {x:Type DataGrid}}"
+         TargetType="{x:Type DataGrid}">
+    <Setter Property="DataGrid.AlternatingRowBackground" Value="#EDF2FF"/>
+  </Style>
+  <SolidColorBrush x:Key="Item.MouseOver.Background" Color="#54A3DF"/>
+  <SolidColorBrush x:Key="Item.MouseOver.Border" Color="#54A3DF"/>
+  <SolidColorBrush x:Key="Item.SelectedInactive.Background" Color="#236090"/>
+  <SolidColorBrush x:Key="Item.SelectedInactive.Border" Color="#236090"/>
+  <SolidColorBrush x:Key="Item.SelectedActive.Background" Color="#236090"/>
+  <SolidColorBrush x:Key="Item.SelectedActive.Border" Color="#236090"/>
+  <Style x:Key="BaseListViewItemsStyle" TargetType="{x:Type ListViewItem}">
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Border x:Name="Bd" Background="{TemplateBinding Control.Background}"
+                  BorderBrush="{TemplateBinding Control.BorderBrush}"
+                  BorderThickness="{TemplateBinding Control.BorderThickness}"
+                  Padding="{TemplateBinding Control.Padding}" SnapsToDevicePixels="true">
+            <ContentPresenter HorizontalAlignment="{TemplateBinding Control.HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding Control.VerticalContentAlignment}"
+                              SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="Selector.IsSelectionActive" Value="false"/>
+                <Condition Property="ListBoxItem.IsSelected" Value="true"/>
+              </MultiTrigger.Conditions>
+              <Setter Property="Control.Foreground" Value="White"/>
+              <Setter TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"
+                      Property="Border.Background"/>
+              <Setter TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Border}" Property="Border.BorderBrush"/>
+            </MultiTrigger>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="Selector.IsSelectionActive" Value="true"/>
+                <Condition Property="ListBoxItem.IsSelected" Value="true"/>
+              </MultiTrigger.Conditions>
+              <Setter Property="Control.Foreground" Value="White"/>
+              <Setter TargetName="Bd" Value="{StaticResource Item.SelectedActive.Background}"
+                      Property="Border.Background"/>
+              <Setter TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border}" Property="Border.BorderBrush"/>
+            </MultiTrigger>
+            <Trigger Property="UIElement.IsEnabled" Value="false">
+              <Setter TargetName="Bd" Value="{DynamicResource {x:Static JetSystemColors.GrayTextBrushKey}}"
+                      Property="TextElement.Foreground"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="AlternatingListViewItemStyle" BasedOn="{StaticResource BaseListViewItemsStyle}"
+         TargetType="{x:Type ListViewItem}">
+    <Setter Property="Control.Foreground" Value="#105176"/>
+    <Setter Property="Control.Padding" Value="0"/>
+    <Setter Property="Control.BorderThickness" Value="0"/>
+    <Style.Triggers>
+      <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+        <Setter Property="Control.Background" Value="#EDF2FF"/>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+  <Style x:Key="MetroListBoxItemStyle" TargetType="{x:Type ListBoxItem}">
+    <Setter Property="UIElement.SnapsToDevicePixels" Value="true"/>
+    <Setter Property="Control.Padding" Value="4,1"/>
+    <Setter Property="Control.HorizontalContentAlignment" Value="Stretch"/>
+    <Setter Property="Control.VerticalContentAlignment"
+            Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource FindAncestor, AncestorLevel=1, AncestorType={x:Type ItemsControl}}}"/>
+    <Setter Property="Control.Background" Value="Transparent"/>
+    <Setter Property="Control.BorderBrush" Value="Transparent"/>
+    <Setter Property="Control.BorderThickness" Value="1"/>
+    <Setter Property="FrameworkElement.FocusVisualStyle">
+      <Setter.Value>
+        <Style>
+          <Setter Property="Control.Template">
+            <Setter.Value>
+              <ControlTemplate>
+                <Rectangle Margin="2" SnapsToDevicePixels="true"
+                           Stroke="{DynamicResource {x:Static JetSystemColors.ControlTextBrushKey}}" StrokeDashArray="1 2"
+                           StrokeThickness="1"/>
+              </ControlTemplate>
+            </Setter.Value>
+          </Setter>
+        </Style>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListBoxItem}">
+          <Border x:Name="Bd" Background="Red" BorderBrush="Transparent" BorderThickness="0"
+                  Padding="{TemplateBinding Control.Padding}" SnapsToDevicePixels="true">
+            <FrameworkElement.Style>
+              <Style TargetType="{x:Type Border}">
+                <Setter Property="Border.Background" Value="White"/>
+                <Setter Property="Border.BorderBrush" Value="White"/>
+              </Style>
+            </FrameworkElement.Style>
+            <ContentPresenter/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="ListBoxItem.IsSelected" Value="false"/>
+              </MultiTrigger.Conditions>
+              <Setter TargetName="Bd" Property="Border.Background" Value="Transparent"/>
+              <Setter TargetName="Bd" Property="Border.BorderBrush" Value="Transparent"/>
+              <Setter Property="Control.Foreground" Value="White"/>
+            </MultiTrigger>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="ListBoxItem.IsSelected" Value="true"/>
+              </MultiTrigger.Conditions>
+              <TriggerBase.EnterActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <ColorAnimation Duration="0:0:1.5" From="Black" Storyboard.TargetProperty="Foreground.Color" To="White"/>
+                  </Storyboard>
+                </BeginStoryboard>
+              </TriggerBase.EnterActions>
+            </MultiTrigger>
+            <Trigger Property="UIElement.IsEnabled" Value="false">
+              <Setter TargetName="Bd" Value="{DynamicResource {x:Static JetSystemColors.GrayTextBrushKey}}"
+                      Property="TextElement.Foreground"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="Triggers" TargetType="{x:Type RadComboBoxItem}">
+    <Setter Property="Control.Background" Value="White"/>
+    <Setter Property="Control.Foreground" Value="Black"/>
+    <Style.Triggers>
+      <DataTrigger Binding="{Binding IsOnline}" Value="false">
+        <Setter Property="Control.Background" Value="Red"/>
+      </DataTrigger>
+    </Style.Triggers>
+  </Style>
+  <DataTemplate x:Key="MetroListBoxItemTemplate">
+    <Grid MinWidth="80" MaxWidth="120" Margin="5, 5, 5, 0" Background="Transparent">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="30"/>
+      </Grid.RowDefinitions>
+      <Path Grid.Row="0" Width="30" Height="30" Margin="0,7,0,0" Stretch="Uniform" Data="{Binding Image}"
+            Fill="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}, Path=Foreground}"/>
+      <TextBlock Grid.Row="1" Margin="0,8,0, -15" HorizontalAlignment="Center" TextAlignment="Center"
+                 TextWrapping="Wrap" Text="{Binding Title}"/>
+    </Grid>
+  </DataTemplate>
+  <DataTemplate x:Key="MetroListBoxItemTemplateForRight">
+    <Grid MinWidth="80" MaxWidth="120" Margin="5, 5, 5, 0" Background="Transparent">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="30"/>
+      </Grid.RowDefinitions>
+      <Path Grid.Row="0" Width="30" Height="30" Margin="0,7,0,0" FlowDirection="LeftToRight" Stretch="Uniform"
+            Data="{Binding Image}"
+            Fill="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem, Mode=FindAncestor}, Path=Foreground}"/>
+      <TextBlock Grid.Row="1" Margin="0,8,0, -15" HorizontalAlignment="Center" TextAlignment="Center"
+                 TextWrapping="Wrap" Text="{Binding Title}"/>
+    </Grid>
+  </DataTemplate>
+  <DataTemplate x:Key="ComboboxHoverStyle">
+    <TextBlock Text="{Binding}">
+      <FrameworkElement.Style>
+        <Style TargetType="{x:Type TextBlock}">
+          <Setter Property="TextBlock.Foreground" Value="#105176"/>
+          <Setter Property="TextBlock.Background" Value="Transparent"/>
+        </Style>
+      </FrameworkElement.Style>
+    </TextBlock>
+  </DataTemplate>
+</ResourceDictionary>

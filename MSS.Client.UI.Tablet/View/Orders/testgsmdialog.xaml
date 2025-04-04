@@ -1,0 +1,51 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Orders.TestGSMDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c" Height="260"
+                             Width="300" Title="{Binding TestGSM_Title, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="50"/>
+      </Grid.RowDefinitions>
+      <Grid Row="0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="3*"/>
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Left"
+               VerticalAlignment="Bottom" Margin="10 0 0 0"
+               Content="{Binding Path=TestGSM_TestResult, Source={StaticResource Resources}}"/>
+        <TextBox Grid.Row="1" Height="80" Style="{StaticResource AppTextBoxStructureStyle}" TextWrapping="Wrap"
+                 AcceptsReturn="true" HorizontalAlignment="Center"
+                 Text="{Binding TestResult, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <telerik:RadBusyIndicator x:Name="BusyIndicator" Grid.Row="2" BusyContent="GSM test in progress..."
+                                  IsBusy="{Binding ShowProgressCircle, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+      </Grid>
+      <Grid Row="1">
+        <Grid>
+          <Button x:Name="StartGsmTestButton" Grid.Row="0" Height="40" Width="105" HorizontalAlignment="Center"
+                  Margin="118,12,78,2" Style="{StaticResource CommandButtonStyle}"
+                  Content="{Binding Path=TestGSM_StartTest, Source={StaticResource Resources}}"
+                  Command="{Binding StartGsmTestCommand}"/>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

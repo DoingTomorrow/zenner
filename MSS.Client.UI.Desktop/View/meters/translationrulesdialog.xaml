@@ -1,0 +1,413 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Meters.TranslationRulesDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Maximized" WindowTitleBrush="#00608c"
+                             ResizeMode="CanResizeWithGrip" SaveWindowPosition="true"
+                             Title="{Binding Path=MSS_TranslationRules, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+      <Style x:Key="MainGroupBoxStyle" TargetType="{x:Type GroupBox}">
+        <Style.Triggers>
+          <DataTrigger Binding="{Binding IsChecked, ElementName=MainRadioButton}" Value="True">
+            <Setter Property="UIElement.Visibility" Value="Visible"/>
+          </DataTrigger>
+          <DataTrigger Binding="{Binding IsChecked, ElementName=SubDeviceRadioButton}" Value="True">
+            <Setter Property="UIElement.Visibility" Value="Hidden"/>
+          </DataTrigger>
+        </Style.Triggers>
+      </Style>
+      <Style x:Key="SubDeviceGroupBoxStyle" TargetType="{x:Type GroupBox}">
+        <Style.Triggers>
+          <DataTrigger Binding="{Binding IsChecked, ElementName=MainRadioButton}" Value="True">
+            <Setter Property="UIElement.Visibility" Value="Hidden"/>
+          </DataTrigger>
+          <DataTrigger Binding="{Binding IsChecked, ElementName=SubDeviceRadioButton}" Value="True">
+            <Setter Property="UIElement.Visibility" Value="Visible"/>
+          </DataTrigger>
+        </Style.Triggers>
+      </Style>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="38"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <StackPanel Orientation="Horizontal" Grid.Row="0">
+        <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,0,10,0"
+                          Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+      </StackPanel>
+      <Grid Row="1">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="38"/>
+        </Grid.RowDefinitions>
+        <Grid Row="0">
+          <StackPanel Orientation="Horizontal">
+            <GroupBox Margin="10 5 0 5" Width="240" Height="313" VerticalAlignment="Top"
+                      Header="{Binding Path=MSS_TranslationRules_ZDFParameter, Source={StaticResource Resources}}">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="0.5*"/>
+                  <RowDefinition Height="0.5*"/>
+                  <RowDefinition Height="0.5*"/>
+                  <RowDefinition Height="0.5*"/>
+                  <RowDefinition Height="0.5*"/>
+                  <RowDefinition Height="0.5*"/>
+                  <RowDefinition Height="0.5*"/>
+                  <RowDefinition Height="0.5*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="0.9*"/>
+                  <ColumnDefinition Width="1.1*"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                       VerticalAlignment="Center" Margin="0 0 5 0"
+                       Content="{Binding Path=MSS_TranslationRules_Manufacturer, Source={StaticResource Resources}}"/>
+                <TextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Height="25"
+                         Width="120" Text="{Binding Manufacturer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                       VerticalAlignment="Center" Margin="0 0 5 0"
+                       Content="{Binding Path=MSS_TranslationRules_Medium, Source={StaticResource Resources}}"/>
+                <telerik:RadComboBox Grid.Row="1" Grid.Column="1" Height="25" Width="120" HorizontalAlignment="Left"
+                                     VerticalAlignment="Center" DisplayMemberPath="Value" SelectedValuePath="Key"
+                                     ItemsSource="{Binding DeviceMediumList}" SelectedValue="{Binding Medium, Mode=TwoWay}"/>
+                <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                       VerticalAlignment="Center" Margin="0 0 5 0"
+                       Content="{Binding Path=MSS_TranslationRules_VersionMin, Source={StaticResource Resources}}"/>
+                <TextBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Height="25"
+                         Width="60" Text="{Binding VersionMin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                       VerticalAlignment="Center" Margin="0 0 5 0"
+                       Content="{Binding Path=MSS_TranslationRules_VersionMax, Source={StaticResource Resources}}"/>
+                <TextBox Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Height="25"
+                         Width="60" Text="{Binding VersionMax, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Row="4" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                       VerticalAlignment="Center" Margin="0 0 5 0"
+                       Content="{Binding Path=MSS_TranslationRules_ZDFKey, Source={StaticResource Resources}}"/>
+                <telerik:RadComboBox Grid.Row="4" Grid.Column="1" Height="25" Width="120" HorizontalAlignment="Left"
+                                     VerticalAlignment="Center" Style="{StaticResource RadComboBoxErrorStyle}"
+                                     IsEnabled="{Binding IsZDFKeyEnabled}" ItemsSource="{Binding ZDFKeyList}"
+                                     SelectedItem="{Binding ZDFKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+                <Label Grid.Row="5" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                       VerticalAlignment="Center" Margin="0 0 5 0"
+                       Content="{Binding Path=MSS_TranslationRules_DeviceType, Source={StaticResource Resources}}"/>
+                <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding IsDeviceTypeEnabled}">
+                  <telerik:RadRadioButton Name="MainRadioButton" GroupName="DeviceTypeGroup" Style="{StaticResource AppRadioButtonStyle}"
+                                          Height="25" IsEnabled="false" IsChecked="{Binding IsMainChecked}"/>
+                  <Label Style="{StaticResource AppLabelStyle}"
+                         Content="{Binding Path=MSS_TranslationRules_Main, Source={StaticResource Resources}}"/>
+                </StackPanel>
+                <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding IsDeviceTypeEnabled}">
+                  <telerik:RadRadioButton Name="SubDeviceRadioButton" GroupName="DeviceTypeGroup"
+                                          Style="{StaticResource AppRadioButtonStyle}" Height="25" IsEnabled="false"
+                                          IsChecked="{Binding IsSubDeviceChecked}"/>
+                  <Label Style="{StaticResource AppLabelStyle}"
+                         Content="{Binding Path=MSS_TranslationRules_SubDevice, Source={StaticResource Resources}}"/>
+                </StackPanel>
+              </Grid>
+            </GroupBox>
+            <GroupBox Margin="10 5 0 5" Width="280" Height="313" VerticalAlignment="Top"
+                      Style="{StaticResource MainGroupBoxStyle}"
+                      Header="{Binding Path=MSS_TranslationRules_TranslateTo, Source={StaticResource Resources}}"
+                      IsEnabled="{Binding IsTranslateToGroupEnabled}">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="0.5*"/>
+                  <RowDefinition Height="0.5*"/>
+                  <RowDefinition Height="0.5*"/>
+                  <RowDefinition Height="0.5*"/>
+                  <RowDefinition Height="0.5*"/>
+                  <RowDefinition Height="0.5*"/>
+                  <RowDefinition Height="0.5*"/>
+                  <RowDefinition Height="0.5*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="0.9*"/>
+                  <ColumnDefinition Width="1.3*"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                       VerticalAlignment="Center" Margin="0 0 5 0"
+                       Content="{Binding Path=MSS_TranslationRules_MeterType, Source={StaticResource Resources}}"/>
+                <telerik:RadComboBox Grid.Row="0" Grid.Column="1" Height="25" Width="140" HorizontalAlignment="Left"
+                                     VerticalAlignment="Center" Style="{StaticResource RadComboBoxErrorStyle}"
+                                     ItemsSource="{Binding MeterTypeEnumerable}"
+                                     SelectedItem="{Binding MeterType, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"/>
+                <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                       VerticalAlignment="Center" Margin="0 0 5 0"
+                       Content="{Binding Path=MSS_TranslationRules_PhysicalQuantity, Source={StaticResource Resources}}"/>
+                <telerik:RadComboBox Grid.Row="1" Grid.Column="1" Height="25" Width="140" HorizontalAlignment="Left"
+                                     VerticalAlignment="Center" Style="{StaticResource RadComboBoxErrorStyle}"
+                                     ItemsSource="{Binding PhysicalQuantitiesEnumerable}"
+                                     SelectedItem="{Binding PhysicalQuantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+                <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                       VerticalAlignment="Center" Margin="0 0 5 0"
+                       Content="{Binding Path=MSS_TranslationRules_Calculation, Source={StaticResource Resources}}"/>
+                <telerik:RadComboBox Grid.Row="2" Grid.Column="1" Height="25" Width="140" HorizontalAlignment="Left"
+                                     VerticalAlignment="Center" Style="{StaticResource RadComboBoxErrorStyle}"
+                                     ItemsSource="{Binding CalculationEnumerable}"
+                                     SelectedItem="{Binding Calculation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+                <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                       VerticalAlignment="Center" Margin="0 0 5 0"
+                       Content="{Binding Path=MSS_TranslationRules_CalculationStart, Source={StaticResource Resources}}"/>
+                <telerik:RadComboBox Grid.Row="3" Grid.Column="1" Height="25" Width="140" HorizontalAlignment="Left"
+                                     VerticalAlignment="Center" Style="{StaticResource RadComboBoxErrorStyle}"
+                                     ItemsSource="{Binding CalculationStartEnumerable}"
+                                     SelectedItem="{Binding CalculationStart, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+                <Label Grid.Row="4" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                       VerticalAlignment="Center" Margin="0 0 5 0"
+                       Content="{Binding Path=MSS_TranslationRules_StorageInterval, Source={StaticResource Resources}}"/>
+                <telerik:RadComboBox Grid.Row="4" Grid.Column="1" Height="25" Width="140" HorizontalAlignment="Left"
+                                     VerticalAlignment="Center" Style="{StaticResource RadComboBoxErrorStyle}"
+                                     ItemsSource="{Binding StorageIntervalEnumerable}"
+                                     SelectedItem="{Binding StorageInterval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+                <Label Grid.Row="5" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                       VerticalAlignment="Center" Margin="0 0 5 0"
+                       Content="{Binding Path=MSS_TranslationRules_Creation, Source={StaticResource Resources}}"/>
+                <telerik:RadComboBox Grid.Row="5" Grid.Column="1" Height="25" Width="140" HorizontalAlignment="Left"
+                                     VerticalAlignment="Center" Style="{StaticResource RadComboBoxErrorStyle}"
+                                     ItemsSource="{Binding CreationEnumerable}"
+                                     SelectedItem="{Binding Creation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+                <Label Grid.Row="6" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                       VerticalAlignment="Center" Margin="0 0 5 0"
+                       Content="{Binding Path=MSS_TranslationRules_RuleIndex, Source={StaticResource Resources}}"/>
+                <telerik:RadNumericUpDown Grid.Row="6" Grid.Column="1" Height="25" Width="140" HorizontalAlignment="Left"
+                                          VerticalAlignment="Center" IsInteger="true" Minimum="0" Value="{Binding RuleIndex}"/>
+                <StackPanel Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+                  <Label Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                         Margin="5 0 5 0"
+                         Content="{Binding Path=MSS_TranslationRules_ValueIdent, Source={StaticResource Resources}}"/>
+                  <TextBox HorizontalAlignment="Left" VerticalAlignment="Center" Height="25" Width="75" Margin="0 0 5 0"
+                           IsReadOnly="true" Text="{Binding ValueIdentifier}"/>
+                  <Label Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                         Margin="5 0 5 0"
+                         Content="{Binding Path=MSS_TranslationRules_Unit, Source={StaticResource Resources}}"/>
+                  <TextBox HorizontalAlignment="Left" VerticalAlignment="Center" Height="25" Width="45" Margin="0 0 5 0"
+                           Text="{Binding Unit}"/>
+                </StackPanel>
+              </Grid>
+            </GroupBox>
+            <StackPanel Orientation="Vertical">
+              <GroupBox Margin="10 5 0 5" Width="295" Height="167" VerticalAlignment="Top"
+                        Style="{StaticResource MainGroupBoxStyle}"
+                        Header="{Binding Path=MSS_TranslationRules_ValueSettings, Source={StaticResource Resources}}"
+                        IsEnabled="{Binding IsValueSettingsGroupEnabled}">
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="0.5*"/>
+                    <RowDefinition Height="0.5*"/>
+                    <RowDefinition Height="0.5*"/>
+                    <RowDefinition Height="0.5*"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                         VerticalAlignment="Center" Margin="0 0 5 0"
+                         Content="{Binding Path=MSS_TranslationRules_Timepoint, Source={StaticResource Resources}}"/>
+                  <telerik:RadComboBox Grid.Row="0" Grid.Column="1" Height="25" Width="135" HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" ItemsSource="{Binding TimepointList}" SelectedItem="{Binding Timepoint}"/>
+                  <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                         VerticalAlignment="Center" Margin="0 0 5 0"
+                         Content="{Binding Path=MSS_TranslationRules_TimepointModification, Source={StaticResource Resources}}"/>
+                  <telerik:RadComboBox Grid.Row="1" Grid.Column="1" Height="25" Width="135" HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" ItemsSource="{Binding TimepointModificationList}"
+                                       SelectedItem="{Binding TimepointModification}"/>
+                  <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                         VerticalAlignment="Center" Margin="0 0 5 0"
+                         Content="{Binding Path=MSS_TranslationRules_Multiplier, Source={StaticResource Resources}}"/>
+                  <TextBox PreviewTextInput="NumericOnly" x:Name="MultiplierTextBox" Grid.Row="2" Grid.Column="1"
+                           HorizontalAlignment="Left" VerticalAlignment="Center" Height="25" Width="135" MaxLength="8"
+                           Style="{StaticResource TextBoxErrorStyle}" Text="{Binding Multiplier}"/>
+                  <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                         VerticalAlignment="Center" Margin="0 0 5 0"
+                         Content="{Binding Path=MSS_TranslationRules_RuleOrder, Source={StaticResource Resources}}"/>
+                  <telerik:RadNumericUpDown Grid.Row="3" Grid.Column="3" Height="25" Width="135" HorizontalAlignment="Left"
+                                            VerticalAlignment="Center" IsInteger="true" Minimum="0" Value="{Binding RuleOrder}"/>
+                </Grid>
+              </GroupBox>
+              <GroupBox Margin="10 0 0 0" Width="295" Height="141" Style="{StaticResource SubDeviceGroupBoxStyle}"
+                        Header="{Binding Path=MSS_TranslationRules_SubDevice, Source={StaticResource Resources}}"
+                        IsEnabled="{Binding IsSubDeviceGroupEnabled}">
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="0.5*"/>
+                    <RowDefinition Height="0.5*"/>
+                    <RowDefinition Height="0.5*"/>
+                    <RowDefinition Height="0.3*"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                         VerticalAlignment="Center" Margin="0 0 5 0"
+                         Content="{Binding Path=MSS_TranslationRules_SpecialTranslation, Source={StaticResource Resources}}"/>
+                  <telerik:RadComboBox Grid.Row="0" Grid.Column="1" Height="25" Width="135" HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" ItemsSource="{Binding SpecialTranslationsList}"
+                                       SelectedItem="{Binding SpecialTranslation}"/>
+                  <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                         VerticalAlignment="Center" Margin="0 0 5 0"
+                         Content="{Binding Path=MSS_TranslationRules_SubDeviceIndex, Source={StaticResource Resources}}"/>
+                  <telerik:RadNumericUpDown Grid.Row="1" Grid.Column="1" Height="25" Width="135" HorizontalAlignment="Left"
+                                            VerticalAlignment="Center" IsInteger="true" Minimum="1" Value="{Binding SubDeviceIndex}"/>
+                  <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+                         VerticalAlignment="Center" Margin="0 0 5 0"
+                         Content="{Binding Path=MSS_TranslationRules_SubDeviceZDFKey, Source={StaticResource Resources}}"/>
+                  <TextBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Height="25"
+                           Width="135" Text="{Binding SubDeviceZDFKey}"/>
+                </Grid>
+              </GroupBox>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Margin="15 15 0 5" Width="100">
+              <Button Name="btnNew" Margin="0 0 0 5" Width="90" Height="25" Style="{StaticResource AppButtonStyle}"
+                      Command="{Binding NewRuleCommand}">
+                <DockPanel Width="90">
+                  <Image Style="{StaticResource SmallIconImageStyle}"
+                         Source="pack://application:,,,/Styles;component/Images/Universal/new.png" DockPanel.Dock="Left"/>
+                  <TextBlock Margin="10 0 10 0" HorizontalAlignment="Right"
+                             Text="{Binding Path=MSS_TranslationRules_New, Source={StaticResource Resources}}"/>
+                </DockPanel>
+              </Button>
+              <Button Name="btnDelete" Margin="0 0 0 5" Width="90" Height="25" Style="{StaticResource AppButtonStyle}"
+                      Command="{Binding DeleteRuleCommand}" IsEnabled="{Binding IsDeleteButtonEnabled}">
+                <DockPanel Width="90">
+                  <Image Style="{StaticResource SmallIconImageStyle}"
+                         Source="pack://application:,,,/Styles;component/Images/Universal/delete.png" DockPanel.Dock="Left"/>
+                  <TextBlock Margin="10 0 10 0" HorizontalAlignment="Right"
+                             Text="{Binding Path=MSS_TranslationRules_Delete, Source={StaticResource Resources}}"/>
+                </DockPanel>
+              </Button>
+              <Button Name="btnClear" Margin="0 0 0 5" Width="90" Height="25" Style="{StaticResource AppButtonStyle}"
+                      Command="{Binding ClearRuleCommand}" IsEnabled="{Binding IsCancelButtonEnabled}">
+                <DockPanel Width="90">
+                  <Image Style="{StaticResource SmallIconImageStyle}"
+                         Source="pack://application:,,,/Styles;component/Images/Universal/delete.png" DockPanel.Dock="Left"/>
+                  <TextBlock Margin="10 0 10 0" HorizontalAlignment="Right"
+                             Text="{Binding Path=MSS_TranslationRules_Clear, Source={StaticResource Resources}}"/>
+                </DockPanel>
+              </Button>
+              <Button Name="btnEdit" Margin="0 0 0 5" Width="90" Height="25" Style="{StaticResource AppButtonStyle}"
+                      Command="{Binding EditRuleCommand}" IsEnabled="{Binding IsEditButtonEnabled}">
+                <DockPanel Width="90">
+                  <Image Style="{StaticResource SmallIconImageStyle}"
+                         Source="pack://application:,,,/Styles;component/Images/Universal/edit.png" DockPanel.Dock="Left"/>
+                  <TextBlock Margin="10 0 10 0" HorizontalAlignment="Right"
+                             Text="{Binding Path=MSS_TranslationRules_Edit, Source={StaticResource Resources}}"/>
+                </DockPanel>
+              </Button>
+              <Button Name="btnUpdate" Margin="0 0 0 5" Width="90" Height="25" Style="{StaticResource AppButtonStyle}"
+                      Command="{Binding SaveRuleCommand}" IsEnabled="{Binding IsSaveButtonEnabled}">
+                <DockPanel Width="90">
+                  <Image Style="{StaticResource SmallIconImageStyle}"
+                         Source="pack://application:,,,/Styles;component/Images/Universal/update.png" DockPanel.Dock="Left"/>
+                  <TextBlock Margin="10 0 10 0" HorizontalAlignment="Right"
+                             Text="{Binding Path=MSS_TranslationRules_Save, Source={StaticResource Resources}}"/>
+                </DockPanel>
+              </Button>
+              <Button Name="btnCancel" Width="90" Height="25" Style="{StaticResource AppButtonStyle}"
+                      Command="{Binding CancelRuleCommand}" IsEnabled="{Binding IsCancelButtonEnabled}">
+                <DockPanel Width="90">
+                  <Image Style="{StaticResource SmallIconImageStyle}"
+                         Source="pack://application:,,,/Styles;component/Images/Universal/delete.png" DockPanel.Dock="Left"/>
+                  <TextBlock Margin="10 0 10 0" HorizontalAlignment="Right"
+                             Text="{Binding Path=MSS_TranslationRules_Cancel, Source={StaticResource Resources}}"/>
+                </DockPanel>
+              </Button>
+            </StackPanel>
+          </StackPanel>
+          <DockPanel HorizontalAlignment="Right" Dock="Right" VerticalAlignment="Bottom" Margin="0,0,5,5" Width="100">
+            <Label HorizontalAlignment="Right" Content="{Binding TranslationRulesCount}"/>
+          </DockPanel>
+        </Grid>
+        <telerik:RadGridView Grid.Row="1" RowIndicatorVisibility="Collapsed" CanUserFreezeColumns="false" IsReadOnly="true"
+                             AutoGenerateColumns="false" CanUserSortColumns="false" AlternateRowBackground="#EDEDED"
+                             AlternationCount="2" ShowGroupPanel="false" ItemsSource="{Binding TranslationRules}"
+                             SelectedItem="{Binding SelectedItem}">
+          <telerik:GridViewDataControl.Columns>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding Manufacturer}"
+                                        Header="{Binding Path=MSS_TranslationRules_Header_Manufacturer, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding Medium}"
+                                        Header="{Binding Path=MSS_TranslationRules_Header_Medium, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding VersionMin}"
+                                        Header="{Binding Path=MSS_TranslationRules_Header_VersionMin, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding VersionMax}"
+                                        Header="{Binding Path=MSS_TranslationRules_Header_VersionMax, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding MBusZDF}"
+                                        Header="{Binding Path=MSS_TranslationRules_Header_MBusZDF, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding ValueIdent}"
+                                        Header="{Binding Path=MSS_TranslationRules_Header_ValueIdent, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding RuleOrder}"
+                                        Header="{Binding Path=MSS_TranslationRules_Header_RuleOrder, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding Multiplier}"
+                                        Header="{Binding Path=MSS_TranslationRules_Header_Multiplier, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding SpecialTranslation}"
+                                        Header="{Binding Path=MSS_TranslationRules_Header_SpecialTranslation, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding SubDeviceIndex}"
+                                        Header="{Binding Path=MSS_TranslationRules_Header_SubDeviceIndex, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding StorageTimeParam}"
+                                        Header="{Binding Path=MSS_TranslationRules_Header_StorageTimeParam, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding StorageTimeTranslation}"
+                                        Header="{Binding Path=MSS_TranslationRules_Header_StorageTimeTranslation, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding SubDeviceAttributeIdentifier}"
+                                        Header="{Binding Path=MSS_TranslationRules_Header_SubDeviceAttributeIdentifier, Source={StaticResource Resources}}"/>
+          </telerik:GridViewDataControl.Columns>
+        </telerik:RadGridView>
+        <Grid Row="2">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="4*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <StackPanel Grid.Column="0" Orientation="Horizontal">
+            <CheckBox Style="{StaticResource AppCheckBoxButtonStyle}" VerticalAlignment="Center" IsThreeState="false"
+                      IsChecked="{Binding IsShowAllRulesChecked}" Command="{Binding ShowAllRules}"
+                      CommandParameter="{Binding RelativeSource={RelativeSource Self}}"/>
+            <Label Margin="5 0 0 0" VerticalAlignment="Center"
+                   Content="{Binding Path=MSS_TranslationRules_ShowAllRules, Source={StaticResource Resources}}"/>
+          </StackPanel>
+          <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
+            <Button Name="btnExport" Width="90" Height="25" HorizontalAlignment="Left" Visibility="Hidden">
+              <DockPanel Width="90">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/export.png" DockPanel.Dock="Left"/>
+                <TextBlock Margin="10 0 10 0" HorizontalAlignment="Right"
+                           Text="{Binding Path=MSS_Client_Export, Source={StaticResource Resources}}"/>
+              </DockPanel>
+            </Button>
+            <Button Name="btnImport" Width="90" Height="25" HorizontalAlignment="Left" Margin="20 0 0 0"
+                    Visibility="Hidden">
+              <DockPanel Width="90">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/import.png" DockPanel.Dock="Left"/>
+                <TextBlock Margin="10 0 10 0" HorizontalAlignment="Right"
+                           Text="{Binding Path=MSS_Client_Import, Source={StaticResource Resources}}"/>
+              </DockPanel>
+            </Button>
+          </StackPanel>
+          <Button Name="btnClose" Grid.Column="2" HorizontalAlignment="Right" Margin="0 0 40 0" Width="70"
+                  Height="25" Style="{StaticResource AppButtonStyle}" Command="{Binding CancelWindowCommand}">
+            <DockPanel Width="70">
+              <TextBlock Margin="10 0 20 0" HorizontalAlignment="Right"
+                         Text="{Binding Path=MSS_MessageCodes_Close, Source={StaticResource Resources}}"/>
+            </DockPanel>
+          </Button>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

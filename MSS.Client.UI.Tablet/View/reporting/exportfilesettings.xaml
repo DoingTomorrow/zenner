@@ -1,0 +1,181 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Reporting.ExportFileSettings"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c" Height="560"
+                             Width="600" Title="{Binding Path=MSS_Client_Export, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+        <ResourceDictionary>
+          <Style x:Key="CSVRadioButtoneSelectedStyle" TargetType="{x:Type telerik:RadRadioButton}"
+                 BasedOn="{StaticResource AppRadioButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="{Binding EditPhysicalStructuresVisibility}"/>
+            <Setter Property="UIElement.Opacity" Value="1"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding ElementName=CsvRadioButton, Path=IsChecked}" Value="False">
+                <Setter Property="UIElement.IsEnabled" Value="false"/>
+                <Setter Property="UIElement.Opacity" Value="0.5"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+          <Style TargetType="{x:Type telerik:RadListBoxItem}" BasedOn="{StaticResource RadListBoxItemStyle}">
+            <Setter Property="telerik:DragDropManager.AllowCapturedDrag" Value="true"/>
+            <Setter Property="telerik:DragDropManager.TouchDragTrigger" Value="TapAndHold"/>
+          </Style>
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="{Binding CountrySelectorHeight, Mode=TwoWay}"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <TextBlock Style="{StaticResource AppSubTitleStyle}" HorizontalAlignment="Center" Text="Data export"/>
+      <Grid Row="1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="2*"/>
+          <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" Orientation="Horizontal">
+          <telerik:RadRadioButton GroupName="dataExp" Style="{StaticResource AppRadioButtonStyle}" IsChecked="True"/>
+          <telerik:Label Content="not yet exported" Foreground="#595151"/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal">
+          <telerik:RadRadioButton Name="IntervalButton" GroupName="dataExp" Style="{StaticResource AppRadioButtonStyle}"
+                                  IsChecked="{Binding DataExportLastDaysChoice}"/>
+          <telerik:Label Foreground="#595151"
+                         Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_FromTheLast, Source={StaticResource Resources}}"/>
+          <telerik:RadNumericUpDown Width="120" IsInteger="true" IsEnabled="{Binding Path=IsChecked, ElementName=IntervalButton}"
+                                    Value="{Binding NumberOfDaysToExport}"/>
+        </StackPanel>
+      </Grid>
+      <TextBlock Grid.Row="2" Style="{StaticResource AppSubTitleStyle}" HorizontalAlignment="Center"
+                 Text="Export type"/>
+      <Grid Row="3">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="2*"/>
+          <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" Orientation="Horizontal">
+          <telerik:RadRadioButton GroupName="expType" Style="{StaticResource AppRadioButtonStyle}" IsChecked="True"/>
+          <telerik:Label Content="GMM" Foreground="#595151"/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal">
+          <telerik:RadRadioButton GroupName="expType" Style="{StaticResource AppRadioButtonStyle}"
+                                  IsChecked="{Binding SasExportType}"/>
+          <telerik:Label Content="SAS" Foreground="#595151"/>
+        </StackPanel>
+      </Grid>
+      <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
+        <telerik:RadListBox x:Name="CountriesListBox" Margin="5" Width="180" SelectionMode="Multiple"
+                            ItemsSource="{Binding CountryList}" SelectedItem="{Binding Country, Mode=TwoWay}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Code}"/>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+          <telerik:RadListBox.DragVisualProvider>
+            <telerik:ScreenshotDragVisualProvider/>
+          </telerik:RadListBox.DragVisualProvider>
+          <telerik:RadListBox.DragDropBehavior>
+            <telerik:ListBoxDragDropBehavior AllowReorder="false" telerik:DragDropManager.TouchDragTrigger="TapAndHold"/>
+          </telerik:RadListBox.DragDropBehavior>
+        </telerik:RadListBox>
+        <telerik:RadListBox x:Name="SelectedCountries" Margin="5" Style="{StaticResource RadListBoxErrorStyle}"
+                            SelectionMode="Single" Width="180" Height="40" SelectedItem="{Binding Country, Mode=TwoWay}"
+                            ItemsSource="{Binding SelectedCountries, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, ValidatesOnNotifyDataErrors=true, ValidatesOnExceptions=true, Mode=TwoWay}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Code}"/>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+          <telerik:RadListBox.DragVisualProvider>
+            <telerik:ScreenshotDragVisualProvider/>
+          </telerik:RadListBox.DragVisualProvider>
+          <telerik:RadListBox.DragDropBehavior>
+            <telerik:ListBoxDragDropBehavior AllowReorder="false" telerik:DragDropManager.TouchDragTrigger="TapAndHold"/>
+          </telerik:RadListBox.DragDropBehavior>
+        </telerik:RadListBox>
+      </StackPanel>
+      <TextBlock Grid.Row="5" Style="{StaticResource AppSubTitleStyle}" HorizontalAlignment="Center"
+                 Text="File type"/>
+      <Grid Row="6">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" Orientation="Horizontal">
+          <telerik:RadRadioButton Name="CsvRadioButton" GroupName="fileType" Style="{StaticResource AppRadioButtonStyle}"
+                                  IsChecked="{Binding CsvFileType}"/>
+          <telerik:Label Content="CSV" Foreground="#595151"/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal">
+          <telerik:RadRadioButton GroupName="fileType" Style="{StaticResource AppRadioButtonStyle}" IsChecked="{Binding XmlFileType}"/>
+          <telerik:Label Content="XML" Foreground="#595151"/>
+        </StackPanel>
+        <StackPanel Grid.Column="2" Orientation="Horizontal">
+          <telerik:RadRadioButton GroupName="fileType" Style="{StaticResource AppRadioButtonStyle}"
+                                  IsChecked="{Binding ExcelFileType}"/>
+          <telerik:Label Content="Excel" Foreground="#595151"/>
+        </StackPanel>
+      </Grid>
+      <Grid Row="7">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <telerik:Label Content="Decimal separator:" Foreground="#595151" HorizontalAlignment="Right"/>
+        <StackPanel Grid.Column="1" Orientation="Horizontal">
+          <telerik:RadRadioButton GroupName="decimalSep" Style="{StaticResource CSVRadioButtoneSelectedStyle}"
+                                  IsChecked="{Binding CommaDecimalSeparator}"/>
+          <telerik:Label Content="," Foreground="#595151"/>
+        </StackPanel>
+        <StackPanel Grid.Column="2" Orientation="Horizontal">
+          <telerik:RadRadioButton GroupName="decimalSep" Style="{StaticResource CSVRadioButtoneSelectedStyle}"/>
+          <telerik:Label Content="." Foreground="#595151"/>
+        </StackPanel>
+      </Grid>
+      <Grid Row="8">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <telerik:Label Content="Value separator:" Foreground="#595151" HorizontalAlignment="Right"/>
+        <StackPanel Grid.Column="1" Orientation="Horizontal">
+          <telerik:RadRadioButton GroupName="valueSep" Style="{StaticResource CSVRadioButtoneSelectedStyle}"
+                                  IsChecked="{Binding SemicolonValueSeparator}"/>
+          <telerik:Label Content=";" Foreground="#595151"/>
+        </StackPanel>
+        <StackPanel Grid.Column="2" Orientation="Horizontal">
+          <telerik:RadRadioButton GroupName="valueSep" Style="{StaticResource CSVRadioButtoneSelectedStyle}"/>
+          <telerik:Label Content="," Foreground="#595151"/>
+        </StackPanel>
+      </Grid>
+      <Button x:Name="ExportButton" Grid.Row="9" Style="{StaticResource CommandButtonStyle}" Height="40"
+              Content="{Binding Path=MSS_Client_Export, Source={StaticResource Resources}}"
+              Command="{Binding ExportCommand}"/>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

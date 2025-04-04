@@ -1,0 +1,104 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Meters.MeterNotesDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="CanResizeWithGrip" SaveWindowPosition="true" Title="{Binding Title}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+        <ResourceDictionary>
+          <Style x:Key="DeleteNodeStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource AppButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="true"/>
+            <Setter Property="UIElement.Opacity" Value="1"/>
+          </Style>
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="55"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="5*"/>
+        <ColumnDefinition Width="2*"/>
+      </Grid.ColumnDefinitions>
+      <Grid Row="0" Column="0" ColumnSpan="2">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="38"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <WrapPanel Grid.Row="0" HorizontalAlignment="Stretch" Background="#ededed" Orientation="Vertical">
+          <Button Style="{StaticResource AppButtonStyle}" Command="{Binding AddNoteCommand}"
+                  ToolTip="{Binding Path=MSS_Client_Structures_AddNote, Source={StaticResource Resources}}">
+            <StackPanel Orientation="Horizontal">
+              <Image Style="{StaticResource SmallIconImageStyle}"
+                     Source="pack://application:,,,/Styles;component/Images/Universal/notes.png"/>
+              <TextBlock Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Structures_AddNote, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Style="{StaticResource AppButtonStyle}" Command="{Binding EditNoteCommand}"
+                  ToolTip="{Binding Path=MSS_Client_Structures_EditNote, Source={StaticResource Resources}}"
+                  IsEnabled="{Binding IsEditNoteButtonEnabled}">
+            <StackPanel Orientation="Horizontal">
+              <Image Style="{StaticResource SmallIconImageStyle}"
+                     Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"/>
+              <TextBlock Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Structures_EditNote, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Style="{StaticResource DeleteNodeStyle}" Command="{Binding DeleteNoteCommand}"
+                  ToolTip="{Binding Path=MSS_Client_Structures_DeleteNote, Source={StaticResource Resources}}"
+                  IsEnabled="{Binding IsDeleteNoteButtonEnabled}">
+            <StackPanel Orientation="Horizontal">
+              <Image Style="{StaticResource SmallIconImageStyle}"
+                     Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+              <TextBlock Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Structures_DeleteNote, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+        </WrapPanel>
+        <telerik:RadGridView Grid.Row="1" AutoGenerateColumns="false" IsFilteringAllowed="true" IsReadOnly="true"
+                             ItemsSource="{Binding NotesList}" SelectedItem="{Binding SelectedNote}">
+          <telerik:GridViewDataControl.Columns>
+            <telerik:GridViewDataColumn Width="Auto" Header="{Binding MSS_Client_AddNote_Description, Source={StaticResource Resources}}"
+                                        DataMemberBinding="{Binding Note.NoteDescription}"/>
+            <telerik:GridViewDataColumn Width="Auto" Header="{Binding MSS_Client_AddNote_NoteType, Source={StaticResource Resources}}"
+                                        DataMemberBinding="{Binding Translation}"/>
+          </telerik:GridViewDataControl.Columns>
+        </telerik:RadGridView>
+      </Grid>
+      <Grid Row="1" Column="0" ColumnSpan="2" DockPanel.Dock="Right">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0 0 30 0">
+          <Button Foreground="#595151" Background="White" Height="25" Width="90" BorderBrush="LightGray"
+                  IsDefault="true" Style="{StaticResource AppButtonStyle}" Margin="0 0 25 0"
+                  Content="{Binding Path=MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                  Command="{Binding SaveCommand}"/>
+          <Button Foreground="#595151" Background="White" Height="25" Width="90" BorderBrush="LightGray"
+                  Style="{StaticResource AppButtonStyle}"
+                  Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                  Command="{Binding CancelWindowCommand}"/>
+        </StackPanel>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

@@ -1,0 +1,161 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Orders.ShowRoutingTableDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c" Width="1100"
+                             Height="640">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="60"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
+      <Label Margin="15 0 20 0"
+             Content="{Binding MSS_Client_RoutingTableForMaster, Source={StaticResource Resources}}"/>
+      <telerik:RadComboBox Width="240" DisplayMemberPath="Value"
+                           ItemsSource="{Binding MinomatMastersWithRoutingTables_SerialNumbers}"
+                           SelectedValue="{Binding SelectedMinomatMaster, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+    </StackPanel>
+    <Grid Row="1" ShowGridLines="true">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="0.7*"/>
+        <ColumnDefinition Width="1.5*"/>
+        <ColumnDefinition Width="1.5*"/>
+      </Grid.ColumnDefinitions>
+      <Grid Column="0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="50"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <FrameworkElement.Resources>
+          <DataTemplate x:Key="FirstColumnCellTemplate">
+            <StackPanel Orientation="Horizontal">
+              <Image Style="{StaticResource SmallIconImageStyle}" Source="{Binding Entity.ImageLocation}"/>
+              <TextBlock Margin="2 0 10 0" Text="{Binding Entity.Letter}"/>
+              <TextBlock Text="{Binding Entity.SerialNumber}"/>
+            </StackPanel>
+          </DataTemplate>
+        </FrameworkElement.Resources>
+        <Label Grid.Row="0" HorizontalAlignment="Center" Margin="0 0 0 10"
+               Content="{Binding MSS_Client_SlavesNotConnected, Source={StaticResource Resources}}"/>
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                      Background="White">
+          <DataGrid x:Name="DataGrid" AutoGenerateColumns="false" CanUserAddRows="false" CanUserDeleteRows="false"
+                    ColumnWidth="*" GridLinesVisibility="None" HeadersVisibility="None" IsReadOnly="true"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.PanningMode="VerticalOnly"
+                    SelectionMode="Single" SelectionUnit="FullRow" Style="{StaticResource AppDataGridStyle}"
+                    Background="White" ItemsSource="{Binding UnregisteredSlaves}">
+            <DataGrid.Columns>
+              <DataGridTemplateColumn Width="Auto">
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                      <Image Style="{StaticResource SmallIconImageStyle}" Source="{Binding Entity.ImageLocation}"/>
+                      <TextBlock Foreground="#595151" FontSize="16" Margin="2 0 10 0" Text="{Binding Entity.Letter}"/>
+                      <TextBlock Foreground="#595151" FontSize="16" Text="{Binding Entity.SerialNumber}"/>
+                    </StackPanel>
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+            </DataGrid.Columns>
+          </DataGrid>
+        </ScrollViewer>
+      </Grid>
+      <Grid Column="1">
+        <FrameworkElement.Resources>
+          <DataTemplate x:Key="FirstColumnCellTemplate">
+            <StackPanel Orientation="Horizontal">
+              <Image Style="{StaticResource SmallIconImageStyle}" Source="{Binding Entity.ImageLocation}"/>
+              <TextBlock Margin="2 0 10 0" Text="{Binding Entity.Letter}"/>
+              <TextBlock Text="{Binding Entity.SerialNumber}"/>
+            </StackPanel>
+          </DataTemplate>
+          <Style TargetType="{x:Type telerik:RadTreeViewItem}">
+            <Setter Property="telerik:RadTreeViewItem.IsExpanded" Value="true"/>
+          </Style>
+        </FrameworkElement.Resources>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="50"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" HorizontalAlignment="Center" Margin="0 0 0 10"
+               Content="{Binding MSS_Client_RoutingTable, Source={StaticResource Resources}}"/>
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+          <telerik:RadTreeListView x:Name="RadTreeListView" HorizontalAlignment="Stretch" AutoGenerateColumns="false"
+                                   VerticalAlignment="Stretch" CanUserFreezeColumns="false" CanUserReorderColumns="false"
+                                   RowIndicatorVisibility="Collapsed" telerik:StyleManager.Theme="Windows8" IsReadOnly="true"
+                                   AutoExpandItems="true" CanUserDeleteRows="false" ShowColumnHeaders="false"
+                                   ItemsSource="{Binding MinomatTreeCollection}" SelectedItem="{Binding MinomatTree_SelectedMinomat}">
+            <telerik:GridViewDataControl.ChildTableDefinitions>
+              <telerik:TreeListViewTableDefinition ItemsSource="{Binding SubNodes}"/>
+            </telerik:GridViewDataControl.ChildTableDefinitions>
+            <telerik:GridViewDataControl.Columns>
+              <telerik:GridViewDataColumn CellTemplate="{StaticResource FirstColumnCellTemplate}" IsReadOnly="true"
+                                          DataMemberBinding="{Binding Entity.SerialNumber}"/>
+            </telerik:GridViewDataControl.Columns>
+          </telerik:RadTreeListView>
+        </ScrollViewer>
+      </Grid>
+      <StackPanel Grid.Column="2" Orientation="Vertical">
+        <StackPanel Orientation="Horizontal">
+          <Label HorizontalAlignment="Center" Margin="0 0 0 10"
+                 Content="{Binding MSS_Client_DetailsOfDataCollector, Source={StaticResource Resources}}"/>
+          <Label Content="{Binding MinomatTree_SelectedMinomat.Entity.SerialNumber}"
+                 Visibility="{Binding AreMinomatDetailsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        </StackPanel>
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="2*"/>
+          </Grid.ColumnDefinitions>
+          <Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right"
+                 Content="{Binding FixedNetworkSetup_Headers_NodeId, Source={StaticResource Resources}}"/>
+          <Label Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left"
+                 Margin="20 0 0 0" Content="{Binding MinomatTree_SelectedMinomat.Entity.NodeID}"
+                 Visibility="{Binding AreMinomatDetailsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+          <Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right"
+                 Content="{Binding MSS_Client_RSSI, Source={StaticResource Resources}}"/>
+          <Label Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left"
+                 Margin="20 0 0 0" Content="{Binding MinomatTree_SelectedMinomat.Entity.RSSI}"
+                 Visibility="{Binding AreMinomatDetailsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+          <Label Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right"
+                 Content="{Binding MSS_Client_MinomatSlave_HopCount, Source={StaticResource Resources}}"/>
+          <Label Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left"
+                 Margin="20 0 0 0" Content="{Binding MinomatTree_SelectedMinomat.Entity.HopCount}"
+                 Visibility="{Binding AreMinomatDetailsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+          <Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right"
+                 Content="{Binding MSS_Address, Source={StaticResource Resources}}"/>
+          <Label Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left"
+                 Margin="20 0 0 0" Content="{Binding MinomatTree_SelectedMinomat.Entity.Address}"
+                 Visibility="{Binding AreMinomatDetailsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+          <Label Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right"
+                 Content="{Binding MSS_Client_Archive_ViewTenant_Floor, Source={StaticResource Resources}}"/>
+          <Label Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left"
+                 Margin="20 0 0 0" Content="{Binding MinomatTree_SelectedMinomat.Entity.Floor}"
+                 Visibility="{Binding AreMinomatDetailsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        </Grid>
+      </StackPanel>
+    </Grid>
+  </Grid>
+</common:ResizableMetroWindow>

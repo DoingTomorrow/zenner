@@ -1,0 +1,125 @@
+<Window x:Class="S4_Handler.UserInterface.S4_SmartFunctions"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Closing="Window_Closing" Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico"
+        Title="Smart Function Manager" Height="700" Width="1100" WindowStartupLocation="CenterOwner"
+        MinWidth="800" MinHeight="500">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="5"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+    </Style>
+    <Style TargetType="{x:Type GroupBox}">
+      <Setter Property="FrameworkElement.Margin" Value="3"/>
+      <Setter Property="Control.BorderBrush" Value="Black"/>
+      <Setter Property="Control.Foreground" Value="Black"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" DockPanel.Dock="Top"/>
+    <Border DockPanel.Dock="Right" BorderThickness="2" BorderBrush="#FF119FBF" Margin="3">
+      <StackPanel DockPanel.Dock="Right">
+        <Button Click="ButtonShowEditor_Click" Name="ButtonShowEditor" Content="Show Editor"/>
+        <Separator Margin="5"/>
+        <StackPanel Name="StackPanelDeviceCommands">
+          <Button Click="ButtonReadLoadedFromDevice_Click" Name="ButtonReadLoadedFromDevice"
+                  Content="Read functions list from device"/>
+          <Button Click="ButtonDeleteAllFunctionsInDevice_Click" Name="ButtonDeleteAllFunctionsInDevice"
+                  Content="Delete all functions in device"/>
+          <Button Click="ButtonWriteFromEditorToDevice_Click" Name="ButtonWriteFromEditorToDevice"
+                  Content="Write from editor to connected device"/>
+          <Button Click="ButtonCompareAllToDevice_Click" Name="ButtonCompareAllToDevice"
+                  Content="Compare all loaded functions to source"/>
+          <Separator Margin="3"/>
+          <Button Click="ButtonReadFunctionParameter_Click" Name="ButtonReadFunctionParameter"
+                  Content="Read function parameters"/>
+          <Button Click="ButtonWriteChangedFunctionParameters_Click" Name="ButtonWriteChangedFunctionParameters"
+                  Content="Write changed function parameters"/>
+        </StackPanel>
+      </StackPanel>
+    </Border>
+    <DockPanel>
+      <DockPanel Dock="Top">
+        <Button Click="ButtonSaveFromEditorToDatabase_Click" Name="ButtonSaveFromEditorToDatabase"
+                Content="Save from editor to database" DockPanel.Dock="Right" VerticalAlignment="Center"/>
+        <GroupBox Name="GroupBoxFunctionFromEditor" Header="Function from editor">
+          <TextBlock Name="TextBlockFunctionFromEditor" Text="No function loaded" TextWrapping="Wrap" Margin="5"/>
+        </GroupBox>
+      </DockPanel>
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <GroupBox Header="Database functions">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="80*"/>
+              <RowDefinition Height="20*"/>
+            </Grid.RowDefinitions>
+            <StackPanel>
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Label Content="Group:"/>
+                <ComboBox SelectionChanged="ComboBoxGroups_SelectionChanged" Name="ComboBoxGroups"/>
+              </StackPanel>
+              <DataGrid SelectionChanged="DataGridDatabaseFunctions_SelectionChanged" Name="DataGridDatabaseFunctions"
+                        IsReadOnly="true" VerticalScrollBarVisibility="Auto">
+                <FrameworkElement.ContextMenu>
+                  <ContextMenu>
+                    <MenuItem Click="DB_MenuItemWriteToDevice_Click" Name="DB_MenuItemWriteToDevice"
+                              Header="Write from database to device"/>
+                    <MenuItem Click="DB_MenuItemWriteAllToDevice_Click" Name="DB_MenuItemWriteAllToDevice"
+                              Header="Write all database functions to device"/>
+                    <Separator/>
+                    <MenuItem Click="DB_MenuItemEdit_Click" Name="DB_MenuItemEdit" Header="Edit database function"/>
+                    <MenuItem Click="DB_MenuItemEditSource_Click" Name="DB_MenuItemEditSource" Header="Edit function source"/>
+                    <MenuItem Click="DB_MenuItemCompare_Click" Name="DB_MenuItemCompare"
+                              Header="Compare database function to source"/>
+                    <MenuItem Click="DB_MenuItemDelete_Click" Name="DB_MenuItemDelete" Header="Delete from database"/>
+                    <Separator/>
+                    <MenuItem Click="DB_MenuItemCompareAll_Click" Name="DB_MenuItemCompareAll"
+                              Header="Compare all database functions to source"/>
+                  </ContextMenu>
+                </FrameworkElement.ContextMenu>
+              </DataGrid>
+            </StackPanel>
+            <GridSplitter VerticalAlignment="Bottom" Height="5" HorizontalAlignment="Stretch" Margin="2"/>
+            <TextBox Name="TextBoxFunctionDescription" Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+                     VerticalScrollBarVisibility="Auto" IsReadOnly="true"/>
+          </Grid>
+        </GroupBox>
+        <GridSplitter Width="3"/>
+        <GroupBox Grid.Column="1" Header="Connected device">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="2*"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <GroupBox Header="Loaded smart functions">
+              <DataGrid SelectionChanged="DataGridLoadedFunctions_SelectionChanged"
+                        MouseDoubleClick="DataGridLoadedFunctions_MouseDoubleClick"
+                        AutoGeneratingColumn="DataGridLoadedFunctions_AutoGeneratingColumn"
+                        ContextMenuOpening="DataGridLoadedFunctions_ContextMenuOpening" Name="DataGridLoadedFunctions">
+                <FrameworkElement.ContextMenu>
+                  <ContextMenu Name="ContextMenuDeviceCommands">
+                    <MenuItem Click="FL_MenuItemReadFromDeviceAndEdit_Click" Name="FL_MenuItemReadFromDeviceAndEdit"
+                              Header="Read selected function from device and edit"/>
+                    <MenuItem Click="FL_MenuItemReadFromDeviceAndCompare_Click" Name="FL_MenuItemReadFromDeviceAndCompare"
+                              Header="Read selected function from device and compare to source"/>
+                    <MenuItem Click="FL_MenuItemActivateFunction_Click" Name="FL_MenuItemActivateFunction"
+                              Header="Activate selected function"/>
+                  </ContextMenu>
+                </FrameworkElement.ContextMenu>
+              </DataGrid>
+            </GroupBox>
+            <GridSplitter Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="3"/>
+            <GroupBox Header="Function parameters" Grid.Row="1">
+              <DataGrid Name="DataGridFunctionsParameters" ClipboardCopyMode="IncludeHeader" CanUserAddRows="false"/>
+            </GroupBox>
+          </Grid>
+        </GroupBox>
+      </Grid>
+    </DockPanel>
+  </DockPanel>
+</Window>

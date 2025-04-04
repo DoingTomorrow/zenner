@@ -1,0 +1,45 @@
+<Window x:Class="TH_Handler.TH_HandlerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ports="clr-namespace:System.IO.Ports;assembly=System"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        xmlns:p="clr-namespace:TH_Handler.Properties"
+        Loaded="Window_Loaded" Closing="Window_Closing" Title="Temperature and Humidity Sensor"
+        Height="600" Width="800" WindowStartupLocation="CenterScreen"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico">
+  <FrameworkElement.Resources>
+    <ObjectDataProvider x:Key="portNames" ObjectType="{x:Type ports:SerialPort}" MethodName="GetPortNames"/>
+  </FrameworkElement.Resources>
+  <Grid>
+    <Menu Name="menuMain" Height="23" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+      <MenuItem Name="MenuItemComponents" Header="Components"/>
+    </Menu>
+    <StartupLib:GmmCorporateControl VerticalAlignment="Top" Margin="0,23,0,0" Height="56"/>
+    <Label Content="Port:" Margin="0,88,133,0" HorizontalAlignment="Right" Height="24" VerticalAlignment="Top"/>
+    <CheckBox Unchecked="ckbIrDaDovetailSide_CheckedUnchecked" Checked="ckbIrDaDovetailSide_CheckedUnchecked"
+              Name="ckbIrDaDovetailSide" IsChecked="False" Content="IrDa Dovetail Side"
+              HorizontalAlignment="Left" Margin="666,117,0,0" VerticalAlignment="Top" Width="123"/>
+    <ComboBox SelectionChanged="txtSerialPort_SelectionChanged" Name="txtSerialPort" Margin="0,90,3,0"
+              IsEditable="false" HorizontalAlignment="Right" Width="123" Height="22" VerticalAlignment="Top"
+              ItemsSource="{Binding Source={StaticResource portNames}}"
+              SelectedItem="{Binding Source={x:Static p:Settings.Default}, Path=SerialPort}"/>
+    <Button Click="btnRead_Click" Name="btnRead" Content="Read" HorizontalAlignment="Right" Margin="0,158,91,0"
+            VerticalAlignment="Top" Width="83"/>
+    <StatusBar Height="20" VerticalAlignment="Bottom">
+      <ProgressBar Name="progress" Height="12" Width="200"/>
+    </StatusBar>
+    <Button Click="btnWrite_Click" Name="btnWrite" Content="Write" HorizontalAlignment="Right"
+            Margin="0,158,3,0" VerticalAlignment="Top" Width="83"/>
+    <TextBox Name="txtOutput" Margin="5,84,179,25" TextWrapping="Wrap" FontFamily="Consolas" FontSize="11"/>
+    <Button Click="btnConfigurator_Click" Name="btnConfigurator" Content="Configuration"
+            HorizontalAlignment="Right" Margin="0,218,3,0" VerticalAlignment="Top" Width="171"/>
+    <Button Click="btnSave_Click" Name="btnSave" Content="Save backup" HorizontalAlignment="Right"
+            Margin="0,189,91,0" VerticalAlignment="Top" Width="83"/>
+    <Button Click="btnOpen_Click" Name="btnOpen" Content="Open backup" HorizontalAlignment="Right"
+            Margin="0,189,3,0" VerticalAlignment="Top" Width="83"/>
+    <Button Click="btnClear_Click" Name="btnClear" Content="Clear" HorizontalAlignment="Right"
+            Margin="0,0,3,25" Width="171" Height="22" VerticalAlignment="Bottom"/>
+    <Button Click="btnCommands_Click" Name="btnCommands" Content="Commands" HorizontalAlignment="Right"
+            Margin="0,245,3,0" VerticalAlignment="Top" Width="171"/>
+  </Grid>
+</Window>

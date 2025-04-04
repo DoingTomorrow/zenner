@@ -1,0 +1,104 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Jobs.SystemSelectionDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="NoResize" Height="340" Width="580"
+                             Title="{Binding Path=MSS_Client_JobDialog_Edit, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="150"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="38"/>
+        <RowDefinition Height="38"/>
+        <RowDefinition Height="38"/>
+        <RowDefinition Height="38"/>
+        <RowDefinition Height="38"/>
+        <RowDefinition Height="30"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Label Grid.Column="0" Grid.Row="1" Style="{StaticResource AppLabelStyle}"
+             Content="{Binding Path=SYSTEM_SELECTION_PARAMETER_DueDate, Source={StaticResource Resources}}"/>
+      <StackPanel Grid.Column="1" Grid.Row="1" Height="23" Orientation="Horizontal">
+        <telerik:RadNumericUpDown Width="30" HideTrailingZeros="true" Margin="5,0,0,0" Value="{Binding DueDateDay}"/>
+        <Label>D</Label>
+        <telerik:RadNumericUpDown Width="30" HideTrailingZeros="true" Minimum="0" Margin="5,0,0,0" Value="{Binding DueDateHours}"/>
+        <Label>H</Label>
+        <telerik:RadNumericUpDown Width="30" HideTrailingZeros="true" Minimum="0" Margin="5,0,0,0" Value="{Binding DueDateMinutes}"/>
+        <Label>M</Label>
+        <telerik:RadNumericUpDown Width="30" HideTrailingZeros="true" Minimum="0" Margin="5,0,0,0" Value="{Binding DueDateSeconds}"/>
+        <Label>S</Label>
+      </StackPanel>
+      <Label Grid.Column="0" Grid.Row="2" Style="{StaticResource AppLabelStyle}"
+             Content="{Binding Path=SYSTEM_SELECTION_PARAMETER_Month, Source={StaticResource Resources}}"/>
+      <StackPanel Grid.Column="1" Grid.Row="2" Height="23" Orientation="Horizontal">
+        <telerik:RadNumericUpDown Width="30" HideTrailingZeros="true" Margin="5,0,0,0" Value="{Binding MonthDay}"/>
+        <Label>D</Label>
+        <telerik:RadNumericUpDown Width="30" HideTrailingZeros="true" Minimum="0" Margin="5,0,0,0" Value="{Binding MonthHours}"/>
+        <Label>H</Label>
+        <telerik:RadNumericUpDown Width="30" HideTrailingZeros="true" Minimum="0" Margin="5,0,0,0" Value="{Binding MonthMinutes}"/>
+        <Label>M</Label>
+        <telerik:RadNumericUpDown Width="30" HideTrailingZeros="true" Minimum="0" Margin="5,0,0,0" Value="{Binding MonthSeconds}"/>
+        <Label>S</Label>
+      </StackPanel>
+      <Label Grid.Column="0" Grid.Row="3" Style="{StaticResource AppLabelStyle}"
+             Content="{Binding Path=SYSTEM_SELECTION_PARAMETER_Day, Source={StaticResource Resources}}"/>
+      <StackPanel Grid.Column="1" Grid.Row="3" Height="23" Orientation="Horizontal">
+        <telerik:RadNumericUpDown Width="30" HideTrailingZeros="true" Margin="5,0,0,0" Value="{Binding DayDay}"/>
+        <Label>D</Label>
+        <telerik:RadNumericUpDown Width="30" HideTrailingZeros="true" Minimum="0" Margin="5,0,0,0" Value="{Binding DayHours}"/>
+        <Label>H</Label>
+        <telerik:RadNumericUpDown Width="30" HideTrailingZeros="true" Minimum="0" Margin="5,0,0,0" Value="{Binding DayMinutes}"/>
+        <Label>M</Label>
+        <telerik:RadNumericUpDown Width="30" HideTrailingZeros="true" Minimum="0" Margin="5,0,0,0" Value="{Binding DaySeconds}"/>
+        <Label>S</Label>
+      </StackPanel>
+      <Label Grid.Column="0" Grid.Row="4" Style="{StaticResource AppLabelStyle}"
+             Content="{Binding Path=SYSTEM_SELECTION_PARAMETER_QuarterHour, Source={StaticResource Resources}}"/>
+      <StackPanel Grid.Column="1" Grid.Row="4" Height="23" Orientation="Horizontal">
+        <telerik:RadNumericUpDown Width="30" HideTrailingZeros="true" Margin="5,0,0,0" Value="{Binding QuarterHourDay}"/>
+        <Label>D</Label>
+        <telerik:RadNumericUpDown Width="30" HideTrailingZeros="true" Minimum="0" Margin="5,0,0,0" Value="{Binding QuarterHourHours}"/>
+        <Label>H</Label>
+        <telerik:RadNumericUpDown Width="30" HideTrailingZeros="true" Minimum="0" Margin="5,0,0,0"
+                                  Value="{Binding QuarterHourMinutes}"/>
+        <Label>M</Label>
+        <telerik:RadNumericUpDown Width="30" HideTrailingZeros="true" Minimum="0" Margin="5,0,0,0"
+                                  Value="{Binding QuarterHourSeconds}"/>
+        <Label>S</Label>
+      </StackPanel>
+      <Grid Row="6" Column="1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="170"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Button x:Name="OkButton" Grid.Column="1" Foreground="#595151" Style="{StaticResource AppButtonStyle}"
+                Background="White" Height="25" Width="73" BorderBrush="LightGray"
+                Content="{Binding MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                Command="{Binding SaveSelectedSystemParametersCommand}"/>
+        <Button x:Name="CancelButton1" Grid.Column="2" Foreground="#595151" Style="{StaticResource AppButtonStyle}"
+                Background="White" Height="25" Width="73" BorderBrush="LightGray"
+                Content="{Binding MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                Command="{Binding CancelWindowCommand}"/>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

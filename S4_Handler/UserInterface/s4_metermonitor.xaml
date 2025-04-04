@@ -1,0 +1,27 @@
+<Window x:Class="S4_Handler.UserInterface.S4_MeterMonitor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Closing="Window_Closing" Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico"
+        Title="S4_MeterMonitor" Height="496.4" Width="1021.6" WindowStartupLocation="CenterOwner">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="5"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+    </Style>
+    <Style TargetType="{x:Type GroupBox}">
+      <Setter Property="FrameworkElement.Margin" Value="3"/>
+      <Setter Property="Control.BorderBrush" Value="Black"/>
+      <Setter Property="Control.Foreground" Value="Black"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" DockPanel.Dock="Top"/>
+    <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" HorizontalAlignment="Right">
+      <Button Click="ButtonClear_Click" Name="ButtonClear" Content="Clear"/>
+      <Button Click="ButtonRunStop_Click" Name="ButtonRunStop" Content="Run"/>
+    </StackPanel>
+    <DataGrid AutoGeneratingColumn="DataGridMonitor_AutoGeneratingColumn" Name="DataGridMonitor"
+              CanUserResizeRows="false" CanUserAddRows="false" ClipboardCopyMode="IncludeHeader"/>
+  </DockPanel>
+</Window>

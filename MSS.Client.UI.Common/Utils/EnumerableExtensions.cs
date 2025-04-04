@@ -1,0 +1,13 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: MSS.Client.UI.Common.Utils.EnumerableExtensions
+// Assembly: MSS.Client.UI.Common, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 15ED3F62-7ABB-4067-AE48-CE636F8F9754
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Client.UI.Common.dll
+
+#nullable disable
+namespace MSS.Client.UI.Common.Utils
+{
+  public static class EnumerableExtensions
+  {
+  }
+}

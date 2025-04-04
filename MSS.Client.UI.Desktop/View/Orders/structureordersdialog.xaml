@@ -1,0 +1,210 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Orders.StructureOrdersDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="NoResize" Height="560" Width="500"
+                             Title="{Binding MSS_Client_OrderControl_Header_Structure, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+        <ResourceDictionary>
+          <Style x:Key="SelectedStructureNodeButtonStyle" TargetType="{x:Type Button}"
+                 BasedOn="{StaticResource AppButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="true"/>
+            <Setter Property="UIElement.Opacity" Value="1"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding IsOkButtonEnabled}" Value="False">
+                <Setter Property="UIElement.IsEnabled" Value="false"/>
+                <Setter Property="UIElement.Opacity" Value="0.5"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+          <Style TargetType="{x:Type telerik:TreeListViewRow}" BasedOn="{StaticResource TreeListViewRowStyle}">
+            <Setter Property="Control.Background" Value="{Binding BackgroundColor}"/>
+          </Style>
+          <Style x:Key="FirstRadioButtonStyle" TargetType="{x:Type RadioButton}"
+                 BasedOn="{StaticResource AppRadioButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="true"/>
+            <Setter Property="UIElement.Opacity" Value="1"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding FirstRadioButtonVisibility}" Value="False">
+                <Setter Property="UIElement.IsEnabled" Value="false"/>
+                <Setter Property="UIElement.Opacity" Value="0.5"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+          <Style x:Key="SecondRadioButtonStyle" TargetType="{x:Type RadioButton}"
+                 BasedOn="{StaticResource AppRadioButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="true"/>
+            <Setter Property="UIElement.Opacity" Value="1"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding SecondRadioButtonVisibility}" Value="False">
+                <Setter Property="UIElement.IsEnabled" Value="false"/>
+                <Setter Property="UIElement.Opacity" Value="0.5"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+          <Style x:Key="FirstLabelStyle" TargetType="{x:Type Label}">
+            <Setter Property="UIElement.Opacity" Value="1"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding FirstRadioButtonVisibility}" Value="False">
+                <Setter Property="UIElement.Opacity" Value="0.5"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+          <Style x:Key="SecondLabelStyle" TargetType="{x:Type Label}">
+            <Setter Property="UIElement.Opacity" Value="1"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding SecondRadioButtonVisibility}" Value="False">
+                <Setter Property="UIElement.Opacity" Value="0.5"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="40"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="100"/>
+        </Grid.RowDefinitions>
+        <Grid Row="0"
+              Visibility="{Binding RadioButtonsVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="2*"/>
+          </Grid.ColumnDefinitions>
+          <StackPanel Grid.Column="0" Orientation="Horizontal"
+                      Visibility="{Binding FirstRadioButtonVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <RadioButton GroupName="StructureType" Style="{StaticResource FirstRadioButtonStyle}"
+                         IsChecked="{Binding IsFirstRadioChecked}"
+                         Visibility="{Binding FirstRadioButtonVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <Label Foreground="#595151" VerticalAlignment="Center" Style="{StaticResource FirstLabelStyle}"
+                   Content="{Binding StructureTypeFirstRadio}"
+                   Visibility="{Binding FirstRadioButtonVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+          </StackPanel>
+          <StackPanel Grid.Column="1" Orientation="Horizontal"
+                      Visibility="{Binding SecondRadioButtonVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <RadioButton GroupName="StructureType" Style="{StaticResource SecondRadioButtonStyle}"
+                         IsChecked="{Binding IsSecondRadioChecked}"
+                         Visibility="{Binding SecondRadioButtonVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <Label Foreground="#595151" VerticalAlignment="Center" Style="{StaticResource SecondLabelStyle}"
+                   Content="{Binding StructureTypeSecondRadio}"
+                   Visibility="{Binding SecondRadioButtonVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+          </StackPanel>
+          <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Image Source="pack://application:,,,/Styles;component/Images/Universal/search.png" Margin="5" Height="16"
+                   Width="16">
+              <UIElement.InputBindings>
+                <MouseBinding MouseAction="LeftClick" Command="{Binding SearchCommand}"
+                              CommandParameter="{Binding Path=Text, ElementName=SearchTextBox}"/>
+              </UIElement.InputBindings>
+            </Image>
+            <TextBox x:Name="SearchTextBox" Style="{StaticResource AppTextBoxStyle}" Width="130" Margin="2,2,5,1"
+                     Height="25" Text="{Binding SearchText}">
+              <UIElement.InputBindings>
+                <KeyBinding Key="Enter" Command="{Binding SearchCommand}"
+                            CommandParameter="{Binding Path=Text, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}"/>
+              </UIElement.InputBindings>
+            </TextBox>
+          </StackPanel>
+        </Grid>
+        <Grid Row="1">
+          <Grid x:Name="StructureRootGrid" Background="White" HorizontalAlignment="Center" Width="490">
+            <FrameworkElement.Resources>
+              <DataTemplate x:Key="FirstColumnCellTemplate">
+                <StackPanel Orientation="Horizontal">
+                  <Image Style="{StaticResource SmallIconImageStyle}" Source="{Binding Image}"/>
+                  <TextBlock Margin="5" Text="{Binding Name}"/>
+                </StackPanel>
+              </DataTemplate>
+            </FrameworkElement.Resources>
+            <telerik:RadTreeListView x:Name="treeListView" telerik:TreeViewPanel.IsVirtualizing="true" AutoGenerateColumns="false"
+                                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="29,5"
+                                     CanUserFreezeColumns="false" CanUserReorderColumns="false" RowIndicatorVisibility="Collapsed"
+                                     ShowColumnHeaders="true" telerik:StyleManager.Theme="Windows8"
+                                     ItemsSource="{Binding StructureNodeCollection}" AutoExpandItems="{Binding IsExpanded, Mode=TwoWay}"
+                                     IsExpandedBinding="{Binding IsExpanded, Mode=TwoWay}"
+                                     IsExpandableBinding="{Binding IsEmpty, Converter={StaticResource InverseBooleanConverter}}"
+                                     SelectedItem="{Binding SelectedStructureNodeItem, Mode=TwoWay}"
+                                     SelectionMode="{Binding SelectionMode, Converter={StaticResource BoolToSelectionModeConverter}, Mode=TwoWay}"
+                                     IsBusy="{Binding IsBusy}">
+              <telerik:GridViewDataControl.ChildTableDefinitions>
+                <telerik:TreeListViewTableDefinition ItemsSource="{Binding SubNodes}"/>
+              </telerik:GridViewDataControl.ChildTableDefinitions>
+              <telerik:GridViewDataControl.Columns>
+                <telerik:GridViewDataColumn CellTemplate="{StaticResource FirstColumnCellTemplate}" IsReadOnly="true" Width="Auto"
+                                            DataMemberBinding="{Binding Name}"
+                                            Header="{Binding Path=MSS_Client_Structures_Name, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" Width="Auto" DataMemberBinding="{Binding Entity.ShortDeviceNo}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_ShortDeviceNr, Source={StaticResource Resources}}"
+                                            IsVisible="{Binding IsShortDeviceNoVisible, Mode=TwoWay}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" Width="Auto" DataMemberBinding="{Binding Entity.SerialNumber}"
+                                            Header="{Binding Path=MSS_Client_Structures_Header_SerialNumber, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" Width="Auto" DataMemberBinding="{Binding Description}"
+                                            Header="{Binding Path=MSS_Client_Structures_Description, Source={StaticResource Resources}}"/>
+              </telerik:GridViewDataControl.Columns>
+            </telerik:RadTreeListView>
+          </Grid>
+        </Grid>
+        <Grid Row="2">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+          </Grid.RowDefinitions>
+          <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal"
+                      Visibility="{Binding IsOnlyDevicesWithNoReadingsCheckBoxVisible, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <CheckBox Margin="10,2,6,2" IsChecked="{Binding IsOnlyDevicesWithNoReadingsChecked, Mode=TwoWay}"/>
+            <TextBlock VerticalAlignment="Center" Width="248" Height="30" TextWrapping="Wrap" Margin="0,0,0,1"
+                       Padding="0,10,0,0" Text="{Binding OnlyDevicesWithNoReadingsMessage}"/>
+            <telerik:RadDateTimePicker x:Name="DueDateTimePicker" Height="30" Width="160" DisplayFormat="Short" InputMode="DatePicker"
+                                       IsReadOnly="false" DateSelectionMode="Day" ErrorTooltipContent="Error." IsTooltipEnabled="true"
+                                       AllowParsingWithoutSeparator="false" SelectedValue="{Binding DueDateValue, Mode=TwoWay}"/>
+          </StackPanel>
+          <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal"
+                      Visibility="{Binding IsOnlyDevicesWithNoReadingsCheckBoxVisible, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <CheckBox Margin="10,2,6,2" IsChecked="{Binding IsOnlyDevicesWithNoReadingsRangeChecked, Mode=TwoWay}"/>
+            <TextBlock VerticalAlignment="Center" Width="248" Height="30" TextWrapping="Wrap" Margin="0,0,0,1"
+                       Padding="0,10,0,0" Text="{Binding OnlyDevicesWithNoReadingsMessageRange}"/>
+            <telerik:RadDateTimePicker x:Name="DueDateStartTimePicker" Height="30" Width="80" DisplayFormat="Short" InputMode="DatePicker"
+                                       IsReadOnly="false" DateSelectionMode="Day" ErrorTooltipContent="Error." IsTooltipEnabled="true"
+                                       AllowParsingWithoutSeparator="false" SelectedValue="{Binding DueDateStartValue, Mode=TwoWay}"
+                                       SelectableDateEnd="{Binding ElementName=DueDateEndTimePicker, Path=SelectedValue}"/>
+            <telerik:RadDateTimePicker x:Name="DueDateEndTimePicker" Height="30" Width="80" DisplayFormat="Short" InputMode="DatePicker"
+                                       IsReadOnly="false" DateSelectionMode="Day" ErrorTooltipContent="Error." IsTooltipEnabled="true"
+                                       AllowParsingWithoutSeparator="false" SelectedValue="{Binding DueDateEndValue, Mode=TwoWay}"
+                                       SelectableDateStart="{Binding ElementName=DueDateStartTimePicker, Path=SelectedValue}"/>
+          </StackPanel>
+          <StackPanel HorizontalAlignment="Center" Grid.Row="2" Orientation="Horizontal">
+            <Button x:Name="OkButton" IsDefault="true" Foreground="#595151" Background="White" Height="25" Width="73"
+                    BorderBrush="LightGray" Margin="0 0 10 0" Style="{StaticResource SelectedStructureNodeButtonStyle}"
+                    Content="{Binding Path=MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                    Command="{Binding OkStructureCommand}"
+                    CommandParameter="{Binding ElementName=treeListView, Path=SelectedItems}"
+                    Visibility="{Binding IsOKButtonVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <Button x:Name="CancelButton" IsCancel="false" Foreground="#595151" Margin="10 0 0 0"
+                    Style="{StaticResource AppButtonStyle}" Background="White" Height="25" Width="73"
+                    BorderBrush="LightGray"
+                    Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                    Command="{Binding CancelWindowCommand}"/>
+          </StackPanel>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

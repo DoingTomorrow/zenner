@@ -1,0 +1,96 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Download.DownloadOrdersDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c" Height="410"
+                             Width="600" Title="{Binding Path=MSS_MessageCodes_Download, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid Row="0">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="60"/>
+          </Grid.RowDefinitions>
+          <Grid Row="1">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="2*"/>
+              <ColumnDefinition Width="80"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0" Style="{StaticResource AppTextBoxStyle}" Height="25" Text="{Binding SearchText}"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+              <CheckBox Name="LockBox" Style="{StaticResource AppCheckBoxButtonStyle}" Margin="0"
+                        IsChecked="{Binding LockBoxValue}"/>
+              <TextBlock Style="{StaticResource AppTextBlockGrayStyle}"
+                         Text="{Binding Path=MSS_MessageCodes_Lock, Source={StaticResource Resources}}"/>
+            </StackPanel>
+            <Button x:Name="SearchButton" Grid.Column="2" Style="{StaticResource CommandButtonStyle}" Margin="10 5"
+                    Content="{Binding Path=MSS_MessageCodes_Search, Source={StaticResource Resources}}"
+                    Command="{Binding SearchCommand}"/>
+          </Grid>
+          <Grid Row="0" Background="#EDEDED">
+            <ContentPresenter HorizontalAlignment="Right" Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+          </Grid>
+          <Grid x:Name="StructureRootGrid" Background="Transparent" Row="2">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <telerik:RadGridView x:Name="OrderGridView" AlternateRowBackground="#EDEDED" AlternationCount="2"
+                                 RowIndicatorVisibility="Collapsed" CanUserFreezeColumns="false"
+                                 telerik:StyleManager.Theme="Windows8" IsReadOnly="true" ColumnWidth="*" AutoGenerateColumns="false"
+                                 IsFilteringAllowed="true" Margin="10 5 10 0" ItemsSource="{Binding SampleOrders}"
+                                 SelectedItem="{Binding SelectedOrder}">
+              <telerik:GridViewDataControl.Columns>
+                <telerik:GridViewDataColumn Width="1.5*" DataMemberBinding="{Binding InstallationNumber}"
+                                            Header="{Binding Path=MSS_Client_OrderControl_Header_InstallationNumber, Source={StaticResource Resources}}"/>
+                <telerik:GridViewColumn Header="{Binding Path=MSS_Client_OrderControl_Header_Structure, Source={StaticResource Resources}}"/>
+                <telerik:GridViewCheckBoxColumn DataMemberBinding="{Binding Exported}"
+                                                Header="{Binding Path=MSS_Client_OrderControl_Header_Exported, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding Status}"
+                                            Header="{Binding Path=MSS_Client_OrderControl_Header_Status, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding IsLocked}"
+                                            Header="{Binding Path=MSS_Client_OrderControl_Header_IsLocked, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn Width="1.5*" DataMemberBinding="{Binding DeviceNumber}"
+                                            Header="{Binding Path=MSS_Client_OrderControl_Header_DeviceNumber, Source={StaticResource Resources}}"/>
+              </telerik:GridViewDataControl.Columns>
+            </telerik:RadGridView>
+          </Grid>
+          <Grid Row="3">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="3*"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="DownloadButton" Grid.Column="1" Style="{StaticResource CommandButtonStyle}" Margin="15"
+                    IsEnabled="false"
+                    Content="{Binding Path=MSS_MessageCodes_Download, Source={StaticResource Resources}}"
+                    Command="{Binding DownloadCommand}" CommandParameter="{Binding ElementName=OrderGridView}"/>
+            <Button x:Name="CancelButton" Grid.Column="2" Style="{StaticResource CommandButtonStyle}" Margin="15"
+                    Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                    Command="{Binding CancelCommand}"/>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

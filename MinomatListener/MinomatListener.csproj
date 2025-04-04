@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MinomatListener.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{788B409A-D342-4CB1-B600-86A244752F31}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>MinomatListener</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.1</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>MinomatListener</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AsyncCom">
+      <HintPath>lib\AsyncCom.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="MinomatHandler">
+      <HintPath>lib\MinomatHandler.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="HttpPacket.cs" />
+    <Compile Include="HttpPacketType.cs" />
+    <Compile Include="InitPacket.cs" />
+    <Compile Include="InitPacketAdditional0x21.cs" />
+    <Compile Include="ResponcePacket.cs" />
+    <Compile Include="MinomatAsynCom.cs" />
+    <Compile Include="MinomatListenerFunctions.cs" />
+    <Compile Include="PlugInAnchor.cs" />
+    <Compile Include="Server.cs" />
+    <Compile Include="ViewMainWindow.xaml.cs">
+      <DependentUpon>viewmainwindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="view\mainwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

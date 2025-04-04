@@ -1,0 +1,161 @@
+<Window x:Class="SmartFunctionCompiler.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="clr-namespace:SmartFunctionCompiler"
+        Closing="Window_Closing" Loaded="Window_Loaded" Activated="Window_Activated"
+        Title="Smart Function Compiler" Height="814.34" Width="1086.6" WindowStartupLocation="CenterOwner"
+        WindowState="Maximized">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type TextBox}">
+      <Setter Property="FrameworkElement.Margin" Value="5"/>
+      <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="455*"/>
+      <ColumnDefinition Width="426*"/>
+    </Grid.ColumnDefinitions>
+    <TabControl>
+      <TabItem Name="TabItemEditorAndCompiler" Header="Editor and compiler">
+        <DockPanel Margin="5">
+          <Menu DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+            <MenuItem Name="MenuItemFile" Header="File">
+              <MenuItem Click="MenuItemFileOpen_Click" Name="MenuItemFileOpen" Header="Open"/>
+              <MenuItem Click="MenuItemFileSave_Click" Name="MenuItemFileSave" Header="Save"/>
+              <MenuItem Click="MenuItemFileSaveAs_Click" Name="MenuItemFileSaveAs" Header="Save as .."/>
+              <Separator/>
+              <MenuItem Click="MenuItemReloadSource_Click" Name="MenuItemReloadSource" Header="Reload source"/>
+            </MenuItem>
+            <MenuItem Name="MenuItemTests" Header="Tests">
+              <MenuItem Click="MenuItemCheckCalendar2000_Click" Name="MenuItemCheckCalendar2000"
+                        Header="Check calendar2000"/>
+            </MenuItem>
+          </Menu>
+          <DockPanel Dock="Bottom">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" FlowDirection="RightToLeft">
+              <Button Click="ButtonCompile_Click" Name="ButtonCompile" Content="Compile" Margin="5"/>
+              <Button Click="ButtonDeCompile_Click" Name="ButtonDeCompile" Content="DeCompile" Margin="5"
+                      IsEnabled="false"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+              <Button Click="ButtonDeleteLineNumbers_Click" Name="ButtonDeleteLineNumbers" Content="Delete line numbers"
+                      Margin="5"/>
+            </StackPanel>
+          </DockPanel>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="17*"/>
+              <ColumnDefinition Width="530*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="13*"/>
+              <RowDefinition Height="4*"/>
+            </Grid.RowDefinitions>
+            <GridSplitter VerticalAlignment="Bottom" Height="5" HorizontalAlignment="Stretch" Margin="2,0,2.2,1.8"
+                          Grid.ColumnSpan="2"/>
+            <TextBox TextChanged="TextBoxCode_TextChanged" Name="TextBoxCode" Margin="5,5,4.2,4.8"
+                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="Wrap"
+                     AcceptsReturn="true" FontFamily="Courier New" FontSize="16" VerticalAlignment="Stretch"
+                     Grid.ColumnSpan="2"/>
+            <TextBox Name="TextBoxResult" Margin="5,5.2,4.2,4" Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                     HorizontalScrollBarVisibility="Auto" VerticalAlignment="Stretch" FontFamily="Courier New"
+                     FontSize="16" TextWrapping="Wrap" Grid.ColumnSpan="2"/>
+          </Grid>
+        </DockPanel>
+      </TabItem>
+      <TabItem Name="TabItemSimulationParameters" Header="Simulation parameters" IsEnabled="false">
+        <DataGrid ItemsSource="{Binding Source={x:Static d:Interpreter.SimulatorParameters}}"/>
+      </TabItem>
+    </TabControl>
+    <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Left" VerticalAlignment="Stretch"/>
+    <TabControl Name="TabControl1" Grid.Column="1" Margin="5">
+      <TabItem Name="TabItemMnemonics" Header="Mnemonics">
+        <TextBox Name="TextBoxMnemonics" Padding="5" IsReadOnly="true" FontFamily="Courier New"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto"
+                 VerticalScrollBarVisibility="Auto"/>
+      </TabItem>
+      <TabItem Name="TabItemSimulator" Header="Simulator">
+        <DockPanel Grid.Column="1" Margin=" 10,5,5,5">
+          <DockPanel Dock="Bottom">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+              <Label Content="Number of events to run:"/>
+              <TextBox Name="TextBoxRunEvents" Text="100"/>
+              <Button Click="ButtonRun_Click" Name="ButtonRun" Content="Run" Margin="5" IsEnabled="false"/>
+              <Button Click="ButtonReset_Click" Name="ButtonReset" Content="Reset" Margin="5" IsEnabled="false"/>
+              <Button Click="ButtonSingleEvent_Click" Name="ButtonSingleEvent" Content="Single event" Margin="5"
+                      IsEnabled="false"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+              <Button Click="ButtonLoadSimulator_Click" Name="ButtonLoadSimulator" Content="Load simulator" Margin="5"
+                      IsEnabled="false"/>
+            </StackPanel>
+          </DockPanel>
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="500*"/>
+              <RowDefinition Height="457*"/>
+            </Grid.RowDefinitions>
+            <GridSplitter VerticalAlignment="Bottom" Height="5" HorizontalAlignment="Stretch" Margin="1,0,1,1"/>
+            <Grid DataContext="Interpreter">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <TextBox Name="TextBoxParameters" Grid.Column="2" Grid.RowSpan="13" Margin="5,5,5,10"
+                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch" FontFamily="Courier New"
+                       VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+              <Label Grid.Row="0" Grid.Column="0" Content="Device time [s]"/>
+              <TextBox Name="TextBoxDeviceTime" Grid.Row="0" Grid.Column="1"/>
+              <Label Grid.Row="1" Grid.Column="0" Content="Cycle time [s]"/>
+              <TextBox Name="TextBoxCycleTime" Grid.Row="1" Grid.Column="1" Text="3600"/>
+              <Label Grid.Row="2" Grid.Column="0" Content="Volume  [m³]"/>
+              <TextBox Name="TextBoxVolume" Grid.Row="2" Grid.Column="1" Text="1234,56"/>
+              <Label Grid.Row="3" Grid.Column="0" Content="Flow volume  [m³]"/>
+              <TextBox Name="TextBoxFlowVolume" Grid.Row="3" Grid.Column="1" Text="1234,56"/>
+              <Label Grid.Row="4" Grid.Column="0" Content="Return volume  [m³]"/>
+              <TextBox Name="TextBoxReturnVolume" Grid.Row="4" Grid.Column="1" Text="0"/>
+              <Label Grid.Row="5" Grid.Column="0" Content="Flow [m³/h]"/>
+              <TextBox Name="TextBoxFlow" Grid.Row="5" Grid.Column="1" Text="10"/>
+              <Label Grid.Row="6" Grid.Column="0" Content="Flow increment [m³/h/cycle]"/>
+              <TextBox Name="TextBoxFlowIncrement" Grid.Row="6" Grid.Column="1" Text="1"/>
+              <Label Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Content="Additional simulated parameters:"/>
+              <ComboBox Name="ComboBoxParameterName" Grid.Row="8" Grid.ColumnSpan="2" DisplayMemberPath="Name"
+                        SelectedValuePath="Name" SelectedIndex="1"
+                        ItemsSource="{Binding Source={x:Static d:Interpreter.SimulatorParameters}}"
+                        SelectedValue="{Binding SimulatorParameter, Mode=TwoWay}"/>
+              <Label Grid.Row="9" Grid.Column="0" Content="StartValue" Margin="10,0,0,0"/>
+              <TextBox Name="TextBoxInitValue" Grid.Row="9" Grid.Column="1"
+                       Text="{Binding ElementName=ComboBoxParameterName, Path=SelectedItem.StartValue}"/>
+              <Label Grid.Row="10" Grid.Column="0" Content="ValueIncrement [1/cycle]" Margin="10,0,0,0"/>
+              <TextBox Name="TextBoxValueIncrement" Grid.Row="10" Grid.Column="1"
+                       Text="{Binding ElementName=ComboBoxParameterName, Path=SelectedItem.ValueIncrement}"/>
+              <Label Grid.Row="11" Grid.Column="0" Content="Value" Margin="10,0,0,0"/>
+              <TextBox Name="TextBoxValue" Grid.Row="11" Grid.Column="1"
+                       Text="{Binding ElementName=ComboBoxParameterName, Path=SelectedItem.Value}"/>
+            </Grid>
+            <TextBox Name="TextBoxOutput" VerticalAlignment="Stretch" Margin="5" Grid.Row="1"
+                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="Wrap"
+                     AcceptsReturn="true" FontFamily="Courier New" FontSize="16"/>
+          </Grid>
+        </DockPanel>
+      </TabItem>
+    </TabControl>
+  </Grid>
+</Window>

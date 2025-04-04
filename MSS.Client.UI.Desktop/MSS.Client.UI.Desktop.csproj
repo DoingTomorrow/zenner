@@ -1,0 +1,1028 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Client.UI.Desktop.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0E6FC834-1F36-4231-B1C2-E78EA866ADFC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>MSS.Client.UI.Desktop</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>MSS.Client.UI.Desktop</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Business">
+      <HintPath>lib\MSS.Business.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Client.UI.Common">
+      <HintPath>lib\MSS.Client.UI.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Core">
+      <HintPath>lib\MSS.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.DIConfiguration">
+      <HintPath>lib\MSS.DIConfiguration.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.DTO">
+      <HintPath>lib\MSS.DTO.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Localisation">
+      <HintPath>lib\MSS.Localisation.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Utils">
+      <HintPath>lib\MSS.Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="MahApps.Metro">
+      <HintPath>lib\MahApps.Metro.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Ninject">
+      <HintPath>lib\Ninject.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="Styles">
+      <HintPath>lib\Styles.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="Telerik.Windows.Controls">
+      <HintPath>lib\Telerik.Windows.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Chart">
+      <HintPath>lib\Telerik.Windows.Controls.Chart.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Data">
+      <HintPath>lib\Telerik.Windows.Controls.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.GridView">
+      <HintPath>lib\Telerik.Windows.Controls.GridView.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Input">
+      <HintPath>lib\Telerik.Windows.Controls.Input.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Navigation">
+      <HintPath>lib\Telerik.Windows.Controls.Navigation.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Data">
+      <HintPath>lib\Telerik.Windows.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Documents">
+      <HintPath>lib\Telerik.Windows.Documents.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Documents.FormatProviders.Html">
+      <HintPath>lib\Telerik.Windows.Documents.FormatProviders.Html.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="View\Structures\TenantDataTemplateSelector.cs" />
+    <Compile Include="View\Orders\CreateEditReadingOrder.cs" />
+    <Compile Include="View\Orders\DeleteReadingOrder.cs" />
+    <Compile Include="View\Configuration\Utils.cs" />
+    <Compile Include="Properties\Resources.cs" />
+    <Compile Include="Properties\Settings.cs" />
+    <Compile Include="View\ReportingConsumptionDialog.xaml.cs">
+      <DependentUpon>reportingconsumptiondialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\RadioTestAssignTestRunDialog.xaml.cs">
+      <DependentUpon>radiotestassigntestrundialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ArchiveArchivingUserControl.xaml.cs">
+      <DependentUpon>archivearchivingusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\OrdersStructureOrdersDialog.xaml.cs">
+      <DependentUpon>ordersstructureordersdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\JobsRemoveJobDefinition.xaml.cs">
+      <DependentUpon>jobsremovejobdefinition.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ArchiveSearchStructuresUserControl.xaml.cs">
+      <DependentUpon>archivesearchstructuresusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ReportingExportJobDialog.xaml.cs">
+      <DependentUpon>reportingexportjobdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\DataCollectorsStructureMinomatView.xaml.cs">
+      <DependentUpon>datacollectorsstructureminomatview.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\StructuresEditDeviceDialog.xaml.cs">
+      <DependentUpon>structureseditdevicedialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\DataFiltersUpdateFilterDialog.xaml.cs">
+      <DependentUpon>datafiltersupdatefilterdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\SettingsProfileTypeDialog.xaml.cs">
+      <DependentUpon>settingsprofiletypedialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ConfigurationFirmwareUpdateDialog.xaml.cs">
+      <DependentUpon>configurationfirmwareupdatedialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\StructuresSetEvaluationFactorDialog.xaml.cs">
+      <DependentUpon>structuressetevaluationfactordialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\DataCollectorsEditDataCollectorDialog.xaml.cs">
+      <DependentUpon>datacollectorseditdatacollectordialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\JobsAddEditJobDialog.xaml.cs">
+      <DependentUpon>jobsaddeditjobdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\UsersDeleteRoleDialog.xaml.cs">
+      <DependentUpon>usersdeleteroledialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\GenericProgressDialogDeterminateProgressDialog.xaml.cs">
+      <DependentUpon>genericprogressdialogdeterminateprogressdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\GenericProgressDialogGenericProgressDialogView.xaml.cs">
+      <DependentUpon>genericprogressdialoggenericprogressdialogview.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\SynchronizationShowConflictsDialog.xaml.cs">
+      <DependentUpon>synchronizationshowconflictsdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ArchiveSearchOrdersUserControl.xaml.cs">
+      <DependentUpon>archivesearchordersusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\UsersCreateRoleDialog.xaml.cs">
+      <DependentUpon>userscreateroledialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\JobsEditScenarioDialog.xaml.cs">
+      <DependentUpon>jobseditscenariodialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewMSSLoginWindow.xaml.cs">
+      <DependentUpon>viewmssloginwindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\SettingsSendDataBeforeChangeServer.xaml.cs">
+      <DependentUpon>settingssenddatabeforechangeserver.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewGenericMessageDialog.xaml.cs">
+      <DependentUpon>viewgenericmessagedialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ArchiveDeleteArchiveJobDialog.xaml.cs">
+      <DependentUpon>archivedeletearchivejobdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\StructuresStructuresUserControl.xaml.cs">
+      <DependentUpon>structuresstructuresusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ArchiveViewArchiveMeterDialog.xaml.cs">
+      <DependentUpon>archiveviewarchivemeterdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ExceptionMessageBoxExceptionMessageBoxDialog.xaml.cs">
+      <DependentUpon>exceptionmessageboxexceptionmessageboxdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\StructuresCreateEditMinomatDialog.xaml.cs">
+      <DependentUpon>structurescreateeditminomatdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\StructuresWarningWithListBoxDialog.xaml.cs">
+      <DependentUpon>structureswarningwithlistboxdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\StructuresEditGenericEntityDialog.xaml.cs">
+      <DependentUpon>structureseditgenericentitydialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\MetersMeterNotesDialog.xaml.cs">
+      <DependentUpon>metersmeternotesdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\MetersMetersUserControl.xaml.cs">
+      <DependentUpon>metersmetersusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewImportGmmDataDialog.xaml.cs">
+      <DependentUpon>viewimportgmmdatadialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ArchiveSearchReadingValuesUserControl.xaml.cs">
+      <DependentUpon>archivesearchreadingvaluesusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\DataCollectorsRemoveDataCollector.xaml.cs">
+      <DependentUpon>datacollectorsremovedatacollector.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\UsersUsersUserControl.xaml.cs">
+      <DependentUpon>usersusersusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewMSSView.xaml.cs">
+      <DependentUpon>viewmssview.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\DataCollectorsDeleteDataCollectorDialog.xaml.cs">
+      <DependentUpon>datacollectorsdeletedatacollectordialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\StructuresCreateEditTenantDialog.xaml.cs">
+      <DependentUpon>structurescreateedittenantdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\DataFiltersAddRuleDialog.xaml.cs">
+      <DependentUpon>datafiltersaddruledialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ConfigurationDeviceModelChangeableParametersDialog.xaml.cs">
+      <DependentUpon>configurationdevicemodelchangeableparametersdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\JobsDeleteJobDefinitionDialog.xaml.cs">
+      <DependentUpon>jobsdeletejobdefinitiondialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ArchiveViewArchiveMinomatDialog.xaml.cs">
+      <DependentUpon>archiveviewarchiveminomatdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\UsersEditRoleDialog.xaml.cs">
+      <DependentUpon>userseditroledialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\DataFiltersAddFilterDialog.xaml.cs">
+      <DependentUpon>datafiltersaddfilterdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\JobsAssignStructureMbusDialog.xaml.cs">
+      <DependentUpon>jobsassignstructurembusdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\OrdersExecuteInstallationOrderDialog.xaml.cs">
+      <DependentUpon>ordersexecuteinstallationorderdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\SettingsEditServerPath.xaml.cs">
+      <DependentUpon>settingseditserverpath.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\OrdersOrderMessagesDialog.xaml.cs">
+      <DependentUpon>ordersordermessagesdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\JobsAddEditIntervals.xaml.cs">
+      <DependentUpon>jobsaddeditintervals.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\UsersDeleteUserDialog.xaml.cs">
+      <DependentUpon>usersdeleteuserdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\MetersTranslationRulesDialog.xaml.cs">
+      <DependentUpon>meterstranslationrulesdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\DataCollectorsDataCollectorsUserControl.xaml.cs">
+      <DependentUpon>datacollectorsdatacollectorsusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\StructuresCreatePhysicalStructureDialog.xaml.cs">
+      <DependentUpon>structurescreatephysicalstructuredialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ArchiveSearchLogsUserControl.xaml.cs">
+      <DependentUpon>archivesearchlogsusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\StructuresEditFixedStructureDialog.xaml.cs">
+      <DependentUpon>structureseditfixedstructuredialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\StructuresEditLogicalStructureDialog.xaml.cs">
+      <DependentUpon>structureseditlogicalstructuredialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\DownloadDownloadStructuresDialog.xaml.cs">
+      <DependentUpon>downloaddownloadstructuresdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\MetersMeterReadingValuesDialog.xaml.cs">
+      <DependentUpon>metersmeterreadingvaluesdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\JobsAssignStructureDialog.xaml.cs">
+      <DependentUpon>jobsassignstructuredialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewMSSLicenseCustomerWindow.xaml.cs">
+      <DependentUpon>viewmsslicensecustomerwindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\UsersCreateUserDialog.xaml.cs">
+      <DependentUpon>userscreateuserdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\MetersPhotoDialog.xaml.cs">
+      <DependentUpon>metersphotodialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\StructuresEditPhysicalStructuresDialog.xaml.cs">
+      <DependentUpon>structureseditphysicalstructuresdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ExceptionMessageBoxMessageHandlerUserControl.xaml.cs">
+      <DependentUpon>exceptionmessageboxmessagehandlerusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ArchiveViewArchiveTenantDialog.xaml.cs">
+      <DependentUpon>archiveviewarchivetenantdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\JobsCreateJobDefinitionDialog.xaml.cs">
+      <DependentUpon>jobscreatejobdefinitiondialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\MetersEditNoteDialog.xaml.cs">
+      <DependentUpon>meterseditnotedialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\StructuresCreateFixedStructureDialog.xaml.cs">
+      <DependentUpon>structurescreatefixedstructuredialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\StructuresCreateLogicalStructureDialog.xaml.cs">
+      <DependentUpon>structurescreatelogicalstructuredialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\StructuresDeleteStructureDialog.xaml.cs">
+      <DependentUpon>structuresdeletestructuredialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\MetersAddNoteDialog.xaml.cs">
+      <DependentUpon>metersaddnotedialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\OrdersExecuteReadingOrder.xaml.cs">
+      <DependentUpon>ordersexecutereadingorder.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\JobsJobJogsForJobDialog.xaml.cs">
+      <DependentUpon>jobsjobjogsforjobdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewMSSMainWindow.xaml.cs">
+      <DependentUpon>viewmssmainwindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\MetersMeterPhotosDialog.xaml.cs">
+      <DependentUpon>metersmeterphotosdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\SynchronizationProgressDialog.xaml.cs">
+      <DependentUpon>synchronizationprogressdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewGenericMessageConfirmationDialog.xaml.cs">
+      <DependentUpon>viewgenericmessageconfirmationdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\DataFiltersRemoveFilterDialog.xaml.cs">
+      <DependentUpon>datafiltersremovefilterdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ReportingMinomatCommunicationLogDetails.xaml.cs">
+      <DependentUpon>reportingminomatcommunicationlogdetails.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ArchiveViewArchiveLocationDialog.xaml.cs">
+      <DependentUpon>archiveviewarchivelocationdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\OrdersOrdersUserControl.xaml.cs">
+      <DependentUpon>ordersordersusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\RadioTestRadioTestDialog.xaml.cs">
+      <DependentUpon>radiotestradiotestdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\SettingsSettingsUserControl.xaml.cs">
+      <DependentUpon>settingssettingsusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\DataFiltersFiltersDialog.xaml.cs">
+      <DependentUpon>datafiltersfiltersdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\UsersViewRolePermissionsDialog.xaml.cs">
+      <DependentUpon>usersviewrolepermissionsdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\SettingsStructureScanSettings.xaml.cs">
+      <DependentUpon>settingsstructurescansettings.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\JobsViewJobStructureDialog.xaml.cs">
+      <DependentUpon>jobsviewjobstructuredialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ReportingPrintOptionsDialog.xaml.cs">
+      <DependentUpon>reportingprintoptionsdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\DataCollectorsCreateDataCollectorDialog.xaml.cs">
+      <DependentUpon>datacollectorscreatedatacollectordialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewMSSAboutWindow.xaml.cs">
+      <DependentUpon>viewmssaboutwindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\SettingsConfigChangeableParams.xaml.cs">
+      <DependentUpon>settingsconfigchangeableparams.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ReportingReportingUserControl.xaml.cs">
+      <DependentUpon>reportingreportingusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\OrdersPrintPreviewWindow.xaml.cs">
+      <DependentUpon>ordersprintpreviewwindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\UsersEditUserDialog.xaml.cs">
+      <DependentUpon>usersedituserdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\DataFiltersRemoveRuleDialog.xaml.cs">
+      <DependentUpon>datafiltersremoveruledialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ReportingExportFileSettings.xaml.cs">
+      <DependentUpon>reportingexportfilesettings.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\JobsJobsUserControl.xaml.cs">
+      <DependentUpon>jobsjobsusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ConfigurationConfigurationUserControl.xaml.cs">
+      <DependentUpon>configurationconfigurationusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\DataCollectorsAddDataCollector.xaml.cs">
+      <DependentUpon>datacollectorsadddatacollector.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\JobsSystemSelectionDialog.xaml.cs">
+      <DependentUpon>jobssystemselectiondialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\StructuresCreateEditLocationDialog.xaml.cs">
+      <DependentUpon>structurescreateeditlocationdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\NewsAndUpdatesUpdatesAndNews.xaml.cs">
+      <DependentUpon>newsandupdatesupdatesandnews.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\DownloadDownloadOrdersDialog.xaml.cs">
+      <DependentUpon>downloaddownloadordersdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\StartupMSSSplashScreen.xaml.cs">
+      <DependentUpon>startupmsssplashscreen.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ArchiveCreateEditArchiveJobDialog.xaml.cs">
+      <DependentUpon>archivecreateeditarchivejobdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ReportingReadingValuesPrintPreviewDialog.xaml.cs">
+      <DependentUpon>reportingreadingvaluesprintpreviewdialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ArchiveArchiveAndDeleteDataDialog.xaml.cs">
+      <DependentUpon>archivearchiveanddeletedatadialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\ArchiveSearchMssReadingJobUserControl.xaml.cs">
+      <DependentUpon>archivesearchmssreadingjobusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\DataFiltersUpdateRuleDialog.xaml.cs">
+      <DependentUpon>datafiltersupdateruledialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="view\archive\archiveanddeletedatadialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\archive\archivingusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\archive\createeditarchivejobdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\archive\deletearchivejobdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\archive\searchlogsusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\archive\searchmssreadingjobusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\archive\searchordersusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\archive\searchreadingvaluesusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\archive\searchstructuresusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\archive\viewarchivelocationdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\archive\viewarchivemeterdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\archive\viewarchiveminomatdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\archive\viewarchivetenantdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\configuration\configurationusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\configuration\devicemodelchangeableparametersdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\configuration\firmwareupdatedialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\datacollectors\adddatacollector.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\datacollectors\createdatacollectordialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\datacollectors\datacollectorsusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\datacollectors\deletedatacollectordialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\datacollectors\editdatacollectordialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\datacollectors\removedatacollector.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\datacollectors\structureminomatview.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\datafilters\addfilterdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\datafilters\addruledialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\datafilters\filtersdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\datafilters\removefilterdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\datafilters\removeruledialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\datafilters\updatefilterdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\datafilters\updateruledialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\download\downloadordersdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\download\downloadstructuresdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\exceptionmessagebox\exceptionmessageboxdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\exceptionmessagebox\messagehandlerusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\genericmessageconfirmationdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\genericmessagedialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\genericprogressdialog\determinateprogressdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\genericprogressdialog\genericprogressdialogview.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\importgmmdatadialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\jobs\addeditintervals.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\jobs\addeditjobdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\jobs\assignstructuredialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\jobs\assignstructurembusdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\jobs\createjobdefinitiondialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\jobs\deletejobdefinitiondialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\jobs\editscenariodialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\jobs\jobjogsforjobdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\jobs\jobsusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\jobs\removejobdefinition.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\jobs\systemselectiondialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\jobs\viewjobstructuredialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\meters\addnotedialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\meters\editnotedialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\meters\meternotesdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\meters\meterphotosdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\meters\meterreadingvaluesdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\meters\metersusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\meters\photodialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\meters\translationrulesdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\mssaboutwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\msslicensecustomerwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\mssloginwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\mssmainwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\mssview.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\newsandupdates\updatesandnews.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\orders\createeditorder.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\orders\deleteorder.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\orders\executeinstallationorderdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\orders\executereadingorder.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\orders\ordermessagesdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\orders\ordersusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\orders\printpreviewwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\orders\structureordersdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\radiotest\assigntestrundialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\radiotest\radiotestdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\reporting\consumptiondialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\reporting\exportfilesettings.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\reporting\exportjobdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\reporting\minomatcommunicationlogdetails.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\reporting\printoptionsdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\reporting\readingvaluesprintpreviewdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\reporting\reportingusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\settings\configchangeableparams.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\settings\editserverpath.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\settings\profiletypedialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\settings\senddatabeforechangeserver.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\settings\settingsusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\settings\structurescansettings.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\startup\msssplashscreen.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\structures\createeditlocationdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\structures\createeditminomatdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\structures\createedittenantdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\structures\createfixedstructuredialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\structures\createlogicalstructuredialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\structures\createphysicalstructuredialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\structures\deletestructuredialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\structures\editdevicedialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\structures\editfixedstructuredialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\structures\editgenericentitydialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\structures\editlogicalstructuredialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\structures\editphysicalstructuresdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\structures\setevaluationfactordialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\structures\structuresusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\structures\warningwithlistboxdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\synchronization\progressdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\synchronization\showconflictsdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\users\createroledialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\users\createuserdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\users\deleteroledialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\users\deleteuserdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\users\editroledialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\users\edituserdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\users\usersusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="view\users\viewrolepermissionsdialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

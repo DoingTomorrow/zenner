@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MVVM.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{83606ADC-D316-4877-929A-0D817112279B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>MVVM</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>MVVM</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MSS.Business">
+      <HintPath>lib\MSS.Business.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Core">
+      <HintPath>lib\MSS.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.DTO">
+      <HintPath>lib\MSS.DTO.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Interfaces">
+      <HintPath>lib\MSS.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Localisation">
+      <HintPath>lib\MSS.Localisation.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>lib\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MVVVM\Commands\AsyncCommandBase.cs" />
+    <Compile Include="RelayCommandLogger.cs" />
+    <Compile Include="ViewModel\ValidationViewModelBase.cs" />
+    <Compile Include="ViewModel\ViewModelBase.cs" />
+    <Compile Include="Interfaces\IAsyncCommand.cs" />
+    <Compile Include="Converters\BoolToSelectionModeConverter.cs" />
+    <Compile Include="Converters\MandatoryValueLabelConverter.cs" />
+    <Compile Include="Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="Converters\BuildingNumberConverter.cs" />
+    <Compile Include="Converters\GSMStatusToStringConverter.cs" />
+    <Compile Include="Converters\IsNotNullOrFalseConverter.cs" />
+    <Compile Include="Converters\IsNullOrEmptyConverter.cs" />
+    <Compile Include="Converters\NodeToAssignMetersEnabledConverter.cs" />
+    <Compile Include="Converters\NodeToIsMinomatConverter.cs" />
+    <Compile Include="Converters\NodeToIsMinomatMasterConverter.cs" />
+    <Compile Include="Converters\NodeToTestGSMEnabledConverter.cs" />
+    <Compile Include="Converters\RoomCodeToStringConverter.cs" />
+    <Compile Include="Converters\RowToIndexConverter.cs" />
+    <Compile Include="Converters\StructureNodeTranslationConverter.cs" />
+    <Compile Include="Converters\CustomMultiBindingConverter.cs" />
+    <Compile Include="Converters\InverseBooleanConverter.cs" />
+    <Compile Include="Converters\IsNotNullConverter.cs" />
+    <Compile Include="Converters\IsNullConverter.cs" />
+    <Compile Include="Converters\IsOneSelectedItemToVisibilityConverter.cs" />
+    <Compile Include="Converters\JobStartedStatusToBoolean.cs" />
+    <Compile Include="Converters\JobStatusToBoolean.cs" />
+    <Compile Include="Converters\SelectedItemsToVisibilityConverter.cs" />
+    <Compile Include="Commands\AsyncCommand`1.cs" />
+    <Compile Include="Commands\AsyncCommandBase.cs" />
+    <Compile Include="Commands\RelayCommand.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\EQATEC.Analytics.Monitor.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{87DB90A8-F9F1-4D20-9DD3-D36227B72A28}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>EQATEC.Analytics.Monitor</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <ApplicationVersion>3.2.1.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>EQATEC.Analytics.Monitor</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="IAnalyticsMonitor.cs" />
+    <Compile Include="AnalyticsMonitor.cs" />
+    <Compile Include="AnalyticsMonitorFacade.cs" />
+    <Compile Include="AnalyticsMonitorFactory.cs" />
+    <Compile Include="AnalyticsMonitorStatus.cs" />
+    <Compile Include="ILogAnalyticsMonitor.cs" />
+    <Compile Include="ArgumentChecker.cs" />
+    <Compile Include="AnalyticsMonitorCapabilities.cs" />
+    <Compile Include="CircularQueue`1.cs" />
+    <Compile Include="IAnalyticsMonitorSettings.cs" />
+    <Compile Include="InternalMonitorException.cs" />
+    <Compile Include="LicenseInfo.cs" />
+    <Compile Include="LocationCoordinates.cs" />
+    <Compile Include="LogAnalyticsMonitorImpl.cs" />
+    <Compile Include="OSInfo.cs" />
+    <Compile Include="IMonitorCoordinator.cs" />
+    <Compile Include="ConnectivityStatus.cs" />
+    <Compile Include="MonitorCoordinator.cs" />
+    <Compile Include="IStatisticsMonitor.cs" />
+    <Compile Include="IStatisticsContainer.cs" />
+    <Compile Include="StatisticsContainer.cs" />
+    <Compile Include="InstallationSettings.cs" />
+    <Compile Include="ProxyConfiguration.cs" />
+    <Compile Include="IStorage.cs" />
+    <Compile Include="StatisticsData.cs" />
+    <Compile Include="StorageDataDescriptor.cs" />
+    <Compile Include="StorageDataType.cs" />
+    <Compile Include="NamespaceDoc.cs" />
+    <Compile Include="NativeMethods.cs" />
+    <Compile Include="ITimer.cs" />
+    <Compile Include="ThreadPoolTimer.cs" />
+    <Compile Include="Timing.cs" />
+    <Compile Include="TimingScope.cs" />
+    <Compile Include="TraceLog.cs" />
+    <Compile Include="ITransmitter.cs" />
+    <Compile Include="Transmitter.cs" />
+    <Compile Include="VoidLog.cs" />
+    <Compile Include="AnalyticsMonitorSettings.cs" />
+    <Compile Include="OSInfoObject.cs" />
+    <Compile Include="Guard.cs" />
+    <Compile Include="XmlUtil.cs" />
+    <Compile Include="Parser.cs" />
+    <Compile Include="StringUtil.cs" />
+    <Compile Include="PlatformUtil.cs" />
+    <Compile Include="Messaging\MessageSendingHelper.cs" />
+    <Compile Include="Messaging\IMessageFactory.cs" />
+    <Compile Include="Messaging\MessageContext.cs" />
+    <Compile Include="Messaging\MessageContent.cs" />
+    <Compile Include="Messaging\MessagePayload.cs" />
+    <Compile Include="Messaging\IMessageReceiver.cs" />
+    <Compile Include="Messaging\MessageResponse.cs" />
+    <Compile Include="Messaging\IMessageSender.cs" />
+    <Compile Include="Messaging\IMessagingSubSystem.cs" />
+    <Compile Include="Messaging\SendMessageResult.cs" />
+    <Compile Include="Messaging\SendResult.cs" />
+    <Compile Include="Messaging\MessageFactory.cs" />
+    <Compile Include="Messaging\MessageReceiver.cs" />
+    <Compile Include="Messaging\MessageSender.cs" />
+    <Compile Include="Messaging\MessagingSubSystem.cs" />
+    <Compile Include="Model\Flow.cs" />
+    <Compile Include="Model\SelfAnalyticsException.cs" />
+    <Compile Include="Model\SelfAnalytics.cs" />
+    <Compile Include="Model\FlowTransition.cs" />
+    <Compile Include="Model\TrackedGoal.cs" />
+    <Compile Include="Model\Waypoint.cs" />
+    <Compile Include="Model\WaypointWithRuntime.cs" />
+    <Compile Include="Model\ExceptionEntry.cs" />
+    <Compile Include="Model\FeatureValue.cs" />
+    <Compile Include="Model\FeatureValueType.cs" />
+    <Compile Include="Model\ModelXmlSerializer.cs" />
+    <Compile Include="Model\SerializationTarget.cs" />
+    <Compile Include="Model\Session.cs" />
+    <Compile Include="Model\Feature.cs" />
+    <Compile Include="Model\Statistics.cs" />
+    <Compile Include="Policy\BlockingRestriction.cs" />
+    <Compile Include="Policy\DataTypeRestrictions.cs" />
+    <Compile Include="Policy\MonitorInfo.cs" />
+    <Compile Include="Policy\MonitorPolicy.cs" />
+    <Compile Include="Policy\PolicyXmlSerializer.cs" />
+    <Compile Include="Policy\RuntimeStatus.cs" />
+    <Compile Include="Policy\SettingsRestrictions.cs" />
+    <Compile Include="Policy\SettingsValue`1.cs" />
+    <Compile Include="Storage\FileSystemAdapter.cs" />
+    <Compile Include="Storage\FilePathStorageAdapter.cs" />
+    <Compile Include="Storage\FileStorage.cs" />
+    <Compile Include="Storage\IsolatedStorageAdapter.cs" />
+    <Compile Include="Storage\IStorageFactory.cs" />
+    <Compile Include="Storage\NamespaceDoc.cs" />
+    <Compile Include="Storage\IStorageFileReader.cs" />
+    <Compile Include="Storage\StorageFileReader.cs" />
+    <Compile Include="Storage\IStorageFileWriter.cs" />
+    <Compile Include="Storage\StorageFileWriter.cs" />
+    <Compile Include="Storage\StorageSerializer.cs" />
+    <Compile Include="Storage\StorageFactory.cs" />
+    <Compile Include="Storage\StorageLevel.cs" />
+    <Compile Include="Storage\VoidStorage.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

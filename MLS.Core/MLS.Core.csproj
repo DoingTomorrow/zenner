@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MLS.Core.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{990A7F4E-B677-4EDC-97A0-92181EA84271}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>MLS.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>MLS.Core.Model</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Common.Library.NHibernate.Data">
+      <HintPath>lib\Common.Library.NHibernate.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Web.Mvc">
+      <HintPath>lib\System.Web.Mvc.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="NewsAndUpdates\News.cs" />
+    <Compile Include="NewsAndUpdates\NewsCustomer.cs" />
+    <Compile Include="NewsAndUpdates\NewsCustomersIdentifier.cs" />
+    <Compile Include="Licensing\Country.cs" />
+    <Compile Include="Licensing\Customer.cs" />
+    <Compile Include="Licensing\License.cs" />
+    <Compile Include="Licensing\LicenseBulk.cs" />
+    <Compile Include="Licensing\LicenseType.cs" />
+    <Compile Include="History\OperationsHistory.cs" />
+    <Compile Include="CustomersManagement\AccountStatusEnum.cs" />
+    <Compile Include="CustomersManagement\CustomerRole.cs" />
+    <Compile Include="CustomersManagement\CustomerLicenseTypeEnum.cs" />
+    <Compile Include="CustomersManagement\DemoCustomer.cs" />
+    <Compile Include="CustomersManagement\Operation.cs" />
+    <Compile Include="CustomersManagement\OperationEnum.cs" />
+    <Compile Include="CustomersManagement\Role.cs" />
+    <Compile Include="CustomersManagement\RoleOperation.cs" />
+    <Compile Include="CustomersManagement\RoleEnum.cs" />
+    <Compile Include="ApplicationParameters\ApplicationParameter.cs" />
+    <Compile Include="ApplicationParameters\DataTypeEnum.cs" />
+    <Compile Include="ApplicationParameters\ViewObjectTypeEnum.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

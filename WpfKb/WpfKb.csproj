@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\WpfKb.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C881D225-7735-43C5-BB33-A80427BB99A8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>WpfKb</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>0.1.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>WpfKb</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="InputSimulator">
+      <HintPath>lib\InputSimulator.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Interactivity">
+      <HintPath>lib\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\Resources.cs" />
+    <Compile Include="Properties\Settings.cs" />
+    <Compile Include="LogicalKeys\CaseSensitiveKey.cs" />
+    <Compile Include="LogicalKeys\ChordKey.cs" />
+    <Compile Include="LogicalKeys\ILogicalKey.cs" />
+    <Compile Include="LogicalKeys\InstantaneousModifierKey.cs" />
+    <Compile Include="LogicalKeys\LogicalKeyEventArgs.cs" />
+    <Compile Include="LogicalKeys\LogicalKeyPressedEventHandler.cs" />
+    <Compile Include="LogicalKeys\LogicalKeyBase.cs" />
+    <Compile Include="LogicalKeys\ModifierKeyBase.cs" />
+    <Compile Include="LogicalKeys\MultiCharacterKey.cs" />
+    <Compile Include="LogicalKeys\NumLockSensitiveKey.cs" />
+    <Compile Include="LogicalKeys\ShiftSensitiveKey.cs" />
+    <Compile Include="LogicalKeys\StringKey.cs" />
+    <Compile Include="LogicalKeys\TogglingModifierKey.cs" />
+    <Compile Include="LogicalKeys\VirtualKey.cs" />
+    <Compile Include="Controls\OnScreenKeyEventArgs.cs" />
+    <Compile Include="Controls\OnScreenKeyEventHandler.cs" />
+    <Compile Include="Controls\OnScreenKey.cs" />
+    <Compile Include="Controls\OnScreenKeyboard.cs" />
+    <Compile Include="Controls\OnScreenKeyboardSection.cs" />
+    <Compile Include="Controls\OnScreenKeypad.cs" />
+    <Compile Include="Controls\OnScreenWebKeyboard.cs" />
+    <Compile Include="Controls\UniformOnScreenKeyboard.cs" />
+    <Compile Include="Behaviors\AutoHideBehavior.cs" />
+    <Compile Include="Behaviors\BehaviorBase`1.cs" />
+    <Compile Include="ControlsTouchScreenKeyboardUserControl.xaml.cs">
+      <DependentUpon>controlstouchscreenkeyboardusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ControlsFloatingTouchScreenKeyboard.xaml.cs">
+      <DependentUpon>controlsfloatingtouchscreenkeyboard.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="controls\floatingtouchscreenkeyboard.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="controls\touchscreenkeyboardusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

@@ -1,0 +1,205 @@
+<UserControl x:Class="MSS.Client.UI.Desktop.View.Users.UsersUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:models="clr-namespace:MSS.DTO.Users;assembly=MSS.DTO">
+  <FrameworkElement.Resources>
+    <Style x:Key="UserMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="true"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ElementName=UsersGridView, Path=SelectedItem}" Value="{x:Null}">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="RoleNotStandardMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="true"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ElementName=RoleGridView, Path=SelectedItem}" Value="{x:Null}">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding ElementName=RoleGridView, Path=SelectedItem.(models:RoleDTO.IsStandard)}"
+                     Value="true">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="RoleMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="true"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ElementName=RoleGridView, Path=SelectedItem}" Value="{x:Null}">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+  </FrameworkElement.Resources>
+  <telerik:RadTabControl HeaderBackground="#EDEDED" Margin="3" Template="{StaticResource RadTabControlControlTemplateTest}"
+                         SelectedIndex="{Binding SelectedIndex, Mode=TwoWay, IsAsync=true}">
+    <telerik:RadTabItem Header="{Binding Path=MSS_Client_UserControl_User, Source={StaticResource Resources}}"
+                        IsSelected="{Binding IsUserTabSelected, Mode=TwoWay}">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="30"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Background="#ebebeb">
+          <Button Name="AddUser" Style="{StaticResource AppButtonStyle}" Command="{Binding CreateUserCommand}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_NewUserTooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding CreateUserVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/add.png"/>
+              <TextBlock Name="CreateUserCommand" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_New, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="EditUser" Style="{StaticResource UserMustBeSelectedButtonStyle}"
+                  Command="{Binding EditUserCommand}"
+                  CommandParameter="{Binding ElementName=UsersGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_EditUserTooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding EditUserVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"/>
+              <TextBlock Name="EditUserCommand" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Edit, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="RemoveUser" Style="{StaticResource UserMustBeSelectedButtonStyle}"
+                  Command="{Binding DeleteUserCommand}"
+                  CommandParameter="{Binding ElementName=UsersGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_DeleteUserTooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding DeleteUserVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+              <TextBlock Name="DeleteUserCommand" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Delete, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+        <Grid Row="0">
+          <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-58,0,0"
+                            Content="{Binding MessageUserControlUsers, Mode=TwoWay}"/>
+        </Grid>
+        <Grid Row="1" Margin="3">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
+          </Grid.RowDefinitions>
+          <telerik:RadGridView x:Name="UsersGridView" RowIndicatorVisibility="Collapsed" CanUserFreezeColumns="false"
+                               IsReadOnly="true" AlternateRowBackground="#EDEDED" AlternationCount="2" ColumnWidth="100"
+                               AutoGenerateColumns="false" IsFilteringAllowed="true" ItemsSource="{Binding GetUsers}">
+            <telerik:GridViewDataControl.SortDescriptors>
+              <telerik:SortDescriptor Member="FirstName" SortDirection="Ascending"/>
+            </telerik:GridViewDataControl.SortDescriptors>
+            <telerik:GridViewDataControl.Columns>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding FirstName}"
+                                          Header="{Binding Path=MSS_Client_UserControl_Dialog_FirstName, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding LastName}"
+                                          Header="{Binding Path=MSS_Client_UserControl_Dialog_LastName, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn TextWrapping="Wrap" Width="130" DataMemberBinding="{Binding Role}"
+                                          Header="{Binding Path=MSS_Client_UserControl_Dialog_Role, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn Width="130" DataMemberBinding="{Binding Username}"
+                                          Header="{Binding Path=MSS_Client_Header_Username, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding Country}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_Country, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding Office}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_Office, Source={StaticResource Resources}}"/>
+            </telerik:GridViewDataControl.Columns>
+          </telerik:RadGridView>
+          <telerik:RadDataPager PageIndexChanged="OnPageIndexChange" Name="RadDataPager" Grid.Row="1" FontSize="12"
+                                Margin="0,-1,0,0" IsTotalItemCountFixed="true" DisplayMode="FirstLastPreviousNextNumeric, Text"
+                                telerik:StyleManager.Theme="Windows8" PageSize="{Binding PageSize, Mode=TwoWay}"
+                                Source="{Binding Items, ElementName=UsersGridView}"/>
+        </Grid>
+      </Grid>
+    </telerik:RadTabItem>
+    <telerik:RadTabItem Header="{Binding Path=MSS_Client_UserControl_Roles, Source={StaticResource Resources}}"
+                        IsSelected="{Binding IsUserRolesTabSelected, Mode=TwoWay}">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="30"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Background="#ebebeb">
+          <Button Name="AddRole" Style="{StaticResource AppButtonStyle}" Command="{Binding CreateRoleCommand}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_NewRoleTooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding CreateRoleVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/add.png"/>
+              <TextBlock Name="CreateRoleCommand" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_New, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="EditRole" Style="{StaticResource RoleNotStandardMustBeSelectedButtonStyle}"
+                  Command="{Binding EditRoleCommand}"
+                  CommandParameter="{Binding ElementName=RoleGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_EditRoleTooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding EditRoleVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"/>
+              <TextBlock Name="EditRoleCommand" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Edit, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="RemoveRole" Style="{StaticResource RoleNotStandardMustBeSelectedButtonStyle}"
+                  Command="{Binding DeleteRoleCommand}"
+                  CommandParameter="{Binding ElementName=RoleGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_DeleteRoleTooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding DeleteRoleVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+              <TextBlock Name="DeleteRoleCommand" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Delete, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="SeeRolePermissions" Style="{StaticResource RoleMustBeSelectedButtonStyle}"
+                  Command="{Binding SeeRolePermissionsCommand}"
+                  CommandParameter="{Binding ElementName=RoleGridView, Path=SelectedItem}"
+                  ToolTip="{Binding MSS_Client_SeePermissions, Source={StaticResource Resources}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <TextBlock Margin="10 0 10 0" Text="{Binding MSS_Client_SeePermissions, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+        <Grid Row="0">
+          <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-58,0,0"
+                            Content="{Binding MessageUserControlRoles, Mode=TwoWay}"/>
+        </Grid>
+        <Grid Row="1" Margin="3">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <telerik:RadGridView x:Name="RoleGridView" telerik:StyleManager.Theme="Windows8" RowIndicatorVisibility="Collapsed"
+                               CanUserFreezeColumns="false" IsReadOnly="true" AlternateRowBackground="#EDEDED"
+                               AlternationCount="2" ColumnWidth="*" AutoGenerateColumns="false" ItemsSource="{Binding GetRoles}">
+            <telerik:GridViewDataControl.SortDescriptors>
+              <telerik:SortDescriptor Member="Name" SortDirection="Ascending"/>
+            </telerik:GridViewDataControl.SortDescriptors>
+            <telerik:GridViewDataControl.Columns>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding Name}"
+                                          Header="{Binding Path=MSS_Client_UserControl_Dialog_Role, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding IsStandard}"
+                                          Header="{Binding Path=MSS_Client_UserControl_Dialog_IsStandard, Source={StaticResource Resources}}"/>
+            </telerik:GridViewDataControl.Columns>
+          </telerik:RadGridView>
+          <telerik:RadDataPager PageIndexChanged="OnPageIndexChange" Name="RadDataPager2" Grid.Row="1" FontSize="12"
+                                Margin="0,-1,0,0" IsTotalItemCountFixed="true" DisplayMode="FirstLastPreviousNextNumeric, Text"
+                                telerik:StyleManager.Theme="Windows8" PageSize="{Binding PageSize, Mode=TwoWay}"
+                                Source="{Binding Items, ElementName=RoleGridView}"/>
+        </Grid>
+      </Grid>
+    </telerik:RadTabItem>
+  </telerik:RadTabControl>
+</UserControl>

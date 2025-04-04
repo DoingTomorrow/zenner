@@ -1,0 +1,107 @@
+<Window x:Class="NFCL_Handler.UserInterface.NFCL_HandlerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Title="NFCL_Handler" Height="654" Width="800"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico"
+        WindowStartupLocation="CenterScreen">
+  <Grid>
+    <Menu Name="menuMain" Height="23" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+      <MenuItem Name="MenuItemComponents" Header="Components"/>
+    </Menu>
+    <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" Margin="0,23,0,0" VerticalAlignment="Top"
+                                    Height="56"/>
+    <Grid Margin="0,79,0,0">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="20"/>
+        <RowDefinition/>
+        <RowDefinition/>
+        <RowDefinition/>
+        <RowDefinition/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition/>
+        <ColumnDefinition Width="200"/>
+      </Grid.ColumnDefinitions>
+      <TextBlock Name="TextBlockStatus" Margin="6,0,2,0" Text="Status"/>
+      <ProgressBar Name="ProgressBar1" Grid.Column="1" Grid.Row="0" Margin="2"/>
+      <GroupBox Name="GroupBoxType" Header="Type" Grid.Row="1" Margin="2">
+        <Grid>
+          <TextBox Name="TextBoxTypeInfo" Margin="0,0,155,0"/>
+          <StackPanel HorizontalAlignment="Right" Width="150">
+            <Button Click="ButtonLoadType_Click" Name="ButtonLoadType" Content="Load type" Height="20" Margin="2"/>
+            <Button Click="ButtonSaveType_Click" Name="ButtonSaveType" Content="Save type" Height="20" Margin="2"/>
+            <Button Click="ButtonOverride_Click" Name="ButtonOverride" Content="Override" Height="20" Margin="2"/>
+          </StackPanel>
+        </Grid>
+      </GroupBox>
+      <GridSplitter Grid.Row="2" Height="2" VerticalAlignment="Top"/>
+      <GroupBox Name="GroupBoxBackup" Header="Backup" Grid.Row="2" Margin="2">
+        <Grid>
+          <TextBox Name="TextBoxBackupInfo" Margin="0,0,155,0"/>
+          <StackPanel HorizontalAlignment="Right" Width="150">
+            <Button Click="RunCommand_Click" Name="ButtonLoadBackup" Content="Load backup" Height="20" Margin="2"/>
+            <Button Click="RunCommand_Click" Name="ButtonSaveBackup" Content="Save backup" Height="20" Margin="2"/>
+          </StackPanel>
+        </Grid>
+      </GroupBox>
+      <GridSplitter Grid.Row="3" Height="2" VerticalAlignment="Top"/>
+      <GroupBox Name="GroupBoxConnected" Header="Connected" Grid.Row="3" Margin="2" IsEnabled="false">
+        <Grid>
+          <TextBox Name="TextBoxConnectedInfo" Margin="0,0,155,0"/>
+          <StackPanel HorizontalAlignment="Right" Width="150">
+            <Button Click="RunCommand_Click" Name="ButtonConnect" Content="Connect" Height="20" Margin="2"/>
+            <Button Click="RunCommand_Click" Name="ButtonRead" Content="Read" Height="20" Margin="2"/>
+            <CheckBox Name="CheckBoxReadAllBytes" Content="Read all bytes"/>
+          </StackPanel>
+        </Grid>
+      </GroupBox>
+      <GridSplitter Grid.Row="4" Height="2" VerticalAlignment="Top"/>
+      <GroupBox Name="GroupBoxWork" Header="Work" Grid.Row="4" Margin="2">
+        <Grid>
+          <TextBox Name="TextBoxWorkInfo" Margin="0,0,155,0"/>
+          <StackPanel HorizontalAlignment="Right" Width="150">
+            <Button Click="RunCommand_Click" Name="ButtonWrite" Content="Write" Height="20" Margin="2"
+                    IsEnabled="false"/>
+          </StackPanel>
+        </Grid>
+      </GroupBox>
+      <StackPanel Name="StackPanalButtons" Grid.Column="1" Grid.Row="1" Grid.RowSpan="4" Margin="0.4,3,-0.4,56">
+        <Button Click="ButtonS4_Click" x:Name="ButtonS4" Content="S4 Handler" Height="20" Margin="2"
+                IsEnabled="false"/>
+        <Button Click="ButtonReadoutConfig_Click" x:Name="ButtonReadoutConfig" Content="ReadoutConfig" Height="20"
+                Margin="2" IsEnabled="false"/>
+        <Button Click="ButtonCommunicationPort_Click" x:Name="ButtonCommunicationPort" Content="CommunicationPort"
+                Height="20" Margin="2" IsEnabled="false"/>
+        <Button Click="RunCommand_Click" x:Name="ButtonShowParameter" Content="Show parameter" Height="20"
+                Margin="2" IsEnabled="false"/>
+        <Button Click="ButtonShowIdentification_Click" x:Name="ButtonShowIdentification"
+                Content="Show identification" Height="20" Margin="2" IsEnabled="false"/>
+        <Button Click="RunCommand_Click" x:Name="ButtonShowMemory" Content="Show memory" Height="20" Margin="2"
+                IsEnabled="false"/>
+        <Button Click="ButtonTestWindow1_Click" x:Name="ButtonTestWindow1" Content="Test window" Height="20"
+                Margin="2"/>
+        <Button Click="RunCommand_Click" x:Name="ButtonTestWindowRadioCMD" Content="Test window RadioCommands"
+                Height="20" Margin="2" IsEnabled="false"/>
+        <Button Click="RunCommand_Click" x:Name="ButtonTestWindowLoraCMD" Content="Test window LoRaCommands"
+                Height="20" Margin="2" IsEnabled="false"/>
+        <Button Click="RunCommand_Click" x:Name="ButtonTestWindowMBusCMD" Content="Test window MBusCommands"
+                Height="20" Margin="2" IsEnabled="false"/>
+        <Button Click="ButtonCommonCommandTestWindow_Click" x:Name="ButtonTestWindowCommonCMD"
+                Content="Test window CommonCommands" Height="20" Margin="2" IsEnabled="false"/>
+        <Button Click="ButtonSpecialCommandTestWindow_Click" x:Name="ButtonTestWindowSpecialCMD"
+                Content="Test window SpecialCommands" Height="20" Margin="2" IsEnabled="false"/>
+        <Button Click="RunCommand_Click" x:Name="ButtonResetDevice" Content="Reset device" Height="20" Margin="6"
+                IsEnabled="false"/>
+        <Button Click="RunCommand_Click" x:Name="ButtonBackupDevice" Content="Backup device" Height="20" Margin="6"
+                IsEnabled="false"/>
+        <Button Click="ButtonRadioTest_Click" x:Name="ButtonRadioTest" Content="Radio Test" Margin="6"/>
+        <Button Click="ButtonConfigurator_Click" x:Name="ButtonConfigurator" Content="Configurator" Margin="6"/>
+      </StackPanel>
+      <Button Click="ButtonClear_Click" Name="ButtonClear" Content="Clear" Grid.Column="1" Height="21"
+              Margin="2.4,0,1.6,28" Grid.Row="4" VerticalAlignment="Bottom"/>
+      <Button Click="ButtonBreak_Click" Name="ButtonBreak" Content="Break" Grid.Column="1" Height="21"
+              Margin="2,0,2,2" Grid.Row="4" VerticalAlignment="Bottom" IsEnabled="false"/>
+    </Grid>
+  </Grid>
+</Window>

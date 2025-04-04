@@ -1,0 +1,409 @@
+<UserControl x:Class="MSS.Client.UI.Desktop.View.Configuration.ConfigurationUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:maskedInput="clr-namespace:Telerik.Windows.Controls.MaskedInput;assembly=Telerik.Windows.Controls.Input">
+  <FrameworkElement.Resources>
+    <Style x:Key="WriteButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="true"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ConfigurationParameters.IsWriteButtonEnabled, Mode=TwoWay}" Value="False">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="ExportConfigurationParametersButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="true"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ConfigurationParameters.IsExportConfigurationParametersButtonEnabled, Mode=TwoWay}"
+                     Value="False">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+  </FrameworkElement.Resources>
+  <ScrollViewer Name="scrollViewer" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+    <Grid>
+      <telerik:RadTabControl x:Name="ConfigUserControl" HeaderBackground="#EDEDED" Margin="3"
+                             Template="{StaticResource RadTabControlControlTemplateTest}">
+        <telerik:RadTabItem Header="{Binding MSS_Client_MainWindow_Configuration, Source={StaticResource Resources}}">
+          <telerik:RadBusyIndicator x:Name="BusyIndicator" DisplayAfter="0"
+                                    IsBusy="{Binding IsBusy, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    BusyContent="{Binding BusyContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <StackPanel Orientation="Horizontal" Background="#ebebeb" Grid.Row="0">
+                <Button Name="ReadConfigurationButton" Style="{StaticResource AppButtonStyle}"
+                        Command="{Binding ReadConfigurationCommand}"
+                        ToolTip="{Binding Path=MSS_Client_Configuration_Read_Tooltip, Source={StaticResource Resources}}"
+                        Visibility="{Binding DeviceReadVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+                  <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                    <Image Source="pack://application:,,,/Styles;component/Images/Universal/read.png"/>
+                    <TextBlock Name="ReadConfigTextBox" Margin="10 0 10 0"
+                               Text="{Binding Path=MSS_Client_Read, Source={StaticResource Resources}}"/>
+                  </StackPanel>
+                </Button>
+                <Button Name="WriteConfigurationButton" Style="{StaticResource WriteButtonStyle}"
+                        Command="{Binding WriteConfigurationCommand}"
+                        ToolTip="{Binding Path=MSS_Client_Configuration_Write_Tooltip, Source={StaticResource Resources}}"
+                        Visibility="{Binding DeviceConfigureVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+                  <ButtonBase.CommandParameter>
+                    <MultiBinding Converter="{StaticResource CustomMultiBindingConverter}">
+                      <Binding Path="Children" ElementName="MeterConfigStackPanelDynamic"/>
+                      <Binding Path="Children" ElementName="MeterConfigChannel1StackPanelDynamic"/>
+                      <Binding Path="Children" ElementName="MeterConfigChannel2StackPanelDynamic"/>
+                      <Binding Path="Children" ElementName="MeterConfigChannel3StackPanelDynamic"/>
+                    </MultiBinding>
+                  </ButtonBase.CommandParameter>
+                  <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                    <Image Source="pack://application:,,,/Styles;component/Images/Universal/write.png"/>
+                    <TextBlock Name="WriteConfigTextBox" Margin="10 0 10 0"
+                               Text="{Binding Path=MSS_Client_Write, Source={StaticResource Resources}}"/>
+                  </StackPanel>
+                </Button>
+                <Button Name="ExportConfigurationParametersButton"
+                        Style="{StaticResource ExportConfigurationParametersButtonStyle}"
+                        Command="{Binding ExportConfigurationParametersToPDFCommand}"
+                        ToolTip="{Binding Path=MSS_Client_PrintConfigurationParameters, Source={StaticResource Resources}}"
+                        Visibility="{Binding DeviceReadVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+                  <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                    <TextBlock Margin="10 0 10 0"
+                               Text="{Binding Path=MSS_Client_ExportConfigurationParametersToPdf, Source={StaticResource Resources}}"/>
+                  </StackPanel>
+                </Button>
+                <Button Name="ReadValuesButton" Style="{StaticResource AppButtonStyle}"
+                        Command="{Binding StartReadingDeviceValuesCommand}"
+                        ToolTip="{Binding Path=MSS_Configuration_ReadValues, Source={StaticResource Resources}}"
+                        IsEnabled="{Binding IsReadValuesButtonEnabled}"
+                        Visibility="{Binding ReadLoggerVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+                  <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                    <Image Source="pack://application:,,,/Styles;component/Images/Universal/start.png"/>
+                    <TextBlock Name="ReadValuesTextBox" Margin="10 0 10 0"
+                               Text="{Binding Path=MSS_Configuration_ReadValues, Source={StaticResource Resources}}"/>
+                  </StackPanel>
+                </Button>
+                <Button Name="UpgradeFirmwareButton" Style="{StaticResource AppButtonStyle}" Visibility="Hidden"
+                        IsEnabled="{Binding IsUpgradeFirmwareButtonEnabled}"
+                        Command="{Binding OpenUpdateFirmwareDialogCommad}"
+                        ToolTip="{Binding MSS_Client_UpdateFirmware, Source={StaticResource Resources}}">
+                  <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                    <TextBlock Margin="10 0 10 0" Text="{Binding MSS_Client_UpdateFirmware, Source={StaticResource Resources}}"/>
+                  </StackPanel>
+                </Button>
+              </StackPanel>
+              <Grid Row="0" HorizontalAlignment="Right">
+                <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,0,0,0"
+                                  Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+              </Grid>
+              <Grid Row="1" Margin="5,10,0,0" HorizontalAlignment="Left">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid Row="0" Column="0">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="125"/>
+                    <ColumnDefinition Width="210"/>
+                    <ColumnDefinition Width="90"/>
+                    <ColumnDefinition Width="10"/>
+                  </Grid.ColumnDefinitions>
+                  <ToggleButton Name="equipmentModelButton" Grid.Row="0" Grid.Column="2" Grid.RowSpan="2"
+                                HorizontalAlignment="Left">
+                    <Control.Template>
+                      <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Image Margin="5 0 0 0"
+                               Source="{Binding ElementName=SelectedEquipmentModelComboBox, Path=SelectedItem.Image500x500}"/>
+                      </ControlTemplate>
+                    </Control.Template>
+                  </ToggleButton>
+                  <Popup Name="popupEquipmentModel" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Placement="Center"
+                         StaysOpen="false" IsOpen="{Binding IsChecked, ElementName=equipmentModelButton}"
+                         PlacementTarget="{Binding ElementName=scrollViewer}">
+                    <Border Background="DimGray" BorderThickness="1">
+                      <StackPanel Background="White">
+                        <Image HorizontalAlignment="Left" Margin="0 0 0 0"
+                               Source="{Binding ElementName=SelectedEquipmentModelComboBox, Path=SelectedItem.Image500x500}"/>
+                      </StackPanel>
+                    </Border>
+                  </Popup>
+                  <Label Grid.Row="0" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Left"
+                         Content="{Binding Path=MSS_Equipment_Settings_EquipmentGroup, Source={StaticResource Resources}, Converter={StaticResource MandatoryValueLabelConverter}}"/>
+                  <telerik:RadComboBox Name="SelectedEquipmentGroupComboBox" Grid.Row="0" Grid.Column="1" Height="25" Width="200"
+                                       Style="{StaticResource RadComboBoxErrorStyle}" DisplayMemberPath="Name" HorizontalAlignment="Left"
+                                       ItemsSource="{Binding EquipmentGroupCollection}"
+                                       SelectedItem="{Binding SelectedEquipmentGroup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+                  <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Left"
+                         Content="{Binding Path=MSS_Equipment_Settings_EquipmentType, Source={StaticResource Resources}, Converter={StaticResource MandatoryValueLabelConverter}}"/>
+                  <telerik:RadComboBox Name="SelectedEquipmentModelComboBox" Grid.Row="1" Grid.Column="1" Height="25" Width="200"
+                                       ItemTemplate="{StaticResource ImageComboBoxTemplate}"
+                                       SelectionBoxTemplate="{StaticResource SelectedImageComboBoxTemplate}"
+                                       Style="{StaticResource RadComboBoxErrorStyle}" HorizontalAlignment="Left" MaxDropDownHeight="305"
+                                       ItemsSource="{Binding EquipmentCollection}"
+                                       SelectedItem="{Binding SelectedEquipmentModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+                </Grid>
+                <Grid Row="2" Column="0"
+                      Visibility="{Binding AreChangeableParametersGridsVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="85"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <ScrollViewer Margin="5 15 15 15" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Name="EquipmentChangeableParametersStackPanel" HorizontalAlignment="Center" VerticalAlignment="Top"
+                                Tag="{Binding ChangeableParameters, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                  </ScrollViewer>
+                </Grid>
+                <Grid Row="0" Column="2">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="215"/>
+                    <ColumnDefinition Width="90"/>
+                    <ColumnDefinition Width="10"/>
+                  </Grid.ColumnDefinitions>
+                  <Label Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" Style="{StaticResource AppLabelStyle}"
+                         Visibility="{Binding IsProfileTypeEnabled}"
+                         Content="{Binding Path=MSS_Client_SetProfileTypeTooltip, Source={StaticResource Resources}, Converter={StaticResource MandatoryValueLabelConverter}}"/>
+                  <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" Margin="5 0 0 0"
+                              Visibility="{Binding IsProfileTypeEnabled}">
+                    <telerik:RadComboBox Name="ProfileTypeComboBox" Style="{StaticResource RadComboBoxErrorStyle}" Width="205" Height="28"
+                                         Margin="0,0,0,0" HorizontalAlignment="Left" IsEnabled="true" ItemsSource="{Binding ProfileTypes}"
+                                         SelectedValue="{Binding SelectedProfileType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"
+                                         Visibility="{Binding IsProfileTypeEnabled, Mode=TwoWay}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <StackPanel Orientation="Horizontal">
+                            <Label Style="{StaticResource AppLabelStyle}" Content="{Binding Name}"/>
+                          </StackPanel>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </telerik:RadComboBox>
+                  </StackPanel>
+                  <ToggleButton Name="profileTypeButton" Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Left"
+                                Visibility="{Binding IsProfileTypeEnabled}">
+                    <Control.Template>
+                      <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Image Margin="0 0 0 0" Source="{Binding ElementName=ProfileTypeComboBox, Path=SelectedItem.Image500x500}"/>
+                      </ControlTemplate>
+                    </Control.Template>
+                  </ToggleButton>
+                  <Popup Name="popupProfileType" Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Placement="Center"
+                         StaysOpen="false" IsOpen="{Binding IsChecked, ElementName=profileTypeButton}"
+                         PlacementTarget="{Binding ElementName=scrollViewer}" Visibility="{Binding IsProfileTypeEnabled}">
+                    <Border Background="DimGray" BorderThickness="1">
+                      <StackPanel Background="White">
+                        <Image HorizontalAlignment="Left" Margin="0 0 0 0"
+                               Source="{Binding ElementName=ProfileTypeComboBox, Path=SelectedItem.Image500x500}"/>
+                      </StackPanel>
+                    </Border>
+                  </Popup>
+                </Grid>
+                <Grid Row="2" Column="2"
+                      Visibility="{Binding AreChangeableParametersGridsVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="85"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <ScrollViewer Margin="5 15 15 15" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Name="ProfileTypeChangeableParametersStackPanel" HorizontalAlignment="Center"
+                                VerticalAlignment="Top"
+                                Tag="{Binding ChangeableParameters, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                  </ScrollViewer>
+                </Grid>
+                <Grid Row="0" Column="1">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="210"/>
+                    <ColumnDefinition Width="90"/>
+                    <ColumnDefinition Width="10"/>
+                  </Grid.ColumnDefinitions>
+                  <ToggleButton Name="deviceModelButton" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Left">
+                    <Control.Template>
+                      <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Image Margin="5 0 0 0" Source="{Binding ElementName=DeviceModelComboBox, Path=SelectedItem.Image500x500}"/>
+                      </ControlTemplate>
+                    </Control.Template>
+                  </ToggleButton>
+                  <Popup Name="popupDeviceModel" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Placement="Center"
+                         StaysOpen="false" IsOpen="{Binding IsChecked, ElementName=deviceModelButton}"
+                         PlacementTarget="{Binding ElementName=scrollViewer}">
+                    <Border Background="DimGray" BorderThickness="1">
+                      <StackPanel Background="White">
+                        <Image HorizontalAlignment="Left" Margin="5 0 0 0"
+                               Source="{Binding ElementName=DeviceModelComboBox, Path=SelectedItem.Image500x500}"/>
+                      </StackPanel>
+                    </Border>
+                  </Popup>
+                  <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Style="{StaticResource AppLabelStyle}"
+                         Content="{Binding Path=MSS_Client_Configuration_DeviceModel, Source={StaticResource Resources}, Converter={StaticResource MandatoryValueLabelConverter}}"/>
+                  <telerik:RadComboBox Name="DeviceModelComboBox" Grid.Column="1" Grid.Row="1"
+                                       Style="{StaticResource RadComboBoxErrorStyle}" Width="200" Height="28" Margin="5,0,0,0"
+                                       HorizontalAlignment="Left" ItemsSource="{Binding DeviceModelCollection}"
+                                       SelectedValue="{Binding SelectedDeviceModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"
+                                       IsEnabled="{Binding IsDeviceModelEnabled, Mode=TwoWay}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                          <Label Style="{StaticResource AppLabelStyle}" Content="{Binding Name}"/>
+                          <Label Style="{StaticResource AppLabelStyle}" Content="{Binding ProfileTypeName}"/>
+                        </StackPanel>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </telerik:RadComboBox>
+                  <Label Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" Style="{StaticResource AppLabelStyle}"
+                         Content="{Binding Path=MSS_Client_Structures_EditDevice_DeviceGroup, Source={StaticResource Resources}, Converter={StaticResource MandatoryValueLabelConverter}}"
+                         Visibility="{Binding IsDeviceGroupVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}"/>
+                  <telerik:RadComboBox Name="DeviceGroupComboBox" Grid.Column="1" Grid.Row="0"
+                                       Style="{StaticResource RadComboBoxErrorStyle}" Width="200" Height="28" Margin="5,0,0,0"
+                                       HorizontalAlignment="Left" ItemsSource="{Binding DeviceGroupCollection}"
+                                       SelectedValue="{Binding SelectedDeviceGroup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"
+                                       IsEnabled="{Binding IsDeviceGroupVisible, Mode=TwoWay}"
+                                       Visibility="{Binding IsDeviceGroupVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                          <Label Style="{StaticResource AppLabelStyle}" Content="{Binding Name}"/>
+                          <Label Style="{StaticResource AppLabelStyle}" Content="{Binding ProfileTypeName}"/>
+                        </StackPanel>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </telerik:RadComboBox>
+                </Grid>
+                <Grid Row="2" Column="1"
+                      Visibility="{Binding AreChangeableParametersGridsVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="85"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <ScrollViewer Margin="5 15 15 15" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Name="DeviceModelChangeableParametersStackPanel" HorizontalAlignment="Center"
+                                VerticalAlignment="Top"
+                                Tag="{Binding ChangeableParameters, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                  </ScrollViewer>
+                </Grid>
+                <Grid Row="1" Column="0" Visibility="{Binding ExpertConfigurationVisibility}">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Button x:Name="btnExpertConfiguration" Grid.Row="0" Grid.Column="0" Foreground="#595151"
+                          Style="{StaticResource AppButtonStyle}" HorizontalAlignment="Left" Background="White" Width="140"
+                          Height="25" BorderBrush="LightGray" IsDefault="true" Margin="150 20 0 0"
+                          Content="{Binding Path=MSS_Client_Expert_Configuration, Source={StaticResource Resources}}"
+                          Command="{Binding ExpertConfigurationCommand}" IsEnabled="{Binding IsExpertConfigurationEnabled}"/>
+                </Grid>
+              </Grid>
+              <Grid Row="2" Margin="5,5,0,0"
+                    Visibility="{Binding ConfigurationParameters.IsConfigGeneralVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*" MaxWidth="500"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <telerik:RadTabControl x:Name="ConfigTabControl" Grid.Row="0" Grid.RowSpan="2" HeaderBackground="#EDEDED" Margin="3"
+                                         Template="{StaticResource RadTabControlControlTemplateTest}"
+                                         Visibility="{Binding ConfigurationParameters.IsConfigGeneralVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+                    <telerik:RadTabItem Name="GeneralTabItem"
+                                        Header="{Binding MSS_Client_Configuration_General, Source={StaticResource Resources}}"
+                                        Visibility="{Binding ConfigurationParameters.IsConfigGeneralVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}"
+                                        IsSelected="{Binding ConfigurationParameters.IsGeneralTabSelected, Mode=TwoWay}">
+                      <Grid>
+                        <ScrollViewer>
+                          <StackPanel Name="MeterConfigStackPanelDynamic" Margin="0,5,0,0"/>
+                        </ScrollViewer>
+                      </Grid>
+                    </telerik:RadTabItem>
+                    <telerik:RadTabItem Name="Channel1Tab"
+                                        Header="{Binding MSS_Client_Configuration_Channel1, Source={StaticResource Resources}}"
+                                        Visibility="{Binding ConfigurationParameters.IsConfigChannel1Visible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}"
+                                        IsSelected="{Binding ConfigurationParameters.IsChannel1TabSelected, Mode=TwoWay}">
+                      <Grid>
+                        <ScrollViewer>
+                          <StackPanel Name="MeterConfigChannel1StackPanelDynamic" Margin="0,5,0,0"/>
+                        </ScrollViewer>
+                      </Grid>
+                    </telerik:RadTabItem>
+                    <telerik:RadTabItem Name="Channel2Tab"
+                                        Header="{Binding MSS_Client_Configuration_Channel2, Source={StaticResource Resources}}"
+                                        Visibility="{Binding ConfigurationParameters.IsConfigChannel2Visible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}"
+                                        IsSelected="{Binding ConfigurationParameters.IsChannel2TabSelected, Mode=TwoWay}">
+                      <Grid>
+                        <ScrollViewer>
+                          <StackPanel Name="MeterConfigChannel2StackPanelDynamic" Margin="0,5,0,0"/>
+                        </ScrollViewer>
+                      </Grid>
+                    </telerik:RadTabItem>
+                    <telerik:RadTabItem Name="Channel3Tab"
+                                        Header="{Binding MSS_Client_Configuration_Channel3, Source={StaticResource Resources}}"
+                                        Visibility="{Binding ConfigurationParameters.IsConfigChannel3Visible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}"
+                                        IsSelected="{Binding ConfigurationParameters.IsChannel3TabSelected, Mode=TwoWay}">
+                      <Grid>
+                        <ScrollViewer>
+                          <StackPanel Name="MeterConfigChannel3StackPanelDynamic" Margin="0,5,0,0"/>
+                        </ScrollViewer>
+                      </Grid>
+                    </telerik:RadTabItem>
+                  </telerik:RadTabControl>
+                  <Label Grid.Column="1" Grid.Row="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Left"
+                         Content="{Binding Path=MSS_Client_Configuration_ParameterDescription, Source={StaticResource Resources}}"
+                         Visibility="{Binding ConfigurationParameters.IsConfigurationParameterDescriptionVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                  <TextBox Grid.Row="1" Grid.Column="1" TextWrapping="Wrap" MaxWidth="450" HorizontalAlignment="Stretch"
+                           Margin="3" TextAlignment="Left"
+                           Text="{Binding ConfigurationParameters.ConfigurationParameterDescription}"
+                           Visibility="{Binding ConfigurationParameters.IsConfigurationParameterDescriptionVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </Grid>
+              </Grid>
+            </Grid>
+          </telerik:RadBusyIndicator>
+        </telerik:RadTabItem>
+      </telerik:RadTabControl>
+    </Grid>
+  </ScrollViewer>
+</UserControl>

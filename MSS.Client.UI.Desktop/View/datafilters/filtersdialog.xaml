@@ -1,0 +1,170 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.DataFilters.FiltersDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:telerikControls="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="NoResize" Height="460" Width="900" MinHeight="360" MinWidth="500" MaxHeight="760"
+                             MaxWidth="1200" Title="{Binding MSS_Client_DataFilters_Title, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+        <ResourceDictionary>
+          <Style x:Key="FilterMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+                 BasedOn="{StaticResource AppButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="true"/>
+            <Setter Property="UIElement.Opacity" Value="1"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding ElementName=FiltersGridView, Path=SelectedItem}" Value="{x:Null}">
+                <Setter Property="UIElement.IsEnabled" Value="false"/>
+                <Setter Property="UIElement.Opacity" Value="0.5"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+          <Style x:Key="RuleMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+                 BasedOn="{StaticResource AppButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="true"/>
+            <Setter Property="UIElement.Opacity" Value="1"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding ElementName=RulesGridView, Path=SelectedItem}" Value="{x:Null}">
+                <Setter Property="UIElement.IsEnabled" Value="false"/>
+                <Setter Property="UIElement.Opacity" Value="0.5"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="140"/>
+      </Grid.ColumnDefinitions>
+      <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+        <DockPanel Height="35">
+          <TextBlock Style="{StaticResource AppSubTitleStyle}" HorizontalAlignment="Left" Margin="10 10 0 0"
+                     Background="Transparent"
+                     Text="{Binding MSS_Client_DataFilters_Title, Source={StaticResource Resources}}"/>
+          <ContentPresenter HorizontalAlignment="Right" Margin="0,0,10,3" Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+        </DockPanel>
+        <telerik:RadGridView x:Name="FiltersGridView" Margin="10 0 150 10" Height="170" RowIndicatorVisibility="Collapsed"
+                             CanUserFreezeColumns="false" AlternateRowBackground="#EDEDED" AlternationCount="2"
+                             telerikControls:StyleManager.Theme="Windows8" IsReadOnly="true" ColumnWidth="*"
+                             AutoGenerateColumns="false" IsFilteringAllowed="true" ItemsSource="{Binding GetFilters}"
+                             SelectedItem="{Binding SelectedFilter, Mode=TwoWay}">
+          <telerik:GridViewDataControl.SortDescriptors>
+            <telerik:SortDescriptor Member="Name" SortDirection="Ascending"/>
+          </telerik:GridViewDataControl.SortDescriptors>
+          <telerik:GridViewDataControl.Columns>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding Name}"
+                                        Header="{Binding MSS_Client_Structures_Name, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn Width="2*" DataMemberBinding="{Binding Description}"
+                                        Header="{Binding MSS_Client_Structures_Description, Source={StaticResource Resources}}"/>
+          </telerik:GridViewDataControl.Columns>
+        </telerik:RadGridView>
+      </StackPanel>
+      <StackPanel Grid.Row="1" Grid.Column="0">
+        <TextBlock Style="{StaticResource AppSubTitleStyle}" HorizontalAlignment="Left" Margin="10 0 0 0"
+                   Background="Transparent"
+                   Text="{Binding MSS_Client_DataFilters_SubtitleFilterRules, Source={StaticResource Resources}}"/>
+        <telerik:RadGridView x:Name="RulesGridView" Margin="10" Height="170" RowIndicatorVisibility="Collapsed"
+                             CanUserFreezeColumns="false" AlternateRowBackground="#EDEDED" AlternationCount="2"
+                             telerikControls:StyleManager.Theme="Windows8" IsReadOnly="true" ColumnWidth="*"
+                             AutoGenerateColumns="false" IsFilteringAllowed="true" ItemsSource="{Binding GetRules}">
+          <telerik:GridViewDataControl.Columns>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding PhysicalQuantity}"
+                                        Header="{Binding MSS_Client_DataFilters_PhysicalQuantity, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding MeterType}"
+                                        Header="{Binding MSS_Client_DataFilters_MeterType, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding Calculation}"
+                                        Header="{Binding MSS_Client_DataFilters_Calculation, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding CalculationStart}"
+                                        Header="{Binding MSS_Client_DataFilters_CalculationStart, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding StorageInterval}"
+                                        Header="{Binding MSS_Client_DataFilters_StorageInterval, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding Creation}"
+                                        Header="{Binding MSS_Client_DataFilters_Creation, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding RuleIndex}"
+                                        Header="{Binding MSS_Client_DataFilters_Index, Source={StaticResource Resources}}"/>
+          </telerik:GridViewDataControl.Columns>
+        </telerik:RadGridView>
+      </StackPanel>
+      <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" Margin="0,35,0,0">
+        <Button Name="AddFilter" HorizontalContentAlignment="Stretch" Margin="5 0 10 0"
+                Style="{StaticResource AppButtonStyle}" Command="{Binding CreateFilterCommand}">
+          <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+            <Image Source="pack://application:,,,/Styles;component/Images/Universal/add.png"/>
+            <TextBlock Name="AddFilterTextBlock" TextWrapping="Wrap" Margin="10 0 0 0"
+                       Text="{Binding MSS_Client_DataFilters_AddFilter, Source={StaticResource Resources}}"/>
+          </StackPanel>
+        </Button>
+        <Button Name="UpdateFilter" Style="{StaticResource FilterMustBeSelectedButtonStyle}"
+                HorizontalContentAlignment="Stretch" Margin="5 10 10 0" Command="{Binding UpdateFilterCommand}"
+                CommandParameter="{Binding ElementName=FiltersGridView, Path=SelectedItem}">
+          <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+            <Image Source="pack://application:,,,/Styles;component/Images/Universal/update.png"/>
+            <TextBlock Name="UpdateFilterTextBlock" TextWrapping="Wrap" Margin="10 0 0 0"
+                       Text="{Binding MSS_Client_DataFilters_Update, Source={StaticResource Resources}}"/>
+          </StackPanel>
+        </Button>
+        <Button Name="RemoveFilter" Style="{StaticResource FilterMustBeSelectedButtonStyle}"
+                HorizontalContentAlignment="Stretch" Margin="5 10 10 0" Command="{Binding RemoveFilterCommand}"
+                CommandParameter="{Binding ElementName=FiltersGridView, Path=SelectedItem}">
+          <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+            <Image Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+            <TextBlock Name="RemoveFilterTextBlock" TextWrapping="Wrap" Margin="10 0 0 0"
+                       Text="{Binding MSS_Client_DataFilters_Remove, Source={StaticResource Resources}}"/>
+          </StackPanel>
+        </Button>
+      </StackPanel>
+      <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
+        <Button Name="AddRule" Style="{StaticResource FilterMustBeSelectedButtonStyle}"
+                HorizontalContentAlignment="Stretch" Margin="5 30 10 0" Command="{Binding CreateRuleCommand}"
+                CommandParameter="{Binding ElementName=FiltersGridView, Path=SelectedItem}">
+          <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+            <Image Source="pack://application:,,,/Styles;component/Images/Universal/add.png"/>
+            <TextBlock Name="AddRuleTextBlock" TextWrapping="Wrap" Margin="10 0 0 0"
+                       Text="{Binding MSS_Client_DataFilters_AddRule, Source={StaticResource Resources}}"/>
+          </StackPanel>
+        </Button>
+        <Button Name="UpdateRule" Style="{StaticResource RuleMustBeSelectedButtonStyle}"
+                HorizontalContentAlignment="Stretch" Margin="5 10 10 0" Command="{Binding UpdateRuleCommand}"
+                CommandParameter="{Binding ElementName=RulesGridView, Path=SelectedItem}">
+          <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+            <Image Source="pack://application:,,,/Styles;component/Images/Universal/update.png"/>
+            <TextBlock Name="UpdateRuleTextBlock" TextWrapping="Wrap" Margin="10 0 0 0"
+                       Text="{Binding MSS_Client_DataFilters_Update, Source={StaticResource Resources}}"/>
+          </StackPanel>
+        </Button>
+        <Button Name="RemoveRule" Style="{StaticResource RuleMustBeSelectedButtonStyle}"
+                HorizontalContentAlignment="Stretch" Margin="5 10 10 0" Command="{Binding RemoveRuleCommand}"
+                CommandParameter="{Binding ElementName=RulesGridView, Path=SelectedItem}">
+          <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+            <Image Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+            <TextBlock Name="RemoveRuleTextBlock" TextWrapping="Wrap" Margin="10 0 0 0"
+                       Text="{Binding MSS_Client_DataFilters_Remove, Source={StaticResource Resources}}"/>
+          </StackPanel>
+        </Button>
+      </StackPanel>
+      <Button x:Name="OkButton" Grid.Row="1" Grid.Column="1" Foreground="#595151" VerticalAlignment="Bottom"
+              Style="{StaticResource AppButtonStyle}" Background="White" Height="25" Width="73"
+              BorderBrush="LightGray" Margin="14"
+              Content="{Binding MSS_MessageCodes_Close, Source={StaticResource Resources}}"
+              Command="{Binding CloseWindowCommand}"/>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

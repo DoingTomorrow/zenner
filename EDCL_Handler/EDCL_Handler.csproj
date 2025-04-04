@@ -1,0 +1,440 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\EDCL_Handler.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{CD3234EA-3862-4C76-BCA2-D13DDDC56563}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>EDCL_Handler</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>2.2.10.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>EDCL_Handler</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonWPF">
+      <HintPath>lib\CommonWPF.dll</HintPath>
+    </Reference>
+    <Reference Include="CommunicationPort">
+      <HintPath>lib\CommunicationPort.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="HandlerLib">
+      <HintPath>lib\HandlerLib.dll</HintPath>
+    </Reference>
+    <Reference Include="MBusLib">
+      <HintPath>lib\MBusLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="ReadoutConfiguration">
+      <HintPath>lib\ReadoutConfiguration.dll</HintPath>
+    </Reference>
+    <Reference Include="StartupLib">
+      <HintPath>lib\StartupLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="EDCL_AllMeters.cs" />
+    <Compile Include="EDCL_DeviceCommands.cs" />
+    <Compile Include="EDCL_DeviceIdentification_1.cs" />
+    <Compile Include="EDCL_DeviceIdentification.cs" />
+    <Compile Include="VolumeMonitorEventHandler.cs" />
+    <Compile Include="VolumeMonitorEventArgs.cs" />
+    <Compile Include="EDCL_HandlerFunctions.cs" />
+    <Compile Include="EDCL_Meter.cs" />
+    <Compile Include="EDCL_Params.cs" />
+    <Compile Include="EDCL_DeviceMemory.cs" />
+    <Compile Include="CalibrationFault.cs" />
+    <Compile Include="Calibration.cs" />
+    <Compile Include="DeviceStatus.cs" />
+    <Compile Include="HardwareStatus.cs" />
+    <Compile Include="Mode.cs" />
+    <Compile Include="NominalFlow.cs" />
+    <Compile Include="TransmissionScenario.cs" />
+    <Compile Include="MapDefClass00000019.cs" />
+    <Compile Include="MapDefClass0000001D.cs" />
+    <Compile Include="MapDefClass0000001F.cs" />
+    <Compile Include="MapDefClass0000104B.cs" />
+    <Compile Include="MapDefClass0000204B.cs" />
+    <Compile Include="MapDefClass0100002A.cs" />
+    <Compile Include="MapDefClass0100102A.cs" />
+    <Compile Include="MapDefClass0100202A.cs" />
+    <Compile Include="MapDefClass0100302A.cs" />
+    <Compile Include="MapDefClass0100c019.cs" />
+    <Compile Include="MapDefClass0100c01d.cs" />
+    <Compile Include="MapDefClass0100c01e.cs" />
+    <Compile Include="MapDefClass0100c01f.cs" />
+    <Compile Include="MapDefClass0101002A.cs" />
+    <Compile Include="MapDefClass01020019.cs" />
+    <Compile Include="MapDefClass0102001d.cs" />
+    <Compile Include="MapDefClass0102002A.cs" />
+    <Compile Include="MapDefClass01030019.cs" />
+    <Compile Include="MapDefClass0103001d.cs" />
+    <Compile Include="MapDefClass0103002A.cs" />
+    <Compile Include="MapDefClass01040019.cs" />
+    <Compile Include="MapDefClass0104001d.cs" />
+    <Compile Include="MapDefClass0104002A.cs" />
+    <Compile Include="MapDefClass0104102A.cs" />
+    <Compile Include="MapDefClass01050019.cs" />
+    <Compile Include="MapDefClass0105001d.cs" />
+    <Compile Include="MapDefClass0105002A.cs" />
+    <Compile Include="MapDefClass0106001d.cs" />
+    <Compile Include="MapDefClass0106002A.cs" />
+    <Compile Include="MapDefClass01070019.cs" />
+    <Compile Include="MapDefClass0107001d.cs" />
+    <Compile Include="MapDefClass0107001e.cs" />
+    <Compile Include="MapDefClass0107001f.cs" />
+    <Compile Include="MapDefClass0107002A.cs" />
+    <Compile Include="MapDefClass0107102A.cs" />
+    <Compile Include="MapDefClass01080019.cs" />
+    <Compile Include="MapDefClass0108001d.cs" />
+    <Compile Include="MapDefClass0108002A.cs" />
+    <Compile Include="MapDefClass01090019.cs" />
+    <Compile Include="MapDefClass0109001d.cs" />
+    <Compile Include="MapDefClass0109002A.cs" />
+    <Compile Include="MapDefClass010a0019.cs" />
+    <Compile Include="MapDefClass010a001d.cs" />
+    <Compile Include="MapDefClass010a1019.cs" />
+    <Compile Include="MapDefClass010b0019.cs" />
+    <Compile Include="MapDefClass010b001d.cs" />
+    <Compile Include="MapDefClass010c0019.cs" />
+    <Compile Include="MapDefClass010c001d.cs" />
+    <Compile Include="MapDefClass010c001e.cs" />
+    <Compile Include="MapDefClass010c001f.cs" />
+    <Compile Include="MapDefClass010d0019.cs" />
+    <Compile Include="MapDefClass010f0019.cs" />
+    <Compile Include="MapDefClass010f001d.cs" />
+    <Compile Include="MapDefClass010f001e.cs" />
+    <Compile Include="MapDefClass010f001f.cs" />
+    <Compile Include="MapDefClass01100019.cs" />
+    <Compile Include="MapDefClass01110019.cs" />
+    <Compile Include="MapDefClass0111001d.cs" />
+    <Compile Include="MapDefClass01130019.cs" />
+    <Compile Include="MapDefClass0113001d.cs" />
+    <Compile Include="MapDefClass0113001e.cs" />
+    <Compile Include="MapDefClass0113001f.cs" />
+    <Compile Include="MapDefClass01131019.cs" />
+    <Compile Include="MapDefClass01140019.cs" />
+    <Compile Include="MapDefClass0114001D.cs" />
+    <Compile Include="MapDefClass0114001E.cs" />
+    <Compile Include="MapDefClass0114001F.cs" />
+    <Compile Include="MapDefClass01140020.cs" />
+    <Compile Include="MapDefClass01150019.cs" />
+    <Compile Include="MapDefClass0115001D.cs" />
+    <Compile Include="MapDefClass01150020.cs" />
+    <Compile Include="MapDefClass01160019.cs" />
+    <Compile Include="MapDefClass0116001D.cs" />
+    <Compile Include="MapDefClass01160020.cs" />
+    <Compile Include="MapDefClass01170019.cs" />
+    <Compile Include="MapDefClass0117001D.cs" />
+    <Compile Include="MapDefClass0117001E.cs" />
+    <Compile Include="MapDefClass0117001F.cs" />
+    <Compile Include="MapDefClass01170020.cs" />
+    <Compile Include="MapDefClass01180019.cs" />
+    <Compile Include="MapDefClass0118001D.cs" />
+    <Compile Include="MapDefClass0118001E.cs" />
+    <Compile Include="MapDefClass0118001F.cs" />
+    <Compile Include="MapDefClass01180020.cs" />
+    <Compile Include="MapDefClass01190019.cs" />
+    <Compile Include="MapDefClass0119001D.cs" />
+    <Compile Include="MapDefClass0119001E.cs" />
+    <Compile Include="MapDefClass0119001F.cs" />
+    <Compile Include="MapDefClass011A0019.cs" />
+    <Compile Include="MapDefClass011A001D.cs" />
+    <Compile Include="MapDefClass011A001E.cs" />
+    <Compile Include="MapDefClass011A001F.cs" />
+    <Compile Include="MapDefClass011A0020.cs" />
+    <Compile Include="MapDefClass011B001E.cs" />
+    <Compile Include="MapDefClass011C001E.cs" />
+    <Compile Include="MapDefClass011D0019.cs" />
+    <Compile Include="MapDefClass011D001D.cs" />
+    <Compile Include="MapDefClass011D001E.cs" />
+    <Compile Include="MapDefClass011D001F.cs" />
+    <Compile Include="MapDefClass011D0020.cs" />
+    <Compile Include="MapDefClass011E0019.cs" />
+    <Compile Include="MapDefClass011E001D.cs" />
+    <Compile Include="MapDefClass011E001E.cs" />
+    <Compile Include="MapDefClass011E001F.cs" />
+    <Compile Include="MapDefClass011F0019.cs" />
+    <Compile Include="MapDefClass011F001D.cs" />
+    <Compile Include="MapDefClass011F001E.cs" />
+    <Compile Include="MapDefClass011F001F.cs" />
+    <Compile Include="MapDefClass011F0020.cs" />
+    <Compile Include="MapDefClass01200019.cs" />
+    <Compile Include="MapDefClass0120001D.cs" />
+    <Compile Include="MapDefClass0120001E.cs" />
+    <Compile Include="MapDefClass0120001F.cs" />
+    <Compile Include="MapDefClass01210019.cs" />
+    <Compile Include="MapDefClass0121001D.cs" />
+    <Compile Include="MapDefClass0121001E.cs" />
+    <Compile Include="MapDefClass0121001F.cs" />
+    <Compile Include="MapDefClass01210020.cs" />
+    <Compile Include="MapDefClass01220019.cs" />
+    <Compile Include="MapDefClass0122001D.cs" />
+    <Compile Include="MapDefClass0122001E.cs" />
+    <Compile Include="MapDefClass0122001F.cs" />
+    <Compile Include="MapDefClass01220020.cs" />
+    <Compile Include="MapDefClass01230019.cs" />
+    <Compile Include="MapDefClass0123001D.cs" />
+    <Compile Include="MapDefClass0123001E.cs" />
+    <Compile Include="MapDefClass0123001F.cs" />
+    <Compile Include="MapDefClass01230020.cs" />
+    <Compile Include="MapDefClass01231019.cs" />
+    <Compile Include="MapDefClass0123101D.cs" />
+    <Compile Include="MapDefClass0123101E.cs" />
+    <Compile Include="MapDefClass0123101F.cs" />
+    <Compile Include="MapDefClass01231020.cs" />
+    <Compile Include="MapDefClass01232019.cs" />
+    <Compile Include="MapDefClass0123201D.cs" />
+    <Compile Include="MapDefClass0123201E.cs" />
+    <Compile Include="MapDefClass0123201F.cs" />
+    <Compile Include="MapDefClass01232020.cs" />
+    <Compile Include="MapDefClass01240019.cs" />
+    <Compile Include="MapDefClass0124001D.cs" />
+    <Compile Include="MapDefClass0124001E.cs" />
+    <Compile Include="MapDefClass0124001F.cs" />
+    <Compile Include="MapDefClass01240020.cs" />
+    <Compile Include="MapDefClass01250019.cs" />
+    <Compile Include="MapDefClass0125001D.cs" />
+    <Compile Include="MapDefClass0125001E.cs" />
+    <Compile Include="MapDefClass0125001F.cs" />
+    <Compile Include="MapDefClass01250020.cs" />
+    <Compile Include="MapDefClass01260019.cs" />
+    <Compile Include="MapDefClass0126001D.cs" />
+    <Compile Include="MapDefClass0126001E.cs" />
+    <Compile Include="MapDefClass0126001F.cs" />
+    <Compile Include="MapDefClass01260020.cs" />
+    <Compile Include="MapDefClass01260025.cs" />
+    <Compile Include="MapDefClass01270019.cs" />
+    <Compile Include="MapDefClass0127001D.cs" />
+    <Compile Include="MapDefClass0127001E.cs" />
+    <Compile Include="MapDefClass0127001F.cs" />
+    <Compile Include="MapDefClass01270020.cs" />
+    <Compile Include="MapDefClass01270025.cs" />
+    <Compile Include="MapDefClass01280019.cs" />
+    <Compile Include="MapDefClass0128001D.cs" />
+    <Compile Include="MapDefClass0128001E.cs" />
+    <Compile Include="MapDefClass0128001F.cs" />
+    <Compile Include="MapDefClass01280020.cs" />
+    <Compile Include="MapDefClass01280025.cs" />
+    <Compile Include="MapDefClass01290019.cs" />
+    <Compile Include="MapDefClass0129001D.cs" />
+    <Compile Include="MapDefClass0129001E.cs" />
+    <Compile Include="MapDefClass0129001F.cs" />
+    <Compile Include="MapDefClass01290020.cs" />
+    <Compile Include="MapDefClass01290025.cs" />
+    <Compile Include="MapDefClass012C001F.cs" />
+    <Compile Include="MapDefClass012C002C.cs" />
+    <Compile Include="MapDefClass012D001D.cs" />
+    <Compile Include="MapDefClass012D001F.cs" />
+    <Compile Include="MapDefClass012D002C.cs" />
+    <Compile Include="MapDefClass012E0019.cs" />
+    <Compile Include="MapDefClass012E001D.cs" />
+    <Compile Include="MapDefClass012E001E.cs" />
+    <Compile Include="MapDefClass012E001F.cs" />
+    <Compile Include="MapDefClass012E0020.cs" />
+    <Compile Include="MapDefClass012E0025.cs" />
+    <Compile Include="MapDefClass012E0029.cs" />
+    <Compile Include="MapDefClass012E002C.cs" />
+    <Compile Include="MapDefClass012F001E.cs" />
+    <Compile Include="MapDefClass012F0020.cs" />
+    <Compile Include="MapDefClass01310029.cs" />
+    <Compile Include="MapDefClass01320029.cs" />
+    <Compile Include="MapDefClass01350025.cs" />
+    <Compile Include="MapDefClass01360019.cs" />
+    <Compile Include="MapDefClass0136001D.cs" />
+    <Compile Include="MapDefClass0136001E.cs" />
+    <Compile Include="MapDefClass01360020.cs" />
+    <Compile Include="MapDefClass01360025.cs" />
+    <Compile Include="MapDefClass01360029.cs" />
+    <Compile Include="MapDefClass0136002A.cs" />
+    <Compile Include="MapDefClass0136002C.cs" />
+    <Compile Include="MapDefClass01370029.cs" />
+    <Compile Include="MapDefClass013D001F.cs" />
+    <Compile Include="MapDefClass013D002C.cs" />
+    <Compile Include="MapDefClass01400019.cs" />
+    <Compile Include="MapDefClass0144001F.cs" />
+    <Compile Include="MapDefClass0145001F.cs" />
+    <Compile Include="MapDefClass0146001F.cs" />
+    <Compile Include="MapDefClass01470019.cs" />
+    <Compile Include="MapDefClass0147001F.cs" />
+    <Compile Include="MapDefClass01470025.cs" />
+    <Compile Include="MapDefClass0147002C.cs" />
+    <Compile Include="MapDefClass01480019.cs" />
+    <Compile Include="MapDefClass0148001F.cs" />
+    <Compile Include="MapDefClass01480025.cs" />
+    <Compile Include="MapDefClass0148002C.cs" />
+    <Compile Include="MapDefClass01490019.cs" />
+    <Compile Include="MapDefClass0149001F.cs" />
+    <Compile Include="MapDefClass01490025.cs" />
+    <Compile Include="MapDefClass0149002C.cs" />
+    <Compile Include="MapDefClass014A0019.cs" />
+    <Compile Include="MapDefClass014A001F.cs" />
+    <Compile Include="MapDefClass014A0025.cs" />
+    <Compile Include="MapDefClass014A002C.cs" />
+    <Compile Include="MapDefClass014C0025.cs" />
+    <Compile Include="MapDefClass014C002C.cs" />
+    <Compile Include="MapDefClass014D0019.cs" />
+    <Compile Include="MapDefClass014D001F.cs" />
+    <Compile Include="MapDefClass014D0025.cs" />
+    <Compile Include="MapDefClass014D002C.cs" />
+    <Compile Include="MapDefClass014E0019.cs" />
+    <Compile Include="MapDefClass014E001F.cs" />
+    <Compile Include="MapDefClass014E0025.cs" />
+    <Compile Include="MapDefClass014E002C.cs" />
+    <Compile Include="MapDefClass0200102A.cs" />
+    <Compile Include="MapDefClass0201002A.cs" />
+    <Compile Include="MapDefClass0201102A.cs" />
+    <Compile Include="MapDefClass02020019.cs" />
+    <Compile Include="MapDefClass02021019.cs" />
+    <Compile Include="MapDefClass0202101F.cs" />
+    <Compile Include="MapDefClass02021025.cs" />
+    <Compile Include="MapDefClass0202102C.cs" />
+    <Compile Include="MapDefClass02022019.cs" />
+    <Compile Include="MapDefClass0202201F.cs" />
+    <Compile Include="MapDefClass02022025.cs" />
+    <Compile Include="MapDefClass0202202C.cs" />
+    <Compile Include="MapDefClass0202301F.cs" />
+    <Compile Include="MapDefClass0202502C.cs" />
+    <Compile Include="MapDefClass0202602A.cs" />
+    <Compile Include="MapDefClass0202602C.cs" />
+    <Compile Include="MapDefClass0202802A.cs" />
+    <Compile Include="MapDefClass02029048.cs" />
+    <Compile Include="MapDefClass0202A048.cs" />
+    <Compile Include="MapDefClass0202B02A.cs" />
+    <Compile Include="MapDefClass0202C029.cs" />
+    <Compile Include="MapDefClass0202C02A.cs" />
+    <Compile Include="MapDefClass0202D02A.cs" />
+    <Compile Include="MapDefClass0202F02A.cs" />
+    <Compile Include="MapDefClass0204002A.cs" />
+    <Compile Include="MapDefClass0205002A.cs" />
+    <Compile Include="MapDefClass020AC044.cs" />
+    <Compile Include="MapDefClass020AF044.cs" />
+    <Compile Include="MapDefClass020B1044.cs" />
+    <Compile Include="MapDefClass020B2044.cs" />
+    <Compile Include="MapDefClass020B3044.cs" />
+    <Compile Include="MapDefClass020B5044.cs" />
+    <Compile Include="MapDefClass020C0044.cs" />
+    <Compile Include="MapDefClass020C1044.cs" />
+    <Compile Include="MapDefClass020C5044.cs" />
+    <Compile Include="MapDefClass020D002A.cs" />
+    <Compile Include="MapDefClass020D0044.cs" />
+    <Compile Include="MapDefClass020F002A.cs" />
+    <Compile Include="MapDefClass020F102A.cs" />
+    <Compile Include="MapDefClass0215202A.cs" />
+    <Compile Include="MapDefClass02152044.cs" />
+    <Compile Include="MapDefClass0217002A.cs" />
+    <Compile Include="MapDefClass02170044.cs" />
+    <Compile Include="MapDefClass021A002A.cs" />
+    <Compile Include="MapDefClass021A0044.cs" />
+    <Compile Include="MapDefClass021C0044.cs" />
+    <Compile Include="MapDefClass021D002A.cs" />
+    <Compile Include="MapDefClass021E002A.cs" />
+    <Compile Include="MapDefClass021E0044.cs" />
+    <Compile Include="MapDefClass03000036.cs" />
+    <Compile Include="MapDefClass03010036.cs" />
+    <Compile Include="MapDefClass03011036.cs" />
+    <Compile Include="MapDefClass03012036.cs" />
+    <Compile Include="MapDefClass03013036.cs" />
+    <Compile Include="MapDefClass03014036.cs" />
+    <Compile Include="MapDefClass03015036.cs" />
+    <Compile Include="MapDefClass03016036.cs" />
+    <Compile Include="MapDefClass04000039.cs" />
+    <Compile Include="MapDefClass04010039.cs" />
+    <Compile Include="MapDefClass04011039.cs" />
+    <Compile Include="MapDefClass04012039.cs" />
+    <Compile Include="MapDefClass04013039.cs" />
+    <Compile Include="MapDefClass04014039.cs" />
+    <Compile Include="MapDefClass04015039.cs" />
+    <Compile Include="MapDefClass04016039.cs" />
+    <Compile Include="MapDefClass0500003D.cs" />
+    <Compile Include="MapDefClass0500103D.cs" />
+    <Compile Include="MapDefClass0500203D.cs" />
+    <Compile Include="MapDefClass0500303D.cs" />
+    <Compile Include="MapDefClass0500403D.cs" />
+    <Compile Include="MapDefClass0500503D.cs" />
+    <Compile Include="MapDefClass0500603D.cs" />
+    <Compile Include="MapDefClass0602B03E.cs" />
+    <Compile Include="MapDefClass0602F03E.cs" />
+    <Compile Include="MapDefClass0604003E.cs" />
+    <Compile Include="MapDefClass0605003E.cs" />
+    <Compile Include="PlugInAnchor.cs" />
+    <Compile Include="VolumeMonitor.cs" />
+    <Compile Include="UserInterface\EDCL_HandlerWindow.cs" />
+    <Compile Include="UserInterface\EDCL_HandlerWindowFunctions.cs" />
+    <Compile Include="UserInterface\TestWindows.cs" />
+    <Compile Include="UI\RefreshDGBack.cs" />
+    <Compile Include="UI\Dut_Handler.cs" />
+    <Compile Include="UI\FWConfig.cs" />
+    <Compile Include="UI\FirmwareUpdateToolDeviceCommands_MBus.cs" />
+    <Compile Include="Properties\Resources.cs" />
+    <Compile Include="Properties\Settings.cs" />
+    <Compile Include="UIBatchFirmwareUpdateWindow.xaml.cs">
+      <DependentUpon>uibatchfirmwareupdatewindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx" />
+    <EmbeddedResource Include="VolumeMonitor.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="ui\batchfirmwareupdatewindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ui\edcl_handlerwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ui\testwindows.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

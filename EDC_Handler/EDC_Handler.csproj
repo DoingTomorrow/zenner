@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\EDC_Handler.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8D7A680D-94BC-48A5-A29E-D4CF13840AB1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>EDC_Handler</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>2.4.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>EDC_Handler</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AsyncCom">
+      <HintPath>lib\AsyncCom.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="CorporateDesign">
+      <HintPath>lib\CorporateDesign.dll</HintPath>
+    </Reference>
+    <Reference Include="DeviceCollector">
+      <HintPath>lib\DeviceCollector.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="HandlerLib">
+      <HintPath>lib\HandlerLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationFramework" />
+    <Reference Include="StartupLib">
+      <HintPath>lib\StartupLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Addresses.cs" />
+    <Compile Include="ConfigFlags.cs" />
+    <Compile Include="ID.cs" />
+    <Compile Include="MbusCNParity.cs" />
+    <Compile Include="RamLoggerFifoType.cs" />
+    <Compile Include="RamLoggerHeader.cs" />
+    <Compile Include="RamLogger.cs" />
+    <Compile Include="HandlerMeterType.cs" />
+    <Compile Include="HardwareError.cs" />
+    <Compile Include="MBusListStructure.cs" />
+    <Compile Include="MBusList.cs" />
+    <Compile Include="MBusParameter.cs" />
+    <Compile Include="ParamCode.cs" />
+    <Compile Include="ControlLogger.cs" />
+    <Compile Include="ControlWord0.cs" />
+    <Compile Include="OverwritePart.cs" />
+    <Compile Include="PulseFlowState.cs" />
+    <Compile Include="PulseoutMode.cs" />
+    <Compile Include="RadioPower.cs" />
+    <Compile Include="RamLoggerType.cs" />
+    <Compile Include="RuntimeFlags.cs" />
+    <Compile Include="MbusBaud.cs" />
+    <Compile Include="FirmwareManager.cs" />
+    <Compile Include="InvalidMapFileException.cs" />
+    <Compile Include="ConfiguratorEdcWired.cs" />
+    <Compile Include="FirmwareEditor.cs" />
+    <Compile Include="Simulator.cs" />
+    <Compile Include="MbusListEditor.cs" />
+    <Compile Include="OverwriteEditor.cs" />
+    <Compile Include="PlugInAnchor.cs" />
+    <Compile Include="TypeDataEditor.cs" />
+    <Compile Include="TypeEditor.cs" />
+    <Compile Include="TestCommand.cs" />
+    <Compile Include="DatabaseDeviceInfo.cs" />
+    <Compile Include="Warning.cs" />
+    <Compile Include="FlashLoggerType.cs" />
+    <Compile Include="FlashLoggerEntry.cs" />
+    <Compile Include="VolumeMonitorEventArgs.cs" />
+    <Compile Include="ConfiguratorEdcRadio.cs" />
+    <Compile Include="LoggerManager.cs" />
+    <Compile Include="LoggerEditor.cs" />
+    <Compile Include="VolumeMonitor.cs" />
+    <Compile Include="EDC_Database.cs" />
+    <Compile Include="Data.cs" />
+    <Compile Include="MeterData.cs" />
+    <Compile Include="Firmware.cs" />
+    <Compile Include="EDC_HandlerWindow.cs" />
+    <Compile Include="VolumeMonitorEventHandler.cs" />
+    <Compile Include="IHandlerForEDC_Test.cs" />
+    <Compile Include="EDC_HandlerFunctions.cs" />
+    <Compile Include="DeviceIdentification.cs" />
+    <Compile Include="DeviceVersion.cs" />
+    <Compile Include="EDC_MemoryMap.cs" />
+    <Compile Include="EDC_Meter.cs" />
+    <Compile Include="Parameter.cs" />
+    <Compile Include="ParameterEditor.cs" />
+    <Compile Include="ZoomEditor.cs" />
+    <Compile Include="Properties\Resources.cs" />
+    <Compile Include="Properties\Settings.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ConfiguratorEdcRadio.resx" />
+    <EmbeddedResource Include="ConfiguratorEdcWired.resx" />
+    <EmbeddedResource Include="EDC_HandlerWindow.resx" />
+    <EmbeddedResource Include="FirmwareEditor.resx" />
+    <EmbeddedResource Include="LoggerEditor.resx" />
+    <EmbeddedResource Include="MbusListEditor.resx" />
+    <EmbeddedResource Include="OverwriteEditor.resx" />
+    <EmbeddedResource Include="ParameterEditor.resx" />
+    <EmbeddedResource Include="Properties\Resources.resx" />
+    <EmbeddedResource Include="Simulator.resx" />
+    <EmbeddedResource Include="TestCommand.resx" />
+    <EmbeddedResource Include="TypeDataEditor.resx" />
+    <EmbeddedResource Include="TypeEditor.resx" />
+    <EmbeddedResource Include="VolumeMonitor.resx" />
+    <EmbeddedResource Include="ZoomEditor.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

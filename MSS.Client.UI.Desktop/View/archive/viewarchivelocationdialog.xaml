@@ -1,0 +1,129 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Archive.ViewArchiveLocationDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="CanMinimize" Height="450" Width="820" Title="{Binding ArchiveViewEntityDialogTitle}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+        <ResourceDictionary>
+          <Style x:Key="TextBoxStyle" TargetType="{x:Type TextBox}"
+                 BasedOn="{StaticResource AppTextBoxStructureStyle}">
+            <Setter Property="FrameworkElement.Margin" Value="5 3 10 3"/>
+          </Style>
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="50"/>
+      </Grid.RowDefinitions>
+      <AdornerDecorator Grid.Row="0">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="2*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="128"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="257*"/>
+            <ColumnDefinition Width="129*"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="256*"/>
+          </Grid.ColumnDefinitions>
+          <Label Grid.Row="1" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewLocation_City, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="1" Grid.Column="2" IsReadOnly="true" Style="{StaticResource TextBoxErrorStyle}"
+                   Margin="10,4,44,2" Width="200"
+                   Text="{Binding CityTextValue, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+          <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewLocation_Street, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="2" Grid.Column="2" IsReadOnly="true" Style="{StaticResource TextBoxErrorStyle}"
+                   Margin="10,4,44,2" Width="200"
+                   Text="{Binding StreetTextValue, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+          <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewLocation_ZipCode, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="3" Grid.Column="2" IsReadOnly="true" Style="{StaticResource TextBoxErrorStyle}"
+                   Margin="10,4,44,2" Width="200" MaxLength="10"
+                   Text="{Binding ZipCodeValue, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+          <Label Grid.Row="4" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewLocation_BuildingNo, Source={StaticResource Resources}}"/>
+          <telerik:RadMaskedTextInput x:Name="RadMaskedTextInput" telerik:StyleManager.Theme="Windows8" Grid.Row="4" Grid.Column="2"
+                                      IsReadOnly="true" Style="{StaticResource RadMaskedTextInputErrorStyle}" Mask="###.###\-#\/###"
+                                      Width="200" Margin="10,4,0,2"
+                                      Value="{Binding BuildingNumberValue, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay, Converter={StaticResource BuildingNumberConverter}}"/>
+          <Label Grid.Row="5" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewLocation_Description, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="5" Grid.RowSpan="3" Grid.Column="2" IsReadOnly="true"
+                   Style="{StaticResource AppTextBoxStyle}" Margin="10,4,46,19" TextWrapping="Wrap"
+                   AcceptsReturn="true" VerticalScrollBarVisibility="Visible"
+                   Text="{Binding DescriptionValue, UpdateSourceTrigger=PropertyChanged}"/>
+          <Label Grid.Row="1" Grid.Column="3" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewLocation_Scale, Source={StaticResource Resources}}"
+                 Visibility="{Binding EvaluationFactorVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+          <TextBox Grid.Row="1" Grid.Column="5" IsReadOnly="true" Style="{StaticResource TextBoxErrorStyle}"
+                   Margin="10,4,44,2" Width="200" Text="{Binding Scale, UpdateSourceTrigger=PropertyChanged}"/>
+          <Label Grid.Row="2" Grid.Column="3" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewLocation_Generation, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="2" Grid.Column="5" IsReadOnly="true" Style="{StaticResource TextBoxErrorStyle}"
+                   Margin="10,4,44,2" Width="200"
+                   Text="{Binding GenerationValue, UpdateSourceTrigger=PropertyChanged}"/>
+          <Label Grid.Row="3" Grid.Column="3" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewLocation_ScenarioCode, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="3" Grid.Column="5" IsReadOnly="true" Style="{StaticResource TextBoxErrorStyle}"
+                   Margin="10,4,44,2" Width="200" Text="{Binding ScenarioCode, UpdateSourceTrigger=PropertyChanged}"/>
+          <Label Grid.Row="4" Grid.Column="3" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewLocation_DueDate, Source={StaticResource Resources}}"/>
+          <telerik:RadDateTimePicker x:Name="DueDateTimePicker" Grid.Row="4" Grid.Column="5" IsReadOnly="true" Margin="10,5,44,3"
+                                     DisplayFormat="Short" InputMode="DatePicker" DateSelectionMode="Day" ErrorTooltipContent="Error."
+                                     IsTooltipEnabled="true" AllowParsingWithoutSeparator="false" telerik:StyleManager.Theme="Windows8"
+                                     Style="{StaticResource RadDateTimePickerErrorStyle}"
+                                     SelectedValue="{Binding DueDateValue, UpdateSourceTrigger=PropertyChanged}"/>
+          <Label Grid.Row="5" Grid.Column="3" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Archive_ViewLocation_HasMaster, Source={StaticResource Resources}}"/>
+          <CheckBox Grid.Row="5" Grid.Column="5" Style="{StaticResource AppCheckBoxButtonStyle}" IsEnabled="false"
+                    IsChecked="{Binding HasMaster}"/>
+        </Grid>
+      </AdornerDecorator>
+      <Grid Row="1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Column="1">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="CancelButton" Grid.Column="1" Foreground="#595151" Background="White" Height="25"
+                  Width="73" BorderBrush="LightGray" Style="{StaticResource AppButtonStyle}"
+                  Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                  Command="{Binding CancelWindowCommand}"/>
+        </Grid>
+        <Grid Column="0">
+          <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right"
+                            Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

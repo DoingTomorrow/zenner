@@ -1,0 +1,199 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Jobs.CreateJobDefinitionDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="NoResize" Height="375" Width="500" Title="{Binding Title}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+        <ResourceDictionary>
+          <DataTemplate x:Key="ComboBoxCustomTemplate">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <TextBlock Grid.Column="0" FontWeight="Bold" Text="{Binding Name, Mode=TwoWay}"/>
+              <Image Grid.Column="1" HorizontalAlignment="Right" Height="95" Width="95"
+                     Source="{Binding Image500x500, Mode=OneWay}"/>
+            </Grid>
+          </DataTemplate>
+          <DataTemplate x:Key="ComboBoxSimpleTemplate">
+            <TextBlock FontWeight="Bold" Text="{Binding Name, Mode=TwoWay}"/>
+          </DataTemplate>
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="35"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="50"/>
+      </Grid.RowDefinitions>
+      <ContentPresenter Grid.Row="0" Width="Auto" Margin="10 5" Height="28" HorizontalAlignment="Right"
+                        Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+      <Grid Row="1">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="40"/>
+          <RowDefinition Height="35"/>
+          <RowDefinition Height="35"/>
+          <RowDefinition Height="35"/>
+          <RowDefinition Height="30"/>
+          <RowDefinition Height="35"/>
+          <RowDefinition Height="35"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="117*"/>
+          <ColumnDefinition Width="5"/>
+          <ColumnDefinition Width="329*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Foreground="#77778b" Grid.Row="1" Grid.Column="1" Text="*" VerticalAlignment="Center"/>
+        <TextBlock Foreground="#77778b" Grid.Row="2" Grid.Column="1" Text="*" VerticalAlignment="Center"/>
+        <TextBlock Foreground="#77778b" Grid.Row="3" Grid.Column="1" Text="*" VerticalAlignment="Center"/>
+        <TextBlock Foreground="#77778b" Grid.Row="4" Grid.Column="1" Text="*" VerticalAlignment="Center"/>
+        <TextBlock Foreground="#77778b" Grid.Row="5" Grid.Column="1" Text="*" VerticalAlignment="Center"/>
+        <StackPanel Margin="3,0,0,0" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Center"
+                    VerticalAlignment="Top">
+          <telerik:RadRadioButton Name="ReadingJob" Width="150" Height="28" Margin="0,5,5,5"
+                                  Content="{Binding Path=MSS_JOBS_READING_JOB, Source={StaticResource Resources}}"
+                                  IsChecked="{Binding IsReadingJob}"/>
+          <telerik:RadRadioButton Name="ServiceJob" Width="150" Height="28" Margin="5,5,0,5"
+                                  Content="{Binding Path=MSS_JOBS_SERVICE_JOB, Source={StaticResource Resources}}"
+                                  IsChecked="{Binding IsServiceJob}"
+                                  Visibility="{Binding ServiceJobVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}"/>
+        </StackPanel>
+        <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource AppLabelStyle}" Height="27" Width="auto"
+               HorizontalAlignment="Right"
+               Content="{Binding Path=MSS_CLIENT_CREATE_JOB_NAME, Source={StaticResource Resources}}"/>
+        <TextBox Grid.Row="1" Grid.Column="2" Margin="11,4,15,4" Style="{StaticResource TextBoxErrorStyle}"
+                 Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"/>
+        <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+               Height="26" Width="auto"
+               Content="{Binding Path=MSS_JOBS_EQUIPMENT, Source={StaticResource Resources}}"/>
+        <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal">
+          <TextBox Style="{StaticResource TextBoxErrorStyle}" IsEnabled="true" IsReadOnly="true" Height="30"
+                   Width="250" Margin="11,2,8,2"
+                   Text="{Binding SelectedEquipmentName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"/>
+          <Button x:Name="BtnEquipment" HorizontalAlignment="Left" Command="{Binding OpenEquipmentSelection}"
+                  Visibility="{Binding IsAssignStructureButtonVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Control.Template>
+              <ControlTemplate>
+                <Image Source="pack://application:,,,/Styles;component/Images/Universal/details.png" Height="18"
+                       Width="50"/>
+              </ControlTemplate>
+            </Control.Template>
+          </Button>
+        </StackPanel>
+        <Label Grid.Column="0" Grid.Row="3" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+               Height="26" Width="auto"
+               Content="{Binding Path=MSS_JOBS_SYSTEM, Source={StaticResource Resources}}"/>
+        <StackPanel Grid.Row="3" Grid.Column="2" Orientation="Horizontal">
+          <telerik:RadComboBox Width="250" Margin="11,4,8,4" ItemTemplate="{StaticResource ComboBoxCustomTemplate}"
+                               SelectionBoxTemplate="{StaticResource ComboBoxSimpleTemplate}"
+                               Style="{StaticResource RadComboBoxErrorStyle}"
+                               SelectedItem="{Binding SelectedSystem, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"
+                               ItemsSource="{Binding SystemList}"/>
+          <Button x:Name="BtnSystem" HorizontalAlignment="Left" Command="{Binding OpenSystemSelection}"
+                  Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Control.Template>
+              <ControlTemplate>
+                <Image Source="pack://application:,,,/Styles;component/Images/Universal/details.png" Height="18"
+                       Width="50"/>
+              </ControlTemplate>
+            </Control.Template>
+          </Button>
+        </StackPanel>
+        <Label Grid.Column="0" Grid.Row="4" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+               Height="26" Width="auto"
+               Content="{Binding Path=MSS_JOBS_INTERVAL, Source={StaticResource Resources}}"/>
+        <Button x:Name="BtnOpenInterval" Grid.Column="2" Grid.Row="4" HorizontalAlignment="Left" Margin="11,0,0,0"
+                Width="50" Command="{Binding OpenIntervalCommand}"
+                Visibility="{Binding IsAssignStructureButtonVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+          <Control.Template>
+            <ControlTemplate>
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/details.png" Height="18"
+                     Width="50"/>
+            </ControlTemplate>
+          </Control.Template>
+        </Button>
+        <Label Grid.Column="0" Grid.Row="5" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+               Height="26" Width="auto"
+               Content="{Binding Path=MSS_CLIENT_CREATE_JOB_PROFILE_TYPE, Source={StaticResource Resources}}"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="2">
+          <telerik:RadComboBox DisplayMemberPath="Name" Margin="11,4,8,4" Width="250"
+                               Style="{StaticResource RadComboBoxErrorStyle}"
+                               SelectedItem="{Binding ProfileType, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"
+                               ItemsSource="{Binding ProfileTypes}"/>
+          <Button x:Name="BtnProfileTypes" HorizontalAlignment="Left" Command="{Binding ChangeProfileTypeCommand}"
+                  ToolTip="{Binding Path=MSS_Client_SetProfileTypeTooltip, Source={StaticResource Resources}}">
+            <Control.Template>
+              <ControlTemplate>
+                <Image Source="pack://application:,,,/Styles;component/Images/Universal/details.png" Height="18"
+                       Width="50"/>
+              </ControlTemplate>
+            </Control.Template>
+          </Button>
+        </StackPanel>
+        <Label Grid.Row="6" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right"
+               Height="26" Width="auto"
+               Content="{Binding Path=MSS_JOBS_FILTER, Source={StaticResource Resources}}"
+               Visibility="{Binding ElementName=ReadingJob, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        <StackPanel Grid.Row="6" Grid.Column="2" Orientation="Horizontal"
+                    Visibility="{Binding ElementName=ReadingJob, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}">
+          <telerik:RadComboBox Style="{StaticResource RadComboBoxErrorStyle}" Width="250" Margin="11,4,8,4"
+                               DisplayMemberPath="Name" SelectedValuePath="Id"
+                               SelectedItem="{Binding SelectedFilter, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"
+                               ItemsSource="{Binding FilterCollection, Mode=TwoWay}"/>
+          <Button x:Name="BtnStructure" HorizontalAlignment="Left" Command="{Binding OpenFilterCommand}"
+                  Visibility="{Binding IsAssignStructureButtonVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Control.Template>
+              <ControlTemplate>
+                <Image Source="pack://application:,,,/Styles;component/Images/Universal/details.png" Height="18"
+                       Width="50"/>
+              </ControlTemplate>
+            </Control.Template>
+          </Button>
+        </StackPanel>
+        <Label Grid.Column="0" Grid.Row="6" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_JOBS_SERVICE_JOB, Source={StaticResource Resources}}"
+               Visibility="{Binding ElementName=ServiceJob, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        <telerik:RadComboBox x:Name="ServiceJobsAutoCompleteBox" Grid.Column="2" Grid.Row="6" TextSearchMode="Contains"
+                             DisplayMemberPath="Description" BorderBrush="#FF25A0DA" BorderThickness="1" Margin="11,4,8,4"
+                             Style="{StaticResource RadComboBoxErrorStyle}"
+                             Text="{Binding MSS_Client_SelectAServiceJob, Source={StaticResource Resources}}"
+                             ItemsSource="{Binding ServiceJobs}" SelectedItem="{Binding SelectedServiceJob}"
+                             Visibility="{Binding ElementName=ServiceJob, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}"/>
+      </Grid>
+      <Grid Row="2">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="223*"/>
+          <ColumnDefinition Width="8*"/>
+          <ColumnDefinition Width="215*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Column="1" ColumnSpan="2">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="OkButton" Grid.Column="0" Background="White" BorderBrush="LightGray" Height="25" Width="73"
+                  Style="{StaticResource AppButtonStyle}" Command="{Binding SaveJobDefinition}"
+                  Content="{Binding Path=MSS_MessageCodes_OK, Source={StaticResource Resources}}"/>
+          <Button x:Name="CanceButton" Grid.Column="1" Background="White" BorderBrush="LightGray" Height="25"
+                  Width="73" Style="{StaticResource AppButtonStyle}" Command="{Binding CancelWindowCommand}"
+                  Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"/>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

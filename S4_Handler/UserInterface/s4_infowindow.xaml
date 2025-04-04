@@ -1,0 +1,31 @@
+<Window x:Class="S4_Handler.S4_InfoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Title="S4_Handler Information Window" Height="521" Width="768"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico"
+        WindowStartupLocation="CenterScreen">
+  <Grid>
+    <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" Margin="0,23,0,0" VerticalAlignment="Top"
+                                    Height="56"/>
+    <Grid Margin="0,79,0,0">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="20"/>
+        <RowDefinition/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition/>
+      </Grid.ColumnDefinitions>
+      <GroupBox Name="GroupBoxWork" Header="Information about the application" Grid.Row="1" Margin="2">
+        <Grid>
+          <TextBox Name="TextBoxApplicationInfo" Margin="5,5,155,5" BorderBrush="Gray" Background="Gainsboro"
+                   BorderThickness="2" Text="Info" FontFamily="Courier" TextAlignment="Center"/>
+          <StackPanel HorizontalAlignment="Right" Width="150">
+            <Button Click="ButtonClose_Click" x:Name="ButtonClose" Content="Close" Height="20" Margin="5,5,5,0"
+                    IsEnabled="true"/>
+          </StackPanel>
+        </Grid>
+      </GroupBox>
+    </Grid>
+  </Grid>
+</Window>

@@ -1,0 +1,131 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Archive.CreateEditArchiveJobDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="CanMinimize" Height="460" Width="500" Title="{Binding ArchiveJobDialogTitle}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="50"/>
+      </Grid.RowDefinitions>
+      <Grid Row="0" Margin="10">
+        <Border BorderThickness="1" BorderBrush="LightGray">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="20"/>
+              <RowDefinition Height="32"/>
+              <RowDefinition Height="32"/>
+              <RowDefinition Height="32"/>
+              <RowDefinition Height="32"/>
+              <RowDefinition Height="32"/>
+              <RowDefinition Height="32"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="130"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Grid.Row="1" Style="{StaticResource AppLabelStyle}" Height="26"
+                   Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_Type, Source={StaticResource Resources}}"/>
+            <TextBlock Grid.Column="1" Grid.Row="1" Style="{StaticResource AppTextBlockGrayStyle}"
+                       HorizontalAlignment="Left" Margin="10"
+                       Text="{Binding Path=MSS_CLIENT_ARCHIVE_TITLE, Source={StaticResource Resources}}"/>
+            <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabelStyle}" Height="26" Width="65"
+                   Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_Periodicity, Source={StaticResource Resources}}"/>
+            <telerik:RadComboBox x:Name="JobPeriodicityComboBox" Grid.Column="1" Grid.Row="2"
+                                 Style="{StaticResource RadComboBoxErrorStyle}" DisplayMemberPath="AutomatedExportJobPeriodicity"
+                                 SelectedValuePath="Id" VerticalAlignment="Center" HorizontalAlignment="Left" Height="25"
+                                 Width="240" Margin="10 0 0 0" ItemsSource="{Binding GetJobPeriodicities}"
+                                 SelectedValue="{Binding SelectedJobPeriodicityId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+            <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource AppLabelStyle}" Height="26"
+                   Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_StartDate, Source={StaticResource Resources}}"/>
+            <telerik:RadDateTimePicker x:Name="StartDateTimePicker" Grid.Column="1" Grid.Row="3" Height="25" Margin="10 0 0 0"
+                                       HorizontalAlignment="Left" Width="240" Style="{StaticResource RadDateTimePickerErrorStyle}"
+                                       DisplayFormat="Short" InputMode="DateTimePicker" telerik:StyleManager.Theme="Windows8"
+                                       IsReadOnly="false" DateSelectionMode="Day" ErrorTooltipContent="Error." IsTooltipEnabled="true"
+                                       AllowParsingWithoutSeparator="false" IsEnabled="true"
+                                       SelectedValue="{Binding StartDateValue, Mode=TwoWay}"/>
+            <Label Name="ArchiveName" Grid.Row="4" Grid.Column="0" Style="{StaticResource AppLabelStyle}" Height="26"
+                   Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_ArchiveName, Source={StaticResource Resources}}"/>
+            <TextBox Grid.Row="4" Grid.Column="1" Height="25" Width="240" Margin="10,0,0,0" HorizontalAlignment="Left"
+                     Style="{StaticResource TextBoxErrorStyle}"
+                     Text="{Binding ArchiveName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"/>
+            <Label Grid.Row="5" Grid.Column="0" Visibility="Hidden" Style="{StaticResource AppLabelStyle}" Height="26"
+                   Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_WhatToArchiveInterval, Source={StaticResource Resources}}"/>
+            <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Visibility="Hidden">
+              <telerik:Label Foreground="#595151"
+                             Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_OlderThanTheLast, Source={StaticResource Resources}}"/>
+              <telerik:RadNumericUpDown Width="50" Height="20" IsInteger="true" IsEnabled="true" Value="{Binding NumberOfDaysToExport}"/>
+              <telerik:Label Content="days" Foreground="#595151"/>
+            </StackPanel>
+            <Label Grid.Row="6" Grid.Column="0" Style="{StaticResource AppLabelStyle}" Height="26"
+                   Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_DeleteAfterArchive, Source={StaticResource Resources}}"/>
+            <CheckBox Name="JobDeleteAfterExportCheckBox" Grid.Column="1" Grid.Row="6"
+                      Style="{StaticResource AppCheckBoxButtonStyle}" Margin="10 0 0 0"
+                      IsChecked="{Binding DeleteAfterArchive}"/>
+            <Label Grid.Row="7" Grid.Column="0" Style="{StaticResource AppLabelStyle}" Height="26"
+                   VerticalAlignment="Top"
+                   Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_EntitiesToArchive, Source={StaticResource Resources}}"/>
+            <ListBox Name="listTopics" Grid.Row="7" Grid.Column="1" HorizontalAlignment="Left" Margin="10,0,0,0"
+                     VerticalAlignment="Top" BorderThickness="0"
+                     ItemsSource="{Binding ArchivedEntitiesCollection, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel>
+                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked}"/>
+                  </StackPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ListBox>
+          </Grid>
+        </Border>
+      </Grid>
+      <Grid Row="1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Column="1">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="AddButton" Grid.Column="0" Foreground="#595151" Style="{StaticResource AppButtonStyle}"
+                  Background="White" Height="25" Width="73" BorderBrush="LightGray" IsDefault="true"
+                  Content="{Binding Path=MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                  Command="{Binding CreateArchiveJobCommand}"
+                  Visibility="{Binding IsAddArchiveJobButtonVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+          <Button x:Name="EditButton" Grid.Column="0" Foreground="#595151" Style="{StaticResource AppButtonStyle}"
+                  Background="White" Height="25" Width="73" BorderBrush="LightGray" IsDefault="true"
+                  Content="{Binding Path=MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                  Command="{Binding EditArchiveJobCommand}"
+                  Visibility="{Binding IsEditArchiveJobButtonVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+          <Button x:Name="CancelButton" Grid.Column="1" Foreground="#595151" Style="{StaticResource AppButtonStyle}"
+                  Background="White" Height="25" Width="73" BorderBrush="LightGray"
+                  Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                  Command="{Binding CancelWindowCommand}"/>
+        </Grid>
+        <Grid Column="0">
+          <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,0,0,0"
+                            Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

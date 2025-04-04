@@ -1,0 +1,129 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Jobs.AddEditJobDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="NoResize" Height="350" Width="500" Title="{Binding Title, Mode=TwoWay}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="10"/>
+        <RowDefinition Height="60"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="60"/>
+      </Grid.RowDefinitions>
+      <Grid Row="1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="100"/>
+          <ColumnDefinition Width="160"/>
+          <ColumnDefinition Width="160"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Grid.ColumnSpan="2" Margin="3,0,0,0"
+                    HorizontalAlignment="Center" VerticalAlignment="Top">
+          <telerik:RadRadioButton Name="MbusRadioButton" Width="150" Height="28" Margin="0,5,5,5"
+                                  Content="{Binding Path=JOBS_CREATE_JOB_MBUS, Source={StaticResource Resources}}"
+                                  IsChecked="{Binding IsMBusJob}"/>
+          <telerik:RadRadioButton Name="MinomatRadioButton" Width="150" Height="28" Margin="5,5,0,5"
+                                  Content="{Binding Path=JOBS_CREATE_JOB_MINOMAT, Source={StaticResource Resources}}"
+                                  IsChecked="{Binding IsMinomatJob}"/>
+        </StackPanel>
+      </Grid>
+      <Grid Row="2"
+            Visibility="{Binding ElementName=MinomatRadioButton, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="10"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="140"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="0.7*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Column="0" Grid.Row="1" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=JOBS_JOBSGRID_RADIO_ID, Source={StaticResource Resources}}"/>
+        <telerik:RadComboBox x:Name="songsAutoCompleteBox" Grid.Column="1" Grid.Row="1" TextSearchMode="Contains"
+                             IsEditable="true" Style="{StaticResource RadComboBoxErrorStyle}" Margin="8,13,10,10" Height="24"
+                             BorderBrush="#FF25A0DA" BorderThickness="1" ItemsSource="{Binding SerialNumberList}"
+                             SelectedItem="{Binding SerialNumber, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+        <Button x:Name="BtnStructure" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left"
+                Command="{Binding OpenStructuresCommand}">
+          <Control.Template>
+            <ControlTemplate>
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/details.png" Height="18"
+                     Width="50"/>
+            </ControlTemplate>
+          </Control.Template>
+        </Button>
+        <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_CLIENT_JOB_GRID_COLUMN_NAME_JOB_DEFINITION, Source={StaticResource Resources}}"/>
+        <telerik:RadComboBox Grid.Row="2" Grid.Column="1" Height="24" Margin="8,13,10,10" SelectedValue="Id"
+                             DisplayMemberPath="Name" Style="{StaticResource RadComboBoxErrorStyle}"
+                             SelectedItem="{Binding SelectedMinomatJobDefinition, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"
+                             ItemsSource="{Binding JobDefinitions}"/>
+      </Grid>
+      <Grid Row="2"
+            Visibility="{Binding ElementName=MbusRadioButton, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="10"/>
+          <RowDefinition Height="2*"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="140"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="0.7*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Column="0" Grid.Row="1" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=JOBS_CREATE_JOB_SELECTED_STRUCTURE, Source={StaticResource Resources}}"/>
+        <TextBox IsEnabled="false" Height="Auto" TextWrapping="Wrap" VerticalScrollBarVisibility="Visible"
+                 Grid.Column="1" Grid.Row="1" Style="{StaticResource TextBoxErrorStyle}" Margin="8,13,10,10"
+                 Text="{Binding StructureRootInfo, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+        <Button x:Name="StructureButton" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left"
+                Command="{Binding OpenStructureSelection}">
+          <Control.Template>
+            <ControlTemplate>
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/details.png" Height="18"
+                     Width="50"/>
+            </ControlTemplate>
+          </Control.Template>
+        </Button>
+        <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_CLIENT_JOB_GRID_COLUMN_NAME_JOB_DEFINITION, Source={StaticResource Resources}}"/>
+        <telerik:RadComboBox Grid.Row="2" Grid.Column="1" Height="24" Margin="8,13,10,10" SelectedValue="Id"
+                             DisplayMemberPath="Name" Style="{StaticResource RadComboBoxErrorStyle}"
+                             SelectedItem="{Binding SelectedJobDefinition, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"
+                             ItemsSource="{Binding JobDefinitions}"/>
+      </Grid>
+      <Grid Row="3">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+          <Button x:Name="OkButton1" HorizontalAlignment="Right" Margin="0,10,25,0" Foreground="#595151"
+                  Style="{StaticResource AppButtonStyle}" Background="White" Height="25" Width="73"
+                  BorderBrush="LightGray" Content="{Binding MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                  Command="{Binding UpdateJobCommand}"/>
+          <Button x:Name="CancelButton1" Margin="0,10,25,0" Foreground="#595151"
+                  Style="{StaticResource AppButtonStyle}" Background="White" Height="25" Width="73"
+                  BorderBrush="LightGray"
+                  Content="{Binding MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                  Command="{Binding CancelWindowCommand}"/>
+        </StackPanel>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

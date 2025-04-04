@@ -1,0 +1,79 @@
+<Window x:Class="StartupLib.DatabaseSelector"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:StartupLib"
+        Title="Database selector" Height="469.45" Width="628.565"
+        Icon="/StartupLib;component/Images/ZR.ico">
+  <FrameworkElement.Resources>
+    <local:BooleanToVisibilityConverter x:Key="BoolToVis"/>
+  </FrameworkElement.Resources>
+  <Grid>
+    <local:GmmCorporateControl HorizontalAlignment="Stretch" Margin="0" VerticalAlignment="Top"/>
+    <Grid Margin="0,56,0,3"
+          DataContext="{Binding DatabaseSelectorVM, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:DatabaseSelector}}}">
+      <Label x:Name="label" Content="Database instance" Margin="0,10,206,0" VerticalAlignment="Top"
+             HorizontalAlignment="Right" Width="113" Height="26"/>
+      <ComboBox x:Name="ComboBoxDatabaseInstance" Margin="0,9,10,0" VerticalAlignment="Top"
+                HorizontalAlignment="Right" Width="191" Height="22" ItemsSource="{Binding DatabaseInstances}"
+                SelectedValue="{Binding SelectedDatabaseInstanceProperty, Mode=TwoWay}"/>
+      <Label Content="Database type" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"
+             Height="26" Width="86"/>
+      <ComboBox x:Name="ComboBoxDatabaseType" Margin="10,41,10,0" VerticalAlignment="Top" Height="22"
+                ItemsSource="{Binding DatabaseTypes}"
+                SelectedValue="{Binding SelectedDatabaseTypeProperty, Mode=TwoWay}"/>
+      <DockPanel Margin="0,68,0,35">
+        <StackPanel x:Name="DatabaseProperties" DockPanel.Dock="Top" Margin="5,2,5,0" VerticalAlignment="Top">
+          <DockPanel x:Name="DockPanalPath" LastChildFill="true"
+                     Visibility="{Binding Path=PathRequestedProperty, Converter={StaticResource BoolToVis}}">
+            <Label DockPanel.Dock="Left" Width="100" Content="Database path"/>
+            <Button Click="ButtonSelectPath_Click" Name="ButtonSelectPath" DockPanel.Dock="Right" Content="Select path"/>
+            <TextBox Name="TextBoxDatabasePath" HorizontalAlignment="Stretch"
+                     Text="{Binding Path=URLorPathProperty, UpdateSourceTrigger=PropertyChanged}"/>
+          </DockPanel>
+          <DockPanel x:Name="DockPanalURL" LastChildFill="true"
+                     Visibility="{Binding Path=URL_RequestedProperty, Converter={StaticResource BoolToVis}}">
+            <Label DockPanel.Dock="Left" Width="100" Content="Database URL"/>
+            <TextBox Name="TextBoxDatabaseURL" HorizontalAlignment="Stretch"
+                     Text="{Binding Path=URLorPathProperty, UpdateSourceTrigger=PropertyChanged}"/>
+          </DockPanel>
+          <DockPanel x:Name="DockPanalDatabaseName" LastChildFill="true"
+                     Visibility="{Binding Path=DatabaseNameRequestedProperty, Converter={StaticResource BoolToVis}}">
+            <Label DockPanel.Dock="Left" Width="100" Content="Database name"/>
+            <TextBox Name="TextBoxDatabaseName" HorizontalAlignment="Stretch"
+                     Text="{Binding Path=DatabaseNameProperty, UpdateSourceTrigger=PropertyChanged}"/>
+          </DockPanel>
+          <DockPanel x:Name="DockPanalUserName" LastChildFill="true"
+                     Visibility="{Binding Path=UserNameRequestedProperty, Converter={StaticResource BoolToVis}}">
+            <Label DockPanel.Dock="Left" Width="100" Content="UserName"/>
+            <TextBox Name="TextBoxUserName" HorizontalAlignment="Stretch"
+                     Text="{Binding Path=UserNameProperty, UpdateSourceTrigger=PropertyChanged}"/>
+          </DockPanel>
+          <DockPanel x:Name="DockPanalPassword" LastChildFill="true"
+                     Visibility="{Binding Path=PasswordRequestedProperty, Converter={StaticResource BoolToVis}}">
+            <Label DockPanel.Dock="Left" Width="100" Content="Password"/>
+            <PasswordBox GotFocus="PasswordBox1_GotFocus" LostFocus="PasswordBox1_LostFocus" Name="PasswordBox1"
+                         HorizontalAlignment="Stretch"/>
+          </DockPanel>
+        </StackPanel>
+        <GroupBox VerticalAlignment="Stretch" Margin="5,10,5,3" Padding="5" Header="Database info">
+          <ScrollViewer VerticalAlignment="Stretch">
+            <TextBlock Name="TextBoxDatabaseInfo" VerticalAlignment="Stretch" Text="{Binding Path=DatabaseInfoProperty}"/>
+          </ScrollViewer>
+        </GroupBox>
+      </DockPanel>
+      <DockPanel IsEnabledChanged="DockPanelButtons_IsEnabledChanged" Name="DockPanelButtons" LastChildFill="false"
+                 Margin="10,0,10,10" VerticalAlignment="Bottom" Height="20"
+                 IsEnabled="{Binding Path=SelectionOkProperty}">
+        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+          <Button Click="ButtonTestConnection_Click" x:Name="ButtonTestConnection" Content="Test connection"
+                  Padding="10,0,10,0"/>
+          <Button Click="ButtonCopy_Click" x:Name="ButtonCopy" Content="Copy" Margin="20,0,0,0" Padding="10,0,10,0"/>
+          <Button Click="ButtonPast_Click" x:Name="ButtonPast" Content="Past" Margin="10,0,0,0" Padding="10,0,10,0"
+                  Height="20" VerticalAlignment="Top"/>
+        </StackPanel>
+        <Button Click="ButtoSaveConnection_Click" Name="ButtonSave" DockPanel.Dock="Right" Content="Save"
+                IsEnabled="false" Padding="10,0,10,0" Height="20" VerticalAlignment="Top"/>
+      </DockPanel>
+    </Grid>
+  </Grid>
+</Window>

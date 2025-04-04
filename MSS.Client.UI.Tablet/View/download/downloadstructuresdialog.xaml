@@ -1,0 +1,105 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Download.DownloadStructuresDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c" Height="410"
+                             Width="600" Title="{Binding Path=MSS_MessageCodes_Download, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid Row="0">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="60"/>
+          </Grid.RowDefinitions>
+          <Grid Row="1">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="2*"/>
+              <ColumnDefinition Width="80"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0" Style="{StaticResource AppTextBoxStyle}" Height="25" Text="{Binding SearchText}"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+              <CheckBox Name="LockBox" Style="{StaticResource AppCheckBoxButtonStyle}" Margin="0"
+                        IsChecked="{Binding LockBoxValue}"/>
+              <TextBlock Style="{StaticResource AppTextBlockGrayStyle}"
+                         Text="{Binding Path=MSS_MessageCodes_Lock, Source={StaticResource Resources}}"/>
+            </StackPanel>
+            <Button x:Name="SearchButton" Grid.Column="2" Foreground="#595151"
+                    Style="{StaticResource CommandButtonStyle}" Background="Transparent" Margin="10 5"
+                    BorderBrush="LightGray"
+                    Content="{Binding Path=MSS_MessageCodes_Search, Source={StaticResource Resources}}"
+                    Command="{Binding SearchCommand}"/>
+          </Grid>
+          <Grid Row="0" Background="#EDEDED">
+            <ContentPresenter HorizontalAlignment="Right" Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+          </Grid>
+          <Grid x:Name="StructureRootGrid" Background="Transparent" Row="2">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <FrameworkElement.Resources>
+              <DataTemplate x:Key="FirstColumnCellTemplate">
+                <StackPanel Orientation="Horizontal" Background="{Binding BackgroundColor}">
+                  <Image Source="{Binding Image}"/>
+                  <TextBlock Margin="5" Text="{Binding Name}"/>
+                </StackPanel>
+              </DataTemplate>
+              <Style TargetType="{x:Type telerik:RadTreeViewItem}">
+                <Setter Property="telerik:RadTreeViewItem.IsExpanded" Value="true"/>
+              </Style>
+            </FrameworkElement.Resources>
+            <telerik:RadTreeListView SelectionChanged="TreeListView_OnSelectionChanged" x:Name="treeListView" Grid.Row="1"
+                                     AutoGenerateColumns="false" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5"
+                                     CanUserFreezeColumns="false" CanUserReorderColumns="false" RowIndicatorVisibility="Collapsed"
+                                     AutoExpandItems="true" telerik:StyleManager.Theme="Windows8" SelectionMode="Extended"
+                                     ItemsSource="{Binding SampleNodes}">
+              <telerik:GridViewDataControl.ChildTableDefinitions>
+                <telerik:TreeListViewTableDefinition ItemsSource="{Binding SubNodes}"/>
+              </telerik:GridViewDataControl.ChildTableDefinitions>
+              <telerik:GridViewDataControl.Columns>
+                <telerik:GridViewDataColumn CellTemplate="{StaticResource FirstColumnCellTemplate}" IsReadOnly="true" Width="*"
+                                            DataMemberBinding="{Binding Name}"/>
+              </telerik:GridViewDataControl.Columns>
+            </telerik:RadTreeListView>
+          </Grid>
+          <Grid Row="3">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="3*"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="DownloadButton" Grid.Column="1" Foreground="#595151"
+                    Style="{StaticResource CommandButtonStyle}" Background="Transparent" BorderBrush="LightGray"
+                    Margin="15" IsEnabled="false"
+                    Content="{Binding Path=MSS_MessageCodes_Download, Source={StaticResource Resources}}"
+                    Command="{Binding DownloadCommand}" CommandParameter="{Binding ElementName=treeListView}"/>
+            <Button x:Name="CancelButton" Grid.Column="2" Foreground="#595151"
+                    Style="{StaticResource CommandButtonStyle}" Background="Transparent" BorderBrush="LightGray"
+                    Margin="15" Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                    Command="{Binding CancelCommand}"/>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

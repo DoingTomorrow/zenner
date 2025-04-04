@@ -1,0 +1,74 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Structures.EditGenericEntityDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="CanMinimize" Height="320" Width="760" Title="{Binding EntityDialogTitle}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+        <ResourceDictionary>
+          <Style x:Key="AppLabel" TargetType="{x:Type Label}">
+            <Setter Property="Control.Foreground" Value="#595151"/>
+            <Setter Property="FrameworkElement.HorizontalAlignment" Value="Right"/>
+            <Setter Property="FrameworkElement.Height" Value="30"/>
+          </Style>
+          <Style x:Key="AppTextBox" TargetType="{x:Type TextBox}">
+            <Setter Property="FrameworkElement.Margin" Value="10 0 5 0"/>
+            <Setter Property="Control.BorderBrush" Value="LightGray"/>
+            <Setter Property="FrameworkElement.Height" Value="30"/>
+            <Setter Property="FrameworkElement.Width" Value="210"/>
+            <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+          </Style>
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <telerik:RadTabControl Margin="3" HeaderBackground="#EDEDED" Template="{StaticResource RadTabControlControlTemplateTest}">
+      <telerik:RadTabItem Header="{Binding MSS_Client_Structures_General_Tab, Source={StaticResource Resources}}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="3*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label Grid.Column="0" Grid.Row="1" Style="{StaticResource AppLabel}" VerticalAlignment="Center"
+                 Content="{Binding Path=MSS_Client_Structures_Device_Name, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Column="1" Grid.Row="1" Style="{StaticResource AppTextBox}" VerticalAlignment="Center"
+                   Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+          <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabel}" VerticalAlignment="Center"
+                 Content="{Binding Path=MSS_Client_Structures_Device_Description, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource AppTextBox}" VerticalAlignment="Center"
+                   Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+          <Grid Row="3" Column="2" Margin="0,50,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="GeneralEditButton" Grid.Column="0" Style="{StaticResource CommandButtonStyle}" Height="40"
+                    IsDefault="true" Content="{Binding Path=MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                    Command="{Binding EditDeviceCommand}"/>
+            <Button x:Name="GeneralCancelButton" Grid.Column="1" Style="{StaticResource CommandButtonStyle}"
+                    Height="40" Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                    Command="{Binding CancelWindowCommand}"/>
+          </Grid>
+        </Grid>
+      </telerik:RadTabItem>
+    </telerik:RadTabControl>
+  </DockPanel>
+</common:ResizableMetroWindow>

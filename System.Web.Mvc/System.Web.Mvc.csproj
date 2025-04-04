@@ -1,0 +1,421 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\System.Web.Mvc.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{36710CAE-E5F1-42DB-A5AD-312DE61D7004}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>System.Web.Mvc</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+    <ApplicationVersion>4.0.0.1</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>System</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.WebPages">
+      <HintPath>lib\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor">
+      <HintPath>lib\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Web\PrefixContainer.cs" />
+    <Compile Include="Web\Mvc\IMetadataAware.cs" />
+    <Compile Include="Web\Mvc\AdditionalMetadataAttribute.cs" />
+    <Compile Include="Web\Mvc\AllowAnonymousAttribute.cs" />
+    <Compile Include="Web\Mvc\ActionDescriptorHelper.cs" />
+    <Compile Include="Web\Mvc\IUniquelyIdentifiable.cs" />
+    <Compile Include="Web\Mvc\ActionDescriptor.cs" />
+    <Compile Include="Web\Mvc\IView.cs" />
+    <Compile Include="Web\Mvc\BuildManagerCompiledView.cs" />
+    <Compile Include="Web\Mvc\IViewEngine.cs" />
+    <Compile Include="Web\Mvc\VirtualPathProviderViewEngine.cs" />
+    <Compile Include="Web\Mvc\BuildManagerViewEngine.cs" />
+    <Compile Include="Web\Mvc\IViewPageActivator.cs" />
+    <Compile Include="Web\Mvc\ModelMetadataProvider.cs" />
+    <Compile Include="Web\Mvc\AssociatedMetadataProvider.cs" />
+    <Compile Include="Web\Mvc\CachedAssociatedMetadataProvider`1.cs" />
+    <Compile Include="Web\Mvc\CachedDataAnnotationsMetadataAttributes.cs" />
+    <Compile Include="Web\Mvc\ModelMetadata.cs" />
+    <Compile Include="Web\Mvc\CachedModelMetadata`1.cs" />
+    <Compile Include="Web\Mvc\CachedDataAnnotationsModelMetadata.cs" />
+    <Compile Include="Web\Mvc\CachedDataAnnotationsModelMetadataProvider.cs" />
+    <Compile Include="Web\Mvc\IModelBinder.cs" />
+    <Compile Include="Web\Mvc\CancellationTokenModelBinder.cs" />
+    <Compile Include="Web\Mvc\ModelValidator.cs" />
+    <Compile Include="Web\Mvc\DataAnnotationsModelValidator.cs" />
+    <Compile Include="Web\Mvc\CompareAttributeAdapter.cs" />
+    <Compile Include="Web\Mvc\DataTypeAttributeAdapter.cs" />
+    <Compile Include="Web\Mvc\FileExtensionsAttributeAdapter.cs" />
+    <Compile Include="Web\Mvc\MembershipPasswordAttributeAdapter.cs" />
+    <Compile Include="Web\Mvc\IClientValidatable.cs" />
+    <Compile Include="Web\Mvc\CompareAttribute.cs" />
+    <Compile Include="Web\Mvc\IValueProvider.cs" />
+    <Compile Include="Web\Mvc\IEnumerableValueProvider.cs" />
+    <Compile Include="Web\Mvc\DictionaryValueProvider`1.cs" />
+    <Compile Include="Web\Mvc\ChildActionValueProvider.cs" />
+    <Compile Include="Web\Mvc\ValueProviderFactory.cs" />
+    <Compile Include="Web\Mvc\ChildActionValueProviderFactory.cs" />
+    <Compile Include="Web\Mvc\ActionMethodSelectorAttribute.cs" />
+    <Compile Include="Web\Mvc\HttpHeadAttribute.cs" />
+    <Compile Include="Web\Mvc\HttpOptionsAttribute.cs" />
+    <Compile Include="Web\Mvc\HttpPatchAttribute.cs" />
+    <Compile Include="Web\Mvc\DataTypeUtil.cs" />
+    <Compile Include="Web\Mvc\ReflectedAttributeCache.cs" />
+    <Compile Include="Web\Mvc\SessionStateAttribute.cs" />
+    <Compile Include="Web\Mvc\AllowHtmlAttribute.cs" />
+    <Compile Include="Web\Mvc\UnvalidatedRequestValuesAccessor.cs" />
+    <Compile Include="Web\Mvc\IUnvalidatedRequestValues.cs" />
+    <Compile Include="Web\Mvc\UnvalidatedRequestValuesWrapper.cs" />
+    <Compile Include="Web\Mvc\IUnvalidatedValueProvider.cs" />
+    <Compile Include="Web\Mvc\DependencyResolverExtensions.cs" />
+    <Compile Include="Web\Mvc\IControllerActivator.cs" />
+    <Compile Include="Web\Mvc\IModelBinderProvider.cs" />
+    <Compile Include="Web\Mvc\IViewStartPageChild.cs" />
+    <Compile Include="Web\Mvc\IResolver`1.cs" />
+    <Compile Include="Web\Mvc\IFilterProvider.cs" />
+    <Compile Include="Web\Mvc\ControllerInstanceFilterProvider.cs" />
+    <Compile Include="Web\Mvc\RazorView.cs" />
+    <Compile Include="Web\Mvc\RazorViewEngine.cs" />
+    <Compile Include="Web\Mvc\DynamicViewDataDictionary.cs" />
+    <Compile Include="Web\Mvc\Filter.cs" />
+    <Compile Include="Web\Mvc\FilterAttributeFilterProvider.cs" />
+    <Compile Include="Web\Mvc\FilterProviderCollection.cs" />
+    <Compile Include="Web\Mvc\FilterProviders.cs" />
+    <Compile Include="Web\Mvc\FilterScope.cs" />
+    <Compile Include="Web\Mvc\GlobalFilterCollection.cs" />
+    <Compile Include="Web\Mvc\GlobalFilters.cs" />
+    <Compile Include="Web\Mvc\IMvcFilter.cs" />
+    <Compile Include="Web\Mvc\ModelBinderProviderCollection.cs" />
+    <Compile Include="Web\Mvc\ModelBinderProviders.cs" />
+    <Compile Include="Web\Mvc\MultiServiceResolver`1.cs" />
+    <Compile Include="Web\Mvc\MvcFilter.cs" />
+    <Compile Include="Web\Mvc\MvcWebRazorHostFactory.cs" />
+    <Compile Include="Web\Mvc\PreApplicationStartCode.cs" />
+    <Compile Include="Web\Mvc\RemoteAttribute.cs" />
+    <Compile Include="Web\Mvc\SingleServiceResolver`1.cs" />
+    <Compile Include="Web\Mvc\TagBuilderExtensions.cs" />
+    <Compile Include="Web\Mvc\UrlRewriterHelper.cs" />
+    <Compile Include="Web\Mvc\ValidationAttributeHelpers.cs" />
+    <Compile Include="Web\Mvc\ViewStartPage.cs" />
+    <Compile Include="Web\Mvc\IViewDataContainer.cs" />
+    <Compile Include="Web\Mvc\WebViewPage.cs" />
+    <Compile Include="Web\Mvc\WebViewPage`1.cs" />
+    <Compile Include="Web\Mvc\ActionResult.cs" />
+    <Compile Include="Web\Mvc\HttpStatusCodeResult.cs" />
+    <Compile Include="Web\Mvc\HttpNotFoundResult.cs" />
+    <Compile Include="Web\Mvc\IMvcControlBuilder.cs" />
+    <Compile Include="Web\Mvc\ControllerContext.cs" />
+    <Compile Include="Web\Mvc\ActionExecutedContext.cs" />
+    <Compile Include="Web\Mvc\ActionExecutingContext.cs" />
+    <Compile Include="Web\Mvc\ModelValidatorProvider.cs" />
+    <Compile Include="Web\Mvc\ClientDataTypeModelValidatorProvider.cs" />
+    <Compile Include="Web\Mvc\AssociatedValidatorProvider.cs" />
+    <Compile Include="Web\Mvc\IActionInvoker.cs" />
+    <Compile Include="Web\Mvc\ControllerActionInvoker.cs" />
+    <Compile Include="Web\Mvc\FilterAttribute.cs" />
+    <Compile Include="Web\Mvc\IActionFilter.cs" />
+    <Compile Include="Web\Mvc\IResultFilter.cs" />
+    <Compile Include="Web\Mvc\ActionFilterAttribute.cs" />
+    <Compile Include="Web\Mvc\AsyncTimeoutAttribute.cs" />
+    <Compile Include="Web\Mvc\IController.cs" />
+    <Compile Include="Web\Mvc\ControllerBase.cs" />
+    <Compile Include="Web\Mvc\IAuthorizationFilter.cs" />
+    <Compile Include="Web\Mvc\IExceptionFilter.cs" />
+    <Compile Include="Web\Mvc\Controller.cs" />
+    <Compile Include="Web\Mvc\AsyncController.cs" />
+    <Compile Include="Web\Mvc\IDependencyResolver.cs" />
+    <Compile Include="Web\Mvc\JsonValueProviderFactory.cs" />
+    <Compile Include="Web\Mvc\DependencyResolver.cs" />
+    <Compile Include="Web\Mvc\UrlParameter.cs" />
+    <Compile Include="Web\Mvc\NameValueCollectionValueProvider.cs" />
+    <Compile Include="Web\Mvc\FormValueProvider.cs" />
+    <Compile Include="Web\Mvc\FormValueProviderFactory.cs" />
+    <Compile Include="Web\Mvc\HttpFileCollectionValueProvider.cs" />
+    <Compile Include="Web\Mvc\HttpFileCollectionValueProviderFactory.cs" />
+    <Compile Include="Web\Mvc\QueryStringValueProvider.cs" />
+    <Compile Include="Web\Mvc\QueryStringValueProviderFactory.cs" />
+    <Compile Include="Web\Mvc\DataAnnotationsModelValidator`1.cs" />
+    <Compile Include="Web\Mvc\RangeAttributeAdapter.cs" />
+    <Compile Include="Web\Mvc\RegularExpressionAttributeAdapter.cs" />
+    <Compile Include="Web\Mvc\RequiredAttributeAdapter.cs" />
+    <Compile Include="Web\Mvc\RouteDataValueProvider.cs" />
+    <Compile Include="Web\Mvc\RouteDataValueProviderFactory.cs" />
+    <Compile Include="Web\Mvc\StringLengthAttributeAdapter.cs" />
+    <Compile Include="Web\Mvc\TypeCacheUtil.cs" />
+    <Compile Include="Web\Mvc\TypeCacheSerializer.cs" />
+    <Compile Include="Web\Mvc\NoAsyncTimeoutAttribute.cs" />
+    <Compile Include="Web\Mvc\ControllerDescriptor.cs" />
+    <Compile Include="Web\Mvc\AuthorizationContext.cs" />
+    <Compile Include="Web\Mvc\ByteArrayModelBinder.cs" />
+    <Compile Include="Web\Mvc\MvcHandler.cs" />
+    <Compile Include="Web\Mvc\ParameterInfoUtil.cs" />
+    <Compile Include="Web\Mvc\HttpHandlerUtil.cs" />
+    <Compile Include="Web\Mvc\ChildActionOnlyAttribute.cs" />
+    <Compile Include="Web\Mvc\TypeDescriptorHelper.cs" />
+    <Compile Include="Web\Mvc\ValidatableObjectAdapter.cs" />
+    <Compile Include="Web\Mvc\ValueProviderFactories.cs" />
+    <Compile Include="Web\Mvc\ValueProviderFactoryCollection.cs" />
+    <Compile Include="Web\Mvc\ValueProviderCollection.cs" />
+    <Compile Include="Web\Mvc\ValueProviderUtil.cs" />
+    <Compile Include="Web\Mvc\DataErrorInfoModelValidatorProvider.cs" />
+    <Compile Include="Web\Mvc\ModelValidatorProviderCollection.cs" />
+    <Compile Include="Web\Mvc\DataAnnotationsModelMetadata.cs" />
+    <Compile Include="Web\Mvc\HiddenInputAttribute.cs" />
+    <Compile Include="Web\Mvc\HttpGetAttribute.cs" />
+    <Compile Include="Web\Mvc\HttpPutAttribute.cs" />
+    <Compile Include="Web\Mvc\HttpDeleteAttribute.cs" />
+    <Compile Include="Web\Mvc\MvcHtmlString.cs" />
+    <Compile Include="Web\Mvc\DataAnnotationsModelValidationFactory.cs" />
+    <Compile Include="Web\Mvc\DataAnnotationsValidatableObjectAdapterFactory.cs" />
+    <Compile Include="Web\Mvc\DataAnnotationsModelValidatorProvider.cs" />
+    <Compile Include="Web\Mvc\EmptyModelValidatorProvider.cs" />
+    <Compile Include="Web\Mvc\ExpressionHelper.cs" />
+    <Compile Include="Web\Mvc\FieldValidationMetadata.cs" />
+    <Compile Include="Web\Mvc\FormContext.cs" />
+    <Compile Include="Web\Mvc\JsonRequestBehavior.cs" />
+    <Compile Include="Web\Mvc\ModelValidationResult.cs" />
+    <Compile Include="Web\Mvc\ModelValidatorProviders.cs" />
+    <Compile Include="Web\Mvc\RequireHttpsAttribute.cs" />
+    <Compile Include="Web\Mvc\HttpRequestExtensions.cs" />
+    <Compile Include="Web\Mvc\DataAnnotationsModelMetadataProvider.cs" />
+    <Compile Include="Web\Mvc\EmptyModelMetadataProvider.cs" />
+    <Compile Include="Web\Mvc\ModelMetadataProviders.cs" />
+    <Compile Include="Web\Mvc\AreaHelpers.cs" />
+    <Compile Include="Web\Mvc\AreaRegistration.cs" />
+    <Compile Include="Web\Mvc\AreaRegistrationContext.cs" />
+    <Compile Include="Web\Mvc\Error.cs" />
+    <Compile Include="Web\Mvc\IRouteWithArea.cs" />
+    <Compile Include="Web\Mvc\LinqBinaryModelBinder.cs" />
+    <Compile Include="Web\Mvc\TryGetValueDelegate.cs" />
+    <Compile Include="Web\Mvc\ViewDataInfo.cs" />
+    <Compile Include="Web\Mvc\HttpPostAttribute.cs" />
+    <Compile Include="Web\Mvc\PathHelpers.cs" />
+    <Compile Include="Web\Mvc\ExceptionContext.cs" />
+    <Compile Include="Web\Mvc\ResultExecutedContext.cs" />
+    <Compile Include="Web\Mvc\ResultExecutingContext.cs" />
+    <Compile Include="Web\Mvc\TemplateInfo.cs" />
+    <Compile Include="Web\Mvc\ValidateAntiForgeryTokenAttribute.cs" />
+    <Compile Include="Web\Mvc\JavaScriptResult.cs" />
+    <Compile Include="Web\Mvc\ActionMethodDispatcher.cs" />
+    <Compile Include="Web\Mvc\ActionMethodSelector.cs" />
+    <Compile Include="Web\Mvc\ActionNameSelectorAttribute.cs" />
+    <Compile Include="Web\Mvc\AuthorizeAttribute.cs" />
+    <Compile Include="Web\Mvc\ReaderWriterCache`2.cs" />
+    <Compile Include="Web\Mvc\ActionMethodDispatcherCache.cs" />
+    <Compile Include="Web\Mvc\BindAttribute.cs" />
+    <Compile Include="Web\Mvc\ActionNameAttribute.cs" />
+    <Compile Include="Web\Mvc\AcceptVerbsAttribute.cs" />
+    <Compile Include="Web\Mvc\AjaxHelper.cs" />
+    <Compile Include="Web\Mvc\AjaxHelper`1.cs" />
+    <Compile Include="Web\Mvc\HtmlHelper.cs" />
+    <Compile Include="Web\Mvc\HtmlHelper`1.cs" />
+    <Compile Include="Web\Mvc\DictionaryHelpers.cs" />
+    <Compile Include="Web\Mvc\AjaxRequestExtensions.cs" />
+    <Compile Include="Web\Mvc\ModelBinderDictionary.cs" />
+    <Compile Include="Web\Mvc\ValueProviderDictionary.cs" />
+    <Compile Include="Web\Mvc\ViewContext.cs" />
+    <Compile Include="Web\Mvc\ViewMasterPageControlBuilder.cs" />
+    <Compile Include="Web\Mvc\ViewUserControl.cs" />
+    <Compile Include="Web\Mvc\ViewPage.cs" />
+    <Compile Include="Web\Mvc\ViewUserControl`1.cs" />
+    <Compile Include="Web\Mvc\ViewTemplateUserControl`1.cs" />
+    <Compile Include="Web\Mvc\ViewTemplateUserControl.cs" />
+    <Compile Include="Web\Mvc\ViewType.cs" />
+    <Compile Include="Web\Mvc\ViewTypeControlBuilder.cs" />
+    <Compile Include="Web\Mvc\ViewUserControlControlBuilder.cs" />
+    <Compile Include="Web\Mvc\ViewPageControlBuilder.cs" />
+    <Compile Include="Web\Mvc\ViewTypeParserFilter.cs" />
+    <Compile Include="Web\Mvc\IViewLocationCache.cs" />
+    <Compile Include="Web\Mvc\DefaultViewLocationCache.cs" />
+    <Compile Include="Web\Mvc\FormCollection.cs" />
+    <Compile Include="Web\Mvc\CustomModelBinderAttribute.cs" />
+    <Compile Include="Web\Mvc\HttpPostedFileBaseModelBinder.cs" />
+    <Compile Include="Web\Mvc\NullViewLocationCache.cs" />
+    <Compile Include="Web\Mvc\ValidateInputAttribute.cs" />
+    <Compile Include="Web\Mvc\FileResult.cs" />
+    <Compile Include="Web\Mvc\FileContentResult.cs" />
+    <Compile Include="Web\Mvc\FilePathResult.cs" />
+    <Compile Include="Web\Mvc\FileStreamResult.cs" />
+    <Compile Include="Web\Mvc\InputType.cs" />
+    <Compile Include="Web\Mvc\ControllerDescriptorCache.cs" />
+    <Compile Include="Web\Mvc\ParameterBindingInfo.cs" />
+    <Compile Include="Web\Mvc\ReflectedParameterBindingInfo.cs" />
+    <Compile Include="Web\Mvc\DescriptorUtil.cs" />
+    <Compile Include="Web\Mvc\ReflectedControllerDescriptor.cs" />
+    <Compile Include="Web\Mvc\ActionSelector.cs" />
+    <Compile Include="Web\Mvc\ReflectedActionDescriptor.cs" />
+    <Compile Include="Web\Mvc\HttpVerbs.cs" />
+    <Compile Include="Web\Mvc\DefaultModelBinder.cs" />
+    <Compile Include="Web\Mvc\ModelBindingContext.cs" />
+    <Compile Include="Web\Mvc\ParameterDescriptor.cs" />
+    <Compile Include="Web\Mvc\RouteValuesHelpers.cs" />
+    <Compile Include="Web\Mvc\SelectListItem.cs" />
+    <Compile Include="Web\Mvc\ReflectedParameterDescriptor.cs" />
+    <Compile Include="Web\Mvc\ValueProviderResult.cs" />
+    <Compile Include="Web\Mvc\FormMethod.cs" />
+    <Compile Include="Web\Mvc\ModelBinderAttribute.cs" />
+    <Compile Include="Web\Mvc\ModelBinders.cs" />
+    <Compile Include="Web\Mvc\ModelStateDictionary.cs" />
+    <Compile Include="Web\Mvc\ModelState.cs" />
+    <Compile Include="Web\Mvc\ModelErrorCollection.cs" />
+    <Compile Include="Web\Mvc\ModelError.cs" />
+    <Compile Include="Web\Mvc\HandleErrorAttribute.cs" />
+    <Compile Include="Web\Mvc\HandleErrorInfo.cs" />
+    <Compile Include="Web\Mvc\HttpUnauthorizedResult.cs" />
+    <Compile Include="Web\Mvc\MvcHttpHandler.cs" />
+    <Compile Include="Web\Mvc\ViewResultBase.cs" />
+    <Compile Include="Web\Mvc\PartialViewResult.cs" />
+    <Compile Include="Web\Mvc\ITempDataProvider.cs" />
+    <Compile Include="Web\Mvc\SessionStateTempDataProvider.cs" />
+    <Compile Include="Web\Mvc\OutputCacheAttribute.cs" />
+    <Compile Include="Web\Mvc\FilterInfo.cs" />
+    <Compile Include="Web\Mvc\IBuildManager.cs" />
+    <Compile Include="Web\Mvc\BuildManagerWrapper.cs" />
+    <Compile Include="Web\Mvc\ControllerBuilder.cs" />
+    <Compile Include="Web\Mvc\ControllerTypeCache.cs" />
+    <Compile Include="Web\Mvc\ContentResult.cs" />
+    <Compile Include="Web\Mvc\JsonResult.cs" />
+    <Compile Include="Web\Mvc\NameValueCollectionExtensions.cs" />
+    <Compile Include="Web\Mvc\ViewDataDictionary.cs" />
+    <Compile Include="Web\Mvc\ViewDataDictionary`1.cs" />
+    <Compile Include="Web\Mvc\EmptyResult.cs" />
+    <Compile Include="Web\Mvc\MultiSelectList.cs" />
+    <Compile Include="Web\Mvc\RedirectResult.cs" />
+    <Compile Include="Web\Mvc\RedirectToRouteResult.cs" />
+    <Compile Include="Web\Mvc\IControllerFactory.cs" />
+    <Compile Include="Web\Mvc\DefaultControllerFactory.cs" />
+    <Compile Include="Web\Mvc\MvcRouteHandler.cs" />
+    <Compile Include="Web\Mvc\NonActionAttribute.cs" />
+    <Compile Include="Web\Mvc\RouteCollectionExtensions.cs" />
+    <Compile Include="Web\Mvc\SelectList.cs" />
+    <Compile Include="Web\Mvc\TempDataDictionary.cs" />
+    <Compile Include="Web\Mvc\TypeHelpers.cs" />
+    <Compile Include="Web\Mvc\UrlHelper.cs" />
+    <Compile Include="Web\Mvc\ViewEngineCollection.cs" />
+    <Compile Include="Web\Mvc\ViewEngineResult.cs" />
+    <Compile Include="Web\Mvc\ViewEngines.cs" />
+    <Compile Include="Web\Mvc\ViewMasterPage.cs" />
+    <Compile Include="Web\Mvc\ViewMasterPage`1.cs" />
+    <Compile Include="Web\Mvc\ViewPage`1.cs" />
+    <Compile Include="Web\Mvc\ViewResult.cs" />
+    <Compile Include="Web\Mvc\WebFormView.cs" />
+    <Compile Include="Web\Mvc\WebFormViewEngine.cs" />
+    <Compile Include="Web\Mvc\Async\AsyncActionDescriptor.cs" />
+    <Compile Include="Web\Mvc\Async\TaskAsyncActionDescriptor.cs" />
+    <Compile Include="Web\Mvc\Async\TaskWrapperAsyncResult.cs" />
+    <Compile Include="Web\Mvc\Async\ActionDescriptorCreator.cs" />
+    <Compile Include="Web\Mvc\Async\AsyncActionMethodSelector.cs" />
+    <Compile Include="Web\Mvc\Async\IAsyncActionInvoker.cs" />
+    <Compile Include="Web\Mvc\Async\AsyncControllerActionInvoker.cs" />
+    <Compile Include="Web\Mvc\Async\SynchronousOperationException.cs" />
+    <Compile Include="Web\Mvc\Async\AsyncManager.cs" />
+    <Compile Include="Web\Mvc\Async\BeginInvokeDelegate.cs" />
+    <Compile Include="Web\Mvc\Async\AsyncResultWrapper.cs" />
+    <Compile Include="Web\Mvc\Async\AsyncVoid.cs" />
+    <Compile Include="Web\Mvc\Async\IAsyncController.cs" />
+    <Compile Include="Web\Mvc\Async\IAsyncManagerContainer.cs" />
+    <Compile Include="Web\Mvc\Async\AsyncUtil.cs" />
+    <Compile Include="Web\Mvc\Async\OperationCounter.cs" />
+    <Compile Include="Web\Mvc\Async\ReflectedAsyncActionDescriptor.cs" />
+    <Compile Include="Web\Mvc\Async\ReflectedAsyncControllerDescriptor.cs" />
+    <Compile Include="Web\Mvc\Async\Trigger.cs" />
+    <Compile Include="Web\Mvc\Async\TriggerListener.cs" />
+    <Compile Include="Web\Mvc\Async\SimpleAsyncResult.cs" />
+    <Compile Include="Web\Mvc\Async\EndInvokeDelegate.cs" />
+    <Compile Include="Web\Mvc\Async\EndInvokeDelegate`1.cs" />
+    <Compile Include="Web\Mvc\Async\SynchronizationContextUtil.cs" />
+    <Compile Include="Web\Mvc\Async\SingleEntryGate.cs" />
+    <Compile Include="Web\Mvc\Html\DisplayNameExtensions.cs" />
+    <Compile Include="Web\Mvc\Html\NameExtensions.cs" />
+    <Compile Include="Web\Mvc\Html\ValueExtensions.cs" />
+    <Compile Include="Web\Mvc\Html\DisplayTextExtensions.cs" />
+    <Compile Include="Web\Mvc\Html\ChildActionExtensions.cs" />
+    <Compile Include="Web\Mvc\Html\PartialExtensions.cs" />
+    <Compile Include="Web\Mvc\Html\DefaultDisplayTemplates.cs" />
+    <Compile Include="Web\Mvc\Html\DefaultEditorTemplates.cs" />
+    <Compile Include="Web\Mvc\Html\DisplayExtensions.cs" />
+    <Compile Include="Web\Mvc\Html\EditorExtensions.cs" />
+    <Compile Include="Web\Mvc\Html\LabelExtensions.cs" />
+    <Compile Include="Web\Mvc\Html\TemplateHelpers.cs" />
+    <Compile Include="Web\Mvc\Html\MvcForm.cs" />
+    <Compile Include="Web\Mvc\Html\FormExtensions.cs" />
+    <Compile Include="Web\Mvc\Html\InputExtensions.cs" />
+    <Compile Include="Web\Mvc\Html\RenderPartialExtensions.cs" />
+    <Compile Include="Web\Mvc\Html\SelectExtensions.cs" />
+    <Compile Include="Web\Mvc\Html\TextAreaExtensions.cs" />
+    <Compile Include="Web\Mvc\Html\ValidationExtensions.cs" />
+    <Compile Include="Web\Mvc\Html\LinkExtensions.cs" />
+    <Compile Include="Web\Mvc\Razor\MvcCSharpRazorCodeGenerator.cs" />
+    <Compile Include="Web\Mvc\Razor\SetModelTypeCodeGenerator.cs" />
+    <Compile Include="Web\Mvc\Razor\MvcCSharpRazorCodeParser.cs" />
+    <Compile Include="Web\Mvc\Razor\MvcVBRazorCodeParser.cs" />
+    <Compile Include="Web\Mvc\Razor\MvcWebPageRazorHost.cs" />
+    <Compile Include="Web\Mvc\Razor\StartPageLookupDelegate.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\ExpressionFingerprint.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\BinaryExpressionFingerprint.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\CachedExpressionCompiler.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\ConditionalExpressionFingerprint.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\ConstantExpressionFingerprint.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\DefaultExpressionFingerprint.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\ExpressionFingerprintChain.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\FingerprintingExpressionVisitor.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\HashCodeCombiner.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\Hoisted`2.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\HoistingExpressionVisitor`2.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\IndexExpressionFingerprint.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\LambdaExpressionFingerprint.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\MemberExpressionFingerprint.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\MethodCallExpressionFingerprint.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\ParameterExpressionFingerprint.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\TypeBinaryExpressionFingerprint.cs" />
+    <Compile Include="Web\Mvc\ExpressionUtil\UnaryExpressionFingerprint.cs" />
+    <Compile Include="Web\Mvc\Ajax\AjaxOptions.cs" />
+    <Compile Include="Web\Mvc\Ajax\AjaxExtensions.cs" />
+    <Compile Include="Web\Mvc\Ajax\InsertionMode.cs" />
+    <Compile Include="Web\Mvc\Properties\MvcResources.cs" />
+    <Compile Include="Web\Http\EnsureStackHelper.cs" />
+    <Compile Include="Threading\Tasks\TaskHelpers.cs" />
+    <Compile Include="Threading\Tasks\TaskHelpersExtensions.cs" />
+    <Compile Include="Threading\Tasks\CatchInfoBase`1.cs" />
+    <Compile Include="Threading\Tasks\CatchInfo.cs" />
+    <Compile Include="Threading\Tasks\CatchInfo`1.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Web\Mvc\Properties\MvcResources.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

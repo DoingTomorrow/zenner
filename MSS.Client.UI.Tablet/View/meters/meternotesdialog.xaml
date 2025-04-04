@@ -1,0 +1,53 @@
+<customControls:KeyboardMetroWindow x:Class="MSS.Client.UI.Tablet.View.Meters.MeterNotesDialog"
+                                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                                    xmlns:customControls="clr-namespace:MSS.Client.UI.Tablet.CustomControls"
+                                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                                    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                                    WindowTitleBrush="#00608c" WindowStartupLocation="CenterScreen" WindowState="Maximized"
+                                    TitleCaps="false" GlowBrush="Black" ShowInTaskbar="false" Title="{Binding Title}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <StackPanel Grid.Row="0" HorizontalAlignment="Stretch" Background="#ededed" Orientation="Horizontal">
+      <customControls:TabletButton Width="100"
+                                   ButtonPath="M9.9999831,23.999999L18.999983,23.999999C19.552983,23.999999 19.999983,24.448001 19.999983,24.999999 19.999983,25.551999 19.552983,25.999999 18.999983,25.999999L9.9999831,25.999999C9.4469826,25.999999 8.9999831,25.551999 8.9999831,24.999999 8.9999831,24.448001 9.4469826,23.999999 9.9999831,23.999999z M4.9999826,23.999999L5.9999826,23.999999C6.5529826,23.999999 6.9999826,24.448001 6.9999826,24.999999 6.9999826,25.551999 6.5529826,25.999999 5.9999826,25.999999L4.9999826,25.999999C4.4469826,25.999999 3.9999826,25.551999 3.9999828,24.999999 3.9999826,24.448001 4.4469826,23.999999 4.9999826,23.999999z M9.9999831,18L18.999983,18C19.552983,18 19.999983,18.448 19.999983,19 19.999983,19.551999 19.552983,19.999999 18.999983,19.999999L9.9999831,19.999999C9.4469826,19.999999 8.9999831,19.551999 8.9999831,19 8.9999831,18.448 9.4469826,18 9.9999831,18z M4.9999826,18L5.9999826,18C6.5529826,18 6.9999826,18.448 6.9999826,19 6.9999826,19.551999 6.5529826,19.999999 5.9999826,19.999999L4.9999826,19.999999C4.4469826,19.999999 3.9999826,19.551999 3.9999828,19 3.9999826,18.448 4.4469826,18 4.9999826,18z M9.9999831,12L18.999983,12C19.552983,12 19.999983,12.448 19.999983,13 19.999983,13.552 19.552983,14 18.999983,14L9.9999831,14C9.4469826,14 8.9999831,13.552 8.9999831,13 8.9999831,12.448 9.4469826,12 9.9999831,12z M4.9999826,12L5.9999826,12C6.5529826,12 6.9999826,12.448 6.9999826,13 6.9999826,13.552 6.5529826,14 5.9999826,14L4.9999826,14C4.4469826,14 3.9999826,13.552 3.9999828,13 3.9999826,12.448 4.4469826,12 4.9999826,12z M2.0000002,5.000026L2.0000002,30.000026 22,30.000026 22,5.000026 18.999983,5.000026 18.999983,6.8999999C18.999983,7.506,18.506983,8,17.899983,8L6.0999825,8C5.4929826,8,4.9999826,7.506,4.9999826,6.8999999L4.9999826,5.000026z M10.004982,2.0000001L9.9999831,2.9060001C9.9999831,3.507,9.506983,3.9999999,8.8999827,3.9999999L6.9999826,3.9999999 6.9999826,6 16.999983,6 16.999983,3.9999999 15.100983,3.9999999C14.493983,3.9999999,13.999983,3.506,13.999983,2.9L14.004982,2.0000001z M9.1089823,0L14.908983,0C15.515983,0,16.009983,0.49399996,16.009983,1.0999998L16.004982,2.0000001 17.899983,2.0000001C18.469046,2,18.937912,2.4341797,18.994297,2.9877806L18.994919,3.0000258 22,3.0000258C23.102967,3.0000257,24,3.8969984,24,5.000026L24,30.000026C24,31.102992,23.102967,32.000026,22,32.000026L2.0000002,32.000026C0.89697289,32.000026,2.365407E-07,31.102992,0,30.000026L0,5.000026C2.365407E-07,3.8969984,0.89697289,3.0000257,2.0000002,3.0000258L5.0050471,3.0000258 5.0056674,2.9877806C5.062053,2.4341797,5.5309203,2,6.0999825,2.0000001L8.0049822,2.0000001 8.0099823,1.0939997C8.0099823,0.49300003,8.5029824,0,9.1089823,0z"
+                                   ButtonText="{Binding MSS_Client_Structures_AddNote, Source={StaticResource Resources}}"
+                                   ButtonCommand="{Binding AddNoteCommand}"/>
+      <customControls:TabletButton Width="100"
+                                   ButtonPath="M4.8939819,22.027007L16.252991,22.027007 15.811981,23.561004 4.8939819,23.561004z M4.8939819,18.471999L18.970978,18.471999 17.436981,20.006011 4.8939819,20.006011z M4.8939819,14.915999L19.152985,14.915999 19.152985,16.450011 4.8939819,16.450011z M26.112,14.846007C25.990997,14.846007,25.869995,14.891006,25.778992,14.982009L19.225983,21.535003C19.043976,21.718001 19.043976,22.020003 19.225983,22.20201 19.40799,22.388 19.709991,22.388 19.892975,22.20201L26.444977,15.654006C26.626984,15.46701 26.626984,15.169005 26.444977,14.982009 26.354004,14.891006 26.233002,14.846007 26.112,14.846007z M26.022003,13.094008L29.121002,16.192 20.742004,24.570998 16.397003,25.81401 17.643982,21.473006z M4.8939819,11.36L19.152985,11.36 19.152985,12.894012 4.8939819,12.894012z M28.905975,10.207L32,13.297011 29.948975,15.346999 26.85498,12.257003z M7.1259766,0L24.046997,0 24.046997,2.1269989 24.046997,3.1790009 24.046997,13.39601 21.526978,15.915999 21.526978,5.7470088 21.526978,2.1269989 9.8280029,2.1269989 9.8280029,8.3700094 2.5189819,8.3700094 2.5189819,27.648009 21.519989,27.648009 21.519989,25.468001 24.046997,22.941009 24.046997,23.046004 24.046997,29.774001 0,29.774001 0,6.0530086z"
+                                   ButtonText="{Binding MSS_Client_Structures_EditNote, Source={StaticResource Resources}}"
+                                   ButtonCommand="{Binding EditNoteCommand}" IsEnabled="{Binding IsEditNoteButtonEnabled}"/>
+      <customControls:TabletButton ButtonPath="M15.000001,8.0000272L17,8.0000272 17,27.000028 15.000001,27.000028z M11.000001,8.0000272L13.000001,8.0000272 13.000001,27.000028 11.000001,27.000028z M7.0000005,8.0000272L9.000001,8.0000272 9.000001,27.000028 7.0000005,27.000028z M3.0790101,5.0000274L4.9959994,29.922999 19.000006,30.000026 20.918949,5.0000274z M13.771989,1.9959999L10.198989,2.0000001C10.158989,2.025,9.9989892,2.241,9.9989892,2.6000001L9.9989892,3.0000258 13.998989,3.0000258 13.998989,2.6000001C13.998989,2.241,13.838988,2.025,13.771989,1.9959999z M10.198989,0L13.798988,0C15.031989,0,15.998989,1.142,15.998989,2.6000001L15.998989,3.0000258 23.07898,3.0000258 24,3.0000272 24,5.0000274 22.925121,5.0000274 20.995976,30.076991C20.999027,31.102992,20.100956,32.000026,18.999029,32.000026L4.9990512,32.000026C3.8960255,32.000026,2.9990543,31.102992,2.999054,30.000026L1.073059,5.0000274 0,5.0000274 0,3.0000272 0.91897895,3.0000272 7.9989887,3.0000258 7.9989887,2.6000001C7.9989887,1.142,8.9659892,0,10.198989,0z"
+                                   ButtonText="{Binding MSS_Client_Structures_DeleteNote, Source={StaticResource Resources}}"
+                                   ButtonCommand="{Binding DeleteNoteCommand}"/>
+      <customControls:TabletButton Grid.Column="0" Grid.Row="0"
+                                   ButtonPath="M5.4189969,24.678986L5.4189969,27.915009 26.188982,27.915009 26.188982,24.678986z M8.2970601,0.038998604L12.289056,0.038998604 12.289056,8.1850023 8.2970601,8.1850023z M0,0L5.2730013,0 5.2730013,9.7799988 26.188982,9.7799988 26.188982,0 31.653999,0 31.653999,32 0,32z"
+                                   ButtonText="{Binding MSS_MessageCodes_Save, Source={StaticResource Resources}}"
+                                   ButtonCommand="{Binding SaveCommand}"/>
+    </StackPanel>
+    <telerik:RadGridView Grid.Row="1" AutoGenerateColumns="false" IsFilteringAllowed="true" IsReadOnly="true"
+                         ItemsSource="{Binding NotesList, Mode=TwoWay}" SelectedItem="{Binding SelectedNote}">
+      <telerik:GridViewDataControl.Columns>
+        <telerik:GridViewDataColumn Width="Auto" Header="{Binding MSS_Client_AddNote_Description, Source={StaticResource Resources}}"
+                                    DataMemberBinding="{Binding Note.NoteDescription}"/>
+        <telerik:GridViewDataColumn Width="Auto" Header="{Binding MSS_Client_AddNote_NoteType, Source={StaticResource Resources}}"
+                                    DataMemberBinding="{Binding Translation}"/>
+      </telerik:GridViewDataControl.Columns>
+    </telerik:RadGridView>
+  </Grid>
+</customControls:KeyboardMetroWindow>

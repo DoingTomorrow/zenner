@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\PlugInLib.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1481B8F2-E7B7-4759-958A-F96D1EBCDD5E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>PlugInLib</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ApplicationVersion>2.0.4.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>PlugInLib</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ComponentPathAttribute.cs" />
+    <Compile Include="FullRightInfo.cs" />
+    <Compile Include="HardwareKeyGenerator.cs" />
+    <Compile Include="SignedLicense.cs" />
+    <Compile Include="LicenseInfo.cs" />
+    <Compile Include="PluginLicenseInfo.cs" />
+    <Compile Include="RightInfo.cs" />
+    <Compile Include="DeviceTypeInfo.cs" />
+    <Compile Include="LicenseManager.cs" />
+    <Compile Include="ILicensePlugIn.cs" />
+    <Compile Include="IGmmPlugIn.cs" />
+    <Compile Include="IMssPlugIn.cs" />
+    <Compile Include="LicensePlugIn.cs" />
+    <Compile Include="GmmPlugIn.cs" />
+    <Compile Include="PlugInInfo.cs" />
+    <Compile Include="PlugInManager.cs" />
+    <Compile Include="PlugInAssamblyInfo.cs" />
+    <Compile Include="PermissionInfo.cs" />
+    <Compile Include="OldRights.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

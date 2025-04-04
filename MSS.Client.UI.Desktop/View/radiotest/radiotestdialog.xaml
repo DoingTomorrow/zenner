@@ -1,0 +1,94 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.RadioTest.RadioTestDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:radioTest="clr-namespace:MSS.Core.Model.RadioTest;assembly=MSS.Core"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="NoResize" Height="410" Width="800"
+                             Title="{Binding Path=MSS_Client_RadioTest_TestRuns, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <telerik:RadGridView x:Name="RadioTestRunGridView" CanUserFreezeColumns="false" RowIndicatorVisibility="Collapsed"
+                           ColumnWidth="auto" IsReadOnly="true" AutoGenerateColumns="false" AlternateRowBackground="#EDEDED"
+                           AlternationCount="2" Margin="3" RowStyle="{StaticResource HierarchicalGridStyle}"
+                           AlternateRowStyle="{StaticResource HierarchicalGridStyle}" ItemsSource="{Binding TestOrderList}">
+        <telerik:GridViewDataControl.ChildTableDefinitions>
+          <telerik:GridViewTableDefinition/>
+        </telerik:GridViewDataControl.ChildTableDefinitions>
+        <telerik:GridViewDataControl.HierarchyChildTemplate>
+          <DataTemplate>
+            <telerik:RadGridView Name="RadioTestRunGrid" AlternateRowBackground="#EDEDED" AlternationCount="2"
+                                 AutoGenerateColumns="false" IsReadOnly="true" RowIndicatorVisibility="Collapsed"
+                                 CanUserFreezeColumns="false" RowStyle="{StaticResource HierarchicalGridStyle}"
+                                 AlternateRowStyle="{StaticResource HierarchicalGridStyle}" ItemsSource="{Binding TestRunList}">
+              <telerik:GridViewDataControl.ChildTableDefinitions>
+                <telerik:GridViewTableDefinition/>
+              </telerik:GridViewDataControl.ChildTableDefinitions>
+              <telerik:GridViewDataControl.HierarchyChildTemplate>
+                <DataTemplate>
+                  <telerik:RadGridView Name="RadioTestRunDevicesGrid" AutoGenerateColumns="false" AlternateRowBackground="#EDEDED"
+                                       AlternationCount="2" IsReadOnly="true" RowIndicatorVisibility="Collapsed"
+                                       CanUserFreezeColumns="false" RowStyle="{StaticResource HierarchicalGridStyle}"
+                                       AlternateRowStyle="{StaticResource HierarchicalGridStyle}"
+                                       ItemsSource="{Binding RadioTestRunDevices}">
+                    <telerik:GridViewDataControl.Columns>
+                      <telerik:GridViewDataColumn Header="TgKonfig" CellStyle="{StaticResource HierarchicalGridCellStyle}"
+                                                  DataMemberBinding="{Binding (radioTest:RadioTestRunDevice.TgKonfig)}"/>
+                      <telerik:GridViewDataColumn Header="TgNumber" CellStyle="{StaticResource HierarchicalGridCellStyle}"
+                                                  DataMemberBinding="{Binding (radioTest:RadioTestRunDevice.TgNumber)}"/>
+                      <telerik:GridViewDataColumn Header="TgRadioId" CellStyle="{StaticResource HierarchicalGridCellStyle}"
+                                                  DataMemberBinding="{Binding (radioTest:RadioTestRunDevice.TgRadioId)}"/>
+                      <telerik:GridViewDataColumn Header="TgLastRssi" CellStyle="{StaticResource HierarchicalGridCellStyle}"
+                                                  DataMemberBinding="{Binding (radioTest:RadioTestRunDevice.TgLastRssi)}"/>
+                      <telerik:GridViewDataColumn Header="TgAverage" CellStyle="{StaticResource HierarchicalGridCellStyle}"
+                                                  DataMemberBinding="{Binding (radioTest:RadioTestRunDevice.TgAverage)}"/>
+                      <telerik:GridViewDataColumn Header="TgFabrikat" CellStyle="{StaticResource HierarchicalGridCellStyle}"
+                                                  DataMemberBinding="{Binding (radioTest:RadioTestRunDevice.TgFabrikat)}"/>
+                    </telerik:GridViewDataControl.Columns>
+                  </telerik:RadGridView>
+                </DataTemplate>
+              </telerik:GridViewDataControl.HierarchyChildTemplate>
+              <telerik:GridViewDataControl.Columns>
+                <telerik:GridViewDataColumn Header="TrKonfig" DataMemberBinding="{Binding (radioTest:RadioTestRun.TrKonfig)}"/>
+                <telerik:GridViewDataColumn Header="TrNumber" DataMemberBinding="{Binding (radioTest:RadioTestRun.TrNumber)}"/>
+                <telerik:GridViewDataColumn Header="TrUserLocation" DataMemberBinding="{Binding (radioTest:RadioTestRun.TrUserLocation)}"/>
+                <telerik:GridViewDataColumn Header="TrDeviceLocation" DataMemberBinding="{Binding (radioTest:RadioTestRun.TrDeviceLocation)}"/>
+                <telerik:GridViewDataColumn Header="TrComment" DataMemberBinding="{Binding (radioTest:RadioTestRun.TrComment)}"/>
+                <telerik:GridViewDataColumn Header="TrBestChoice" DataMemberBinding="{Binding (radioTest:RadioTestRun.TrBestChoice)}"/>
+                <telerik:GridViewDataColumn Header="TrType" DataMemberBinding="{Binding (radioTest:RadioTestRun.TrType)}"/>
+              </telerik:GridViewDataControl.Columns>
+            </telerik:RadGridView>
+          </DataTemplate>
+        </telerik:GridViewDataControl.HierarchyChildTemplate>
+        <telerik:GridViewDataControl.Columns>
+          <telerik:GridViewDataColumn CellStyle="{StaticResource HierarchicalGridCellStyle}" DataMemberBinding="{Binding OrderNumber}"
+                                      Header="{Binding Path=MSS_Client_RadioTest_OrderNumber, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn CellStyle="{StaticResource HierarchicalGridCellStyle}" DataMemberBinding="{Binding OrderTypeMss}"
+                                      Header="{Binding Path=MSS_Client_RadioTest_OrderType, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn CellStyle="{StaticResource HierarchicalGridCellStyle}" DataMemberBinding="{Binding StatusType}"
+                                      Header="{Binding Path=MSS_Client_RadioTest_StatusType, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn CellStyle="{StaticResource HierarchicalGridCellStyle}" DataMemberBinding="{Binding BuildingNumber}"
+                                      Header="{Binding Path=MSS_Client_RadioTest_BuildingNumber, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn CellStyle="{StaticResource HierarchicalGridCellStyle}" DataMemberBinding="{Binding AuftrArt}"
+                                      Header="{Binding Path=MSS_Client_RadioTest_AuftrArt, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn CellStyle="{StaticResource HierarchicalGridCellStyle}" DataMemberBinding="{Binding IsChanged}"
+                                      Header="{Binding Path=MSS_Client_RadioTest_IsChanged, Source={StaticResource Resources}}"/>
+        </telerik:GridViewDataControl.Columns>
+      </telerik:RadGridView>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

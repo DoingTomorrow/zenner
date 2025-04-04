@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\SmartFunctionCompiler.exe-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6147F96D-8162-4B48-A8E9-6409007E83A2}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>SmartFunctionCompiler</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>SmartFunctionCompiler</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommonWPF">
+      <HintPath>lib\CommonWPF.dll</HintPath>
+    </Reference>
+    <Reference Include="HandlerLib">
+      <HintPath>lib\HandlerLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ByteArrayScanner16Bit.cs" />
+    <Compile Include="DataTypeCodes.cs" />
+    <Compile Include="FunctionLoader.cs" />
+    <Compile Include="FunctionAccessStorage.cs" />
+    <Compile Include="FunctionRamHeader.cs" />
+    <Compile Include="Interpreter.cs" />
+    <Compile Include="LoggerHeader.cs" />
+    <Compile Include="Register.cs" />
+    <Compile Include="SimulatorParameter.cs" />
+    <Compile Include="SmartFunction.cs" />
+    <Compile Include="SmartFunctionByteList.cs" />
+    <Compile Include="SmartFunctionConfigParam.cs" />
+    <Compile Include="SmartFunctionLoggerEventType.cs" />
+    <Compile Include="LoRaAlarm.cs" />
+    <Compile Include="SmartFunctionIdent.cs" />
+    <Compile Include="SmartFunctionIdentAndCode.cs" />
+    <Compile Include="SmartFunctionIdentAndFlashParams.cs" />
+    <Compile Include="StorageTypeCodes.cs" />
+    <Compile Include="ParameterScaling.cs" />
+    <Compile Include="App.cs" />
+    <Compile Include="Compiler.cs" />
+    <Compile Include="FirmwareEvents.cs" />
+    <Compile Include="CycleSeconds.cs" />
+    <Compile Include="FirmwareEventSupport.cs" />
+    <Compile Include="HeaderInfo.cs" />
+    <Compile Include="LineCode.cs" />
+    <Compile Include="OpcodeNoParameter.cs" />
+    <Compile Include="OpcodeJump.cs" />
+    <Compile Include="OpcodeLoadParameter.cs" />
+    <Compile Include="OpcodeSpacialParameter.cs" />
+    <Compile Include="OpcodeLoadFirmwareParameter.cs" />
+    <Compile Include="OpcodeJump_0.cs" />
+    <Compile Include="OpcodeLoadParameter_0.cs" />
+    <Compile Include="OpcodeSpacialParameter_0.cs" />
+    <Compile Include="OpcodeLoadFirmwareParameter_0.cs" />
+    <Compile Include="RuntimeParameter.cs" />
+    <Compile Include="Properties\Resources.cs" />
+    <Compile Include="Properties\Settings.cs" />
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>mainwindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="firmwareinfo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="mainwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

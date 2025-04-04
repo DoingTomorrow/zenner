@@ -1,0 +1,80 @@
+<UserControl x:Class="MSS.Client.UI.Tablet.View.Jobs.JobsUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:structures="clr-namespace:MSS.Core.Model.Structures;assembly=MSS.Core">
+  <FrameworkElement.Resources>
+    <Style x:Key="ScenarioMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="true"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ElementName=ScenarioGridView, Path=SelectedItem}" Value="{x:Null}">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+  </FrameworkElement.Resources>
+  <telerik:RadTabControl HeaderBackground="#EDEDED" Margin="3" Template="{StaticResource RadTabControlControlTemplateTest}">
+    <telerik:RadTabItem Header="{Binding Path=MSS_Client_UserControl_Scenarios, Source={StaticResource Resources}}"
+                        IsSelected="{Binding IsScenariosTabSelected, Mode=TwoWay}"
+                        Visibility="{Binding IsScenariosTabVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="40"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Background="#ebebeb">
+          <Button Name="EditScenario" Style="{StaticResource ScenarioMustBeSelectedButtonStyle}" Height="40"
+                  Width="Auto" Command="{Binding EditScenarioCommand}"
+                  CommandParameter="{Binding ElementName=ScenarioGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_EditScenarioTooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding EditScenarioVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+            <StackPanel Orientation="Horizontal">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"
+                     Style="{StaticResource SmallIconImageStyle}"/>
+              <TextBlock Name="EditScenarioCommand" Style="{StaticResource TextForImageButton}"
+                         Text="{Binding Path=MSS_Client_Edit, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+        <Grid Row="0">
+          <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-73,0,0"
+                            Content="{Binding MessageUserControlScenarios, Mode=TwoWay}"/>
+        </Grid>
+        <Grid Row="1" Margin="3">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <telerik:RadGridView x:Name="ScenarioGridView" RowIndicatorVisibility="Collapsed" CanUserFreezeColumns="false"
+                               telerik:StyleManager.Theme="Windows8" IsReadOnly="true" AlternateRowBackground="#EDEDED"
+                               AlternationCount="2" AutoGenerateColumns="false" IsFilteringAllowed="true"
+                               ItemsSource="{Binding GetScenarios}">
+            <telerik:GridViewDataControl.Columns>
+              <telerik:GridViewDataColumn Width="60" DataMemberBinding="{Binding (structures:Scenario.Code)}"
+                                          Header="{Binding Path=MSS_Client_UserControl_Jobs_Id, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding (structures:Scenario.Name)}"
+                                          Header="{Binding Path=MSS_Client_UserControl_Jobs_Scenario, Source={StaticResource Resources}}"/>
+            </telerik:GridViewDataControl.Columns>
+          </telerik:RadGridView>
+          <telerik:RadDataPager PageIndexChanged="OnPageIndexChange" Name="RadDataPager" Grid.Row="1" FontSize="12"
+                                Margin="0,-1,0,0" IsTotalItemCountFixed="true" DisplayMode="FirstLastPreviousNextNumeric, Text"
+                                telerik:StyleManager.Theme="Windows8" PageSize="{Binding PageSize, Mode=TwoWay}"
+                                Source="{Binding Items, ElementName=UsersGridView}"/>
+        </Grid>
+      </Grid>
+    </telerik:RadTabItem>
+    <telerik:RadTabItem Header="{Binding Path=MSS_Client_UserControl_Job_Definitions, Source={StaticResource Resources}}"
+                        IsSelected="{Binding IsJobDefinitionsTabSelected, Mode=TwoWay}"
+                        Visibility="{Binding IsJobDefinitionsTabVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}"/>
+    <telerik:RadTabItem Header="{Binding Path=MSS_Client_UserControl_Job, Source={StaticResource Resources}}"
+                        IsSelected="{Binding IsJobsTabSelected, Mode=TwoWay}"
+                        Visibility="{Binding IsJobsTabVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}"/>
+    <telerik:RadTabItem Header="{Binding Path=MSS_Client_UserControl_Service_Jobs, Source={StaticResource Resources}}"
+                        IsSelected="{Binding IsServiceJobsTabSelected, Mode=TwoWay}"/>
+  </telerik:RadTabControl>
+</UserControl>

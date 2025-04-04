@@ -691,7 +691,7 @@ namespace ZR_ClassLibrary
       return int64;
     }
 
-    public static string[] GetNamesOfEnum(System.Type enumType)
+    public static string[] GetNamesOfEnum(Type enumType)
     {
       FieldInfo[] fields = enumType.GetFields(BindingFlags.Static | BindingFlags.Public);
       List<string> stringList = new List<string>();
@@ -946,12 +946,12 @@ namespace ZR_ClassLibrary
 
     public static DateTime ToDateTime(object obj)
     {
-      return obj == null || obj == DBNull.Value || !(obj.GetType() == System.Type.GetType("System.DateTime")) && !Information.IsDate(obj) ? DateTime.MinValue : Convert.ToDateTime(obj);
+      return obj == null || obj == DBNull.Value || !(obj.GetType() == Type.GetType("System.DateTime")) && !Information.IsDate(obj) ? DateTime.MinValue : Convert.ToDateTime(obj);
     }
 
     public static string ToDateString(object obj)
     {
-      return obj == null || obj == DBNull.Value || !(obj.GetType() == System.Type.GetType("System.DateTime")) && !Information.IsDate(obj) ? string.Empty : Convert.ToDateTime(obj).ToShortDateString();
+      return obj == null || obj == DBNull.Value || !(obj.GetType() == Type.GetType("System.DateTime")) && !Information.IsDate(obj) ? string.Empty : Convert.ToDateTime(obj).ToShortDateString();
     }
 
     public static string ToDateString(DateTime dt)
@@ -993,7 +993,7 @@ namespace ZR_ClassLibrary
     {
       if (obj == null || obj == DBNull.Value)
         return Guid.Empty;
-      if (obj.GetType() == System.Type.GetType("System.Guid"))
+      if (obj.GetType() == Type.GetType("System.Guid"))
         return (Guid) obj;
       string s = obj.ToString();
       return s == string.Empty ? Guid.Empty : XmlConvert.ToGuid(s);
@@ -1005,7 +1005,7 @@ namespace ZR_ClassLibrary
     {
       if (obj == null || obj == DBNull.Value)
         return (object) DBNull.Value;
-      if (obj.GetType() == System.Type.GetType("System.Guid"))
+      if (obj.GetType() == Type.GetType("System.Guid"))
         return obj;
       string s = obj.ToString();
       if (s == string.Empty)
@@ -1022,11 +1022,11 @@ namespace ZR_ClassLibrary
     {
       if (obj == null || obj == DBNull.Value)
         return defaultValue;
-      if (obj.GetType() == System.Type.GetType("System.Int32"))
+      if (obj.GetType() == Type.GetType("System.Int32"))
         return Convert.ToInt32(obj);
-      if (obj.GetType() == System.Type.GetType("System.Boolean"))
+      if (obj.GetType() == Type.GetType("System.Boolean"))
         return Convert.ToBoolean(obj) ? 1 : 0;
-      if (obj.GetType() == System.Type.GetType("System.Single"))
+      if (obj.GetType() == Type.GetType("System.Single"))
         return Convert.ToInt32(Math.Floor((double) (float) obj));
       string s = obj.ToString();
       return s == string.Empty ? defaultValue : int.Parse(s, NumberStyles.Any);
@@ -1038,7 +1038,7 @@ namespace ZR_ClassLibrary
     {
       if (obj == null || obj == DBNull.Value)
         return 0;
-      System.Type type = obj.GetType();
+      Type type = obj.GetType();
       if (type == typeof (long) || type == typeof (bool) || type == typeof (double))
         return Convert.ToInt64(obj);
       string s = obj.ToString();
@@ -1055,7 +1055,7 @@ namespace ZR_ClassLibrary
     {
       if (obj == null || obj == DBNull.Value)
         return 0;
-      if (obj.GetType() == System.Type.GetType("System.Int32") || obj.GetType() == System.Type.GetType("System.Int16"))
+      if (obj.GetType() == Type.GetType("System.Int32") || obj.GetType() == Type.GetType("System.Int16"))
         return Convert.ToInt16(obj);
       string s = obj.ToString();
       return s == string.Empty ? (short) 0 : short.Parse(s, NumberStyles.Any);
@@ -1067,7 +1067,7 @@ namespace ZR_ClassLibrary
     {
       if (obj == null || obj == DBNull.Value)
         return (object) DBNull.Value;
-      if (obj.GetType() == System.Type.GetType("System.Int32"))
+      if (obj.GetType() == Type.GetType("System.Int32"))
         return obj;
       string str = obj.ToString();
       return str == string.Empty || !Information.IsNumeric((object) str) ? (object) DBNull.Value : (object) int.Parse(str, NumberStyles.Any);
@@ -1079,7 +1079,7 @@ namespace ZR_ClassLibrary
     {
       if (obj == null || obj == DBNull.Value)
         return 0.0f;
-      if (obj.GetType() == System.Type.GetType("System.Double"))
+      if (obj.GetType() == Type.GetType("System.Double"))
         return Convert.ToSingle(obj);
       string str = obj.ToString();
       return str == string.Empty || !Information.IsNumeric((object) str) ? 0.0f : float.Parse(str, NumberStyles.Any);
@@ -1096,7 +1096,7 @@ namespace ZR_ClassLibrary
     {
       if (obj == null || obj == DBNull.Value)
         return (object) DBNull.Value;
-      if (obj.GetType() == System.Type.GetType("System.Double"))
+      if (obj.GetType() == Type.GetType("System.Double"))
         return obj;
       string str = obj.ToString();
       return str == string.Empty || !Information.IsNumeric((object) str) ? (object) DBNull.Value : (object) float.Parse(str, NumberStyles.Any);
@@ -1129,7 +1129,7 @@ namespace ZR_ClassLibrary
     {
       if (obj == null || obj == DBNull.Value)
         return 0M;
-      if (obj.GetType() == System.Type.GetType("System.Decimal"))
+      if (obj.GetType() == Type.GetType("System.Decimal"))
         return Convert.ToDecimal(obj);
       string s = obj.ToString();
       return s == string.Empty ? 0M : Decimal.Parse(s, NumberStyles.Any);
@@ -1141,7 +1141,7 @@ namespace ZR_ClassLibrary
     {
       if (obj == null || obj == DBNull.Value)
         return (object) DBNull.Value;
-      if (obj.GetType() == System.Type.GetType("System.Decimal"))
+      if (obj.GetType() == Type.GetType("System.Decimal"))
         return obj;
       string str = obj.ToString();
       return str == string.Empty || !Information.IsNumeric((object) str) ? (object) DBNull.Value : (object) Decimal.Parse(str, NumberStyles.Any);
@@ -1155,20 +1155,20 @@ namespace ZR_ClassLibrary
     {
       if (obj == null || obj == DBNull.Value)
         return false;
-      if (obj.GetType() == System.Type.GetType("System.Int32"))
+      if (obj.GetType() == Type.GetType("System.Int32"))
         return Convert.ToInt32(obj) != 0;
-      if (obj.GetType() == System.Type.GetType("System.SByte"))
+      if (obj.GetType() == Type.GetType("System.SByte"))
         return Convert.ToSByte(obj) != (sbyte) 0;
-      if (obj.GetType() == System.Type.GetType("System.Int16"))
+      if (obj.GetType() == Type.GetType("System.Int16"))
         return Convert.ToInt16(obj) != (short) 0;
-      if (obj.GetType() == System.Type.GetType("System.Decimal"))
+      if (obj.GetType() == Type.GetType("System.Decimal"))
         return !(Convert.ToDecimal(obj) == 0M);
-      if (obj.GetType() == System.Type.GetType("System.String"))
+      if (obj.GetType() == Type.GetType("System.String"))
       {
         string lower = obj.ToString().ToLower();
         return lower == "true" || lower == "on" || lower == "1";
       }
-      return !(obj.GetType() != System.Type.GetType("System.Boolean")) && bool.Parse(obj.ToString());
+      return !(obj.GetType() != Type.GetType("System.Boolean")) && bool.Parse(obj.ToString());
     }
 
     public static object ToDBBoolean(bool b) => (object) (b ? 1 : 0);
@@ -1177,7 +1177,7 @@ namespace ZR_ClassLibrary
     {
       if (obj == null || obj == DBNull.Value)
         return (object) DBNull.Value;
-      return obj.GetType() != System.Type.GetType("System.Boolean") ? (object) false : (object) (Convert.ToBoolean(obj) ? 1 : 0);
+      return obj.GetType() != Type.GetType("System.Boolean") ? (object) false : (object) (Convert.ToBoolean(obj) ? 1 : 0);
     }
 
     public static ulong TwoUInt32ToUInt64(uint left, uint right)
@@ -1315,7 +1315,7 @@ namespace ZR_ClassLibrary
 
     public static bool IsNet45OrNewer()
     {
-      return System.Type.GetType("System.Reflection.ReflectionContext", false) != (System.Type) null;
+      return Type.GetType("System.Reflection.ReflectionContext", false) != (Type) null;
     }
 
     public static bool checkDotNetVersionOrLater(string version)

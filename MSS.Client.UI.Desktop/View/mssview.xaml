@@ -1,0 +1,454 @@
+<controls:MetroWindow x:Class="MSS.Client.UI.Desktop.View.MSSView"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                      xmlns:utils="clr-namespace:MSS.Client.UI.Common.Utils;assembly=MSS.Client.UI.Common"
+                      xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                      KeyUp="WindowSizingAdapter_KeyUp" TitleCaps="false" BorderThickness="0" GlowBrush="Black"
+                      WindowStartupLocation="CenterScreen" WindowTitleBrush="#00608c" ResizeMode="CanResizeWithGrip"
+                      utils:WindowClose.CloseCommand="{Binding CloseCommand}"
+                      utils:WindowClose.CloseFailCommand="{Binding CloseFailCommand}"
+                      Title="{Binding Path=ApplicationName}" WindowState="{Binding CurrentWindowState, Mode=TwoWay}"
+                      Height="{Binding WindowHeight, Mode=TwoWay}" Width="{Binding WindowWidth, Mode=TwoWay}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+        <ResourceDictionary>
+          <Style TargetType="{x:Type ResizeGrip}">
+            <Setter Property="FrameworkElement.MinWidth"
+                    Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
+            <Setter Property="FrameworkElement.MinHeight"
+                    Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}"/>
+            <Setter Property="FrameworkElement.Margin" Value="0,0,0,0"/>
+          </Style>
+          <Style TargetType="{x:Type GridSplitter}" x:Key="RedLineMenuSeparatorStyle">
+            <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="true"/>
+            <Setter Property="FrameworkElement.HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="FrameworkElement.VerticalAlignment" Value="Stretch"/>
+            <Setter Property="FrameworkElement.Width" Value="Auto"/>
+            <Setter Property="Control.Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="{x:Type GridSplitter}">
+                  <Border Height="Auto" Margin="0" Background="#99d9ea"/>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
+          </Style>
+          <Style x:Key="ImageStyle" TargetType="{x:Type Image}">
+            <Setter Property="FrameworkElement.Width" Value="Auto"/>
+            <Setter Property="FrameworkElement.Height" Value="Auto"/>
+            <Setter Property="FrameworkElement.Margin" Value="20 10 20 0"/>
+          </Style>
+          <Style x:Key="TextBlockStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="TextBlock.FontSize" Value="12"/>
+            <Setter Property="TextBlock.Foreground" Value="White"/>
+            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+          </Style>
+          <telerik:BinaryImageConverter x:Key="imgConverter"/>
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="60"/>
+      <RowDefinition Height="4"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="100"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid ColumnSpan="2" Row="0" RowSpan="2">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <StackPanel Grid.Row="0" Orientation="Horizontal">
+        <Image Width="Auto" Height="50" Margin="5 5 0 5" HorizontalAlignment="Left" VerticalAlignment="Center"
+               Stretch="UniformToFill" StretchDirection="Both"
+               Source="{Binding Path=LogoImage, Converter={StaticResource imgConverter}}"/>
+      </StackPanel>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                  Margin="10 5">
+        <StackPanel Orientation="Horizontal">
+          <Image Margin="5" Height="23" Width="15" Source="{Binding Path=NewsAndUpdatesImage}"
+                 Visibility="{Binding NewsButtonVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+            <UIElement.InputBindings>
+              <MouseBinding MouseAction="LeftClick" Command="{Binding newsAndUpdatesCommand}"/>
+            </UIElement.InputBindings>
+          </Image>
+          <Image Source="pack://application:,,,/Styles;component/Images/Universal/search.png" Margin="5" Height="16"
+                 Width="16">
+            <UIElement.InputBindings>
+              <MouseBinding MouseAction="LeftClick" Command="{Binding SearchCommand}"
+                            CommandParameter="{Binding Path=Text, ElementName=SearchTextBox}"/>
+            </UIElement.InputBindings>
+          </Image>
+          <TextBox x:Name="SearchTextBox" Style="{StaticResource AppTextBoxStyle}" Width="180" MaxLength="18"
+                   Height="23" AcceptsReturn="false" TextWrapping="NoWrap" Text="{Binding SearchText}">
+            <UIElement.InputBindings>
+              <KeyBinding Key="Enter" Command="{Binding SearchCommand}"
+                          CommandParameter="{Binding Text, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}"/>
+            </UIElement.InputBindings>
+          </TextBox>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+          <Image Margin="5 0 0 0" Stretch="None"
+                 Source="{Binding Path=ImageDaysSinceLicenseIsUsedOffline, Converter={StaticResource imgConverter}}"/>
+          <Label Margin="-5 0 0 0"
+                 Content="{Binding Path=MSS_Client_Last_License_Check_Date, Source={StaticResource Resources}}"/>
+          <Label ContentStringFormat="yyyy-MM-dd" Margin="-10 0 0 0"
+                 Content="{Binding LastConnectionToLicenseServer}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="-75 0 0 0">
+          <Button Name="Download" Style="{StaticResource AppButtonStyle}" Visibility="Hidden"
+                  Command="{Binding DownloadCommand}"
+                  ToolTip="{Binding Path=MSS_Client_DownloadTooltip, Source={StaticResource Resources}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/download.png"/>
+              <TextBlock x:Name="downloadButtonText"
+                         Text="{Binding Path=MSS_Client_Download, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button x:Name="ShowConficts" Style="{StaticResource AppButtonStyle}" Margin="0,6,5,6"
+                  Command="{Binding ShowConflictsCommand}"
+                  ToolTip="{Binding MSS_Client_ShowConflictsTooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding ShowConflictsButtonVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/show_conflicts.png"/>
+              <TextBlock x:Name="showConflictsButtonText" Margin="10 0 10 0" VerticalAlignment="Center"
+                         Text="{Binding MSS_Client_ShowConflicts, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="Update" Style="{StaticResource AppButtonStyle}" Command="{Binding UpdateCommand}"
+                  ToolTip="{Binding Path=MSS_Client_UpdateTooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding ServerButtonsVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/download.png"/>
+              <TextBlock x:Name="updateButtonText" Margin="10 0 10 0" VerticalAlignment="Center"
+                         Text="{Binding Path=MSS_Client_Update, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="Send" Style="{StaticResource AppButtonStyle}" Command="{Binding SendCommand}"
+                  ToolTip="{Binding Path=MSS_Client_SendTooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding ServerButtonsVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="{Binding Path=SendImage}"/>
+              <TextBlock x:Name="sendButtonText" Margin="10 0 10 0" VerticalAlignment="Center"
+                         Text="{Binding Path=MSS_Client_Send, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="Settings" Style="{StaticResource AppButtonStyle}" Command="{Binding SwitchModuleCommand}"
+                  CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Name}"
+                  Background="{Binding SettingsButtonBackground, Mode=TwoWay}"
+                  ToolTip="{Binding Path=MSS_Client_Settings, Source={StaticResource Resources}}"
+                  Visibility="{Binding SettingsVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}"
+                        Background="{Binding SettingsButtonBackground, Mode=TwoWay}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/settings.png"/>
+              <TextBlock x:Name="settingsButtonText" Margin="10 0 10 0" VerticalAlignment="Center"
+                         Text="{Binding Path=MSS_Client_Settings, Source={StaticResource Resources}}"
+                         Foreground="{Binding SettingsButtonForeground, Mode=TwoWay}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="About" Style="{StaticResource AppButtonStyle}" Command="{Binding AboutCommand}"
+                  ToolTip="{Binding MSS_About, Source={StaticResource Resources}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/info.png"/>
+              <TextBlock x:Name="aboutButtonText" Margin="10 0 10 0" VerticalAlignment="Center"
+                         Text="{Binding Path=MSS_About, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="Logout" Style="{StaticResource AppButtonStyle}" Command="{Binding LogoutCommand}"
+                  ToolTip="{Binding Path=MSS_Client_Logout, Source={StaticResource Resources}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/logout.png"/>
+              <TextBlock x:Name="logoutButtonText" Margin="10 0 10 0" VerticalAlignment="Center"
+                         Text="{Binding Path=MSS_Client_Logout, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+      </StackPanel>
+    </Grid>
+    <Grid Row="1" Column="0" ColumnSpan="2">
+      <GridSplitter ResizeDirection="Rows" Style="{StaticResource RedLineMenuSeparatorStyle}"/>
+    </Grid>
+    <Grid Column="0" Row="2" Background="#0f5f8e">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="0"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="0"/>
+      </Grid.RowDefinitions>
+      <StackPanel Background="#0f5f8e" Grid.Row="0" VerticalAlignment="Top" Orientation="Vertical" Margin="0,0,0,0">
+        <Button Click="BtnUp_OnClick" Name="BtnUp" Height="20" VerticalAlignment="Top">
+          <Control.Template>
+            <ControlTemplate>
+              <Image Name="homeBtnImage" Source="pack://application:,,,/Styles;component/Images/SmallIcons/arrow-up.png"
+                     Style="{StaticResource ImageStyle}"/>
+              <ControlTemplate.Triggers>
+                <Trigger Property="UIElement.IsMouseOver" Value="true">
+                  <Setter TargetName="homeBtnImage" Property="Image.Source"
+                          Value="pack://application:,,,/Styles;component/Images/SmallIcons/arrow-up-selected.png"/>
+                </Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Control.Template>
+        </Button>
+      </StackPanel>
+      <StackPanel Background="#0f5f8e" Grid.Row="2" Orientation="Vertical" VerticalAlignment="Top">
+        <Button Click="Btndown_OnClick" Name="Btndown" Height="20" VerticalAlignment="Center">
+          <Control.Template>
+            <ControlTemplate>
+              <Image Name="homeBtnImage"
+                     Source="pack://application:,,,/Styles;component/Images/SmallIcons/arrow-down.png"
+                     Style="{StaticResource ImageStyle}"/>
+              <ControlTemplate.Triggers>
+                <Trigger Property="UIElement.IsMouseOver" Value="true">
+                  <Setter TargetName="homeBtnImage" Property="Image.Source"
+                          Value="pack://application:,,,/Styles;component/Images/SmallIcons/arrow-down-selected.png"/>
+                </Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Control.Template>
+        </Button>
+      </StackPanel>
+      <ScrollViewer Name="MenuScroll" Background="#0f5f8e" Grid.Row="1" Grid.Column="0"
+                    VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
+        <StackPanel Background="#0f5f8e" Orientation="Vertical" Height="Auto">
+          <ToggleButton Name="Structures" Command="{Binding SwitchModuleCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Name}"
+                        Visibility="{Binding StructuresVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Control.Template>
+              <ControlTemplate>
+                <Grid Background="Transparent">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Image Name="structuresBtnImage" Style="{StaticResource ImageStyle}"
+                         Source="{Binding Structures, Mode=TwoWay}"/>
+                  <TextBlock Grid.Row="1" Style="{StaticResource TextBlockStyle}"
+                             Text="{Binding Path=MSS_Client_MainWindow_Structures, Source={StaticResource Resources}}"
+                             Visibility="{Binding StructuresVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </Grid>
+                <ControlTemplate.Triggers>
+                  <Trigger Property="UIElement.IsMouseOver" Value="true">
+                    <Setter TargetName="structuresBtnImage" Property="Image.Source"
+                            Value="pack://application:,,,/Styles;component/Images/SmallIcons/structure-selected.png"/>
+                  </Trigger>
+                </ControlTemplate.Triggers>
+              </ControlTemplate>
+            </Control.Template>
+          </ToggleButton>
+          <ToggleButton Name="Meters" Visibility="Collapsed" Command="{Binding SwitchModuleCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Name}">
+            <Control.Template>
+              <ControlTemplate>
+                <Grid Background="Transparent">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Image Name="metersBtnImage" Style="{StaticResource ImageStyle}" Source="{Binding Meters, Mode=TwoWay}"/>
+                  <TextBlock Grid.Row="1" Visibility="Collapsed" Style="{StaticResource TextBlockStyle}"
+                             Text="{Binding Path=MSS_Client_MainWindow_Meters, Source={StaticResource Resources}}"/>
+                </Grid>
+                <ControlTemplate.Triggers>
+                  <Trigger Property="UIElement.IsMouseOver" Value="true">
+                    <Setter TargetName="metersBtnImage" Property="Image.Source"
+                            Value="pack://application:,,,/Styles;component/Images/SmallIcons/meters-selected.png"/>
+                  </Trigger>
+                </ControlTemplate.Triggers>
+              </ControlTemplate>
+            </Control.Template>
+          </ToggleButton>
+          <ToggleButton Name="Orders" Command="{Binding SwitchModuleCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Name}"
+                        Visibility="{Binding OrdersVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Control.Template>
+              <ControlTemplate>
+                <Grid Background="Transparent">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Image Name="ordersBtnImage" Style="{StaticResource ImageStyle}" Source="{Binding Orders, Mode=TwoWay}"/>
+                  <TextBlock Grid.Row="1" Style="{StaticResource TextBlockStyle}"
+                             Text="{Binding Path=MSS_Client_MainWindow_Orders, Source={StaticResource Resources}}"
+                             Visibility="{Binding OrdersVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </Grid>
+                <ControlTemplate.Triggers>
+                  <Trigger Property="UIElement.IsMouseOver" Value="true">
+                    <Setter TargetName="ordersBtnImage" Property="Image.Source"
+                            Value="pack://application:,,,/Styles;component/Images/SmallIcons/orders-selected.png"/>
+                  </Trigger>
+                </ControlTemplate.Triggers>
+              </ControlTemplate>
+            </Control.Template>
+          </ToggleButton>
+          <ToggleButton Name="DataCollectors" Command="{Binding SwitchModuleCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Name}"
+                        Visibility="{Binding MinomatsVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Control.Template>
+              <ControlTemplate>
+                <Grid Background="Transparent">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Image Name="minomatBtnImage" Style="{StaticResource ImageStyle}"
+                         Source="{Binding DataCollectors, Mode=TwoWay}"/>
+                  <TextBlock Grid.Row="1" Style="{StaticResource TextBlockStyle}"
+                             Text="{Binding Path=MSS_Client_MainWindow_DataCollectors, Source={StaticResource Resources}}"
+                             Visibility="{Binding MinomatsVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </Grid>
+                <ControlTemplate.Triggers>
+                  <Trigger Property="UIElement.IsMouseOver" Value="true">
+                    <Setter TargetName="minomatBtnImage" Property="Image.Source"
+                            Value="pack://application:,,,/Styles;component/Images/SmallIcons/minomat-selected.png"/>
+                  </Trigger>
+                </ControlTemplate.Triggers>
+              </ControlTemplate>
+            </Control.Template>
+          </ToggleButton>
+          <ToggleButton Name="Jobs" Command="{Binding SwitchModuleCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Name}"
+                        Visibility="{Binding JobsVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Control.Template>
+              <ControlTemplate>
+                <Grid Background="Transparent">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Image Name="archivingBtnImage" Style="{StaticResource ImageStyle}" Source="{Binding Jobs, Mode=TwoWay}"/>
+                  <TextBlock Grid.Row="1" Style="{StaticResource TextBlockStyle}"
+                             Text="{Binding Path=MSS_Client_MainWindow_Jobs, Source={StaticResource Resources}}"
+                             Visibility="{Binding JobsVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </Grid>
+                <ControlTemplate.Triggers>
+                  <Trigger Property="UIElement.IsMouseOver" Value="true">
+                    <Setter TargetName="archivingBtnImage" Property="Image.Source"
+                            Value="pack://application:,,,/Styles;component/Images/SmallIcons/import-export-selected.png"/>
+                  </Trigger>
+                </ControlTemplate.Triggers>
+              </ControlTemplate>
+            </Control.Template>
+          </ToggleButton>
+          <ToggleButton Name="Reporting" Command="{Binding SwitchModuleCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Name}"
+                        Visibility="{Binding DataAndReportsVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Control.Template>
+              <ControlTemplate>
+                <Grid Background="Transparent">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Image Name="reportingBtnImage" Style="{StaticResource ImageStyle}"
+                         Source="{Binding Reporting, Mode=TwoWay}"/>
+                  <TextBlock Grid.Row="1" TextWrapping="Wrap" Style="{StaticResource TextBlockStyle}"
+                             Text="{Binding Path=MSS_Client_MainWindow_Reporting, Source={StaticResource Resources}}"
+                             Visibility="{Binding DataAndReportsVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </Grid>
+                <ControlTemplate.Triggers>
+                  <Trigger Property="UIElement.IsMouseOver" Value="true">
+                    <Setter TargetName="reportingBtnImage" Property="Image.Source"
+                            Value="pack://application:,,,/Styles;component/Images/SmallIcons/reporting-selected.png"/>
+                  </Trigger>
+                </ControlTemplate.Triggers>
+              </ControlTemplate>
+            </Control.Template>
+          </ToggleButton>
+          <ToggleButton Name="Configuration" Command="{Binding SwitchModuleCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Name}"
+                        Visibility="{Binding ConfigurationVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Control.Template>
+              <ControlTemplate>
+                <Grid Background="Transparent">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Image Name="configurationBtnImage" Style="{StaticResource ImageStyle}"
+                         Source="{Binding Configuration, Mode=TwoWay}"/>
+                  <TextBlock Grid.Row="1" Style="{StaticResource TextBlockStyle}"
+                             Text="{Binding Path=MSS_Client_MainWindow_Configuration, Source={StaticResource Resources}}"
+                             Visibility="{Binding ConfigurationVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </Grid>
+                <ControlTemplate.Triggers>
+                  <Trigger Property="UIElement.IsMouseOver" Value="true">
+                    <Setter TargetName="configurationBtnImage" Property="Image.Source"
+                            Value="pack://application:,,,/Styles;component/Images/SmallIcons/configuration-selected.png"/>
+                  </Trigger>
+                </ControlTemplate.Triggers>
+              </ControlTemplate>
+            </Control.Template>
+          </ToggleButton>
+          <ToggleButton Name="Users" Command="{Binding SwitchModuleCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Name}"
+                        Visibility="{Binding UsersVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Control.Template>
+              <ControlTemplate>
+                <Grid Background="Transparent">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Image Name="usersBtnImage" Style="{StaticResource ImageStyle}" Source="{Binding Users, Mode=TwoWay}"/>
+                  <TextBlock Grid.Row="1" Style="{StaticResource TextBlockStyle}"
+                             Text="{Binding Path=MSS_Client_MainWindow_Users, Source={StaticResource Resources}}"
+                             Visibility="{Binding UsersVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </Grid>
+                <ControlTemplate.Triggers>
+                  <Trigger Property="UIElement.IsMouseOver" Value="true">
+                    <Setter TargetName="usersBtnImage" Property="Image.Source"
+                            Value="pack://application:,,,/Styles;component/Images/SmallIcons/users-selected.png"/>
+                  </Trigger>
+                </ControlTemplate.Triggers>
+              </ControlTemplate>
+            </Control.Template>
+          </ToggleButton>
+          <ToggleButton Name="Archiving" Command="{Binding SwitchModuleCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Name}"
+                        Visibility="{Binding ArchivingVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Control.Template>
+              <ControlTemplate>
+                <Grid Background="Transparent">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Image Name="archivingBtnImage" Style="{StaticResource ImageStyle}"
+                         Source="{Binding Archiving, Mode=TwoWay}"/>
+                  <TextBlock Grid.Row="1" Style="{StaticResource TextBlockStyle}"
+                             Text="{Binding Path=MSS_Client_MainWindow_Archiving, Source={StaticResource Resources}}"
+                             Visibility="{Binding ArchivingVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </Grid>
+                <ControlTemplate.Triggers>
+                  <Trigger Property="UIElement.IsMouseOver" Value="true">
+                    <Setter TargetName="archivingBtnImage" Property="Image.Source"
+                            Value="pack://application:,,,/Styles;component/Images/SmallIcons/archiving-selected.png"/>
+                  </Trigger>
+                </ControlTemplate.Triggers>
+              </ControlTemplate>
+            </Control.Template>
+          </ToggleButton>
+          <Button Name="downloadUsers" Content="Download users" Height="30" Visibility="Hidden"
+                  Command="{Binding DownloadUsersCommand}"/>
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+    <Grid x:Name="UserControlCanvas" Column="1" Row="2">
+      <telerik:RadBusyIndicator x:Name="BusyIndicator" BusyContent="Loading..." IsIndeterminate="true" IsBusy="{Binding IsBusy}">
+        <ContentPresenter Grid.ColumnSpan="3" Content="{Binding SetUserControl, Mode=TwoWay}"/>
+      </telerik:RadBusyIndicator>
+    </Grid>
+  </Grid>
+</controls:MetroWindow>

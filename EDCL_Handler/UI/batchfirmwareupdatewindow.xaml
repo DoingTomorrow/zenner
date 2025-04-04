@@ -1,0 +1,90 @@
+<Window x:Class="EDCL_Handler.UI.BatchFirmwareUpdateWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EDCL_Handler.UI"
+        Closing="Window_Closing" Title="BatchFirmwareUpdateWindow" Height="450" Width="800">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition/>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="Auto"/>
+    </Grid.ColumnDefinitions>
+    <Label Content="Firmware File:" HorizontalAlignment="Right" Margin="5,5,5,5" VerticalAlignment="Center"/>
+    <TextBox x:Name="FWText" Grid.Column="1" HorizontalAlignment="Stretch" Height="25" Margin="5,5,5,5"
+             TextWrapping="Wrap" VerticalAlignment="Center" VerticalContentAlignment="Center"
+             Grid.ColumnSpan="2"/>
+    <Button Click="Button_Click" Grid.Column="3" Content="Load" HorizontalAlignment="Left" Margin="5,5,5,5"
+            VerticalAlignment="Stretch" Width="75" Grid.RowSpan="2"/>
+    <Button Click="StartBtn_Click" x:Name="StartBtn" Content="Start" Grid.ColumnSpan="2"
+            HorizontalAlignment="Stretch" Height="50" Margin="5,5,5,5" Grid.Row="2" VerticalAlignment="Center"
+            FontSize="36" FontFamily="Consolas" Grid.Column="2" IsEnabled="false"/>
+    <DataGrid x:Name="DG" Grid.ColumnSpan="4" HorizontalAlignment="Stretch" Margin="5,5,5,5" Grid.Row="3"
+              VerticalAlignment="Stretch" IsReadOnly="true">
+      <FrameworkElement.ContextMenu>
+        <ContextMenu>
+          <MenuItem Click="HideMenuItem_Click" Header="Hide Selected COM"/>
+          <MenuItem Click="ShowAllMenuItem_Click" Header="Show All"/>
+        </ContextMenu>
+      </FrameworkElement.ContextMenu>
+      <DataGrid.CellStyle>
+        <Style TargetType="{x:Type DataGridCell}">
+          <Style.Triggers>
+            <Trigger Property="DataGridCell.IsSelected" Value="true">
+              <Setter Property="Control.Background" Value="Blue"/>
+              <Setter Property="Control.Foreground" Value="White"/>
+            </Trigger>
+          </Style.Triggers>
+        </Style>
+      </DataGrid.CellStyle>
+      <DataGrid.RowStyle>
+        <Style TargetType="{x:Type DataGridRow}">
+          <Style.Triggers>
+            <DataTrigger Binding="{Binding State}" Value="Ready">
+              <Setter Property="Control.Background" Value="White"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding State}" Value="Success">
+              <Setter Property="Control.Background" Value="Green"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding State}" Value="Fail">
+              <Setter Property="Control.Background" Value="Red"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding State}" Value="Running">
+              <Setter Property="Control.Background" Value="Yellow"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Hide}" Value="Hide">
+              <Setter Property="UIElement.Visibility" Value="Collapsed"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Hide}" Value="Show">
+              <Setter Property="UIElement.Visibility" Value="Visible"/>
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </DataGrid.RowStyle>
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Index" Binding="{Binding Index}"/>
+        <DataGridTextColumn Header="COM" Binding="{Binding COM}"/>
+        <DataGridTextColumn Header="State" Binding="{Binding State}"/>
+        <DataGridTextColumn Header="Progress" Binding="{Binding Progress}"/>
+        <DataGridTextColumn Header="Phase" Binding="{Binding PhaseString}"/>
+        <DataGridTextColumn Header="Current Firmware" Binding="{Binding FirmwareVersion}"/>
+        <DataGridTextColumn Header="Fail Reason" Binding="{Binding FailReason}"/>
+      </DataGrid.Columns>
+    </DataGrid>
+    <Label Content="BootLoader File:" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1"
+           Margin="5,5,5,5"/>
+    <TextBox x:Name="BLText" Grid.Column="1" Height="25" Margin="5,5,5,5" TextWrapping="Wrap"
+             VerticalAlignment="Center" VerticalContentAlignment="Center" Grid.Row="1" Grid.ColumnSpan="2"/>
+    <Button Click="ReadBtn_Click" x:Name="ReadBtn" Content="Read" Grid.ColumnSpan="2"
+            HorizontalAlignment="Stretch" Height="50" Margin="5,5,5,5" Grid.Row="2" VerticalAlignment="Center"
+            FontFamily="Consolas" FontSize="36" IsEnabled="false"/>
+  </Grid>
+</Window>

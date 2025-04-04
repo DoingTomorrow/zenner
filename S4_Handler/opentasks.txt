@@ -1,0 +1,4 @@
+﻿* DeviceConfigurator cannot change the loaded smart functions 
+* Changed unit configurations without write cannot change the unit again
+* Battery using check is not complete
+* Check if hardware can show the selected volume resolution ("0m³*10", "0m³*100","0USGAL*10","0USGAL*100","0ft³*10", "0ft³*100")

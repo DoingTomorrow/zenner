@@ -1,0 +1,44 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: Ninject.Activation.IRequest
+// Assembly: Ninject, Version=3.0.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7
+// MVID: C76D661E-417A-4EBA-9151-4717B8101D58
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Ninject.dll
+
+using Ninject.Parameters;
+using Ninject.Planning.Bindings;
+using Ninject.Planning.Targets;
+using System;
+using System.Collections.Generic;
+
+#nullable disable
+namespace Ninject.Activation
+{
+  public interface IRequest
+  {
+    Type Service { get; }
+
+    IRequest ParentRequest { get; }
+
+    IContext ParentContext { get; }
+
+    ITarget Target { get; }
+
+    Func<IBindingMetadata, bool> Constraint { get; }
+
+    ICollection<IParameter> Parameters { get; }
+
+    Stack<IBinding> ActiveBindings { get; }
+
+    int Depth { get; }
+
+    bool IsOptional { get; set; }
+
+    bool IsUnique { get; set; }
+
+    bool Matches(IBinding binding);
+
+    object GetScope();
+
+    IRequest CreateChild(Type service, IContext parentContext, ITarget target);
+  }
+}

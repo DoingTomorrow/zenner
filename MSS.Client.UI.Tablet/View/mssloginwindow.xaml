@@ -1,0 +1,169 @@
+<customControls:KeyboardMetroWindow x:Class="MSS.Client.UI.Tablet.View.MSSLoginWindow"
+                                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                                    xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                                    xmlns:customControls="clr-namespace:MSS.Client.UI.Tablet.CustomControls"
+                                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                                    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                                    xmlns:controlsKb="clr-namespace:WpfKb.Controls;assembly=WpfKb"
+                                    x:Name="UserControl" Loaded="MetroWindow_Loaded" TitleCaps="false" Width="950" Height="650"
+                                    BorderThickness="0" GlowBrush="Black" ShowInTaskbar="true" WindowStartupLocation="CenterScreen"
+                                    WindowState="Maximized" WindowTitleBrush="#00608c"
+                                    Title="{Binding Path=MSS_Client_UserControl_Dialog_Login_Title, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <ScrollViewer HorizontalAlignment="Stretch" Grid.Row="0" PanningMode="VerticalOnly">
+      <Grid Margin="0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <Grid Row="0" Margin="0 0 0 0">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="6*"/>
+              <RowDefinition Height="2*"/>
+            </Grid.RowDefinitions>
+            <Grid Row="0">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="4.5*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="4*"/>
+                <ColumnDefinition Width="2*"/>
+              </Grid.ColumnDefinitions>
+            </Grid>
+          </Grid>
+          <Grid x:Name="NewLoginWindow">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="2*"/>
+              <ColumnDefinition Width="2*"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid x:Name="MSSCommonInfo" ColumnSpan="2">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="50"/>
+                  <RowDefinition Height="50"/>
+                  <RowDefinition Height="50"/>
+                  <RowDefinition Height="50"/>
+                </Grid.RowDefinitions>
+                <customControls:TabletButton TouchDown="KeyboardButton_TouchDown" Width="90" HorizontalAlignment="Left" Grid.RowSpan="2"
+                                             ButtonPath="M27.5,17C27.200012,17,27,17.200012,27,17.400024L27,18.900024C27,19.100006,27.200012,19.300018,27.5,19.300018L29.400024,19.300018C29.700012,19.300018,29.900024,19.100006,29.900024,18.900024L29.900024,17.400024C29.900024,17.200012,29.700012,17,29.400024,17z M8.3000488,17C8,17,7.8000488,17.200012,7.8000488,17.400024L7.8000488,18.900024C7.8000488,19.100006,8,19.300018,8.3000488,19.300018L13.100037,19.300018 15,19.300018 17.900024,19.300018 19.800049,19.300018 22.700012,19.300018 24.300049,19.300018 24.5,19.300018C24.800049,19.300018,25,19.100006,25,18.900024L25,17.400024C25,17.200012,24.800049,17,24.5,17L24.300049,17 22.700012,17 19.800049,17 17.900024,17 15,17 13.100037,17z M3.5,17C3.2000122,17,3,17.200012,3,17.400024L3,18.900024C3,19.100006,3.2000122,19.300018,3.5,19.300018L5.4000244,19.300018C5.7000122,19.300018,5.9000244,19.100006,5.9000244,18.900024L5.9000244,17.400024C5.9000244,17.200012,5.7000122,17,5.4000244,17z M27.5,13C27.200012,13,27,13.200012,27,13.400024L27,14.900024C27,15.100006,27.200012,15.300018,27.5,15.300018L29.400024,15.300018C29.700012,15.300018,29.900024,15.100006,29.900024,14.900024L29.900024,13.400024C29.900024,13.200012,29.700012,13,29.400024,13z M22.700012,13C22.400024,13,22.200012,13.200012,22.200012,13.400024L22.200012,14.900024C22.200012,15.100006,22.400024,15.300018,22.700012,15.300018L24.600037,15.300018C24.900024,15.300018,25.100037,15.100006,25.100037,14.900024L25.100037,13.400024C25.100037,13.200012,24.900024,13,24.600037,13z M17.900024,13C17.600037,13,17.400024,13.200012,17.400024,13.400024L17.400024,14.900024C17.400024,15.100006,17.600037,15.300018,17.900024,15.300018L19.800049,15.300018C20.100037,15.300018,20.300049,15.100006,20.300049,14.900024L20.300049,13.400024C20.300049,13.200012,20.100037,13,19.800049,13z M13.100037,13C12.800049,13,12.600037,13.200012,12.600037,13.400024L12.600037,14.900024C12.600037,15.100006,12.800049,15.300018,13.100037,15.300018L15,15.300018C15.300049,15.300018,15.5,15.100006,15.5,14.900024L15.5,13.400024C15.5,13.200012,15.300049,13,15,13z M8.3000488,13C8,13,7.8000488,13.200012,7.8000488,13.400024L7.8000488,14.900024C7.8000488,15.100006,8,15.300018,8.3000488,15.300018L10.200012,15.300018C10.5,15.300018,10.700012,15.100006,10.700012,14.900024L10.700012,13.400024C10.700012,13.200012,10.5,13,10.200012,13z M3.5,13C3.2000122,13,3,13.200012,3,13.400024L3,14.900024C3,15.100006,3.2000122,15.300018,3.5,15.300018L5.4000244,15.300018C5.7000122,15.300018,5.9000244,15.100006,5.9000244,14.900024L5.9000244,13.400024C5.9000244,13.200012,5.7000122,13,5.4000244,13z M22.700012,9C22.400024,9,22.200012,9.2000122,22.200012,9.4000244L22.200012,11C22.200012,11.200012,22.400024,11.400024,22.700012,11.400024L24.600037,11.400024C24.900024,11.400024,25.100037,11.200012,25.100037,11L25.100037,9.5C25.100037,9.3000183,24.900024,9.1000061,24.600037,9.1000061L22.700012,9.1000061z M17.900024,9C17.600037,9,17.400024,9.2000122,17.400024,9.4000244L17.400024,11C17.400024,11.200012,17.600037,11.400024,17.900024,11.400024L19.800049,11.400024C20.100037,11.400024,20.300049,11.200012,20.300049,11L20.300049,9.5C20.300049,9.3000183,20.100037,9.1000061,19.800049,9.1000061L17.900024,9.1000061z M13.100037,9C12.800049,9,12.600037,9.2000122,12.600037,9.4000244L12.600037,11C12.600037,11.200012,12.800049,11.400024,13.100037,11.400024L15,11.400024C15.300049,11.400024,15.5,11.200012,15.5,11L15.5,9.5C15.5,9.2000122,15.300049,9,15,9z M8.3000488,9C8,9,7.8000488,9.2000122,7.8000488,9.5L7.8000488,11C7.8000488,11.200012,8,11.400024,8.3000488,11.400024L10.200012,11.400024C10.5,11.400024,10.700012,11.200012,10.700012,11L10.700012,9.5C10.700012,9.3000183,10.5,9.1000061,10.200012,9.1000061L8.3000488,9.1000061z M3.5,9C3.2000122,9,3,9.2000122,3,9.5L3,11C3,11.200012,3.2000122,11.400024,3.5,11.400024L5.4000244,11.400024C5.7000122,11.400024,5.9000244,11.200012,5.9000244,11L5.9000244,9.5C5.9000244,9.2000122,5.7000122,9,5.4000244,9z M22,0C22.600037,0 23.100037,0.20001221 22.600037,0.70001221 21.400024,1.9000244 19.400024,2.4000244 17.800049,3.2000122 17.300049,3.4000244 16.400024,3.7000122 16.700012,4.3000183 17.100037,5.2000122 18.5,5.7000122 19.400024,6.1000061 19.700012,6.3000183 19.700012,6.5 19.5,6.7000122L29,6.7000122C30.600037,6.7000122,32,7.8000183,32,9.1000061L32,19.100006C32,20.400024,30.700012,21.5,29,21.5L2.9000244,21.5C1.3000488,21.5,0,20.400024,0,19.100006L0,9C0,7.7000122,1.3000488,6.6000061,2.9000244,6.6000061L16.800049,6.6000061C15.200012,5.8000183 13.300049,4.5 15.200012,3.1000061 16.900024,1.9000244 19.300049,1.7000122 20.700012,0.30001831 21,0.1000061 21.600037,0 22,0z"
+                                             ButtonCommand="{Binding KeyboardControlCommand}" ButtonText="{Binding KeyboardControlText}"/>
+                <Label Grid.Row="0" Style="{StaticResource AppLabelStyle}"
+                       Content="{Binding Path=MSS_HarwareKey, Source={StaticResource Resources}}"
+                       Visibility="{Binding IsInfoVisible, Converter={StaticResource boolToVisConverter}, Mode=TwoWay}"/>
+                <Label Grid.Row="1" Style="{StaticResource AppLabelStyle}"
+                       Content="{Binding Path=MSS_ApplicationVersion, Source={StaticResource Resources}}"
+                       Visibility="{Binding IsInfoVisible, Converter={StaticResource boolToVisConverter}, Mode=TwoWay}"/>
+                <Label Grid.Row="2" Style="{StaticResource AppLabelStyle}"
+                       Content="{Binding Path=MSS_GMM_MetrologicalCore, Source={StaticResource Resources}}"
+                       Visibility="{Binding IsInfoVisible, Converter={StaticResource boolToVisConverter}, Mode=TwoWay}"/>
+                <Label Grid.Row="3" Style="{StaticResource AppLabelStyle}"
+                       Content="{Binding Path=MSS_CurrentLicense, Source={StaticResource Resources}}"
+                       Visibility="{Binding IsInfoVisible, Converter={StaticResource boolToVisConverter}, Mode=TwoWay}"/>
+                <TextBox Name="HardwareBox1" Grid.Column="1" IsReadOnly="true" Foreground="#595151" FontSize="20"
+                         Padding="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                         Text="{Binding HardwareKey, Mode=OneTime}"
+                         Visibility="{Binding IsInfoVisible, Converter={StaticResource boolToVisConverter}, Mode=TwoWay}"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" FontSize="20" Style="{StaticResource AppTextBlockGrayStyle}"
+                           HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding VersionNumber}"
+                           Visibility="{Binding IsInfoVisible, Converter={StaticResource boolToVisConverter}, Mode=TwoWay}"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" FontSize="20" Style="{StaticResource AppTextBlockGrayStyle}"
+                           HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding GMMMetrologicalCore}"
+                           Visibility="{Binding IsInfoVisible, Converter={StaticResource boolToVisConverter}, Mode=TwoWay}"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" FontSize="20" Style="{StaticResource AppTextBlockGrayStyle}"
+                           HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding CurrentLicense}"
+                           Visibility="{Binding IsInfoVisible, Converter={StaticResource boolToVisConverter}, Mode=TwoWay}"/>
+              </Grid>
+            </Grid>
+            <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource AppLabelFontSize30}" Margin="8"
+                   Content="{Binding Path=MSS_Client_UserControl_Dialog_Username, Source={StaticResource Resources}}"/>
+            <TextBox x:Name="UsernameTextBox" HorizontalAlignment="Left" Height="35" Width="300" Grid.Row="1"
+                     Grid.Column="1" Style="{StaticResource LoginUsernameBoxErrorStyle}" Margin="8"
+                     InputScope="EmailUserName" Text="{Binding UsernameTextValue, ValidatesOnDataErrors=true}"/>
+            <Button Click="ButtonBase_OnClick" Grid.Row="1" Grid.Column="2" Height="40" HorizontalAlignment="Left"
+                    Margin="8"
+                    Visibility="{Binding IsInfoVisible, Converter={StaticResource boolToVisConverter}, Mode=TwoWay}">
+              <Image x:Name="CopyIcon" Source="pack://application:,,,/Styles;component/Images/Universal/new.png"
+                     ToolTip="{Binding Path=MSS_CopyToClipboard, Source={StaticResource Resources}}"/>
+            </Button>
+            <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabelFontSize30}" Margin="8"
+                   Content="{Binding Path=MSS_Client_UserControl_Dialog_Password, Source={StaticResource Resources}}"/>
+            <Border x:Name="TxtPasswordBorder" HorizontalAlignment="Left" Width="300" Height="35" Grid.Row="2"
+                    Grid.Column="1" BorderThickness="1.2" BorderBrush="DarkGray" Margin="8">
+              <PasswordBox KeyUp="PasswordNotEmpty" Name="TxtPassword" Height="35" Background="#EDEDED"
+                           BorderBrush="Transparent" InputScope="EmailUserName" BorderThickness="0"/>
+            </Border>
+            <StackPanel Grid.Row="3" Grid.Column="1" Margin="-15 5 0 0" Orientation="Horizontal" Grid.ColumnSpan="3"
+                        HorizontalAlignment="Left">
+              <CheckBox Name="RememberUserCheckBox" Style="{StaticResource AppCheckBoxButtonStyle}"
+                        HorizontalAlignment="Right" IsChecked="{Binding RememberUsername}"/>
+              <TextBlock Style="{StaticResource AppTextBlockGrayStyle}"
+                         Text="{Binding Path=MSS_Client_UserControl_Dialog_RememberUsername, Source={StaticResource Resources}}"/>
+            </StackPanel>
+            <TextBlock Grid.Row="6" Grid.ColumnSpan="3" FontSize="18" FontWeight="Bold" Foreground="Red"
+                       TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"
+                       Text="{Binding Path=MSS_Client_UserControl_Dialog_PasswordIncorrect, Source={StaticResource Resources}}"
+                       Visibility="{Binding IncorrectPasswordErrorMessage}"/>
+            <TextBlock Grid.Row="6" Grid.ColumnSpan="3" FontSize="18" FontWeight="Bold" Foreground="Red"
+                       TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"
+                       Text="{Binding Path=MSS_Client_UserControl_Dialog_UsernameIncorrect, Source={StaticResource Resources}}"
+                       Visibility="{Binding IncorrectUsernameErrorMessage}"/>
+            <StackPanel Grid.Column="1" Grid.Row="5" Orientation="Horizontal">
+              <Button x:Name="LoginButton" Width="150" IsDefault="true" Style="{StaticResource CommandButtonStyle}"
+                      Margin="10" telerik:TouchManager.IsTouchHitTestVisible="false"
+                      Content="{Binding MSS_Client_UserControl_Dialog_Login, Source={StaticResource Resources}}"
+                      Command="{Binding LoginUserCommand}" CommandParameter="{Binding ElementName=TxtPassword}"/>
+              <Button x:Name="CancelButton" Width="150" IsCancel="true" Style="{StaticResource CommandButtonStyle}"
+                      Margin="10" Content="{Binding MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                      Command="{Binding CloseWindowCommand}"/>
+            </StackPanel>
+            <Image Grid.Column="3" Grid.Row="0" VerticalAlignment="Bottom" Height="30" Width="30" Margin="15"
+                   Source="{Binding SourceImage}">
+              <UIElement.InputBindings>
+                <MouseBinding MouseAction="LeftClick" Command="{Binding ShowInfoCommand}"/>
+              </UIElement.InputBindings>
+            </Image>
+          </Grid>
+        </Grid>
+      </Grid>
+    </ScrollViewer>
+    <controlsKb:TouchScreenKeyboardUserControl x:Name="Keyboard" Grid.Row="1" Panel.ZIndex="2" VerticalAlignment="Bottom" Height="370"
+                                               HorizontalAlignment="Stretch" KeyBoardInputType="AlphaNumeric" AreAnimationsEnabled="true"
+                                               IsAllowedToFade="false" Margin="0" Width="{Binding ElementName=UserControl, Path=ActualWidth}"
+                                               Visibility="{Binding ElementName=UserControl, Path=DataContext.IsKeyboardControlVisible, Mode=TwoWay}"/>
+  </Grid>
+</customControls:KeyboardMetroWindow>

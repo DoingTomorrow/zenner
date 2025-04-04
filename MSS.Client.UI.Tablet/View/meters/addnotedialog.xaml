@@ -1,0 +1,57 @@
+<customControls:KeyboardMetroWindow x:Class="MSS.Client.UI.Tablet.View.Meters.AddNoteDialog"
+                                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                                    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                                    xmlns:customControls="clr-namespace:MSS.Client.UI.Tablet.CustomControls"
+                                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                                    TitleCaps="false" WindowStartupLocation="CenterScreen" WindowState="Maximized"
+                                    WindowTitleBrush="#00608c" Title="{Binding Title}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <StackPanel Grid.Row="0" HorizontalAlignment="Stretch" Background="#ededed" Orientation="Horizontal">
+      <customControls:TabletButton Width="100"
+                                   ButtonPath="M29.403992,0L32,3.5860286 8.3720093,21.479001 5.7740173,17.895017 5.776001,17.893002 0,9.9110087 3.5079956,7.2570179 9.2829895,15.23602z"
+                                   ButtonCommand="{Binding SaveNoteCommand}"
+                                   ButtonText="{Binding MSS_Client_SaveNote, Source={StaticResource Resources}}"/>
+    </StackPanel>
+    <StackPanel Grid.Row="1" Margin="0 30 0 0 ">
+      <Grid x:Name="NotesGridTemplate" HorizontalAlignment="Center" Margin="0 10 0 0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="50"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Grid.Column="0"
+               Content="{Binding Path=MSS_Client_SelectNote, Source={StaticResource Resources}}"/>
+        <telerik:RadComboBox DisplayMemberPath="Value" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="0"
+                             Grid.Column="1" Width="400" Height="35" SelectedItem="{Binding SelectedNoteType}"
+                             ItemsSource="{Binding NoteTypesComboBox}"/>
+        <Label Grid.Row="1" Grid.Column="0"
+               Content="{Binding Path=MSS_Client_AddNote_Description, Source={StaticResource Resources}}"/>
+        <TextBox GotKeyboardFocus="Tb_GotKeyboardFocus" LostKeyboardFocus="Tb_LostKeyboardFocus"
+                 x:Name="Description" InputScope="EmailSmtpAddress" Grid.Row="1"
+                 Style="{StaticResource AppTextBoxStructureStyle}" Grid.Column="1" TextWrapping="Wrap" Width="400"
+                 Margin="0" Height="100" MaxLength="100" Foreground="#105176"
+                 Text="{Binding MeterNotesText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+      </Grid>
+    </StackPanel>
+  </Grid>
+</customControls:KeyboardMetroWindow>

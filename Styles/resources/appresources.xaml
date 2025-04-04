@@ -1,0 +1,639 @@
+<ResourceDictionary x:Class="Styles.Resources.AppResources"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+  <Style x:Key="AppTextBoxStyle" TargetType="{x:Type TextBox}">
+    <Setter Property="FrameworkElement.Margin" Value="10 0 5 0"/>
+    <Setter Property="Control.BorderBrush" Value="Transparent"/>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <ScrollViewer x:Name="PART_ContentHost" Margin="0" Background="#EDEDED" BorderThickness="1"
+                        BorderBrush="DarkGray"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="HierarchicalGridStyle" TargetType="{x:Type GridViewRow}"
+         BasedOn="{StaticResource GridViewRowStyle}"/>
+  <Style x:Key="HierarchicalGridCellStyle" TargetType="{x:Type GridViewCell}"
+         BasedOn="{StaticResource GridViewCellStyle}"/>
+  <Style x:Key="AppOrderTextBoxStyle" TargetType="{x:Type TextBox}"
+         BasedOn="{StaticResource AppTextBoxStyle}">
+    <Setter Property="FrameworkElement.Height" Value="30"/>
+    <Setter Property="FrameworkElement.Width" Value="205"/>
+  </Style>
+  <Style x:Key="AppTextBlockGrayStyle" TargetType="{x:Type TextBlock}">
+    <Setter Property="FrameworkElement.Margin" Value="10 0 5 0"/>
+    <Setter Property="TextBlock.Foreground" Value="#595151"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+    <Setter Property="TextBlock.Text" Value="This is a test!"/>
+  </Style>
+  <Style x:Key="AppLabelStyle" TargetType="{x:Type Label}">
+    <Setter Property="Control.Foreground" Value="#595151"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Right"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style x:Key="AppSubTitleStyle" TargetType="{x:Type TextBlock}">
+    <Setter Property="TextBlock.Foreground" Value="#595151"/>
+    <Setter Property="TextBlock.FontWeight" Value="ExtraBold"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Right"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style x:Key="AppHeaderButtonStyle" TargetType="{x:Type StackPanel}">
+    <Setter Property="Panel.Background" Value="White"/>
+    <Setter Property="FrameworkElement.Width" Value="Auto"/>
+    <Setter Property="FrameworkElement.Height" Value="Auto"/>
+  </Style>
+  <Style x:Key="AppTextBlockBlackStyle" TargetType="{x:Type TextBlock}">
+    <Setter Property="TextBlock.FontWeight" Value="Normal"/>
+    <Setter Property="TextBlock.Foreground" Value="Black"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Center"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+    <Setter Property="FrameworkElement.Margin" Value="0 0 5 0"/>
+    <Setter Property="TextBlock.Padding" Value="5"/>
+  </Style>
+  <Style x:Key="AppTextBlockLightGrayStyle" TargetType="{x:Type TextBlock}">
+    <Setter Property="TextBlock.FontWeight" Value="Thin"/>
+    <Setter Property="TextBlock.FontSize" Value="14"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+    <Setter Property="TextBlock.Foreground" Value="#77778b"/>
+    <Setter Property="FrameworkElement.Margin" Value="20 10 0 0"/>
+  </Style>
+  <Style x:Key="AppRadioButtonStyle" TargetType="{x:Type RadioButton}">
+    <Setter Property="FrameworkElement.Margin" Value="20 0 0 0"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+    <Setter Property="FrameworkElement.Width" Value="20"/>
+    <Setter Property="FrameworkElement.Height" Value="20"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type RadioButton}">
+          <Image x:Name="SelectedImage"
+                 Source="pack://application:,,,/Styles;component/Images/Universal/radio_unchecked.png"/>
+          <ControlTemplate.Triggers>
+            <Trigger Property="ToggleButton.IsChecked" Value="True">
+              <Setter TargetName="SelectedImage" Property="Image.Source"
+                      Value="pack://application:,,,/Styles;component/Images/Universal/radio_checked.png"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="SmallIconImageStyle" TargetType="{x:Type Image}">
+    <Setter Property="FrameworkElement.Width" Value="16"/>
+    <Setter Property="FrameworkElement.Height" Value="16"/>
+  </Style>
+  <Style x:Key="SmallIconImageStructureStyle" TargetType="{x:Type Image}"
+         BasedOn="{StaticResource SmallIconImageStyle}">
+    <Setter Property="FrameworkElement.Margin" Value="0,0,3,0"/>
+  </Style>
+  <Style x:Key="AppCheckBoxButtonStyle" TargetType="{x:Type CheckBox}">
+    <Setter Property="FrameworkElement.Margin" Value="20 0 0 0"/>
+    <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+    <Setter Property="FrameworkElement.Width" Value="15"/>
+    <Setter Property="FrameworkElement.Height" Value="15"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type CheckBox}">
+          <Image x:Name="TickImage"
+                 Source="pack://application:,,,/Styles;component/Images/Universal/checkbox_unchecked.png"/>
+          <ControlTemplate.Triggers>
+            <Trigger Property="ToggleButton.IsChecked" Value="True">
+              <Setter TargetName="TickImage" Property="Image.Source"
+                      Value="pack://application:,,,/Styles;component/Images/Universal/checkbox_checked.png"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <ControlTemplate x:Key="TabItemTemplate" TargetType="{x:Type RadTabItem}">
+    <Grid x:Name="wrapper">
+      <VisualStateManager.VisualStateGroups>
+        <VisualStateGroup x:Name="CommonStateGroup">
+          <VisualState x:Name="Normal"/>
+          <VisualState x:Name="Selected">
+            <Storyboard>
+              <DoubleAnimation Duration="0" Storyboard.TargetName="SelectionVisual"
+                               Storyboard.TargetProperty="(UIElement.Opacity)" To="1"/>
+              <ObjectAnimationUsingKeyFrames Storyboard.TargetName="HeaderElement" Storyboard.TargetProperty="Foreground" Duration="0">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                  <ObjectKeyFrame.Value>
+                    <LinearGradientBrush>
+                      <GradientStop Color="White" Offset="0.0"/>
+                      <GradientStop Color="White" Offset="1.0"/>
+                    </LinearGradientBrush>
+                  </ObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+              </ObjectAnimationUsingKeyFrames>
+              <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="FontWeight" Storyboard.TargetName="HeaderElement">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                  <ObjectKeyFrame.Value>
+                    <FontWeight>Bold</FontWeight>
+                  </ObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+              </ObjectAnimationUsingKeyFrames>
+            </Storyboard>
+          </VisualState>
+        </VisualStateGroup>
+      </VisualStateManager.VisualStateGroups>
+      <Border x:Name="NormalVisual" Background="Transparent"/>
+      <Border x:Name="SelectionVisual" Opacity="0" CornerRadius="1" Background="#99d9ea"/>
+      <telerik:LayoutTransformControl x:Name="OrientationTransform">
+        <ContentControl x:Name="HeaderElement" Content="{TemplateBinding HeaderedContentControl.Header}"
+                        ContentTemplate="{TemplateBinding HeaderedContentControl.HeaderTemplate}" Foreground="#00608C"
+                        FontWeight="Bold" Margin="{TemplateBinding Control.Padding}"/>
+      </telerik:LayoutTransformControl>
+    </Grid>
+  </ControlTemplate>
+  <Style TargetType="{x:Type RadTabItem}" BasedOn="{StaticResource RadTabItemStyle}">
+    <Setter Property="Control.Template" Value="{StaticResource TabItemTemplate}"/>
+  </Style>
+  <Style TargetType="{x:Type RadTabControl}"/>
+  <ControlTemplate x:Key="RadTabControlControlTemplateTest" TargetType="{x:Type RadTabControl}">
+    <Grid>
+      <telerik:RadDockPanel LastChildFill="true">
+        <telerik:LayoutTransformControl x:Name="HeaderDockedElement" telerik:RadDockPanel.Dock="Top" IsTabStop="false">
+          <Grid SnapsToDevicePixels="true">
+            <Border x:Name="HeaderBackground" Background="{TemplateBinding RadTabControlBase.HeaderBackground}"
+                    Visibility="{TemplateBinding RadTabControlBase.BackgroundVisibility}"/>
+            <Border BorderBrush="#FF848484" BorderThickness="0,0,0,1"/>
+            <telerik:RadDockPanel ZIndex="10">
+              <ScrollViewer x:Name="ScrollViewerElement" BorderThickness="0" IsTabStop="false" Margin="2,4,2,0"
+                            VerticalScrollBarVisibility="Disabled"
+                            HorizontalScrollBarVisibility="{Binding (ScrollViewer.HorizontalScrollBarVisibility), RelativeSource={RelativeSource TemplatedParent}}">
+                <FrameworkElement.Style>
+                  <Style TargetType="{x:Type ScrollViewer}">
+                    <Setter Property="Control.HorizontalContentAlignment" Value="Left"/>
+                  </Style>
+                </FrameworkElement.Style>
+                <ItemsPresenter/>
+              </ScrollViewer>
+            </telerik:RadDockPanel>
+          </Grid>
+        </telerik:LayoutTransformControl>
+        <Border x:Name="ContentBorder" BorderBrush="{TemplateBinding Control.BorderBrush}"
+                Background="{TemplateBinding Control.Background}" Padding="{TemplateBinding Control.Padding}"
+                BorderThickness="{Binding BorderThickness, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+          <Grid>
+            <ContentPresenter x:Name="ContentElement"
+                              ContentTemplate="{TemplateBinding RadTabControlBase.SelectedContentTemplate}"/>
+          </Grid>
+        </Border>
+      </telerik:RadDockPanel>
+    </Grid>
+  </ControlTemplate>
+  <Style x:Key="CalendarStyle" TargetType="{x:Type RadCalendar}">
+    <Setter Property="FrameworkElement.Margin" Value="20 5 0 0"/>
+    <Setter Property="FrameworkElement.Width" Value="250"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+  </Style>
+  <Style x:Key="ErrorImageStyle" TargetType="{x:Type Image}">
+    <Setter Property="Image.Source"
+            Value="pack://application:,,,/Styles;component/Images/Settings/light-red.png"/>
+    <Setter Property="UIElement.Visibility" Value="Hidden"/>
+    <Setter Property="FrameworkElement.Width" Value="20"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+  </Style>
+  <Style x:Key="AppButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
+    <Setter Property="FrameworkElement.Height" Value="23"/>
+    <Setter Property="FrameworkElement.Margin" Value="2.5"/>
+  </Style>
+  <Style x:Key="RadComboBoxStructureStyle" TargetType="{x:Type RadComboBox}"
+         BasedOn="{StaticResource RadComboBoxStyle}">
+    <Setter Property="FrameworkElement.Height" Value="28"/>
+    <Setter Property="FrameworkElement.Width" Value="205"/>
+    <Setter Property="FrameworkElement.Margin" Value="2 0 0 0"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+    <Setter Property="Control.Background" Value="#EDEDED"/>
+    <Setter Property="Control.BorderBrush" Value="DarkGray"/>
+  </Style>
+  <DataTemplate x:Key="ImageComboBoxTemplate">
+    <Grid MaxHeight="100">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <TextBlock Grid.Column="0" FontWeight="Bold" Text="{Binding Name, Mode=TwoWay}"/>
+      <Image Grid.Column="1" Height="95" Width="95" HorizontalAlignment="Right"
+             Source="{Binding Image500x500, Mode=OneWay}"/>
+    </Grid>
+  </DataTemplate>
+  <DataTemplate x:Key="SelectedImageComboBoxTemplate">
+    <Grid>
+      <TextBlock FontWeight="Bold" Text="{Binding Name, Mode=TwoWay}"/>
+    </Grid>
+  </DataTemplate>
+  <Style x:Key="AppTextBoxStructureStyle" TargetType="{x:Type TextBox}">
+    <Setter Property="Control.BorderBrush" Value="Transparent"/>
+    <Setter Property="FrameworkElement.Height" Value="30"/>
+    <Setter Property="FrameworkElement.Width" Value="210"/>
+    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Left"/>
+    <Setter Property="Control.VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <ScrollViewer x:Name="PART_ContentHost" Margin="0" Background="#EDEDED" BorderThickness="1"
+                        BorderBrush="DarkGray"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="BorderStyleShadoweffect" TargetType="{x:Type Border}">
+    <Setter Property="UIElement.Effect">
+      <Setter.Value>
+        <DropShadowEffect BlurRadius="20" Color="#00608c" Opacity="1" ShadowDepth="-20" Direction="-90"/>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="GridStyleShadoweffect" TargetType="{x:Type Grid}">
+    <Setter Property="Panel.Background" Value="White"/>
+    <Setter Property="FrameworkElement.Margin" Value="20"/>
+  </Style>
+  <Style TargetType="{x:Type ResizeGrip}">
+    <Setter Property="FrameworkElement.MinWidth"
+            Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
+    <Setter Property="FrameworkElement.MinHeight"
+            Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}"/>
+    <Setter Property="FrameworkElement.Margin" Value="0,0,0,0"/>
+  </Style>
+  <Style x:Key="ToolStyle" TargetType="{x:Type ToolTip}">
+    <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="true"/>
+    <Setter Property="ToolTip.HasDropShadow" Value="true"/>
+    <Setter Property="FrameworkElement.MaxHeight" Value="26"/>
+    <Setter Property="Control.Foreground" Value="White"/>
+    <Setter Property="ToolTip.Placement" Value="MousePoint"/>
+    <Setter Property="ToolTip.VerticalOffset" Value="-5"/>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ToolTip}">
+          <StackPanel Orientation="Horizontal">
+            <Border Name="Border" Margin="13,1,0,0" Width="{TemplateBinding FrameworkElement.Width}"
+                    Height="{TemplateBinding FrameworkElement.Height}">
+              <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                  <GradientBrush.GradientStops>
+                    <GradientStopCollection>
+                      <GradientStop Color="{DynamicResource ControlLightColor}" Offset="0.0"/>
+                      <GradientStop Color="{DynamicResource ControlMediumColor}" Offset="1.0"/>
+                    </GradientStopCollection>
+                  </GradientBrush.GradientStops>
+                </LinearGradientBrush>
+              </Border.Background>
+              <Border.BorderBrush>
+                <SolidColorBrush Color="{DynamicResource BorderMediumColor}"/>
+              </Border.BorderBrush>
+              <ContentPresenter Margin="4" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                Content="{Binding Path=/ErrorContent}"/>
+            </Border>
+          </StackPanel>
+          <ControlTemplate.Triggers>
+            <Trigger Property="ToolTip.HasDropShadow" Value="true">
+              <Setter TargetName="Border" Property="Border.CornerRadius" Value="0"/>
+              <Setter TargetName="Border" Property="UIElement.SnapsToDevicePixels" Value="true"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Color x:Key="ControlLightColor">#DE3914</Color>
+  <Color x:Key="ControlMediumColor">#DE3914</Color>
+  <LinearGradientBrush x:Key="MenuPopupBrush" EndPoint="0.5,1" StartPoint="0.5,0">
+    <GradientStop Color="{DynamicResource ControlLightColor}" Offset="0"/>
+    <GradientStop Color="{DynamicResource ControlMediumColor}" Offset="0.5"/>
+    <GradientStop Color="{DynamicResource ControlLightColor}" Offset="1"/>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="ProgressBarIndicatorAnimatedFill" StartPoint="0,0" EndPoint="1,0">
+    <GradientBrush.GradientStops>
+      <GradientStopCollection>
+        <GradientStop Color="#000000FF" Offset="0"/>
+        <GradientStop Color="#600000FF" Offset="0.4"/>
+        <GradientStop Color="#600000FF" Offset="0.6"/>
+        <GradientStop Color="#000000FF" Offset="1"/>
+      </GradientStopCollection>
+    </GradientBrush.GradientStops>
+  </LinearGradientBrush>
+  <Style x:Key="TextBoxErrorStyle" TargetType="{x:Type TextBox}">
+    <Setter Property="Control.VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" HorizontalAlignment="Right" Margin="0,0,3,0"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <ScrollViewer x:Name="PART_ContentHost" Margin="0" Background="#EDEDED" BorderThickness="1"
+                        BorderBrush="DarkGray"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="TextBoxDynamicGridErrorStyle" TargetType="{x:Type TextBox}">
+    <Setter Property="Control.VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" HorizontalAlignment="Right" Margin="0,0,3,0"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="TextBoxErrorStyleMinomat" TargetType="{x:Type TextBox}">
+    <Setter Property="Control.VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" HorizontalAlignment="Right" Margin="0,0,3,0"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <ScrollViewer x:Name="PART_ContentHost" Margin="0" Background="#EDEDED" BorderThickness="1"
+                        BorderBrush="DarkGray"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Style.Triggers>
+      <DataTrigger Binding="{Binding IsChecked, ElementName=isMaster}" Value="False">
+        <Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
+      </DataTrigger>
+    </Style.Triggers>
+  </Style>
+  <Style x:Key="LoginUsernameBoxErrorStyle" TargetType="{x:Type TextBox}">
+    <Setter Property="Control.VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <ScrollViewer x:Name="PART_ContentHost" Margin="0" Background="#EDEDED" BorderThickness="1"
+                        BorderBrush="DarkGray"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="RadListBoxErrorStyle" TargetType="{x:Type telerik:RadListBox}">
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" HorizontalAlignment="Right" Margin="0,0,3,0"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.Background" Value="#EDEDED"/>
+    <Setter Property="Control.BorderBrush" Value="DarkGray"/>
+  </Style>
+  <Style x:Key="RadMaskedTextInputErrorStyle" TargetType="{x:Type RadMaskedTextInput}">
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" HorizontalAlignment="Right" Margin="0,0,3,0"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border x:Name="FocusedVisual" BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.Background" Value="#EDEDED"/>
+  </Style>
+  <Style x:Key="RadAutoCompleteBoxErrorStyle" TargetType="{x:Type RadAutoCompleteBox}"
+         BasedOn="{StaticResource RadAutoCompleteBoxStyle}">
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" HorizontalAlignment="Right" Margin="0,0,20,0"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.Background" Value="#EDEDED"/>
+    <Setter Property="Control.BorderBrush" Value="DarkGray"/>
+  </Style>
+  <Style x:Key="RadComboBoxErrorStyle" TargetType="{x:Type RadComboBox}"
+         BasedOn="{StaticResource RadComboBoxStyle}">
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" HorizontalAlignment="Right" Margin="0,0,20,0"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.Background" Value="#EDEDED"/>
+    <Setter Property="Control.BorderBrush" Value="DarkGray"/>
+  </Style>
+  <Style x:Key="RadDateTimePickerErrorStyle" TargetType="{x:Type RadDateTimePicker}">
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" HorizontalAlignment="Right" Margin="0,0,23,0"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.Background" Value="#EDEDED"/>
+    <Setter Property="Control.BorderBrush" Value="DarkGray"/>
+  </Style>
+  <Style x:Key="RadPanelBarItemStyleWithoutSelection" TargetType="{x:Type RadPanelBarItem}">
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type RadPanelBarItem}">
+          <Grid x:Name="RootElement" SnapsToDevicePixels="true">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid x:Name="HeaderRow" Background="Transparent" Margin="5,0">
+              <ContentControl x:Name="Header" ContentTemplate="{TemplateBinding HeaderedItemsControl.HeaderTemplate}"
+                              FontWeight="{TemplateBinding Control.FontWeight}"
+                              HorizontalAlignment="{TemplateBinding Control.HorizontalContentAlignment}"
+                              Margin="{TemplateBinding Control.Padding}"
+                              VerticalAlignment="{TemplateBinding Control.VerticalContentAlignment}"/>
+              <Rectangle x:Name="FocusVisual" IsHitTestVisible="false" Opacity="0.2" StrokeThickness="1"
+                         Visibility="Collapsed"/>
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="RadTimePickerErrorStyle" TargetType="{x:Type RadTimePicker}">
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" HorizontalAlignment="Right" Margin="0,0,23,0"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.Background" Value="#EDEDED"/>
+    <Setter Property="Control.BorderBrush" Value="DarkGray"/>
+  </Style>
+  <Style x:Key="RadDatePickerErrorStyle" TargetType="{x:Type RadDatePicker}">
+    <Setter Property="Validation.ErrorTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel>
+            <Grid>
+              <Image x:Name="SelectedImage" HorizontalAlignment="Right" Margin="0,0,23,0"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/exclamation.png">
+                <FrameworkElement.ToolTip>
+                  <ToolTip Style="{StaticResource ToolStyle}"/>
+                </FrameworkElement.ToolTip>
+              </Image>
+              <AdornedElementPlaceholder x:Name="adorner"/>
+              <AdornedElementPlaceholder Name="customAdorner" VerticalAlignment="Center">
+                <Border BorderBrush="#DE3914" BorderThickness="1.2"/>
+              </AdornedElementPlaceholder>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Control.Background" Value="#EDEDED"/>
+    <Setter Property="Control.BorderBrush" Value="DarkGray"/>
+  </Style>
+  <Style x:Key="Triggers" TargetType="{x:Type RadComboBoxItem}">
+    <Setter Property="Control.Background" Value="White"/>
+    <Setter Property="Control.Foreground" Value="Black"/>
+    <Style.Triggers>
+      <DataTrigger Binding="{Binding IsOnline}" Value="false">
+        <Setter Property="Control.Background" Value="Red"/>
+      </DataTrigger>
+    </Style.Triggers>
+  </Style>
+</ResourceDictionary>

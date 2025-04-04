@@ -1,0 +1,231 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Orders.CreateEditReadingOrder"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:dataFilters="clr-namespace:MSS.Core.Model.DataFilters;assembly=MSS.Core"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="CanMinimize" Height="560" Width="830" Title="{Binding OrderDialogTitle}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+        <ResourceDictionary>
+          <Style x:Key="EditStructureButtonStyle" TargetType="{x:Type Button}"
+                 BasedOn="{StaticResource AppButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="true"/>
+            <Setter Property="UIElement.Opacity" Value="1"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding EditStructureButtonVisibility}" Value="False">
+                <Setter Property="UIElement.IsEnabled" Value="false"/>
+                <Setter Property="UIElement.Opacity" Value="0.5"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+          <Style TargetType="{x:Type telerik:RadListBoxItem}" BasedOn="{StaticResource RadListBoxItemStyle}">
+            <Setter Property="telerik:DragDropManager.AllowCapturedDrag" Value="true"/>
+            <Setter Property="telerik:DragDropManager.TouchDragTrigger" Value="TapAndHold"/>
+          </Style>
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="50"/>
+      </Grid.RowDefinitions>
+      <telerik:RadTabControl Grid.Row="0" Margin="3" HeaderBackground="#EDEDED"
+                             Template="{StaticResource RadTabControlControlTemplateTest}">
+        <telerik:RadTabItem Header="{Binding MSS_Client_Structures_General_Tab, Source={StaticResource Resources}}">
+          <Grid x:Name="OrderGrid">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="101*"/>
+              <ColumnDefinition Width="17*"/>
+              <ColumnDefinition Width="266*"/>
+              <ColumnDefinition Width="59*"/>
+              <ColumnDefinition Width="118*"/>
+              <ColumnDefinition Width="221*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Style="{StaticResource AppLabelStyle}" Grid.Column="0" Grid.ColumnSpan="2"
+                   Margin="0,12" Content="{Binding NumberText, Mode=TwoWay}"/>
+            <TextBox Grid.Row="0" Grid.Column="2" Margin="22,10,6,10" Style="{StaticResource TextBoxErrorStyle}"
+                     MaxLength="12" Width="237" Height="30" IsEnabled="false"
+                     Text="{Binding InstallationNumberValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+            <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource AppLabelStyle}" Grid.ColumnSpan="2"
+                   Margin="0,12"
+                   Content="{Binding Path=MSS_Client_OrderControl_Header_Structure, Source={StaticResource Resources}}"/>
+            <StackPanel Grid.Row="1" Grid.Column="2" Grid.RowSpan="2" Orientation="Horizontal">
+              <TextBox Style="{StaticResource AppTextBoxStyle}" Margin="28 3 0 3" Width="237" TextWrapping="Wrap"
+                       AcceptsReturn="true" VerticalScrollBarVisibility="Visible" IsEnabled="false"
+                       Text="{Binding StructureInfo, Mode=TwoWay}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="3" Grid.Row="1">
+              <Button Name="BtnStructure" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0 3 0 3"
+                      Command="{Binding AddEditStructureCommand}"
+                      Visibility="{Binding IsAssignStructureButtonVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Control.Template>
+                  <ControlTemplate>
+                    <Image Source="pack://application:,,,/Styles;component/Images/Universal/details.png" Height="18"
+                           Width="50"/>
+                  </ControlTemplate>
+                </Control.Template>
+              </Button>
+            </StackPanel>
+            <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource AppLabelStyle}" Grid.ColumnSpan="2"
+                   Margin="0,7"
+                   Content="{Binding Path=MSS_Client_OrderControl_Header_Details, Source={StaticResource Resources}}"/>
+            <TextBox Grid.Row="3" Grid.RowSpan="2" Grid.Column="2" Style="{StaticResource AppTextBoxStyle}"
+                     Margin="22,3,6,3" Width="237" TextWrapping="Wrap" AcceptsReturn="true"
+                     VerticalScrollBarVisibility="Visible" VerticalContentAlignment="Top" Text="{Binding DetailValue}"/>
+            <Label Grid.Row="5" Grid.Column="0" Height="30" Style="{StaticResource AppLabelStyle}" Grid.ColumnSpan="2"
+                   Margin="0,9,0,10"
+                   Content="{Binding Path=MSS_Client_OrderControl_Header_DueDate, Source={StaticResource Resources}}"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="2">
+              <telerik:RadDateTimePicker x:Name="DueDateTimePicker" Height="30" Margin="28 3 0 3" Width="150" DisplayFormat="Short"
+                                         InputMode="DatePicker" IsReadOnly="false" DateSelectionMode="Day" ErrorTooltipContent="Error."
+                                         IsTooltipEnabled="true" AllowParsingWithoutSeparator="false" IsEnabled="false"
+                                         SelectedValue="{Binding DueDateValue, Mode=TwoWay}"/>
+              <telerik:RadNumericUpDown x:Name="dueDateYearValue" NumberDecimalDigits="0" IsInteger="false" Margin="3 0 0 0" Width="70"
+                                        Height="30" Minimum="1970" Value="{Binding DueDateYear, Mode=TwoWay}"
+                                        Visibility="{Binding IsYearDropDownVisible, Converter={StaticResource boolToVisConverter}}"
+                                        IsEnabled="{Binding IsReadingOrderDueDateYearEnabled}"/>
+            </StackPanel>
+            <Label Grid.Row="1" Grid.Column="4" Style="{StaticResource AppLabelStyle}" Margin="0,12"
+                   Visibility="{Binding IsInstallationOrderEdit, Converter={StaticResource BoolToVisibilityConverter}}"
+                   Content="{Binding Path=MSS_Client_OrderControl_Header_Exported, Source={StaticResource Resources}}"/>
+            <CheckBox Name="ExportedOrderCheckBox" Grid.Row="1" Grid.Column="5"
+                      Style="{StaticResource AppCheckBoxButtonStyle}" Margin="10,18,0,18" IsEnabled="false" Height="14"
+                      Visibility="{Binding IsInstallationOrderEdit, Converter={StaticResource BoolToVisibilityConverter}}"
+                      IsChecked="{Binding ExportedValue}"/>
+            <Label Grid.Row="2" Grid.Column="4" Style="{StaticResource AppLabelStyle}" Margin="0,12,0,11"
+                   Visibility="{Binding IsInstallationOrderEdit, Converter={StaticResource BoolToVisibilityConverter}}"
+                   Content="{Binding Path=MSS_Client_OrderControl_Header_DeviceNumber, Source={StaticResource Resources}}"/>
+            <TextBox Grid.Row="2" Grid.Column="5" Style="{StaticResource AppOrderTextBoxStyle}" IsEnabled="false"
+                     Margin="8,10,8,9"
+                     Visibility="{Binding IsInstallationOrderEdit, Converter={StaticResource BoolToVisibilityConverter}}"
+                     Text="{Binding DeviceNumberValue}"/>
+            <Label Grid.Row="3" Grid.Column="4" Style="{StaticResource AppLabelStyle}" Margin="0,7"
+                   Visibility="{Binding IsInstallationOrderEdit, Converter={StaticResource BoolToVisibilityConverter}}"
+                   Content="{Binding Path=MSS_Client_OrderControl_Header_Status, Source={StaticResource Resources}}"/>
+            <telerik:RadComboBox Grid.Row="3" Grid.Column="5" Style="{StaticResource RadComboBoxStructureStyle}" Width="202"
+                                 Margin="10,6,0,6" IsEnabled="false"
+                                 Visibility="{Binding IsInstallationOrderEdit, Converter={StaticResource BoolToVisibilityConverter}}"
+                                 ItemsSource="{Binding StatusCollection}" SelectedValue="{Binding SelectedStatus, Mode=TwoWay}"/>
+            <Label Grid.Row="4" Grid.Column="4" Style="{StaticResource AppLabelStyle}" Margin="0,11,0,12"
+                   Content="{Binding Path=MSS_Client_OrderControl_Header_Reason, Source={StaticResource Resources}}"
+                   Visibility="{Binding IsReasonVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <telerik:RadComboBox Grid.Row="4" Grid.Column="5" Style="{StaticResource RadComboBoxStructureStyle}" Margin="10,11,0,10"
+                                 ItemsSource="{Binding ReasonsCollection}" SelectedValue="{Binding SelectedReason, Mode=TwoWay}"
+                                 Visibility="{Binding IsReasonVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <TextBlock Grid.Row="6" Width="80" Grid.Column="0" Style="{StaticResource AppTextBlockGrayStyle}"
+                       HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,-15,0" TextWrapping="Wrap"
+                       Grid.ColumnSpan="2"
+                       Text="{Binding Path=MSS_Client_OrderControl_Header_User, Source={StaticResource Resources}}"/>
+            <telerik:RadComboBox Grid.Row="6" Grid.Column="2" Margin="28,10,6,10" Width="240" Height="30"
+                                 Style="{StaticResource RadComboBoxStructureStyle}" ClearSelectionButtonVisibility="Visible"
+                                 ItemsSource="{Binding UsersCollection}" SelectedValue="{Binding SelectedUser, Mode=TwoWay}"
+                                 ClearSelectionButtonContent="{Binding Path=MSS_Client_OrderControl_Clear_Users, Source={StaticResource Resources}}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock DataContext="{Binding}">
+                    <TextBlock.Text>
+                      <MultiBinding StringFormat=" {0}  {1}">
+                        <Binding Path="LastName"/>
+                        <Binding Path="FirstName"/>
+                      </MultiBinding>
+                    </TextBlock.Text>
+                  </TextBlock>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </telerik:RadComboBox>
+          </Grid>
+        </telerik:RadTabItem>
+        <telerik:RadTabItem Header="{Binding MSS_Client_Structures_Filter_Tab, Source={StaticResource Resources}}"
+                            Visibility="{Binding IsReadingOrder, Converter={StaticResource BoolToVisibilityConverter}}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="30"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+              <Label Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Left"
+                     Content="{Binding MSS_Client_Structures_Name, Source={StaticResource Resources}}"/>
+              <telerik:RadComboBox Width="600" Margin="2" Style="{StaticResource RadComboBoxStyle}" DisplayMemberPath="Name"
+                                   SelectedValuePath="Id" ItemsSource="{Binding FilterCollection}"
+                                   SelectedValue="{Binding SelectedFilterId, Mode=TwoWay}"/>
+              <Button Name="Filter" Style="{StaticResource AppButtonStyle}" ToolTip="Filter"
+                      Command="{Binding FilterCommand}">
+                <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                  <Image Source="pack://application:,,,/Styles;component/Images/Universal/details.png"/>
+                </StackPanel>
+              </Button>
+            </StackPanel>
+            <telerik:RadListBox Grid.Row="1" Margin="5" SelectedValuePath="Id" ItemsSource="{Binding FilterRules, Mode=TwoWay}"
+                                SelectedValue="{Binding FilterRuleId, Mode=TwoWay}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock>
+                    <Run Text="{Binding (dataFilters:Rules.ValueId)}"/>
+                    <Run Text="{Binding (dataFilters:Rules.PhysicalQuantity)}"/>
+                    <Run Text="{Binding (dataFilters:Rules.MeterType)}"/>
+                    <Run Text="{Binding (dataFilters:Rules.Calculation)}"/>
+                    <Run Text="{Binding (dataFilters:Rules.CalculationStart)}"/>
+                    <Run Text="{Binding (dataFilters:Rules.StorageInterval)}"/>
+                    <Run Text="{Binding (dataFilters:Rules.Creation)}"/>
+                  </TextBlock>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </telerik:RadListBox>
+          </Grid>
+        </telerik:RadTabItem>
+      </telerik:RadTabControl>
+      <Grid Row="1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Column="1">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="AddButton" Grid.Column="0" Foreground="#595151" Style="{StaticResource AppButtonStyle}"
+                  Background="White" Height="25" Width="73" BorderBrush="LightGray" IsDefault="true"
+                  Content="{Binding Path=MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                  Command="{Binding AddOrderCommand}"
+                  Visibility="{Binding IsAddOrderButtonVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+          <Button x:Name="EditButton" Grid.Column="0" Foreground="#595151" Style="{StaticResource AppButtonStyle}"
+                  Background="White" Height="25" Width="73" BorderBrush="LightGray" IsDefault="true"
+                  Content="{Binding Path=MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                  Command="{Binding EditOrderCommand}"
+                  Visibility="{Binding IsEditOrderButtonVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+          <Button x:Name="CancelButton" Grid.Column="1" Foreground="#595151" Background="White" Height="25"
+                  Width="73" BorderBrush="LightGray" Style="{StaticResource AppButtonStyle}"
+                  Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                  Command="{Binding CancelWindowCommand}"/>
+        </Grid>
+        <Grid Column="0">
+          <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Left" Margin="10 0 0 0"
+                            Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

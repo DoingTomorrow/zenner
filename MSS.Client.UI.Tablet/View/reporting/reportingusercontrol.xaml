@@ -1,0 +1,283 @@
+<UserControl x:Class="MSS.Client.UI.Tablet.View.Reporting.ReportingUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+  <FrameworkElement.Resources>
+    <Style x:Key="JobMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="true"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ElementName=JobsGridView, Path=SelectedItem}" Value="{x:Null}">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+  </FrameworkElement.Resources>
+  <telerik:RadTabControl HeaderBackground="#EDEDED" Margin="3" Template="{StaticResource RadTabControlControlTemplateTest}">
+    <telerik:RadTabItem Header="{Binding Path=MSS_Client_UserControl_AutomatedExports, Source={StaticResource Resources}}"
+                        IsSelected="{Binding IsAutomatedExportJobTabSelected, Mode=TwoWay}"
+                        Visibility="{Binding IsAutomatedExportsTabVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="40"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Background="#ebebeb">
+          <Button Name="CreateJob" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                  Command="{Binding CreateJobCommand}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_CreateExportJobTooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding IsCreateAutomatedExportVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+            <StackPanel Orientation="Horizontal">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/add.png"
+                     Style="{StaticResource SmallIconImageStyle}"/>
+              <TextBlock Name="CreateExportJobCommand" Style="{StaticResource TextForImageButton}"
+                         Text="{Binding Path=MSS_Client_Create, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="EditJob" Style="{StaticResource JobMustBeSelectedButtonStyle}" Height="40" Width="Auto"
+                  Command="{Binding EditJobCommand}"
+                  CommandParameter="{Binding ElementName=JobsGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_EditExportJobTooltip, Source={StaticResource Resources}}">
+            <StackPanel Orientation="Horizontal">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"
+                     Style="{StaticResource SmallIconImageStyle}"/>
+              <TextBlock Name="EditUserCommand" Style="{StaticResource TextForImageButton}"
+                         Text="{Binding Path=MSS_Client_Edit, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="DeleteJob" Style="{StaticResource JobMustBeSelectedButtonStyle}" Height="40" Width="Auto"
+                  Command="{Binding DeleteJobCommand}"
+                  CommandParameter="{Binding ElementName=JobsGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_DeleteExportJobTooltip, Source={StaticResource Resources}}">
+            <StackPanel Orientation="Horizontal">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"
+                     Style="{StaticResource SmallIconImageStyle}"/>
+              <TextBlock Name="DeleteExportJobCommand" Style="{StaticResource TextForImageButton}"
+                         Text="{Binding Path=MSS_Client_Delete, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="ExportReadingValuesButton" Style="{StaticResource CommandButtonStyle}" Height="40"
+                  Width="Auto" Command="{Binding ExportAllReadingValues}"
+                  ToolTip="{Binding Path=MSS_Client_Export, Source={StaticResource Resources}}"
+                  Visibility="{Binding IsDeleteAutomatedExportVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+            <StackPanel Orientation="Horizontal">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/export.png"
+                     Style="{StaticResource SmallIconImageStyle}"/>
+              <TextBlock Name="ExportAllCommand" Style="{StaticResource TextForImageButton}"
+                         Text="{Binding Path=MSS_Client_MainWindow_ImportExport_ExportAllReadingValues, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="MDMExportButton" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                  Command="{Binding MDMExportCommand}"
+                  ToolTip="{Binding Path=MSS_Client_MDMExport_Button, Source={StaticResource Resources}}">
+            <StackPanel Orientation="Horizontal">
+              <Image Source="pack://application:,,,/Styles;component/Images/SmallIcons/home-selected.png"
+                     Style="{StaticResource SmallIconImageStyle}"/>
+              <TextBlock Name="MDMExportTextBox" Style="{StaticResource TextForImageButton}"
+                         Text="{Binding Path=MSS_Client_MDMExport_Button, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+        <Grid Row="0">
+          <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-73,0,0"
+                            Content="{Binding MessageUserControlAutomatedExports, Mode=TwoWay}"/>
+        </Grid>
+        <Grid Row="1" Margin="3">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <telerik:RadGridView x:Name="JobsGridView" RowIndicatorVisibility="Collapsed" CanUserFreezeColumns="false"
+                               telerik:StyleManager.Theme="Windows8" IsReadOnly="true" AlternateRowBackground="#EDEDED"
+                               GroupPanelBackground="#FF00608C" AlternationCount="2" CanUserReorderColumns="false"
+                               AutoGenerateColumns="false" IsFilteringAllowed="true" ItemsSource="{Binding GetJobs}">
+            <telerik:GridViewDataControl.Columns>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding Periodicity}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_Periodicity, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding StartDate, StringFormat={0:dd-MMM-yy}}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_StartDate, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding LastExecutionTime, StringFormat={0:dd-MMM-yy}}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_LastExecutionTime, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding ArchiveAfterExport}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_ArchiveAfterExport, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding DeleteAfterExport}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_DeleteAfterExport, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding ExportedDataFormatted}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_ExportedData, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding ExportFor}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_ExportFor, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding ExportedFileType}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_FileType, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding DecimalSeparator}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_DecimalSeparator, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding ValueSeparator}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_ValueSeparator, Source={StaticResource Resources}}"/>
+            </telerik:GridViewDataControl.Columns>
+          </telerik:RadGridView>
+          <telerik:RadDataPager PageIndexChanged="OnPageIndexChange" Name="RadDataPager" Grid.Row="1" FontSize="12"
+                                Margin="0,-1,0,0" IsTotalItemCountFixed="true" DisplayMode="FirstLastPreviousNextNumeric, Text"
+                                telerik:StyleManager.Theme="Windows8" PageSize="{Binding PageSize, Mode=TwoWay}"
+                                Source="{Binding Items, ElementName=JobsGridView}"/>
+        </Grid>
+      </Grid>
+    </telerik:RadTabItem>
+    <telerik:RadTabItem Visibility="Hidden"
+                        Header="{Binding Path=MSS_Client_UserControl_MinomatCommunicationLogs, Source={StaticResource Resources}}"
+                        IsSelected="{Binding IsMinomatCommunicationLogsTabSelected, Mode=TwoWay}">
+      <AdornerDecorator>
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <StackPanel Orientation="Horizontal" Background="#ebebeb">
+            <Button Name="LoadDataLogs" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    Command="{Binding SearchMinomatCommunicationLogs}">
+              <StackPanel Orientation="Horizontal">
+                <Image Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"
+                       Style="{StaticResource SmallIconImageStyle}"/>
+                <TextBlock Name="LoadDataLogsCommand" Text="Load Data" Style="{StaticResource TextForImageButton}"/>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+          <Grid Row="0">
+            <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-58,0,0"
+                              Content="{Binding MessageUserControlComLogs, Mode=TwoWay}"/>
+          </Grid>
+          <Grid Row="1" Margin="3">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
+              <telerik:Label Content="{Binding Path=MSS_Client_UserControl_MinomatCommunicationLogs_MasterNumber, Source={StaticResource Resources}}"/>
+              <TextBox PreviewTextInput="NumericOnly" Name="MasterNumberBox" MaxLength="8"
+                       Style="{StaticResource TextBoxErrorStyle}" Width="200" Height="30" Margin="5 0 10 0"
+                       Text="{Binding MasterNumberValue, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"/>
+              <telerik:Label Content="{Binding Path=MSS_Client_UserControl_MinomatCommunicationLogs_StartDate, Source={StaticResource Resources}}"/>
+              <telerik:RadDatePicker Name="StartDateBox" Width="200" Margin="5 0 10 0"
+                                     SelectedDate="{Binding StartDateLogValue, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                     SelectableDateEnd="{Binding ElementName=EndDateBox, Path=SelectedValue}"/>
+              <telerik:Label Content="{Binding Path=MSS_Client_UserControl_MinomatCommunicationLogs_EndDate, Source={StaticResource Resources}}"/>
+              <telerik:RadDatePicker Name="EndDateBox" Width="200" Margin="5 0 10 0"
+                                     SelectedDate="{Binding EndDateLogValue, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                     SelectableDateStart="{Binding ElementName=StartDateBox, Path=SelectedValue}"
+                                     StartTime="{Binding ElementName=StartDateBox, Path=SelectedValue.Value.TimeOfDay}"/>
+            </StackPanel>
+            <telerik:RadGridView x:Name="MinomatCommunicationLogsGridView" Grid.Row="1" RowIndicatorVisibility="Collapsed"
+                                 CanUserFreezeColumns="false" telerik:StyleManager.Theme="Windows8" IsReadOnly="true"
+                                 AlternateRowBackground="#EDEDED" GroupPanelBackground="#FF00608C" AlternationCount="2"
+                                 CanUserReorderColumns="false" ColumnWidth="Auto" AutoGenerateColumns="false"
+                                 IsFilteringAllowed="true" ItemsSource="{Binding MinomatCommunicationLogs}">
+              <telerik:GridViewDataControl.Columns>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding MasterRadioId}"
+                                            Header="{Binding Path=MSS_Client_Reporting_MinomatCommunicationLogs_MasterNumber, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding TimePoint}"
+                                            Header="{Binding Path=MSS_Client_Reporting_MinomatCommunicationLogs_TimePoint, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding GsmID}"
+                                            Header="{Binding Path=MSS_Client_Reporting_MinomatCommunicationLogs_GsmID, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding SessionKey}"
+                                            Header="{Binding Path=MSS_Client_Reporting_MinomatCommunicationLogs_SessionKey, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding ChallengeKey}"
+                                            Header="{Binding Path=MSS_Client_Reporting_MinomatCommunicationLogs_Challenge, Source={StaticResource Resources}}"/>
+                <telerik:GridViewColumn>
+                  <telerik:GridViewColumn.CellTemplate>
+                    <DataTemplate>
+                      <Button Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                              Content="{Binding Path=MSS_Reporting_View_Details, Source={StaticResource Resources}}"
+                              Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.ViewMinomatCommunicationLogDetails}"
+                              CommandParameter="{Binding}"/>
+                    </DataTemplate>
+                  </telerik:GridViewColumn.CellTemplate>
+                </telerik:GridViewColumn>
+              </telerik:GridViewDataControl.Columns>
+            </telerik:RadGridView>
+            <telerik:RadDataPager PageIndexChanged="OnPageIndexChange" Name="RadDataPager2" Grid.Row="2" FontSize="12"
+                                  Margin="0,-1,0,0" IsTotalItemCountFixed="true" DisplayMode="FirstLastPreviousNextNumeric, Text"
+                                  telerik:StyleManager.Theme="Windows8" PageSize="{Binding PageSize, Mode=TwoWay}"
+                                  Source="{Binding Items, ElementName=JobsGridView}"/>
+          </Grid>
+        </Grid>
+      </AdornerDecorator>
+    </telerik:RadTabItem>
+    <telerik:RadTabItem Visibility="Hidden"
+                        Header="{Binding Path=MSS_Client_UserControl_JobLogs, Source={StaticResource Resources}}"
+                        IsSelected="{Binding IsJobLogsTabSelected, Mode=TwoWay}">
+      <AdornerDecorator>
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <StackPanel Orientation="Horizontal" Background="#ebebeb">
+            <Button Name="LoadJobLogs" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    Command="{Binding SearchJobLogs}">
+              <StackPanel Orientation="Horizontal">
+                <Image Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"
+                       Style="{StaticResource SmallIconImageStyle}"/>
+                <TextBlock Name="LoadJobLogsCommand" Text="Load Data" Style="{StaticResource TextForImageButton}"/>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+          <Grid Row="0">
+            <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-58,0,0"
+                              Content="{Binding MessageUserControlJobLogs, Mode=TwoWay}"/>
+          </Grid>
+          <Grid Row="1" Margin="3">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
+              <telerik:Label Content="{Binding Path=MSS_Client_UserControl_JobLogs_JobEntityNumber, Source={StaticResource Resources}}"/>
+              <TextBox PreviewTextInput="NumericOnly" Name="JobEnityNumberBox" MaxLength="8"
+                       Style="{StaticResource TextBoxErrorStyle}" Width="200" Height="30" Margin="5 0 10 0"
+                       Text="{Binding JobEntityNumberValue, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"/>
+              <telerik:Label Content="{Binding Path=MSS_Client_UserControl_JobLogs_StartDate, Source={StaticResource Resources}}"/>
+              <telerik:RadDatePicker Name="JobStartDateBox" Width="200" Margin="5 0 10 0"
+                                     SelectedDate="{Binding StartDateJobLogValue, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                     SelectableDateEnd="{Binding ElementName=EndDateBox, Path=SelectedValue}"/>
+              <telerik:Label Content="{Binding Path=MSS_Client_UserControl_JobLogs_EndDate, Source={StaticResource Resources}}"/>
+              <telerik:RadDatePicker Name="JobEndDateBox" Width="200" Margin="5 0 10 0"
+                                     SelectedDate="{Binding EndDateJobLogValue, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                     SelectableDateStart="{Binding ElementName=StartDateBox, Path=SelectedValue}"
+                                     StartTime="{Binding ElementName=StartDateBox, Path=SelectedValue.Value.TimeOfDay}"/>
+            </StackPanel>
+            <telerik:RadGridView x:Name="JobLogsGridView" Grid.Row="1" RowIndicatorVisibility="Collapsed"
+                                 CanUserFreezeColumns="false" telerik:StyleManager.Theme="Windows8" IsReadOnly="true"
+                                 AlternateRowBackground="#EDEDED" GroupPanelBackground="#FF00608C" AlternationCount="2"
+                                 CanUserReorderColumns="false" ColumnWidth="*" AutoGenerateColumns="false" IsFilteringAllowed="true"
+                                 ItemsSource="{Binding JobLogs}">
+              <telerik:GridViewDataControl.Columns>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding JobEntityNumber}"
+                                            Header="{Binding Path=MSS_Client_Reporting_JobLogs_JobEntityNumber, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding JobName}"
+                                            Header="{Binding Path=MSS_Client_Reporting_JobLogs_JobName, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding StartDate}"
+                                            Header="{Binding Path=MSS_Client_Reporting_JobLogs_StartDate, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding EndDate}"
+                                            Header="{Binding Path=MSS_Client_Reporting_JobLogs_EndDate, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding Active}"
+                                            Header="{Binding Path=MSS_Client_Reporting_JobLogs_Active, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding Status}"
+                                            Header="{Binding Path=MSS_Client_Reporting_JobLogs_Status, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding Message}"
+                                            Header="{Binding Path=MSS_Client_Reporting_JobLogs_Message, Source={StaticResource Resources}}"/>
+              </telerik:GridViewDataControl.Columns>
+            </telerik:RadGridView>
+            <telerik:RadDataPager PageIndexChanged="OnPageIndexChange" Name="RadDataPager3" Grid.Row="2" FontSize="12"
+                                  Margin="0,-1,0,0" IsTotalItemCountFixed="true" DisplayMode="FirstLastPreviousNextNumeric, Text"
+                                  telerik:StyleManager.Theme="Windows8" PageSize="{Binding PageSize, Mode=TwoWay}"
+                                  Source="{Binding Items, ElementName=JobsGridView}"/>
+          </Grid>
+        </Grid>
+      </AdornerDecorator>
+    </telerik:RadTabItem>
+  </telerik:RadTabControl>
+</UserControl>

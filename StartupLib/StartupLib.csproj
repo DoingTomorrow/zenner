@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\StartupLib.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{02954FEE-E8BA-405A-B615-432AF2C69654}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>StartupLib</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>StartupLib</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonWPF">
+      <HintPath>lib\CommonWPF.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BooleanToVisibilityConverter.cs" />
+    <Compile Include="ErrorMessageBox.cs" />
+    <Compile Include="FormTranslatorSupport.cs" />
+    <Compile Include="FullRightInfoList.cs" />
+    <Compile Include="HeaderImageConverter.cs" />
+    <Compile Include="GmmInit.cs" />
+    <Compile Include="GmmPlugInByOwner.cs" />
+    <Compile Include="GmmPlugInExtendedOptions.cs" />
+    <Compile Include="GmmPlugInExtended.cs" />
+    <Compile Include="InstallationData.cs" />
+    <Compile Include="BasicTestbenchStates.cs" />
+    <Compile Include="InstallationLog.cs" />
+    <Compile Include="IWindowFunctions.cs" />
+    <Compile Include="DeviceModelPermissionException.cs" />
+    <Compile Include="PermissionException.cs" />
+    <Compile Include="PlugInLoader.cs" />
+    <Compile Include="LoadedPlugin.cs" />
+    <Compile Include="AvailableLibraries.cs" />
+    <Compile Include="LibraryInfo.cs" />
+    <Compile Include="ScanInfo.cs" />
+    <Compile Include="StartupManager.cs" />
+    <Compile Include="StartupInfoList.cs" />
+    <Compile Include="StartupInfo.cs" />
+    <Compile Include="WpfTranslatorSupport.cs" />
+    <Compile Include="UserInterfaceServices.cs" />
+    <Compile Include="UserInfo.cs" />
+    <Compile Include="UserManager.cs" />
+    <Compile Include="TestbenchStateItem.cs" />
+    <Compile Include="MailSupport.cs" />
+    <Compile Include="MessageSupport.cs" />
+    <Compile Include="PercentageConverter.cs" />
+    <Compile Include="Properties\Resources.cs" />
+    <Compile Include="Properties\Settings.cs" />
+    <Compile Include="DatabaseSelector.xaml.cs">
+      <DependentUpon>databaseselector.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ChangeTestBenchName.xaml.cs">
+      <DependentUpon>changetestbenchname.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GmmCorporateControl.xaml.cs">
+      <DependentUpon>gmmcorporatecontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="WorkstationState.xaml.cs">
+      <DependentUpon>workstationstate.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EditUserWindow.xaml.cs">
+      <DependentUpon>edituserwindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LicenseWindow.xaml.cs">
+      <DependentUpon>licensewindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UsersWindow.xaml.cs">
+      <DependentUpon>userswindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DefineNewSetupFile.xaml.cs">
+      <DependentUpon>definenewsetupfile.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\farbverlauf_gmm.png" />
+    <Resource Include="images\headerimagebottom.png" />
+    <Resource Include="images\meterimageleft.png" />
+    <Resource Include="images\zr.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="changetestbenchname.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="databaseselector.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="definenewsetupfile.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="edituserwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="gmmcorporatecontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="licensewindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userswindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="workstationstate.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

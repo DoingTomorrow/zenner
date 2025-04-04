@@ -1,0 +1,86 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Reporting.MinomatCommunicationLogDetails"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="NoResize" Height="440" Width="550"
+                             Title="{Binding MSS_Client_UserControl_MinomatCommunicationLogs_Details, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="20"/>
+          <RowDefinition Height="30"/>
+          <RowDefinition Height="30"/>
+          <RowDefinition Height="30"/>
+          <RowDefinition Height="30"/>
+          <RowDefinition Height="30"/>
+          <RowDefinition Height="30"/>
+          <RowDefinition Height="30"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="40"/>
+          <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Client_Reporting_Dialogs_MasterRadioID, Source={StaticResource Resources}}"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource AppTextBlockGrayStyle}" TextWrapping="Wrap"
+                   Text="{Binding MasterRadioId}"/>
+        <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Client_Reporting_Dialogs_TimePoint, Source={StaticResource Resources}}"/>
+        <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource AppTextBlockGrayStyle}" TextWrapping="Wrap"
+                   Text="{Binding TimePoint}"/>
+        <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Client_Reporting_Dialogs_GsmID, Source={StaticResource Resources}}"/>
+        <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource AppTextBlockGrayStyle}" TextWrapping="Wrap"
+                   Text="{Binding GsmID}"/>
+        <Label Grid.Row="4" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Client_Reporting_Dialogs_SessionKey, Source={StaticResource Resources}}"/>
+        <TextBlock Grid.Row="4" Grid.Column="1" Style="{StaticResource AppTextBlockGrayStyle}" TextWrapping="Wrap"
+                   Text="{Binding SessionKey}"/>
+        <Label Grid.Row="5" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Client_Reporting_Dialogs_ChallengeKey, Source={StaticResource Resources}}"/>
+        <TextBlock Grid.Row="5" Grid.Column="1" Style="{StaticResource AppTextBlockGrayStyle}" TextWrapping="Wrap"
+                   Text="{Binding ChallengeKey}"/>
+        <Label Grid.Row="6" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Client_Reporting_MinomatCommunicationLogs_PackageType, Source={StaticResource Resources}}"/>
+        <TextBlock Grid.Row="6" Grid.Column="1" Style="{StaticResource AppTextBlockGrayStyle}" TextWrapping="Wrap"
+                   Text="{Binding PackageType}"/>
+        <Label Grid.Row="7" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Client_Reporting_MinomatCommunicationLogs_IsIncoming, Source={StaticResource Resources}}"/>
+        <CheckBox Grid.Row="7" Grid.Column="1" Margin="8,2,8,2" IsEnabled="false"
+                  IsChecked="{Binding IsIncoming, Mode=OneWay}"/>
+        <Label Grid.Row="8" Grid.Column="0" Style="{StaticResource AppLabelStyle}" VerticalAlignment="Top"
+               Content="{Binding Path=MSS_Client_Reporting_Dialogs_RawData, Source={StaticResource Resources}}"/>
+        <TextBox Grid.Row="8" Grid.Column="1" Foreground="#595151" FontWeight="Normal" IsReadOnly="true"
+                 VerticalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="true" AcceptsTab="true"
+                 VerticalScrollBarVisibility="Auto" Margin="2 5" Text="{Binding RawData, Mode=OneWay}"/>
+        <Label Grid.Row="9" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+               Content="{Binding Path=MSS_Client_Reporting_Dialogs_SCGICommand, Source={StaticResource Resources}}"/>
+        <TextBlock Grid.Row="9" Grid.Column="1" Style="{StaticResource AppTextBlockGrayStyle}" TextWrapping="Wrap"
+                   Text="{Binding SCGICommand}"/>
+        <Button x:Name="CancelButton" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Foreground="#595151"
+                Background="White" Height="25" Width="73" BorderBrush="LightGray"
+                Style="{StaticResource AppButtonStyle}"
+                Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                Command="{Binding CancelWindowCommand}"/>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

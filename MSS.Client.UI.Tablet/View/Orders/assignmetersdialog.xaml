@@ -1,0 +1,125 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Orders.AssignMetersDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c" Height="460"
+                             Width="850" Title="{Binding Path=AssignMeters_Expert, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="50"/>
+      </Grid.RowDefinitions>
+      <telerik:RadBusyIndicator x:Name="BusyIndicator" Grid.Row="0"
+                                IsBusy="{Binding ShowProgressCircle, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                BusyContent="{Binding BusyContent}">
+        <telerik:RadTabControl Margin="3" HeaderBackground="#EDEDED" Template="{StaticResource RadTabControlControlTemplateTest}">
+          <telerik:RadTabItem IsSelected="true" Header="{Binding AssignMeters_ExpertMode, Source={StaticResource Resources}}">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="1.5*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="1.5*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="1.5*"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <ContentPresenter Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Width="Auto" Height="28" Margin="0 0 10 0"
+                                Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+              <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource AppSubTitleStyle}" HorizontalAlignment="Left"
+                         Margin="10 0 0 0" Text="{Binding Subtitle}"/>
+              <Button x:Name="StartTestReceptionButton" Grid.Row="1" Grid.Column="0"
+                      Style="{StaticResource CommandButtonStyle}" Height="40" HorizontalAlignment="Left"
+                      Margin="10 10 0 0" Width="160"
+                      Content="{Binding Path=AssignMeters_Expert_StartTestReception, Source={StaticResource Resources}}"
+                      Command="{Binding StartTestReceptionCommand}"/>
+              <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Left"
+                     VerticalAlignment="Top" Margin="10 0 0 0" Content="{Binding LastStartedOn}"/>
+              <Button x:Name="ReadTestReceptionButton" Grid.Row="3" Grid.Column="0"
+                      Style="{StaticResource CommandButtonStyle}" Height="40" HorizontalAlignment="Left"
+                      Margin="10 10 0 0" Width="160"
+                      Content="{Binding Path=AssignMeters_Expert_ReadTestReception, Source={StaticResource Resources}}"
+                      Command="{Binding ReadTestReceptionCommand}"/>
+              <Label Grid.Row="4" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Left"
+                     VerticalAlignment="Top" Margin="10 0 0 0" Content="{Binding LastReadResultOn}"/>
+              <Button x:Name="AssignMetersButton" Grid.Row="5" Grid.Column="0"
+                      Style="{StaticResource CommandButtonStyle}" Height="40" HorizontalAlignment="Left"
+                      Margin="10 10 0 0" Width="160"
+                      Content="{Binding Path=AssignMeters_Expert, Source={StaticResource Resources}}"
+                      Command="{Binding AssignMetersExpertCommand}"/>
+              <Label Grid.Row="6" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Left"
+                     VerticalAlignment="Top" Margin="10 0 0 0" Content="{Binding LastMeterAssignedOn}"/>
+              <Button x:Name="ManuallyAssignMetersButton" Grid.Row="1" Grid.Column="1"
+                      Style="{StaticResource CommandButtonStyle}" Height="40" HorizontalAlignment="Left"
+                      Margin="10 10 0 0" Width="160"
+                      Content="{Binding Path=AssignMeters_Expert_ManuallyAssignMeters, Source={StaticResource Resources}}"
+                      Command="{Binding ManuallyAssignMetersExpertCommand}"/>
+              <Label Grid.Row="2" Grid.Column="1" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Left"
+                     VerticalAlignment="Top" Margin="10 0 0 0"
+                     Content="{Binding Path=AssignMeters_Expert_LastManuallyAddedMeterOn, Source={StaticResource Resources}}"/>
+            </Grid>
+          </telerik:RadTabItem>
+          <telerik:RadTabItem Header="{Binding AssignMeters_UserMode, Source={StaticResource Resources}}">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="1.5*"/>
+                <RowDefinition Height="1.5*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="2.5*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource AppSubTitleStyle}" HorizontalAlignment="Left"
+                         Margin="10 0 0 0" Text="{Binding Subtitle}"/>
+              <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Left"
+                     Margin="10 0 0 0"
+                     Content="{Binding Path=AssignMeters_User_PleaseSelectEntrances, Source={StaticResource Resources}}"
+                     Visibility="{Binding Path=IsMeterCountBig, Converter={StaticResource BoolToVisibilityConverter}}"/>
+              <telerik:RadComboBox Grid.Row="2" Grid.Column="0" Style="{StaticResource RadComboBoxStructureStyle}" Width="200"
+                                   Height="25" Margin="10,0,0,0" ItemsSource="{Binding GetEntrancesList}"
+                                   Visibility="{Binding IsMeterCountBig}"/>
+              <Button x:Name="AssignMetersFromEntrancesButton" Grid.Row="3" Grid.Column="0"
+                      Style="{StaticResource CommandButtonStyle}" Height="40" HorizontalAlignment="Left"
+                      Margin="10 10 0 0" Width="160"
+                      Content="{Binding Path=AssignMeters_User_AssignMetersFromEntrances, Source={StaticResource Resources}}"
+                      Command="{Binding AssignMetersFromEntrancesCommand}"/>
+              <Label Grid.Row="4" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Left"
+                     VerticalAlignment="Top" Margin="10 0 0 0" Content="{Binding LastMeterFromEntranceAssigned}"/>
+            </Grid>
+          </telerik:RadTabItem>
+        </telerik:RadTabControl>
+      </telerik:RadBusyIndicator>
+      <Grid Row="1">
+        <Grid>
+          <Button x:Name="OkButton" Height="40" Width="73" IsCancel="true" HorizontalAlignment="Center"
+                  Style="{StaticResource CommandButtonStyle}"
+                  Content="{Binding Path=MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                  Command="{Binding CancelWindowCommand}"/>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

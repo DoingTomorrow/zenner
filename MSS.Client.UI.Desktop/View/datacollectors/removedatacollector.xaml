@@ -1,0 +1,67 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.DataCollectors.RemoveDataCollector"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="CanMinimize" Height="400" Width="480"
+                             Title="{Binding MSS_MINOMAT_ADD_REMOVE_COLLECTORS_TITLE, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="38"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid Row="0">
+        <ContentPresenter Height="30" HorizontalAlignment="Right" Margin="0,-30,100,0"
+                          Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+      </Grid>
+      <Grid Row="1">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <telerik:RadGridView x:Name="RadGridViewPool" Grid.Row="0" Height="270" Margin="5,5,5,5" ShowGroupPanel="false"
+                             telerik:StyleManager.Theme="Windows8" GroupPanelBackground="#FF00608C" AutoGenerateColumns="false"
+                             IsFilteringAllowed="true" AlternateRowBackground="#EDEDED" AlternationCount="2"
+                             SelectionMode="Multiple" RowIndicatorVisibility="Collapsed"
+                             ItemsSource="{Binding GetDataCollectorsMaster}">
+          <telerik:GridViewDataControl.Columns>
+            <telerik:GridViewSelectColumn/>
+            <telerik:GridViewDataColumn Width="*" IsReadOnly="true" DataMemberBinding="{Binding RadioId}"
+                                        Header="{Binding Path=MSS_Client_DataCollectors_Dialogs_MasterRadioID, Source={StaticResource Resources}}"/>
+          </telerik:GridViewDataControl.Columns>
+        </telerik:RadGridView>
+        <telerik:RadDataPager Grid.Row="1" FontSize="12" Margin="0,-1,0,0" IsTotalItemCountFixed="true"
+                              DisplayMode="FirstLastPreviousNextNumeric, Text" telerik:StyleManager.Theme="Windows8"
+                              Background="White" Template="{DynamicResource RadDataPagerControlTemplate1}"
+                              PageSize="{Binding PageSize, Mode=TwoWay}" Source="{Binding Items, ElementName=RadGridView}"/>
+        <Button x:Name="OkButton" Grid.Row="2" Style="{StaticResource AppButtonStyle}" Foreground="#595151"
+                Background="White" Height="25" Width="73" BorderBrush="LightGray" HorizontalAlignment="Right"
+                VerticalAlignment="Bottom" Margin="0,-30,110,0"
+                Content="{Binding Path=MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                Command="{Binding RemoveFromPoolCommand}"
+                CommandParameter="{Binding ElementName=RadGridViewPool, Path=SelectedItems}"/>
+        <Button x:Name="CancelButton" Grid.Row="2" IsCancel="true" Foreground="#595151" Background="White"
+                Height="25" Width="73" BorderBrush="LightGray" HorizontalAlignment="Right"
+                VerticalAlignment="Bottom" Margin="0,-30,20,0" Style="{StaticResource AppButtonStyle}"
+                Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                Command="{Binding CancelWindowCommand}"/>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

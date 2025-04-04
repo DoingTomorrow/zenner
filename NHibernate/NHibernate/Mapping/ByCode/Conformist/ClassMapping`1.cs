@@ -1,0 +1,20 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: NHibernate.Mapping.ByCode.Conformist.ClassMapping`1
+// Assembly: NHibernate, Version=3.3.1.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4
+// MVID: F2FE07FE-F4FA-4811-8A3A-0A4855BEE49E
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\NHibernate.dll
+
+using NHibernate.Mapping.ByCode.Impl;
+using NHibernate.Mapping.ByCode.Impl.CustomizersImpl;
+
+#nullable disable
+namespace NHibernate.Mapping.ByCode.Conformist
+{
+  public class ClassMapping<T> : ClassCustomizer<T> where T : class
+  {
+    public ClassMapping()
+      : base((IModelExplicitDeclarationsHolder) new NHibernate.Mapping.ByCode.Impl.ExplicitDeclarationsHolder(), (ICustomizersHolder) new NHibernate.Mapping.ByCode.Impl.CustomizersHolder())
+    {
+    }
+  }
+}

@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\NFCL_Handler.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1FDD58A2-7033-4120-89FF-CCBC39F0ACD5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>NFCL_Handler</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>2.3.2.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>NFCL_Handler</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonWPF">
+      <HintPath>lib\CommonWPF.dll</HintPath>
+    </Reference>
+    <Reference Include="CommunicationPort">
+      <HintPath>lib\CommunicationPort.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="HandlerLib">
+      <HintPath>lib\HandlerLib.dll</HintPath>
+    </Reference>
+    <Reference Include="MBusLib">
+      <HintPath>lib\MBusLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="ReadoutConfiguration">
+      <HintPath>lib\ReadoutConfiguration.dll</HintPath>
+    </Reference>
+    <Reference Include="S4_Handler">
+      <HintPath>lib\S4_Handler.dll</HintPath>
+    </Reference>
+    <Reference Include="StartupLib">
+      <HintPath>lib\StartupLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DeviceStatus.cs" />
+    <Compile Include="Mode.cs" />
+    <Compile Include="NFCL_AllMeters.cs" />
+    <Compile Include="NFCL_DeviceCommands.cs" />
+    <Compile Include="NFCL_DeviceIdentification.cs" />
+    <Compile Include="NFCL_Params.cs" />
+    <Compile Include="NFCL_DeviceMemory.cs" />
+    <Compile Include="NFCL_HandlerFunctions.cs" />
+    <Compile Include="NFCL_Meter.cs" />
+    <Compile Include="NFC_TRANSMISSION_STATE.cs" />
+    <Compile Include="CR95_RESULTCODE.cs" />
+    <Compile Include="AbstractStatus.cs" />
+    <Compile Include="Iuw.cs" />
+    <Compile Include="IuwCurrentData.cs" />
+    <Compile Include="IuwData.cs" />
+    <Compile Include="IuwModuleConfiguration.cs" />
+    <Compile Include="ArrayExtension.cs" />
+    <Compile Include="MapDefClass00040027.cs" />
+    <Compile Include="MapDefClass000A0027.cs" />
+    <Compile Include="MapDefClass01000027.cs" />
+    <Compile Include="MapDefClass01000037.cs" />
+    <Compile Include="MapDefClass01010027.cs" />
+    <Compile Include="MapDefClass01010037.cs" />
+    <Compile Include="MapDefClass01020027.cs" />
+    <Compile Include="MapDefClass01020037.cs" />
+    <Compile Include="MapDefClass01030027.cs" />
+    <Compile Include="MapDefClass01030037.cs" />
+    <Compile Include="MapDefClass01040027.cs" />
+    <Compile Include="MapDefClass01040037.cs" />
+    <Compile Include="MapDefClass01060027.cs" />
+    <Compile Include="MapDefClass01060037.cs" />
+    <Compile Include="MapDefClass01070027.cs" />
+    <Compile Include="MapDefClass01070037.cs" />
+    <Compile Include="MapDefClass01080027.cs" />
+    <Compile Include="MapDefClass01080037.cs" />
+    <Compile Include="MapDefClass01090027.cs" />
+    <Compile Include="MapDefClass01090037.cs" />
+    <Compile Include="MapDefClass010A0027.cs" />
+    <Compile Include="MapDefClass010A0037.cs" />
+    <Compile Include="MapDefClass010C0027.cs" />
+    <Compile Include="MapDefClass010C0037.cs" />
+    <Compile Include="MapDefClass010D0027.cs" />
+    <Compile Include="MapDefClass010D0037.cs" />
+    <Compile Include="MapDefClass010E0027.cs" />
+    <Compile Include="MapDefClass010E0037.cs" />
+    <Compile Include="MapDefClass02000027.cs" />
+    <Compile Include="MapDefClass02001037.cs" />
+    <Compile Include="MapDefClass02002027.cs" />
+    <Compile Include="MapDefClass02002037.cs" />
+    <Compile Include="MapDefClass02010027.cs" />
+    <Compile Include="MapDefClass02020038.cs" />
+    <Compile Include="MapDefClass02021038.cs" />
+    <Compile Include="MapDefClass02028038.cs" />
+    <Compile Include="MapDefClass02029038.cs" />
+    <Compile Include="MapDefClass02031038.cs" />
+    <Compile Include="MapDefClass02032038.cs" />
+    <Compile Include="NFCL_HandlerWindowFunctions.cs" />
+    <Compile Include="PlugInAnchor.cs" />
+    <Compile Include="UserInterface\TestWindows.cs" />
+    <Compile Include="UserInterface\NFCL_HandlerWindow.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="ui\nfcl_handlerwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ui\testwindows.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

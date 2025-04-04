@@ -1,0 +1,109 @@
+<Window x:Class="S4_Handler.UserInterface.S4_HardwareSetupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Title="S4_HardwareSetupWindow" Height="797.393" Width="1017.333"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico"
+        WindowStartupLocation="CenterScreen">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="2"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StartupLib:GmmCorporateControl DockPanel.Dock="Top" HorizontalAlignment="Stretch"/>
+    <DockPanel>
+      <DockPanel Dock="Right" Margin="5">
+        <ProgressBar Name="ProgressBar1" DockPanel.Dock="Top" Height="25"/>
+        <DockPanel Dock="Right" Margin="5">
+          <Button Click="ButtonBreak_Click" Name="ButtonBreak" DockPanel.Dock="Bottom" Content="Break"
+                  IsEnabled="false"/>
+          <StackPanel>
+            <GroupBox x:Name="GroupBoxMeterProtection" Header="Meter protection" Width="208.8">
+              <StackPanel>
+                <Button Click="ButtonProtection_Click" x:Name="ButtonSetProtectionDB" Content="Set protection DB based"/>
+                <Button Click="ButtonProtection_Click" x:Name="ButtonResetProtectionDB" Content="Reset protection DB based"/>
+                <Label Content="MeterKey:"/>
+                <TextBox x:Name="TextBoxMeterKey"/>
+                <Button Click="ButtonProtection_Click" x:Name="ButtonSetProtectionMK" Content="Set protection by MeterKey"/>
+                <Button Click="ButtonProtection_Click" x:Name="ButtonResetProtectionMK"
+                        Content="Reset protection by MeterKey"/>
+                <Button Click="ButtonProtection_Click" x:Name="ButtonReactivateProtection" Content="Reactivate protection"/>
+                <Button Click="ButtonX_Click" x:Name="ButtonGetUnlockPinState" Content="Get unlock pin state"/>
+                <Separator Margin="3"/>
+                <Button Click="ButtonProtection_Click" x:Name="ButtonGenerateAllChecksums" Content="Generate all checksums"/>
+                <Button Click="ButtonProtection_Click" x:Name="ButtonGenerateFirmwareChecksum"
+                        Content="Generate firmware checksum"/>
+                <Button Click="ButtonProtection_Click" x:Name="ButtonGenerateParameterChecksum"
+                        Content="Generate parameter checksum"/>
+                <Button Click="ButtonProtection_Click" x:Name="CheckAllChecksums" Content="Check all checksums"/>
+              </StackPanel>
+            </GroupBox>
+            <GroupBox Header="LCD test">
+              <StackPanel>
+                <DockPanel>
+                  <Label DockPanel.Dock="Left" Content="Test step (0=off):"/>
+                  <TextBox x:Name="TextBoxLcdTestStep" Text="0"/>
+                </DockPanel>
+                <Button Click="ButtonX_Click" x:Name="ButtonNextLcdTestStep" Content="Next test step"/>
+                <Button Click="ButtonX_Click" x:Name="ButtonSetLcdTestStep" Content="Set test step"/>
+              </StackPanel>
+            </GroupBox>
+            <GroupBox x:Name="GroupBoxBackupHandling" Header="Backup Functions" Width="208.8">
+              <StackPanel>
+                <Button Click="ButtonResetAndBackup_Click" x:Name="ButtonReset" Content="Software reset"/>
+                <Button Click="ButtonResetAndBackup_Click" x:Name="ButtonResetAndLoadBackup"
+                        Content="Reset and load backup block"/>
+                <Button Click="ButtonResetAndBackup_Click" x:Name="ButtonSaveBackup" Content="Save backup block"/>
+                <Button Click="ButtonResetAndBackup_Click" x:Name="ButtonForceSaveBackup" Content="Force save backup block"
+                        ToolTip="Mark existing backups as wrong and write new Backup."/>
+                <Button Click="ButtonResetAndBackup_Click" x:Name="ButtonShowBackup"
+                        Content="Update and show backup blocks"/>
+              </StackPanel>
+            </GroupBox>
+          </StackPanel>
+        </DockPanel>
+        <DockPanel Margin="5">
+          <StackPanel>
+            <Button Click="ButtonX_Click" x:Name="ButtonGetVersion" Content="GetVersion" Margin="0,2" Width="205"/>
+            <Button Click="ButtonX_Click" x:Name="ButtonSetIdentificationByDB"
+                    Content="Set identification from data base" Margin="0,2" Width="205"/>
+            <GroupBox Header="Mode setup">
+              <StackPanel>
+                <Label Content="Delivery mode LCD text:"/>
+                <TextBox x:Name="TextBoxDeliveryModeText"/>
+                <Button Click="ButtonX_Click" x:Name="ButtonSetDeliveryMode" Content="Set delivery mode"/>
+                <Button Click="ButtonX_Click" x:Name="ButtonSetOperationMode" Content="Set operation mode"/>
+                <Button Click="ButtonX_Click" x:Name="ButtonSetRadioSimulationMode" Content="Set radio simulation mode"/>
+                <Button Click="ButtonX_Click" x:Name="ButtonSetStandbyCurrentMode" Content="Set standby current mode"/>
+                <Button Click="ButtonX_Click" x:Name="ButtonReset_first_day_flag" Content="Reset first_day_flag"/>
+                <Button Click="ButtonX_Click" Name="UpdateNdef" Content="Update NFC tag data"/>
+              </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Reset device data by protocol">
+              <StackPanel>
+                <Button Click="ButtonX_Click" x:Name="ButtonClearEventLogger" Content="Clear event logger" Margin="0,2"
+                        Width="205"/>
+                <Separator/>
+                <Label Content="Accumulated volume:"/>
+                <TextBox x:Name="TextBoxAccumulatedVolume" Text="0"/>
+                <Label Content="Accumulated flow volume:"/>
+                <TextBox x:Name="TextBoxAccumulatedFlowVolume"/>
+                <Label Content="Accumulated return volume:"/>
+                <TextBox x:Name="TextBoxAccumulatedReturnVolume"/>
+                <Button Click="ButtonX_Click" x:Name="ButtonResetDeviceAndSetVolume"
+                        Content="Reset device data and set volumes" Margin="0,2" Width="205"/>
+              </StackPanel>
+            </GroupBox>
+          </StackPanel>
+        </DockPanel>
+      </DockPanel>
+      <DockPanel>
+        <TextBlock Name="TextBlockStatus" DockPanel.Dock="Top" Margin="6" Text="Status"/>
+        <TextBox Name="TextBoxCommandResult" FontFamily="Courier New" TextWrapping="Wrap"
+                 VerticalAlignment="Stretch"/>
+      </DockPanel>
+    </DockPanel>
+  </DockPanel>
+</Window>

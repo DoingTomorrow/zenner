@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSSArchive.Core.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{522C544F-9A12-4F0E-8A64-8C2DB6DBEE5C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>MSSArchive.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>MSSArchive.Core</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MSS.Core">
+      <HintPath>lib\MSS.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Utils\ExcludePropertyAttribute.cs" />
+    <Compile Include="Model\Structures\ArchiveStructureNode.cs" />
+    <Compile Include="Model\Structures\ArchiveStructureNodeLinks.cs" />
+    <Compile Include="Model\Structures\ArchiveLocation.cs" />
+    <Compile Include="Model\Structures\ArchiveTenant.cs" />
+    <Compile Include="Model\Reporting\ArchiveJobLogs.cs" />
+    <Compile Include="Model\Orders\ArchiveOrder.cs" />
+    <Compile Include="Model\Meters\ArchiveMbusRadioMeter.cs" />
+    <Compile Include="Model\Meters\ArchiveMeterReadingValue.cs" />
+    <Compile Include="Model\Meters\ArchiveMeter.cs" />
+    <Compile Include="Model\Meters\ArchiveMeterRadioDetails.cs" />
+    <Compile Include="Model\Logs\ArchiveMinomatConnectionLogs.cs" />
+    <Compile Include="Model\Jobs\ArchiveMssReadingJob.cs" />
+    <Compile Include="Model\DataCollectors\ArchiveMinomat.cs" />
+    <Compile Include="Model\DataCollectors\ArchiveMinomatRadioDetails.cs" />
+    <Compile Include="Model\Archiving\ArchiveInformation.cs" />
+    <Compile Include="Model\Archiving\Temp_Processing_Items.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

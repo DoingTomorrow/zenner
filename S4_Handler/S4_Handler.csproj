@@ -1,0 +1,432 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\S4_Handler.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1844C1D6-A7EB-4107-A721-36A8DFD67B79}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>S4_Handler</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.1.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>S4_Handler</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonWPF">
+      <HintPath>lib\CommonWPF.dll</HintPath>
+    </Reference>
+    <Reference Include="CommunicationPort">
+      <HintPath>lib\CommunicationPort.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="HandlerLib">
+      <HintPath>lib\HandlerLib.dll</HintPath>
+    </Reference>
+    <Reference Include="MBusLib">
+      <HintPath>lib\MBusLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="ReadoutConfiguration">
+      <HintPath>lib\ReadoutConfiguration.dll</HintPath>
+    </Reference>
+    <Reference Include="SmartFunctionCompiler">
+      <HintPath>lib\SmartFunctionCompiler.exe</HintPath>
+    </Reference>
+    <Reference Include="StartupLib">
+      <HintPath>lib\StartupLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CurrentSelfTestResult.cs" />
+    <Compile Include="FirmwareDateTimeSupport.cs" />
+    <Compile Include="FlowCalibrationPoint.cs" />
+    <Compile Include="FlyingTestData.cs" />
+    <Compile Include="RadioOffTimeManagement.cs" />
+    <Compile Include="S4_CurrentData.cs" />
+    <Compile Include="S4_SmartFunctionInfo.cs" />
+    <Compile Include="S4_FunctionalState.cs" />
+    <Compile Include="CommunicationScenarioRange.cs" />
+    <Compile Include="ScenarioConfigurations.cs" />
+    <Compile Include="MBusScenarioConfig.cs" />
+    <Compile Include="LoRaScenarioConfig.cs" />
+    <Compile Include="ScenarioEnergy.cs" />
+    <Compile Include="UltrasonicState.cs" />
+    <Compile Include="TransducerPairState.cs" />
+    <Compile Include="EmcTestData.cs" />
+    <Compile Include="UltrasonicTestResults.cs" />
+    <Compile Include="TdcLevelTestData.cs" />
+    <Compile Include="S4_BaseUnits.cs" />
+    <Compile Include="S4_BaseUnitSupport.cs" />
+    <Compile Include="ZeroFlowCheckResults.cs" />
+    <Compile Include="S4_BatteryEnergyManagement.cs" />
+    <Compile Include="S4_CommunicationManager.cs" />
+    <Compile Include="_SCALEFACTOR_.cs" />
+    <Compile Include="_UNITS_.cs" />
+    <Compile Include="_UNIT_SCALE_.cs" />
+    <Compile Include="VIF_Definition.cs" />
+    <Compile Include="_MBUS_INFO_TYPE_.cs" />
+    <Compile Include="_SELECT_PARAMETER_TYPE_.cs" />
+    <Compile Include="_AVAILABLE_PARAMETER_TYPE_.cs" />
+    <Compile Include="VolumeUnitBaseDefines.cs" />
+    <Compile Include="BaseUnitScaleValues.cs" />
+    <Compile Include="S4_DiagnosticData.cs" />
+    <Compile Include="DiagnosticEntry.cs" />
+    <Compile Include="DiagnosticVolumeEntry.cs" />
+    <Compile Include="DiagnosticTemperatureEntry.cs" />
+    <Compile Include="DiagnosticStatusEntry.cs" />
+    <Compile Include="S4_DifVif_Parameter.cs" />
+    <Compile Include="VIF_PhyicalBase.cs" />
+    <Compile Include="DIF_Function.cs" />
+    <Compile Include="_VAR_TYPE_.cs" />
+    <Compile Include="SpacingControlSet.cs" />
+    <Compile Include="SpacingControlValues.cs" />
+    <Compile Include="S4_SupportedMenues.cs" />
+    <Compile Include="S4_MenuManager.cs" />
+    <Compile Include="ViewSetup.cs" />
+    <Compile Include="ViewDefinition.cs" />
+    <Compile Include="SupportedMenu.cs" />
+    <Compile Include="MapDefClass00001006.cs" />
+    <Compile Include="MapDefClass00002006.cs" />
+    <Compile Include="MapDefClass00003042.cs" />
+    <Compile Include="MapDefClass00004006.cs" />
+    <Compile Include="MapDefClass00005006.cs" />
+    <Compile Include="MapDefClass00006006.cs" />
+    <Compile Include="MapDefClass00007006.cs" />
+    <Compile Include="MapDefClass00008006.cs" />
+    <Compile Include="MapDefClass00009006.cs" />
+    <Compile Include="MapDefClass00011006.cs" />
+    <Compile Include="MapDefClass00003006.cs" />
+    <Compile Include="MapDefClass00012006.cs" />
+    <Compile Include="MapDefClass00021006.cs" />
+    <Compile Include="MapDefClass00022006.cs" />
+    <Compile Include="MapDefClass00030006.cs" />
+    <Compile Include="MapDefClass00031006.cs" />
+    <Compile Include="MapDefClass00032006.cs" />
+    <Compile Include="MapDefClass00033006.cs" />
+    <Compile Include="MapDefClass00034006.cs" />
+    <Compile Include="MapDefClass00035006.cs" />
+    <Compile Include="MapDefClass00036006.cs" />
+    <Compile Include="MapDefClass00037006.cs" />
+    <Compile Include="MapDefClass00040006.cs" />
+    <Compile Include="MapDefClass00041006.cs" />
+    <Compile Include="MapDefClass00042006.cs" />
+    <Compile Include="MapDefClass01010006.cs" />
+    <Compile Include="MapDefClass01011006.cs" />
+    <Compile Include="MapDefClass01012006.cs" />
+    <Compile Include="MapDefClass01013006.cs" />
+    <Compile Include="MapDefClass01021006.cs" />
+    <Compile Include="MapDefClass01022006.cs" />
+    <Compile Include="MapDefClass01023006.cs" />
+    <Compile Include="MapDefClass01033006.cs" />
+    <Compile Include="MapDefClass01040006.cs" />
+    <Compile Include="MapDefClass01041006.cs" />
+    <Compile Include="MapDefClass01042006.cs" />
+    <Compile Include="MapDefClass01043006.cs" />
+    <Compile Include="MapDefClass01044006.cs" />
+    <Compile Include="MapDefClass01045006.cs" />
+    <Compile Include="MapDefClass01046006.cs" />
+    <Compile Include="MapDefClass01047006.cs" />
+    <Compile Include="MapDefClass01048006.cs" />
+    <Compile Include="MapDefClass01049006.cs" />
+    <Compile Include="MapDefClass0104A006.cs" />
+    <Compile Include="MapDefClass0104B006.cs" />
+    <Compile Include="MapDefClass0104C006.cs" />
+    <Compile Include="MapDefClass0104D006.cs" />
+    <Compile Include="MapDefClass0104E006.cs" />
+    <Compile Include="MapDefClass01051006.cs" />
+    <Compile Include="MapDefClass01052006.cs" />
+    <Compile Include="MapDefClass01071006.cs" />
+    <Compile Include="MapDefClass01072006.cs" />
+    <Compile Include="MapDefClass01073006.cs" />
+    <Compile Include="MapDefClass01074006.cs" />
+    <Compile Include="MapDefClass01075006.cs" />
+    <Compile Include="MapDefClass01076006.cs" />
+    <Compile Include="MapDefClass01077006.cs" />
+    <Compile Include="MapDefClass01078006.cs" />
+    <Compile Include="MapDefClass01079006.cs" />
+    <Compile Include="MapDefClass0107A006.cs" />
+    <Compile Include="MapDefClass0107B006.cs" />
+    <Compile Include="MapDefClass02001006.cs" />
+    <Compile Include="MapDefClass02002006.cs" />
+    <Compile Include="MapDefClass02031006.cs" />
+    <Compile Include="MapDefClass82031006.cs" />
+    <Compile Include="PlugInAnchor.cs" />
+    <Compile Include="S4_ProtocolConfiguration.cs" />
+    <Compile Include="RadioOffTimes.cs" />
+    <Compile Include="S4_ReleaseInfo.cs" />
+    <Compile Include="S4_InfoWindow.cs" />
+    <Compile Include="UserInterface\S4_MonitorData.cs" />
+    <Compile Include="UserInterface\S4_TestWindowCommunication.cs" />
+    <Compile Include="UserInterface\S4_HandlerWindowFunctions.cs" />
+    <Compile Include="UserInterface\LoRaEventData.cs" />
+    <Compile Include="Properties\Resources.cs" />
+    <Compile Include="Properties\Settings.cs" />
+    <Compile Include="Functions\S4_CurrentMeasureMode.cs" />
+    <Compile Include="Functions\S4_CurrentMeasure.cs" />
+    <Compile Include="Functions\S4_DeviceHistory.cs" />
+    <Compile Include="Functions\S4_LoRaAlarmManager.cs" />
+    <Compile Include="Functions\LoRa_AlarmEntry.cs" />
+    <Compile Include="Functions\S4_Module.cs" />
+    <Compile Include="Functions\S4_ModuleCommands.cs" />
+    <Compile Include="Functions\S4_ModuleMemory.cs" />
+    <Compile Include="Functions\S4_ModuleObjects.cs" />
+    <Compile Include="Functions\S4_Modules.cs" />
+    <Compile Include="Functions\S4_RadioTests.cs" />
+    <Compile Include="Functions\ScenarioRanges.cs" />
+    <Compile Include="Functions\S4_ScenarioManager.cs" />
+    <Compile Include="Functions\S4_SmartFunctionManager.cs" />
+    <Compile Include="Functions\S4_ChecksumCheckResults.cs" />
+    <Compile Include="Functions\S4_ChecksumManager.cs" />
+    <Compile Include="Functions\S4_FirmwareVersionManager.cs" />
+    <Compile Include="Functions\S4_LoggerManager.cs" />
+    <Compile Include="Functions\VolumeLoggerData.cs" />
+    <Compile Include="Functions\EventLoggerData.cs" />
+    <Compile Include="Functions\DynamicLoggerEntry.cs" />
+    <Compile Include="Functions\ProgressWarning.cs" />
+    <Compile Include="Functions\S4_AllMeters.cs" />
+    <Compile Include="Functions\S4_DeviceCommandsNFC.cs" />
+    <Compile Include="Functions\S4_DeviceIdentification.cs" />
+    <Compile Include="Functions\S4_PCB_AssemblyDetection.cs" />
+    <Compile Include="Functions\S4_HandlerFunctions.cs" />
+    <Compile Include="Functions\S4_Meter.cs" />
+    <Compile Include="Functions\S4_Params.cs" />
+    <Compile Include="Functions\S4_DeviceMemory.cs" />
+    <Compile Include="Functions\S4_NfcFunctions.cs" />
+    <Compile Include="Functions\S4_NFC_Common32BitCommands.cs" />
+    <Compile Include="Functions\S4_ProtectionManager.cs" />
+    <Compile Include="Functions\S4_TDC_Calibration.cs" />
+    <Compile Include="Functions\TDC_VALUENAMES.cs" />
+    <Compile Include="Functions\S4_TDC_Internals.cs" />
+    <Compile Include="Functions\tdcData.cs" />
+    <Compile Include="Functions\TdcChannelConfig.cs" />
+    <Compile Include="Functions\TextLineBuilder.cs" />
+    <Compile Include="Functions\SmartFunctionParameter.cs" />
+    <Compile Include="UserInterfaceS4_CommunicationTest.xaml.cs">
+      <DependentUpon>userinterfaces4_communicationtest.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_SmartFunctions.xaml.cs">
+      <DependentUpon>userinterfaces4_smartfunctions.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_TestDisplay.xaml.cs">
+      <DependentUpon>userinterfaces4_testdisplay.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_DeviceDataWindow.xaml.cs">
+      <DependentUpon>userinterfaces4_devicedatawindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_UltrasonicWindows.xaml.cs">
+      <DependentUpon>userinterfaces4_ultrasonicwindows.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_TDCinternals.xaml.cs">
+      <DependentUpon>userinterfaces4_tdcinternals.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_CurrentMeasureWindow.xaml.cs">
+      <DependentUpon>userinterfaces4_currentmeasurewindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_HardwareSetupWindow.xaml.cs">
+      <DependentUpon>userinterfaces4_hardwaresetupwindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_ReadDeviceLoop.xaml.cs">
+      <DependentUpon>userinterfaces4_readdeviceloop.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_ModuleHandlerWindow.xaml.cs">
+      <DependentUpon>userinterfaces4_modulehandlerwindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_RadioTestWindow.xaml.cs">
+      <DependentUpon>userinterfaces4_radiotestwindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_IUW_TestModes.xaml.cs">
+      <DependentUpon>userinterfaces4_iuw_testmodes.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_ScenarioWindow.xaml.cs">
+      <DependentUpon>userinterfaces4_scenariowindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_ManualFlowCalibration.xaml.cs">
+      <DependentUpon>userinterfaces4_manualflowcalibration.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_TimeLapseSimulator.xaml.cs">
+      <DependentUpon>userinterfaces4_timelapsesimulator.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_TestWindows2.xaml.cs">
+      <DependentUpon>userinterfaces4_testwindows2.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_HandlerWindow.xaml.cs">
+      <DependentUpon>userinterfaces4_handlerwindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_MapDataWindow.xaml.cs">
+      <DependentUpon>userinterfaces4_mapdatawindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_MeterMonitor.xaml.cs">
+      <DependentUpon>userinterfaces4_metermonitor.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserInterfaceS4_FirmwareTests.xaml.cs">
+      <DependentUpon>userinterfaces4_firmwaretests.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="opentasks.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="userinterface\radioofftimes.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_communicationtest.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_currentmeasurewindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_devicedatawindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_firmwaretests.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_handlerwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_hardwaresetupwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_infowindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_iuw_testmodes.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_manualflowcalibration.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_mapdatawindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_metermonitor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_modulehandlerwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_radiotestwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_readdeviceloop.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_releaseinfo.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_scenariowindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_smartfunctions.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_tdcinternals.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_testdisplay.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_testwindows2.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_testwindowscommunication.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_timelapsesimulator.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="userinterface\s4_ultrasonicwindows.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

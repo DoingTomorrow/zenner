@@ -1,0 +1,200 @@
+<UserControl x:Class="MSS.Client.UI.Tablet.View.DataCollectors.DataCollectorsUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+  <FrameworkElement.Resources>
+    <Style x:Key="UserMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource CommandButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="true"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ElementName=RadGridView, Path=SelectedItem}" Value="{x:Null}">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+  </FrameworkElement.Resources>
+  <telerik:RadTabControl HeaderBackground="#EDEDED" Margin="3" Template="{StaticResource RadTabControlControlTemplateTest}">
+    <telerik:RadTabItem Header="{Binding MSS_Client_MainWindow_DataCollectors, Source={StaticResource Resources}}"
+                        IsSelected="{Binding IsDataCollectorsItemsSelected, Mode=TwoWay}">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="40"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Background="#ebebeb">
+          <Button Name="AddMinomatButton" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                  Command="{Binding CreateDataCollectionCommand}"
+                  ToolTip="{Binding Path=MSS_CREATE_MINOMAT, Source={StaticResource Resources}}"
+                  Visibility="{Binding AddMinomatVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal">
+              <Image Style="{StaticResource SmallIconImageStyle}"
+                     Source="pack://application:,,,/Styles;component/Images/Universal/add.png"/>
+              <TextBlock Name="CreateReadingOrderTextBox" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Create, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="EditMinomatButton" Style="{StaticResource UserMustBeSelectedButtonStyle}" Height="40"
+                  Width="Auto" Command="{Binding EditDataCollectorCommand}"
+                  CommandParameter="{Binding ElementName=RadGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_EDIT_MINOMAT, Source={StaticResource Resources}}"
+                  Visibility="{Binding EditMinomatVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal">
+              <Image Style="{StaticResource SmallIconImageStyle}"
+                     Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"/>
+              <TextBlock Name="EditReadingOrderTextBox" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Edit, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="RemoveMinomatButton" Style="{StaticResource UserMustBeSelectedButtonStyle}" Height="40"
+                  Width="Auto" Command="{Binding DeleteDataCollectorCommand}"
+                  CommandParameter="{Binding ElementName=RadGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_DELETE_MINOMAT, Source={StaticResource Resources}}"
+                  Visibility="{Binding DeleteMinomatVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal">
+              <Image Style="{StaticResource SmallIconImageStyle}"
+                     Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+              <TextBlock Name="DeleteReadingOrderTextBox" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Delete, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+        <ContentPresenter Grid.Row="0" Height="38" HorizontalAlignment="Right"
+                          Content="{Binding MessageUserControlItems, Mode=TwoWay}"/>
+        <Grid Margin="3" Row="1">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <telerik:RadGridView x:Name="RadGridView" GroupPanelBackground="#FF00608C" AlternateRowBackground="#EDEDED"
+                               AlternationCount="2" ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                               RowIndicatorVisibility="Collapsed" CanUserFreezeColumns="false" IsReadOnly="true"
+                               ColumnWidth="Auto" AutoGenerateColumns="false" IsFilteringAllowed="true"
+                               ItemsSource="{Binding GetDataCollectorsItems, IsAsync=true}" IsBusy="{Binding IsBusy}">
+            <telerik:GridViewDataControl.Columns>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding RadioId}"
+                                          Header="{Binding Path=MSS_MINOMAT_RADIO_ID, Source={StaticResource Resources}}"/>
+              <telerik:GridViewComboBoxColumn DisplayMemberPath="StatusFromObj" SelectedValueMemberPath="IdEnum"
+                                              DataMemberBinding="{Binding idEnumStatus, Mode=TwoWay}" ItemsSource="{Binding GetListofStatuses}"
+                                              Header="{Binding Path=MSS_MINOMAT_STATUS, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding Registered}"
+                                          Header="{Binding Path=MSS_MINOMAT_REGISTERED, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding IsMaster}"
+                                          Header="{Binding Path=MSS_Client_DataCollectors_Dialogs_IsMaster, Source={StaticResource Resources}}"/>
+              <telerik:GridViewColumn Header="{Binding Path=MSS_Client_OrderControl_Header_Structure, Source={StaticResource Resources}}">
+                <telerik:GridViewColumn.CellTemplate>
+                  <DataTemplate>
+                    <Button HorizontalAlignment="Left"
+                            Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.ViewStructureCommand}"
+                            CommandParameter="{Binding}">
+                      <Control.Template>
+                        <ControlTemplate>
+                          <Image Source="pack://application:,,,/Styles;component/Images/Universal/view.png" Height="24"/>
+                        </ControlTemplate>
+                      </Control.Template>
+                    </Button>
+                  </DataTemplate>
+                </telerik:GridViewColumn.CellTemplate>
+              </telerik:GridViewColumn>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding LocationDescription}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_RootNodeName, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn TextWrapping="Wrap" DataMemberBinding="{Binding CreatedByName}"
+                                          Header="{Binding Path=MSS_MINOMAT_CREATEDBY_NAME, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding CreatedOn}"
+                                          Header="{Binding Path=MSS_MINOMAT_CREATEDON, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding LastUpdatedBy}"
+                                          Header="{Binding Path=MSS_MINOMAT_LAST_UPDATE_BY, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding LastUpdatedOn}"
+                                          Header="{Binding Path=MSS_MINOMAT_LAST_UPDATE_ON, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding LockedBy}"
+                                          Header="{Binding Path=MSS_MINOMAT_LOCKED_BY, Source={StaticResource Resources}}"/>
+            </telerik:GridViewDataControl.Columns>
+          </telerik:RadGridView>
+          <telerik:RadDataPager PageIndexChanged="OnPageIndexChange" Name="RadDataPager" Grid.Row="1" FontSize="12"
+                                Margin="0,-1,0,0" IsTotalItemCountFixed="true" DisplayMode="FirstLastPreviousNextNumeric, Text"
+                                Background="Transparent" PageSize="{Binding PageSize, Mode=TwoWay}"
+                                Source="{Binding Items, ElementName=RadGridView}"/>
+        </Grid>
+      </Grid>
+    </telerik:RadTabItem>
+    <telerik:RadTabItem Header="{Binding MSS_Client_DataCollectorsTab_Pool, Source={StaticResource Resources}}"
+                        IsSelected="{Binding IsDataCollectorsItemsPoolSelected, Mode=TwoWay}"
+                        Visibility="{Binding IsMasterPoolTabVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="40"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Background="#ebebeb">
+          <Button Name="AddDataCollector" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                  Command="{Binding AddDataCollectorCommand}"
+                  ToolTip="{Binding Path=MSS_ADD_AS_MASTER, Source={StaticResource Resources}}"
+                  Visibility="{Binding MasterPoolAddVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal">
+              <Image Style="{StaticResource SmallIconImageStyle}"
+                     Source="pack://application:,,,/Styles;component/Images/Universal/add.png"/>
+              <TextBlock Name="AddDataCollectorTextBlock" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_MINOMAT_ADD_DATA_COLLECTOR, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="RemoveDataCollector" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                  Command="{Binding RemoveDataCollectorCommand}"
+                  CommandParameter="{Binding ElementName=RadGridViewPool, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_REMOVE_AS_MASTER, Source={StaticResource Resources}}"
+                  Visibility="{Binding MasterPoolDeleteVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal">
+              <Image Style="{StaticResource SmallIconImageStyle}"
+                     Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+              <TextBlock Name="RemoveDataCollectorTextBlock" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_MINOMAT_REMOVE_DATA_COLLECTOR, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+        <ContentPresenter Grid.Row="0" Height="38" HorizontalAlignment="Right"
+                          Content="{Binding MessageUserControlItemsPool, Mode=TwoWay}"/>
+        <Grid Margin="3" Row="1">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <telerik:RadGridView x:Name="RadGridViewPool" GroupPanelBackground="#FF00608C" AlternateRowBackground="#EDEDED"
+                               AlternationCount="2" ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                               RowIndicatorVisibility="Collapsed" CanUserFreezeColumns="false"
+                               telerik:StyleManager.Theme="Windows8" IsReadOnly="true" ColumnWidth="Auto"
+                               AutoGenerateColumns="false" IsFilteringAllowed="true"
+                               ItemsSource="{Binding GetDataCollectorsItemsPool, IsAsync=true}" IsBusy="{Binding IsBusy}">
+            <telerik:GridViewDataControl.Columns>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding RadioId}"
+                                          Header="{Binding Path=MSS_MINOMAT_RADIO_ID, Source={StaticResource Resources}}"/>
+              <telerik:GridViewComboBoxColumn DisplayMemberPath="StatusFromObj" SelectedValueMemberPath="IdEnum"
+                                              DataMemberBinding="{Binding idEnumStatus, Mode=TwoWay}" ItemsSource="{Binding GetListofStatuses}"
+                                              Header="{Binding Path=MSS_MINOMAT_STATUS, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding IsMaster}"
+                                          Header="{Binding Path=MSS_Client_DataCollectors_Dialogs_IsMaster, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding Registered}"
+                                          Header="{Binding Path=MSS_MINOMAT_REGISTERED, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn TextWrapping="Wrap" DataMemberBinding="{Binding CreatedByName}"
+                                          Header="{Binding Path=MSS_MINOMAT_CREATEDBY_NAME, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding CreatedOn}"
+                                          Header="{Binding Path=MSS_MINOMAT_CREATEDON, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding LastUpdatedBy}"
+                                          Header="{Binding Path=MSS_MINOMAT_LAST_UPDATE_BY, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding LastUpdatedOn}"
+                                          Header="{Binding Path=MSS_MINOMAT_LAST_UPDATE_ON, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding LockedBy}"
+                                          Header="{Binding Path=MSS_MINOMAT_LOCKED_BY, Source={StaticResource Resources}}"/>
+            </telerik:GridViewDataControl.Columns>
+          </telerik:RadGridView>
+          <telerik:RadDataPager PageIndexChanged="OnPageIndexChange" Name="RadDataPager2" telerik:StyleManager.Theme="Windows8"
+                                Grid.Row="1" FontSize="12" Margin="0,-1,0,0" IsTotalItemCountFixed="true"
+                                DisplayMode="FirstLastPreviousNextNumeric, Text" Background="Transparent"
+                                PageSize="{Binding PageSizePool, Mode=TwoWay}"
+                                Source="{Binding Items, ElementName=RadGridViewPool}"/>
+        </Grid>
+      </Grid>
+    </telerik:RadTabItem>
+  </telerik:RadTabControl>
+</UserControl>

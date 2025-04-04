@@ -1,0 +1,74 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Orders.DeleteReadingOrder"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="CanMinimize" Width="400" Title="{Binding DeleteOrderTitle}"
+                             Height="{Binding WindowHeight, Mode=TwoWay}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="140"/>
+        <RowDefinition Height="{Binding GridHeight, Mode=TwoWay}"/>
+        <RowDefinition Height="48"/>
+      </Grid.RowDefinitions>
+      <Grid Row="0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="50"/>
+          <RowDefinition Height="5"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               Content="{Binding Path=MSS_Client_OrderControl_Delete_Message, Source={StaticResource Resources}}"/>
+        <ListBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="10,0,10,0" VerticalAlignment="Center"
+                 ItemsSource="{Binding InstallationNumberValue}"/>
+      </Grid>
+      <Grid Row="1">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="40"/>
+          <RowDefinition Height="5"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               Visibility="{Binding IsDeleteSkiped, Converter={StaticResource BoolToVisibilityConverter}}"
+               Content="{Binding Path=MSS_Client_OrderControl_Not_Delete_Message, Source={StaticResource Resources}}"/>
+        <ListBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="10,0,10,0" VerticalAlignment="Top"
+                 Visibility="{Binding IsDeleteSkiped, Converter={StaticResource BoolToVisibilityConverter}}"
+                 ItemsSource="{Binding InstallationNumberValueSkiped}"/>
+      </Grid>
+      <StackPanel Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal">
+        <Button x:Name="OkButton" IsDefault="true" Foreground="#595151" Style="{StaticResource AppButtonStyle}"
+                Background="White" Height="25" Width="73" Margin="4,5,15,15" BorderBrush="LightGray"
+                Content="{Binding MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                Command="{Binding DeleteOrderCommand}"/>
+        <Button x:Name="CancelButton" IsCancel="false" Foreground="#595151" Style="{StaticResource AppButtonStyle}"
+                Background="White" Height="25" Width="73" Margin="4,5,15,15" BorderBrush="LightGray"
+                Content="{Binding MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                Command="{Binding CancelWindowCommand}"/>
+      </StackPanel>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

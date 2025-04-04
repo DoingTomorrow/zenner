@@ -1,0 +1,91 @@
+<Window x:Class="S4_Handler.UserInterface.S4_TDCinternals"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Closing="CloseTdcInternals" Title="S4_TestTDCinternals" Height="535.6"
+        WindowStartupLocation="CenterScreen" DataContext="{Binding RelativeSource={RelativeSource Self}}">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="3"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+      <Setter Property="FrameworkElement.MinWidth" Value="80"/>
+      <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style TargetType="{x:Type Label}">
+      <Setter Property="FrameworkElement.Margin" Value="5"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+      <Setter Property="FrameworkElement.HorizontalAlignment" Value="Right"/>
+      <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+      <Setter Property="Control.VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <Style TargetType="{x:Type TextBox}">
+      <Setter Property="FrameworkElement.Margin" Value="5"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+      <Setter Property="FrameworkElement.HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="Control.VerticalContentAlignment" Value="Top"/>
+    </Style>
+    <Style TargetType="{x:Type GroupBox}">
+      <Setter Property="FrameworkElement.Margin" Value="3"/>
+      <Setter Property="Control.BorderBrush" Value="Black"/>
+      <Setter Property="Control.Foreground" Value="Black"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StartupLib:GmmCorporateControl DockPanel.Dock="Top" HorizontalAlignment="Stretch"/>
+    <DockPanel>
+      <DockPanel Dock="Bottom">
+        <DockPanel Name="DockPanelPath" Dock="Top">
+          <Label Content="Log file path:" DockPanel.Dock="Left"/>
+          <TextBox Name="TextBoxPath"/>
+        </DockPanel>
+        <StackPanel DockPanel.Dock="Right" VerticalAlignment="Center">
+          <Button Click="BtnStart_Click" Name="BtnStart" Margin="2" Content="Start"/>
+          <Button Click="BtnStop_Click" Name="BtnStop" Margin="2" Content="Stop" IsEnabled="false"/>
+        </StackPanel>
+        <StackPanel Name="StackPanalFunctions" DockPanel.Dock="Right" Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+          <GroupBox Margin="2" VerticalAlignment="Stretch" Header="Delay">
+            <StackPanel Orientation="Horizontal">
+              <TextBox Name="TxtBxDelayTime" Height="20" Width="70" Text="1000"/>
+              <Label Content="ms" FontWeight="Bold"/>
+            </StackPanel>
+          </GroupBox>
+          <GroupBox Margin="2" VerticalAlignment="Stretch" Header="Special-Tests">
+            <StackPanel>
+              <Button Click="Button_Click" Name="BtnCalibZeroOffset" Margin="2" Content="calib. ZeroOffset"/>
+              <Button Click="Button_Click" Name="ButtonTdcHardwareTest" Margin="2" Content="TDC Hardware Test"/>
+            </StackPanel>
+          </GroupBox>
+        </StackPanel>
+        <StackPanel Name="StackPanalButtonsLeft" Orientation="Horizontal" DockPanel.Dock="Left">
+          <StackPanel>
+            <Button Click="ButtonShowTDC2_Click" Name="ButtonShowTDC2" Content="Show tdc2 log"/>
+            <Button Click="ButtonShowTDC1_Click" Name="ButtonShowTDC1" Content="Show tdc1 log"/>
+          </StackPanel>
+          <StackPanel>
+            <Button Click="ButtonClearLogFile_Click" Name="ButtonClearLogFile" Content="Clear log file"/>
+            <Button Click="ButtonOpenLogFile_Click" Name="ButtonOpenLogFile" Content="Open log file"/>
+          </StackPanel>
+        </StackPanel>
+      </DockPanel>
+      <TabControl SelectionChanged="TabControl_SelectionChanged">
+        <TabItem Name="TabItemText" Header="Text">
+          <TextBox Name="TxtBxResult" Margin="2,2,7,2" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto" FontFamily="Consolas" FontStretch="Condensed"/>
+        </TabItem>
+        <TabItem Name="TabItemLog" Header="Log">
+          <DataGrid Name="DataGridResults" Grid.Row="1" Margin="2"/>
+        </TabItem>
+        <TabItem Name="TabItemLogSetup" Header="LogSetup">
+          <ListBox Name="listBoxActiveLogColumns" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <WrapPanel Orientation="Horizontal"/>
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+          </ListBox>
+        </TabItem>
+      </TabControl>
+    </DockPanel>
+  </DockPanel>
+</Window>

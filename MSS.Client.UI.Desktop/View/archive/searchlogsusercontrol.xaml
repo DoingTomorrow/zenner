@@ -1,0 +1,50 @@
+<UserControl x:Class="MSS.Client.UI.Desktop.View.Archive.SearchLogsUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+  <telerik:RadBusyIndicator x:Name="BusyIndicator" BusyContent="Loading..." IsBusy="{Binding IsBusy, Mode=TwoWay}">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="75"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid Row="0">
+        <StackPanel Orientation="Vertical">
+          <StackPanel Orientation="Horizontal" Margin="30,0,0,0">
+            <Label Content="{Binding Path=MSS_Client_Archiving_Label_Archive_Records_Number_1, Source={StaticResource Resources}}"/>
+            <Label Content="{Binding Path=ArchiveNumberOfRecords}"/>
+            <Label Content="{Binding Path=MSS_Client_Archiving_Label_Archive_Records_Number_2, Source={StaticResource Resources}}"/>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Margin="30,0,0,0">
+            <Label Content="{Binding Path=MSS_Client_Archiving_Label_Search_Minomat, Source={StaticResource Resources}}"/>
+            <TextBox x:Name="SearchReadingValueBySerialNumberTextBox" Style="{StaticResource TextBoxErrorStyle}"
+                     Width="200" Margin="2,6,3,5" Height="25"
+                     Text="{Binding SearchString, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}">
+              <UIElement.InputBindings>
+                <KeyBinding Key="Enter" Command="{Binding SearchLogCommand}"
+                            CommandParameter="{Binding Text, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}"/>
+              </UIElement.InputBindings>
+            </TextBox>
+            <Image Source="pack://application:,,,/Styles;component/Images/Universal/search.png" Margin="5" Height="16"
+                   Width="16">
+              <UIElement.InputBindings>
+                <MouseBinding MouseAction="LeftClick" Command="{Binding SearchLogCommand}"
+                              CommandParameter="{Binding Path=Text, ElementName=SearchLogBySerialNumberTextBox}"/>
+              </UIElement.InputBindings>
+            </Image>
+          </StackPanel>
+        </StackPanel>
+      </Grid>
+      <Grid Row="1">
+        <telerik:RadGridView x:Name="ArchiveReadingValueGridView" RowIndicatorVisibility="Collapsed"
+                             CanUserFreezeColumns="false" IsReadOnly="true" ColumnWidth="*" AutoGenerateColumns="false"
+                             CanUserSelect="false" CanUserSortColumns="true" AlternateRowBackground="#EDEDED"
+                             AlternationCount="2" IsFilteringAllowed="false" ShowGroupPanel="false"
+                             ItemsSource="{Binding ArchiveLogValuesDTO}">
+          <telerik:GridViewDataControl.Columns>
+          </telerik:GridViewDataControl.Columns>
+        </telerik:RadGridView>
+      </Grid>
+    </Grid>
+  </telerik:RadBusyIndicator>
+</UserControl>

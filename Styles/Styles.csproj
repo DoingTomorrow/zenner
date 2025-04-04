@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Styles.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{426CEF16-DE93-4CE9-819F-7385F4CEB363}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>Styles</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>Styles</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="Telerik.Windows.Controls">
+      <HintPath>lib\Telerik.Windows.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\GridControl.cs" />
+    <Compile Include="ResourcesAppResources.xaml.cs">
+      <DependentUpon>resourcesappresources.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ResourcesAppResourcesTablet.xaml.cs">
+      <DependentUpon>resourcesappresourcestablet.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\first-screen-background.png" />
+    <Resource Include="images\first-screen-background-image.png" />
+    <Resource Include="images\largeicons\archiving.png" />
+    <Resource Include="images\largeicons\archiving-selected.png" />
+    <Resource Include="images\largeicons\configuration.png" />
+    <Resource Include="images\largeicons\configuration-selected.png" />
+    <Resource Include="images\largeicons\first-screen-structure.png" />
+    <Resource Include="images\largeicons\first-screen-structure-selected.png" />
+    <Resource Include="images\largeicons\header.png" />
+    <Resource Include="images\largeicons\import-export.png" />
+    <Resource Include="images\largeicons\import-export-selected.png" />
+    <Resource Include="images\largeicons\meters.png" />
+    <Resource Include="images\largeicons\metters-selected.png" />
+    <Resource Include="images\largeicons\minomat.png" />
+    <Resource Include="images\largeicons\minomat-selected.png" />
+    <Resource Include="images\largeicons\orders.png" />
+    <Resource Include="images\largeicons\orders-selected.png" />
+    <Resource Include="images\largeicons\reporting.png" />
+    <Resource Include="images\largeicons\reporting-selected.png" />
+    <Resource Include="images\largeicons\settings.png" />
+    <Resource Include="images\largeicons\settings-selected.png" />
+    <Resource Include="images\largeicons\structures.png" />
+    <Resource Include="images\largeicons\structures-selected.png" />
+    <Resource Include="images\largeicons\users.png" />
+    <Resource Include="images\largeicons\users-selected.png" />
+    <Resource Include="images\launchericons\minol_16x16.png" />
+    <Resource Include="images\launchericons\minol_32x32.png" />
+    <Resource Include="images\launchericons\minollauncher.png" />
+    <Resource Include="images\launchericons\zenner_16x16.png" />
+    <Resource Include="images\launchericons\zenner_32x32.png" />
+    <Resource Include="images\launchericons\zenner_40x40.png" />
+    <Resource Include="images\minol_002520logo.png" />
+    <Resource Include="images\settings\light-green.png" />
+    <Resource Include="images\settings\light-red.png" />
+    <Resource Include="images\settings\light-yellow.png" />
+    <Resource Include="images\settings\update_settings.png" />
+    <Resource Include="images\smallicons\archiving.png" />
+    <Resource Include="images\smallicons\archiving-selected.png" />
+    <Resource Include="images\smallicons\arrow-down.png" />
+    <Resource Include="images\smallicons\arrow-down-selected.png" />
+    <Resource Include="images\smallicons\arrow-up.png" />
+    <Resource Include="images\smallicons\arrow-up-selected.png" />
+    <Resource Include="images\smallicons\configuration.png" />
+    <Resource Include="images\smallicons\configuration-selected.png" />
+    <Resource Include="images\smallicons\home.png" />
+    <Resource Include="images\smallicons\home-selected.png" />
+    <Resource Include="images\smallicons\import-export.png" />
+    <Resource Include="images\smallicons\import-export-selected.png" />
+    <Resource Include="images\smallicons\meters.png" />
+    <Resource Include="images\smallicons\meters-selected.png" />
+    <Resource Include="images\smallicons\minomat.png" />
+    <Resource Include="images\smallicons\minomat-selected.png" />
+    <Resource Include="images\smallicons\orders.png" />
+    <Resource Include="images\smallicons\orders-selected.png" />
+    <Resource Include="images\smallicons\reporting.png" />
+    <Resource Include="images\smallicons\reporting-selected.png" />
+    <Resource Include="images\smallicons\structure.png" />
+    <Resource Include="images\smallicons\structures.png" />
+    <Resource Include="images\smallicons\structure-selected.png" />
+    <Resource Include="images\smallicons\structures-selected.png" />
+    <Resource Include="images\smallicons\users.png" />
+    <Resource Include="images\smallicons\users-selected.png" />
+    <Resource Include="images\structureicons\city.png" />
+    <Resource Include="images\structureicons\cityarea.png" />
+    <Resource Include="images\structureicons\comserver.png" />
+    <Resource Include="images\structureicons\converter.png" />
+    <Resource Include="images\structureicons\country.png" />
+    <Resource Include="images\structureicons\datacollectors.png" />
+    <Resource Include="images\structureicons\devicegroup.png" />
+    <Resource Include="images\structureicons\exclamation.png" />
+    <Resource Include="images\structureicons\exclamation2.png" />
+    <Resource Include="images\structureicons\flat.png" />
+    <Resource Include="images\structureicons\floor.png" />
+    <Resource Include="images\structureicons\folder.png" />
+    <Resource Include="images\structureicons\house.png" />
+    <Resource Include="images\structureicons\location.png" />
+    <Resource Include="images\structureicons\manifold.png" />
+    <Resource Include="images\structureicons\meter.png" />
+    <Resource Include="images\structureicons\minomat.png" />
+    <Resource Include="images\structureicons\minomatm.png" />
+    <Resource Include="images\structureicons\minomats.png" />
+    <Resource Include="images\structureicons\radio.png" />
+    <Resource Include="images\structureicons\radiometer.png" />
+    <Resource Include="images\structureicons\repeater.png" />
+    <Resource Include="images\structureicons\replace-meter.png" />
+    <Resource Include="images\structureicons\replace-meter2.png" />
+    <Resource Include="images\structureicons\replace-meter3.png" />
+    <Resource Include="images\structureicons\replace-meter4.png" />
+    <Resource Include="images\structureicons\street.png" />
+    <Resource Include="images\structureicons\tenant.png" />
+    <Resource Include="images\structureicons\user.png" />
+    <Resource Include="images\structureicons\usergroup.png" />
+    <Resource Include="images\universal\add.png" />
+    <Resource Include="images\universal\archive_and_delete_data.png" />
+    <Resource Include="images\universal\archive_and_keep_data.png" />
+    <Resource Include="images\universal\calendar.png" />
+    <Resource Include="images\universal\check_archiving_need.png" />
+    <Resource Include="images\universal\checkbox_checked.png" />
+    <Resource Include="images\universal\checkbox_unchecked.png" />
+    <Resource Include="images\universal\checkmark-blue.png" />
+    <Resource Include="images\universal\checkmark-green.png" />
+    <Resource Include="images\universal\checkmark-red.png" />
+    <Resource Include="images\universal\checkmark-yellow.png" />
+    <Resource Include="images\universal\close.png" />
+    <Resource Include="images\universal\collapse.png" />
+    <Resource Include="images\universal\configurationdetails.png" />
+    <Resource Include="images\universal\consumption.png" />
+    <Resource Include="images\universal\delete.png" />
+    <Resource Include="images\universal\details.png" />
+    <Resource Include="images\universal\device.png" />
+    <Resource Include="images\universal\device_deselected.png" />
+    <Resource Include="images\universal\download.png" />
+    <Resource Include="images\universal\download-notification.png" />
+    <Resource Include="images\universal\edit.png" />
+    <Resource Include="images\universal\english.png" />
+    <Resource Include="images\universal\execute.png" />
+    <Resource Include="images\universal\expand.png" />
+    <Resource Include="images\universal\export.png" />
+    <Resource Include="images\universal\german.png" />
+    <Resource Include="images\universal\import.png" />
+    <Resource Include="images\universal\info.png" />
+    <Resource Include="images\universal\info-deselect.png" />
+    <Resource Include="images\universal\load.png" />
+    <Resource Include="images\universal\logout.png" />
+    <Resource Include="images\universal\maximize.png" />
+    <Resource Include="images\universal\minimize.png" />
+    <Resource Include="images\universal\new.png" />
+    <Resource Include="images\universal\next.png" />
+    <Resource Include="images\universal\next_click.png" />
+    <Resource Include="images\universal\no_notification.png" />
+    <Resource Include="images\universal\nonotification.png" />
+    <Resource Include="images\universal\notes.png" />
+    <Resource Include="images\universal\notification.png" />
+    <Resource Include="images\universal\photo.png" />
+    <Resource Include="images\universal\previous.png" />
+    <Resource Include="images\universal\previous_click.png" />
+    <Resource Include="images\universal\print.png" />
+    <Resource Include="images\universal\radio_checked.png" />
+    <Resource Include="images\universal\radio_unchecked.png" />
+    <Resource Include="images\universal\read.png" />
+    <Resource Include="images\universal\remove_archived_data.png" />
+    <Resource Include="images\universal\search.png" />
+    <Resource Include="images\universal\selected_conflict.png" />
+    <Resource Include="images\universal\send.png" />
+    <Resource Include="images\universal\send-notification.png" />
+    <Resource Include="images\universal\set-evaluation-factor.png" />
+    <Resource Include="images\universal\settings.png" />
+    <Resource Include="images\universal\settings-selected.png" />
+    <Resource Include="images\universal\show_conflicts.png" />
+    <Resource Include="images\universal\star.png" />
+    <Resource Include="images\universal\start.png" />
+    <Resource Include="images\universal\stop.png" />
+    <Resource Include="images\universal\unlock.png" />
+    <Resource Include="images\universal\unselected_conflict.png" />
+    <Resource Include="images\universal\update.png" />
+    <Resource Include="images\universal\view.png" />
+    <Resource Include="images\universal\view-reading-values.png" />
+    <Resource Include="images\universal\write.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="resources\appresources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="resources\appresourcestablet.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

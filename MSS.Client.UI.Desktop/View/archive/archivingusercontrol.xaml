@@ -1,0 +1,241 @@
+<UserControl x:Class="MSS.Client.UI.Desktop.View.Archive.ArchivingUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+  <FrameworkElement.Resources>
+    <Style x:Key="ArchiveJobMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="true"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ElementName=ArchiveJobsGridView, Path=SelectedItem}" Value="{x:Null}">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <DataTemplate x:Key="ArchiveCollectionComboBoxTemplate">
+      <StackPanel Orientation="Horizontal">
+        <TextBlock FontWeight="Bold" Text="{Binding ArchiveName}"/>
+        <TextBlock FontWeight="Bold" Text=" ("/>
+        <TextBlock FontWeight="Bold" Text="{Binding StartTime, StringFormat={0:MM/dd/yyyy}}"/>
+        <TextBlock FontWeight="Bold" Text=" - "/>
+        <TextBlock FontWeight="Bold" Text="{Binding EndTime, StringFormat={0:MM/dd/yyyy}}"/>
+        <TextBlock FontWeight="Bold" Text=")"/>
+      </StackPanel>
+    </DataTemplate>
+  </FrameworkElement.Resources>
+  <Grid Background="White">
+    <telerik:RadTabControl HeaderBackground="#EDEDED" Template="{StaticResource RadTabControlControlTemplateTest}" Margin="3">
+      <telerik:RadTabItem Visibility="Collapsed"
+                          Header="{Binding Path=MSS_Client_Archiving_TabItem_ArchiveNow, Source={StaticResource Resources}}">
+        <AdornerDecorator>
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="30"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="200"/>
+            </Grid.RowDefinitions>
+            <StackPanel Background="#ededed" Orientation="Horizontal">
+              <Button Name="ArchiveAndKeepData" Style="{StaticResource AppButtonStyle}"
+                      Command="{Binding ArchiveAndKeepDataCommand}"
+                      Visibility="{Binding ArchiveAndKeepDataVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+                <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                  <Image Source="pack://application:,,,/Styles;component/Images/Universal/archive_and_keep_data.png"/>
+                  <TextBlock Style="{StaticResource AppTextBlockBlackStyle}"
+                             Text="{Binding Path=MSS_Client_Archiving_Button_ArchiveAndKeepData, Source={StaticResource Resources}}"/>
+                </StackPanel>
+              </Button>
+              <Button Name="ArchiveAndDeleteData" Style="{StaticResource AppButtonStyle}"
+                      Command="{Binding ArchiveAndDeleteDataCommand}"
+                      Visibility="{Binding ArchiveAndDeleteDataVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+                <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                  <Image Source="pack://application:,,,/Styles;component/Images/Universal/archive_and_delete_data.png"/>
+                  <TextBlock Style="{StaticResource AppTextBlockBlackStyle}"
+                             Text="{Binding Path=MSS_Client_Archiving_Button_ArchiveAndDeleteData, Source={StaticResource Resources}}"/>
+                </StackPanel>
+              </Button>
+            </StackPanel>
+            <Grid Row="0">
+              <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-58,0,0"
+                                Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+            </Grid>
+            <Grid Row="1">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <StackPanel Grid.Column="0">
+                <TextBlock Style="{StaticResource AppTextBlockLightGrayStyle}"
+                           Text="{Binding Path=MSS_Client_Archiving_Label_StartDate, Source={StaticResource Resources}}"/>
+                <telerik:RadCalendar x:Name="StartDateCalendar" Height="199" Margin="10,0"
+                                     SelectableDateEnd="{Binding SelectableDateEndForStartDate}"
+                                     SelectedDate="{Binding SelectedStartDate, Mode=TwoWay}"/>
+              </StackPanel>
+              <StackPanel Grid.Column="1">
+                <TextBlock Style="{StaticResource AppTextBlockLightGrayStyle}"
+                           Text="{Binding Path=MSS_Client_Archiving_Label_EndDate, Source={StaticResource Resources}}"/>
+                <telerik:RadCalendar x:Name="EndDateCalendar" Height="198" Margin="10,0" SelectableDateEnd="{Binding SelectableDateEnd}"
+                                     SelectedDate="{Binding SelectedEndDate, Mode=TwoWay}"/>
+              </StackPanel>
+              <StackPanel Grid.Column="2" Margin="0,0,10,0">
+                <TextBlock Name="ArchiveNameTitle" Style="{StaticResource AppTextBlockLightGrayStyle}"
+                           Text="{Binding Path=MSS_Client_Archiving_Label_ArchiveName, Source={StaticResource Resources}}"/>
+                <TextBox Height="25" Width="250" Margin="20,0,0,0" HorizontalAlignment="Left"
+                         Style="{StaticResource TextBoxErrorStyle}"
+                         Text="{Binding ArchiveName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"/>
+                <TextBlock Name="ArchiveSelectTitle" Style="{StaticResource AppTextBlockLightGrayStyle}"
+                           Text="{Binding Path=MSS_Client_Archiving_Label_WhatToArchive, Source={StaticResource Resources}}"/>
+                <ListBox Name="listTopics" HorizontalAlignment="Left" Margin="20,0,0,0" VerticalAlignment="Top"
+                         BorderThickness="0" ItemsSource="{Binding ArchivedEntitiesCollection, Mode=TwoWay}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <StackPanel>
+                        <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked}"/>
+                      </StackPanel>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ListBox>
+              </StackPanel>
+            </Grid>
+          </Grid>
+        </AdornerDecorator>
+      </telerik:RadTabItem>
+      <telerik:RadTabItem IsSelected="{Binding IsSearchArchiveTabSelected, Mode=TwoWay}"
+                          Header="{Binding Path=MSS_Client_Archiving_TabItem_SearchArchive, Source={StaticResource Resources}}"
+                          Visibility="{Binding IsSearchArchiveTabVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid Row="0">
+            <StackPanel Background="#ededed" Orientation="Horizontal">
+              <Button Name="ExportButton" Style="{StaticResource AppButtonStyle}"
+                      Command="{Binding ExportArchiveCommand}" IsEnabled="{Binding SearchDone}"
+                      Visibility="{Binding ExportArchiveVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+                <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                  <Image Source="pack://application:,,,/Styles;component/Images/Universal/export.png"/>
+                  <TextBlock Style="{StaticResource AppTextBlockBlackStyle}"
+                             Text="{Binding Path=MSS_Client_Archiving_Button_ExportArchive, Source={StaticResource Resources}}"/>
+                </StackPanel>
+              </Button>
+            </StackPanel>
+            <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-58,0,0"
+                              Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+          </Grid>
+          <Grid Row="1">
+            <StackPanel Orientation="Horizontal" Margin="3,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Top">
+              <telerik:RadRadioButton Name="SearchReadingValuesButton" IsEnabled="false" Width="150" Height="28" Margin="5"
+                                      Content="{Binding Path=MSS_Client_Archiving_TabItem_SearchReadingValues, Source={StaticResource Resources}}"
+                                      IsChecked="{Binding IsSearchReadingValues}"/>
+              <telerik:RadRadioButton Name="SearchOrdersButton" Width="150" Height="28" Margin="5" Visibility="Collapsed"
+                                      Content="{Binding Path=MSS_Client_Archiving_TabItem_SearchOrders, Source={StaticResource Resources}}"
+                                      IsChecked="{Binding IsSearchOrders}"/>
+              <telerik:RadRadioButton Name="SearchStructuresButton" Width="150" Height="28" Margin="5" Visibility="Collapsed"
+                                      Content="{Binding Path=MSS_Client_Archiving_TabItem_SearchStructures, Source={StaticResource Resources}}"
+                                      IsChecked="{Binding IsSearchStructures}"/>
+              <telerik:RadRadioButton Name="SearchJobsButton" Width="150" Height="28" Margin="5" Visibility="Collapsed"
+                                      Content="{Binding Path=MSS_Client_Archiving_TabItem_SearchJobs, Source={StaticResource Resources}}"
+                                      IsChecked="{Binding IsSearchJobs}"/>
+              <telerik:RadRadioButton Name="SearchLogsButton" Width="150" Height="28" Margin="5" Visibility="Collapsed"
+                                      Content="{Binding Path=MSS_Client_Archiving_TabItem_SearchLogs, Source={StaticResource Resources}}"
+                                      IsChecked="{Binding IsSearchLogs}"/>
+            </StackPanel>
+          </Grid>
+          <Grid Row="2">
+            <ContentPresenter Content="{Binding SearchArchiveViewModel, Mode=TwoWay}"/>
+          </Grid>
+        </Grid>
+      </telerik:RadTabItem>
+      <telerik:RadTabItem Header="{Binding Path=MSS_Client_Archiving_TabItem_ArchiveJobs, Source={StaticResource Resources}}"
+                          IsSelected="{Binding IsArchiveJobsTabSelected, Mode=TwoWay}"
+                          Visibility="{Binding IsArchiveJobsTabVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <StackPanel Background="#ededed" Orientation="Horizontal">
+            <Button Name="CreateArchiveJob" Style="{StaticResource AppButtonStyle}"
+                    Command="{Binding CreateArchiveJobCommand}"
+                    Visibility="{Binding CreateArchiveJobVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+              <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                <Image Source="pack://application:,,,/Styles;component/Images/Universal/add.png"/>
+                <TextBlock Style="{StaticResource AppTextBlockBlackStyle}"
+                           Text="{Binding Path=MSS_Client_Archiving_Button_CreateArchiveJob, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="EditArchiveJob" Style="{StaticResource ArchiveJobMustBeSelectedButtonStyle}"
+                    Command="{Binding EditArchiveJobCommand}"
+                    CommandParameter="{Binding ElementName=ArchiveJobsGridView, Path=SelectedItem}">
+              <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                <Image Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"/>
+                <TextBlock Style="{StaticResource AppTextBlockBlackStyle}"
+                           Text="{Binding Path=MSS_Client_Archiving_Button_EditArchiveJob, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="DeleteArchiveJob" Style="{StaticResource ArchiveJobMustBeSelectedButtonStyle}"
+                    Command="{Binding DeleteArchiveJobCommand}"
+                    CommandParameter="{Binding ElementName=ArchiveJobsGridView, Path=SelectedItem}"
+                    Visibility="{Binding DeleteArchiveJobVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+              <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                <Image Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+                <TextBlock Style="{StaticResource AppTextBlockBlackStyle}"
+                           Text="{Binding Path=MSS_Client_Archiving_Button_DeleteArchiveJob, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Name="RunArchiveJob" Style="{StaticResource ArchiveJobMustBeSelectedButtonStyle}"
+                    Command="{Binding RunArchiveJobCommand}"
+                    CommandParameter="{Binding ElementName=ArchiveJobsGridView, Path=SelectedItem}"
+                    Visibility="{Binding RunArchiveJobVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+              <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                <Image Source="pack://application:,,,/Styles;component/Images/Universal/execute.png"/>
+                <TextBlock Text="Run Archive Job" Style="{StaticResource AppTextBlockBlackStyle}"/>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+          <Grid Row="0">
+            <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-58,0,0"
+                              Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+          </Grid>
+          <Grid Row="1" Margin="3">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <telerik:RadGridView x:Name="ArchiveJobsGridView" RowIndicatorVisibility="Collapsed" CanUserFreezeColumns="false"
+                                 telerik:StyleManager.Theme="Windows8" IsReadOnly="true" AlternateRowBackground="#EDEDED"
+                                 AlternationCount="2" ColumnWidth="*" AutoGenerateColumns="false" IsFilteringAllowed="true"
+                                 ItemsSource="{Binding GetArchiveJobs}">
+              <telerik:GridViewDataControl.Columns>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding ArchiveName}"
+                                            Header="{Binding Path=MSS_Client_Archive_Header_ArchiveName, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding Periodicity}"
+                                            Header="{Binding Path=MSS_Client_Archive_Header_Periodicity, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding StartDate}"
+                                            Header="{Binding Path=MSS_Client_Archive_Header_StartDate, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding DeleteAfterArchive}"
+                                            Header="{Binding Path=MSS_Client_Archive_Header_DeleteAfterArchive, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding CreatedOn}"
+                                            Header="{Binding Path=MSS_Client_Archive_Header_CreatedOn, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn TextWrapping="Wrap" DataMemberBinding="{Binding ArchivedEntities}"
+                                            Header="{Binding Path=MSS_Client_Archive_Header_ArchivedEntities, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn TextWrapping="Wrap" DataMemberBinding="{Binding LastExecutionDate}"
+                                            Header="{Binding Path=MSS_Client_Archive_Header_LastExecutionOn, Source={StaticResource Resources}}"/>
+              </telerik:GridViewDataControl.Columns>
+            </telerik:RadGridView>
+            <telerik:RadDataPager Grid.Row="1" FontSize="12" Margin="0,-1,0,0" IsTotalItemCountFixed="true"
+                                  DisplayMode="FirstLastPreviousNextNumeric, Text" telerik:StyleManager.Theme="Windows8"
+                                  PageSize="{Binding PageSize, Mode=TwoWay}"
+                                  Source="{Binding Items, ElementName=ArchiveJobsGridView}"/>
+          </Grid>
+        </Grid>
+      </telerik:RadTabItem>
+    </telerik:RadTabControl>
+  </Grid>
+</UserControl>

@@ -1,0 +1,243 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Reporting.ExportJobDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="CanMinimize" Height="660" Width="820" Title="{Binding DialogTitle}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+        <ResourceDictionary>
+          <Style x:Key="CSVRadioButtoneSelectedStyle" TargetType="{x:Type telerik:RadRadioButton}"
+                 BasedOn="{StaticResource AppRadioButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="{Binding EditPhysicalStructuresVisibility}"/>
+            <Setter Property="UIElement.Opacity" Value="1"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding ElementName=CsvRadioButton, Path=IsChecked}" Value="False">
+                <Setter Property="UIElement.IsEnabled" Value="false"/>
+                <Setter Property="UIElement.Opacity" Value="0.5"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+          <Style TargetType="{x:Type telerik:RadListBoxItem}" BasedOn="{StaticResource RadListBoxItemStyle}">
+            <Setter Property="telerik:DragDropManager.AllowCapturedDrag" Value="true"/>
+            <Setter Property="telerik:DragDropManager.TouchDragTrigger" Value="TapAndHold"/>
+          </Style>
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="50"/>
+      </Grid.RowDefinitions>
+      <Grid Row="0" Margin="10">
+        <Border BorderThickness="1" BorderBrush="LightGray">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="{Binding CountrySelectorHeight}"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="0.6*"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Grid.Row="1" Style="{StaticResource AppLabelStyle}" Height="26"
+                   Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_Type, Source={StaticResource Resources}}"/>
+            <TextBlock Grid.Column="1" Grid.Row="1" Style="{StaticResource AppTextBlockGrayStyle}"
+                       HorizontalAlignment="Left" Margin="10"
+                       Text="{Binding Path=MSS_Client_Structures_ReadingValues, Source={StaticResource Resources}}"/>
+            <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabelStyle}" Height="26" Width="65"
+                   HorizontalAlignment="Right"
+                   Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_Periodicity, Source={StaticResource Resources}}"/>
+            <telerik:RadComboBox x:Name="JobPeriodicityComboBox" Grid.Column="1" Grid.Row="2"
+                                 Style="{StaticResource RadComboBoxErrorStyle}" DisplayMemberPath="AutomatedExportJobPeriodicity"
+                                 SelectedValuePath="Id" VerticalAlignment="Center" HorizontalAlignment="Left" Height="25"
+                                 Width="240" Margin="10 0 0 0" ItemsSource="{Binding GetJobPeriodicities}"
+                                 SelectedValue="{Binding SelectedJobPeriodicityId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+            <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource AppLabelStyle}" Height="26"
+                   Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_StartDate, Source={StaticResource Resources}}"/>
+            <telerik:RadDateTimePicker x:Name="StartDateTimePicker" Grid.Column="1" Grid.Row="3" Height="25" VerticalAlignment="Center"
+                                       HorizontalAlignment="Left" Margin="10 0 0 0" Width="240" DisplayFormat="Short"
+                                       InputMode="DateTimePicker" IsReadOnly="false" DateSelectionMode="Day" ErrorTooltipContent="Error."
+                                       IsTooltipEnabled="true" AllowParsingWithoutSeparator="false" IsEnabled="true"
+                                       SelectedValue="{Binding StartDateValue, Mode=TwoWay}"/>
+            <Label Grid.Row="4" Grid.Column="0" Style="{StaticResource AppLabelStyle}" Height="26" Width="184"
+                   Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_ArchiveAfterExport, Source={StaticResource Resources}}"/>
+            <CheckBox Name="JobArchiveAfterExportCheckBox" Grid.Column="1" Grid.Row="4"
+                      Style="{StaticResource AppCheckBoxButtonStyle}" Margin="10 0 0 0" Height="16"
+                      IsChecked="{Binding ArchiveAfterExport}"/>
+            <Label Grid.Row="5" Grid.Column="0" Style="{StaticResource AppLabelStyle}" Height="26" Width="159"
+                   Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_DeleteAfterExport, Source={StaticResource Resources}}"/>
+            <CheckBox Name="JobDeleteAfterExportCheckBox" Grid.Column="1" Grid.Row="5"
+                      Style="{StaticResource AppCheckBoxButtonStyle}" Margin="10" Height="16"
+                      IsChecked="{Binding DeleteAfterExport}"/>
+            <telerik:Label Grid.Row="6" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                           Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_ExportedData, Source={StaticResource Resources}}"/>
+            <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
+              <telerik:RadRadioButton GroupName="dataExp" Style="{StaticResource AppRadioButtonStyle}" IsChecked="True" Margin="10 0 0 0"/>
+              <telerik:Label Foreground="#595151"
+                             Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_NotYetExported, Source={StaticResource Resources}}"/>
+            </StackPanel>
+            <StackPanel Grid.Row="6" Grid.Column="2" Orientation="Horizontal">
+              <telerik:RadRadioButton Name="IntervalButton" GroupName="dataExp" Style="{StaticResource AppRadioButtonStyle}"
+                                      Margin="10 0 0 0" IsChecked="{Binding DataExportLastDaysChoice}"/>
+              <telerik:Label Foreground="#595151"
+                             Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_FromTheLast, Source={StaticResource Resources}}"/>
+              <telerik:RadNumericUpDown Width="50" Height="20" IsInteger="true"
+                                        IsEnabled="{Binding Path=IsChecked, ElementName=IntervalButton}"
+                                        Value="{Binding NumberOfDaysToExport}"/>
+              <telerik:Label Content="days" Foreground="#595151"/>
+            </StackPanel>
+            <telerik:Label Grid.Row="7" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                           Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_ExportFor, Source={StaticResource Resources}}"/>
+            <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal">
+              <telerik:RadRadioButton GroupName="expType" Style="{StaticResource AppRadioButtonStyle}" IsChecked="True" Margin="10 0 0 0"/>
+              <telerik:Label Content="GMM" Foreground="#595151"/>
+            </StackPanel>
+            <StackPanel Grid.Row="7" Grid.Column="2" Orientation="Horizontal">
+              <telerik:RadRadioButton GroupName="expType" Style="{StaticResource AppRadioButtonStyle}" Margin="10 0 0 0"
+                                      IsChecked="{Binding SasExportType}"/>
+              <telerik:Label Content="SAS" Foreground="#595151"/>
+            </StackPanel>
+            <telerik:RadListBox x:Name="CountriesListBox" Grid.Row="8" Grid.Column="1" Margin="100 10 10 10"
+                                SelectionMode="Multiple" ItemsSource="{Binding CountryList}"
+                                SelectedItem="{Binding Country, Mode=TwoWay}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Code}"/>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+              <telerik:RadListBox.DragVisualProvider>
+                <telerik:ScreenshotDragVisualProvider/>
+              </telerik:RadListBox.DragVisualProvider>
+              <telerik:RadListBox.DragDropBehavior>
+                <telerik:ListBoxDragDropBehavior AllowReorder="false" telerik:DragDropManager.TouchDragTrigger="TapAndHold"/>
+              </telerik:RadListBox.DragDropBehavior>
+            </telerik:RadListBox>
+            <telerik:RadListBox x:Name="SelectedCountries" Grid.Row="8" Grid.Column="2" Margin="10 10 100 10"
+                                Style="{StaticResource RadListBoxErrorStyle}" SelectionMode="Single"
+                                SelectedItem="{Binding Country, Mode=TwoWay}"
+                                ItemsSource="{Binding SelectedCountries, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, ValidatesOnNotifyDataErrors=true, ValidatesOnExceptions=true, Mode=TwoWay}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Code}"/>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+              <telerik:RadListBox.DragVisualProvider>
+                <telerik:ScreenshotDragVisualProvider/>
+              </telerik:RadListBox.DragVisualProvider>
+              <telerik:RadListBox.DragDropBehavior>
+                <telerik:ListBoxDragDropBehavior AllowReorder="false" telerik:DragDropManager.TouchDragTrigger="TapAndHold"/>
+              </telerik:RadListBox.DragDropBehavior>
+            </telerik:RadListBox>
+            <telerik:Label Grid.Row="9" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                           Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_FileType, Source={StaticResource Resources}}"/>
+            <Grid Row="9" Column="1" ColumnSpan="2">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <telerik:RadRadioButton Name="CsvRadioButton" GroupName="fileType" Style="{StaticResource AppRadioButtonStyle}"
+                                        Margin="10 0 0 0" IsChecked="{Binding CsvFileType}"/>
+                <telerik:Label Content="CSV" Foreground="#595151"/>
+              </StackPanel>
+              <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <telerik:RadRadioButton GroupName="fileType" Style="{StaticResource AppRadioButtonStyle}" IsChecked="{Binding XmlFileType}"/>
+                <telerik:Label Content="XML" Foreground="#595151"/>
+              </StackPanel>
+              <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <telerik:RadRadioButton GroupName="fileType" Style="{StaticResource AppRadioButtonStyle}"
+                                        IsChecked="{Binding ExcelFileType}"/>
+                <telerik:Label Content="Excel" Foreground="#595151"/>
+              </StackPanel>
+            </Grid>
+            <telerik:Label Grid.Row="10" Grid.Column="0" Foreground="#595151" HorizontalAlignment="Right"
+                           Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_DecimalSeparator, Source={StaticResource Resources}}"/>
+            <StackPanel Grid.Row="10" Grid.Column="1" Orientation="Horizontal">
+              <telerik:RadRadioButton GroupName="decimalSep" Style="{StaticResource CSVRadioButtoneSelectedStyle}" Margin="10 0 0 0"
+                                      IsChecked="{Binding CommaDecimalSeparator}"/>
+              <telerik:Label Foreground="#595151" Content="{Binding CommaDescription}"/>
+            </StackPanel>
+            <StackPanel Grid.Row="10" Grid.Column="2" Orientation="Horizontal">
+              <telerik:RadRadioButton GroupName="decimalSep" Style="{StaticResource CSVRadioButtoneSelectedStyle}" Margin="10 0 0 0"/>
+              <telerik:Label Foreground="#595151" Content="{Binding DotDescription}"/>
+            </StackPanel>
+            <telerik:Label Grid.Row="11" Grid.Column="0" Foreground="#595151" HorizontalAlignment="Right"
+                           Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_ValueSeparator, Source={StaticResource Resources}}"/>
+            <StackPanel Grid.Row="11" Grid.Column="1" Orientation="Horizontal">
+              <telerik:RadRadioButton GroupName="valueSep" Style="{StaticResource CSVRadioButtoneSelectedStyle}" Margin="10 0 0 0"
+                                      IsChecked="{Binding SemicolonValueSeparator}"/>
+              <telerik:Label Foreground="#595151" Content="{Binding SemicolonDescription}"/>
+            </StackPanel>
+            <StackPanel Grid.Row="11" Grid.Column="2" Orientation="Horizontal">
+              <telerik:RadRadioButton GroupName="valueSep" Style="{StaticResource CSVRadioButtoneSelectedStyle}" Margin="10 0 0 0"/>
+              <telerik:Label Foreground="#595151" Content="{Binding CommaDescription}"/>
+            </StackPanel>
+            <telerik:Label Grid.Row="12" Grid.Column="0" Foreground="#595151" HorizontalAlignment="Right"
+                           Content="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_ExportPath, Source={StaticResource Resources}}"/>
+            <StackPanel Grid.Row="12" Grid.Column="1" Orientation="Horizontal">
+              <TextBox IsEnabled="false" Style="{StaticResource TextBoxErrorStyle}" Foreground="#595151" Width="240"
+                       Height="25" Margin="10 0 0 0"
+                       Text="{Binding FolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+            </StackPanel>
+            <StackPanel Grid.Row="12" Grid.Column="2" Orientation="Horizontal">
+              <Button x:Name="BrowseFolderButton" Foreground="#595151" Width="73" Height="25" Margin="10 0 0 0"
+                      Style="{StaticResource AppButtonStyle}" Background="White" BorderBrush="LightGray"
+                      Content="{Binding MSS_MessageCodes_Browse, Source={StaticResource Resources}}"
+                      Command="{Binding BrowseWindowCommand}"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+      <Grid Row="1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Column="1">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="AddButton" Grid.Column="0" Foreground="#595151" Style="{StaticResource AppButtonStyle}"
+                  Background="White" Height="25" Width="73" BorderBrush="LightGray" IsDefault="true"
+                  Content="{Binding Path=MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                  Command="{Binding ExportJobOkCommand}"/>
+          <Button x:Name="CancelButton" Grid.Column="1" Foreground="#595151" Background="White" Height="25"
+                  Width="73" BorderBrush="LightGray" Style="{StaticResource AppButtonStyle}"
+                  Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                  Command="{Binding CancelWindowCommand}"/>
+        </Grid>
+        <Grid Column="0">
+          <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,0,0,0"
+                            Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

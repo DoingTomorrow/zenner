@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MBusLib.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{AEF29FF4-BD8B-4D36-91D4-74BFBF16820E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>MBusLib</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.1.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>MBusLib</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AFL.cs" />
+    <Compile Include="Baud.cs" />
+    <Compile Include="ConfWord.cs" />
+    <Compile Include="C_Field.cs" />
+    <Compile Include="CI_Field.cs" />
+    <Compile Include="FCL.cs" />
+    <Compile Include="Direction.cs" />
+    <Compile Include="Nack.cs" />
+    <Compile Include="MBusFrameCrypt.cs" />
+    <Compile Include="WMBusFrame.cs" />
+    <Compile Include="Wildcard.cs" />
+    <Compile Include="ChecksumException.cs" />
+    <Compile Include="DataField.cs" />
+    <Compile Include="DIF.cs" />
+    <Compile Include="DIFE.cs" />
+    <Compile Include="FixedDataHeader.cs" />
+    <Compile Include="FrameType.cs" />
+    <Compile Include="FunctionField.cs" />
+    <Compile Include="InvalidFrameException.cs" />
+    <Compile Include="MBusFrame.cs" />
+    <Compile Include="MBusValue.cs" />
+    <Compile Include="Medium.cs" />
+    <Compile Include="RSP_UD.cs" />
+    <Compile Include="VariableDataBlock.cs" />
+    <Compile Include="VariableDataStructure.cs" />
+    <Compile Include="VIF.cs" />
+    <Compile Include="FrameHeader.cs" />
+    <Compile Include="MBus.cs" />
+    <Compile Include="MBusRepeater.cs" />
+    <Compile Include="MBusUtil.cs" />
+    <Compile Include="Utility\ArrayExtension.cs" />
+    <Compile Include="Utility\P.cs" />
+    <Compile Include="Utility\ValueEventHandler`1.cs" />
+    <Compile Include="Utility\Util.cs" />
+    <Compile Include="Exceptions\NackException.cs" />
+    <Compile Include="Entities\AES.cs" />
+    <Compile Include="Entities\ControllerType.cs" />
+    <Compile Include="Entities\DeviceIdentity.cs" />
+    <Compile Include="Entities\FirmwareInfo.cs" />
+    <Compile Include="Entities\DeviceType.cs" />
+    <Compile Include="Entities\Direction.cs" />
+    <Compile Include="Entities\Unit.cs" />
+    <Compile Include="DataTypes\HardwareFlags.cs" />
+    <Compile Include="DataTypes\DeviceVersion.cs" />
+    <Compile Include="DataTypes\Firmware.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Interfaces.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1D22B31B-4679-46F6-8FB0-F2DE44BB2E1A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>MSS.Interfaces</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>MSS.Interfaces</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Common.Library.NHibernate.Data">
+      <HintPath>lib\Common.Library.NHibernate.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Core">
+      <HintPath>lib\MSS.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.DTO">
+      <HintPath>lib\MSS.DTO.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Synchronization">
+      <HintPath>lib\Microsoft.Synchronization.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Synchronization.Data">
+      <HintPath>lib\Microsoft.Synchronization.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>lib\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="IJobRepository.cs" />
+    <Compile Include="IReadingValuesRepository.cs" />
+    <Compile Include="IRepository`1.cs" />
+    <Compile Include="IRepositoryFactory.cs" />
+    <Compile Include="IRepositoryFactoryCreator.cs" />
+    <Compile Include="IService.cs" />
+    <Compile Include="ISessionManager.cs" />
+    <Compile Include="IStructureNodeRepository.cs" />
+    <Compile Include="ISynchronizationRepository.cs" />
+    <Compile Include="ISyncService.cs" />
+    <Compile Include="SyncBatchParameters.cs" />
+    <Compile Include="GetChangesParameters.cs" />
+    <Compile Include="WebSyncFaultException.cs" />
+    <Compile Include="IUserRepository.cs" />
+    <Compile Include="IViewModel.cs" />
+    <Compile Include="IWindowFactory.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

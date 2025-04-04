@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.PartialSync.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2E7BB089-D37B-4580-A36F-2C1D41A5D015}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>MSS.PartialSync</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>MSS.PartialSync</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper">
+      <HintPath>lib\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Library.NHibernate.Data">
+      <HintPath>lib\Common.Library.NHibernate.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="ExpressionSerialization">
+      <HintPath>lib\ExpressionSerialization.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Business">
+      <HintPath>lib\MSS.Business.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Core">
+      <HintPath>lib\MSS.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.DTO">
+      <HintPath>lib\MSS.DTO.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Data">
+      <HintPath>lib\MSS.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Interfaces">
+      <HintPath>lib\MSS.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Utils">
+      <HintPath>lib\MSS.Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>lib\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="protobuf-net">
+      <HintPath>lib\protobuf-net.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ExpressionTreeSerializer.cs" />
+    <Compile Include="PartialSyncProviders\BasePartialSyncProvider`1.cs" />
+    <Compile Include="PartialSyncProviders\ZippedOrder.cs" />
+    <Compile Include="PartialSyncProviders\PartialMinomatSyncProvider`1.cs" />
+    <Compile Include="PartialSyncProviders\PartialOrderSyncProvider`1.cs" />
+    <Compile Include="PartialSync\RemoteEntityLocker.cs" />
+    <Compile Include="PartialSync\PartialSyncWCFClient.cs" />
+    <Compile Include="PartialSync\Managers\AbstractPartialSyncManager.cs" />
+    <Compile Include="PartialSync\Managers\ServerPartialSyncManager.cs" />
+    <Compile Include="PartialSync\Managers\ClientPartialSyncManager.cs" />
+    <Compile Include="Interfaces\IPartialSyncManager.cs" />
+    <Compile Include="Interfaces\IPartialSyncOperation`1.cs" />
+    <Compile Include="Interfaces\PartialSyncOperationExtensions.cs" />
+    <Compile Include="Interfaces\IPartialSyncWCFClient.cs" />
+    <Compile Include="Filters\GenericEntityFilter`1.cs" />
+    <Compile Include="Filters\OrderUserFilter`1.cs" />
+    <Compile Include="Filters\OrderFilter`1.cs" />
+    <Compile Include="Filters\StructureNodeLinksFilter`1.cs" />
+    <Compile Include="Filters\StructureNodeFilter`1.cs" />
+    <Compile Include="Filters\LocationFilter`1.cs" />
+    <Compile Include="Filters\TenantFilter`1.cs" />
+    <Compile Include="Filters\MeterFilter`1.cs" />
+    <Compile Include="Filters\MinomatFilter`1.cs" />
+    <Compile Include="Filters\Order2User`1.cs" />
+    <Compile Include="ExpressionVisitor\ReplaceVisitor.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

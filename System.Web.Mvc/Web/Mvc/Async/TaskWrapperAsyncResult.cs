@@ -1,0 +1,40 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: System.Web.Mvc.Async.TaskWrapperAsyncResult
+// Assembly: System.Web.Mvc, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35
+// MVID: 061F900E-706B-4992-B3F0-1F167FDE79D8
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\System.Web.Mvc.dll
+
+using System.Threading;
+using System.Threading.Tasks;
+
+#nullable disable
+namespace System.Web.Mvc.Async
+{
+  internal sealed class TaskWrapperAsyncResult : IAsyncResult
+  {
+    private bool? _completedSynchronously;
+
+    internal TaskWrapperAsyncResult(Task task, object asyncState, Action cleanupThunk = null)
+    {
+      this.Task = task;
+      this.AsyncState = asyncState;
+      this.CleanupThunk = cleanupThunk;
+    }
+
+    public object AsyncState { get; private set; }
+
+    public WaitHandle AsyncWaitHandle => ((IAsyncResult) this.Task).AsyncWaitHandle;
+
+    public Action CleanupThunk { get; private set; }
+
+    public bool CompletedSynchronously
+    {
+      get => this._completedSynchronously ?? ((IAsyncResult) this.Task).CompletedSynchronously;
+      internal set => this._completedSynchronously = new bool?(value);
+    }
+
+    public bool IsCompleted => this.Task.IsCompleted;
+
+    internal Task Task { get; private set; }
+  }
+}

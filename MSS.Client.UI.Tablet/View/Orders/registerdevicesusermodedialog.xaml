@@ -1,0 +1,61 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Orders.RegisterDevicesUserModeDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c" Height="210"
+                             Width="400"
+                             Title="{Binding Path=MSS_Client_Orders_ExecuteInstallationOrder_RegDeviceUser, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid Row="0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="3*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="20 0 0 0">
+          <Image Style="{StaticResource SmallIconImageStructureStyle}" Margin="5 0 0 0" Source="{Binding Image}"/>
+          <Label Style="{StaticResource AppLabelStyle}" Content="{Binding Name}"/>
+        </StackPanel>
+        <telerik:RadBusyIndicator x:Name="BusyIndicator" Grid.Row="1"
+                                  IsBusy="{Binding ShowProgressCircle, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                  BusyContent="{Binding MSS_ExecuteInstallationOrder_RegisteringMeters, Source={StaticResource Resources}}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="2*"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center"
+                    Style="{StaticResource CommandButtonStyle}" Width="120" Height="50"
+                    ToolTip="{Binding MSS_Client_Orders_ExecuteInstallationOrder_RegisterMeters, Source={StaticResource Resources}}"
+                    Content="{Binding MSS_Client_Orders_ExecuteInstallationOrder_RegisterMeters, Source={StaticResource Resources}}"
+                    Command="{Binding RegisterMetersCommand}"/>
+            <ContentPresenter Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Center"
+                              HorizontalAlignment="Right" Width="Auto" Height="28" Margin="0 0 10 0"
+                              Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+          </Grid>
+        </telerik:RadBusyIndicator>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

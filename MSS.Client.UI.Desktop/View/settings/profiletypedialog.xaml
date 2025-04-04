@@ -1,0 +1,55 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Settings.ProfileTypeDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:local="clr-namespace:MSS.Client.UI.Desktop.View.Settings"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="CanMinimize" Width="750" Height="800"
+                             Title="{Binding MSS_Client_ChangeProfileType, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="40"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="5"/>
+        <RowDefinition Height="40"/>
+      </Grid.RowDefinitions>
+      <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="25 0 0 0">
+        <Label Style="{StaticResource AppLabelStyle}" VerticalAlignment="Center"
+               Content="{Binding Path=MSS_CLIENT_CREATE_JOB_PROFILE_TYPE, Source={StaticResource Resources}}"/>
+        <telerik:RadComboBox DisplayMemberPath="Name" Style="{StaticResource RadComboBoxStyle}" Width="205" Height="28"
+                             Margin="15,0,0,0" HorizontalAlignment="Left" ItemsSource="{Binding ProfileTypesCollection}"
+                             SelectedValue="{Binding SelectedProfileType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+      </StackPanel>
+      <Grid Row="1">
+        <ScrollViewer Margin="15 15 15 15">
+          <StackPanel Name="ProfileTypeConfigStackPanelDynamic" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </ScrollViewer>
+      </Grid>
+      <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Button Foreground="#595151" Style="{StaticResource AppButtonStyle}" Background="White" Height="25"
+                Width="73" BorderBrush="LightGray" IsDefault="true" Margin="0 0 10 0"
+                Content="{Binding Path=MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                Command="{Binding SaveProfileTypeCommand}"/>
+        <Button Foreground="#595151" Background="White" Height="25" Width="73" BorderBrush="LightGray"
+                Style="{StaticResource AppButtonStyle}" Margin="10 0 0 0"
+                Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                Command="{Binding CancelWindowCommand}"/>
+      </StackPanel>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

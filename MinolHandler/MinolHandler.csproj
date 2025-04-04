@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MinolHandler.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D4956D36-6DA3-423F-AF9A-9B5081F45EFB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>MinolHandler</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>MinolHandler</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AsyncCom">
+      <HintPath>lib\AsyncCom.dll</HintPath>
+    </Reference>
+    <Reference Include="CorporateDesign">
+      <HintPath>lib\CorporateDesign.dll</HintPath>
+    </Reference>
+    <Reference Include="DeviceCollector">
+      <HintPath>lib\DeviceCollector.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="StartupLib">
+      <HintPath>lib\StartupLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AddressRange.cs" />
+    <Compile Include="AllDevices.cs" />
+    <Compile Include="Aqua.cs" />
+    <Compile Include="AquaMicro.cs" />
+    <Compile Include="DatabaseAccess.cs" />
+    <Compile Include="TestStationDataStatus.cs" />
+    <Compile Include="ISF_TestStationData.cs" />
+    <Compile Include="ISF.cs" />
+    <Compile Include="MinolConverterForm.cs" />
+    <Compile Include="MinotelContactRadio3.cs" />
+    <Compile Include="M5.cs" />
+    <Compile Include="M5p.cs" />
+    <Compile Include="M6.cs" />
+    <Compile Include="M6Radio3.cs" />
+    <Compile Include="MinotelContact.cs" />
+    <Compile Include="AquaMicroRadio3.cs" />
+    <Compile Include="ParameterAccess.cs" />
+    <Compile Include="PlugInAnchor.cs" />
+    <Compile Include="ReadMode.cs" />
+    <Compile Include="ShowParameter.cs" />
+    <Compile Include="ValueInfo.cs" />
+    <Compile Include="MinolDevice.cs" />
+    <Compile Include="MinolHandlerFunctions.cs" />
+    <Compile Include="MinolHandlerWindow.cs" />
+    <Compile Include="TestParameter.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="MinolConverterForm.resx" />
+    <EmbeddedResource Include="MinolHandlerWindow.resx" />
+    <EmbeddedResource Include="ShowParameter.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

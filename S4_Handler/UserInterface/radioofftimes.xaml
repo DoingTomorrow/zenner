@@ -1,0 +1,71 @@
+<Window x:Class="S4_Handler.RadioOffTimes"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico" Title="Radio off times"
+        Height="656.877" Width="853.631" WindowStartupLocation="CenterScreen">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="5"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+    </Style>
+    <Style TargetType="{x:Type CheckBox}">
+      <Setter Property="FrameworkElement.Margin" Value="5,2,5,2"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StartupLib:GmmCorporateControl HorizontalAlignment="Stretch" DockPanel.Dock="Top"/>
+    <StackPanel DockPanel.Dock="Right">
+      <StackPanel Name="StackPanelButtons">
+        <Button Click="ButtonTypeParameters_Click" Name="ButtonTypeParameters" Content="Type parameters"/>
+        <Button Click="ButtonStartSimulation_Click" Name="ButtonStartSimulation" Content="Start simulation"/>
+      </StackPanel>
+    </StackPanel>
+    <GroupBox Header="Week settings" DockPanel.Dock="Left" Padding="5">
+      <StackPanel Name="StackPanalWeek">
+        <CheckBox Name="CheckBoxMonday" IsChecked="True" Content="Monday"/>
+        <CheckBox Name="CheckBoxTuesday" IsChecked="True" Content="Tuesday"/>
+        <CheckBox Name="CheckBoxWednesday" IsChecked="True" Content="Wednesday"/>
+        <CheckBox Name="CheckBoxThursday" IsChecked="True" Content="Thursday"/>
+        <CheckBox Name="CheckBoxFriday" IsChecked="True" Content="Friday"/>
+        <CheckBox Name="CheckBoxSaturday" Content="Saturday"/>
+        <CheckBox Name="CheckBoxSunday" Content="Sunday"/>
+        <Separator/>
+        <Label Content="Daily start hour [0..23]"/>
+        <TextBox Name="TextBoxDailyStartTime" Text="6"/>
+        <Label Content="Daily stop hour [0..23]"/>
+        <TextBox Name="TextBoxDailyStopTime" Text="18"/>
+      </StackPanel>
+    </GroupBox>
+    <GroupBox Header="Yearly settings" DockPanel.Dock="Left" Padding="5">
+      <StackPanel Name="StackPanalYear">
+        <CheckBox Name="CheckBoxJanuary" IsChecked="True" Content="January"/>
+        <CheckBox Name="CheckBoxFebruary" IsChecked="True" Content="February"/>
+        <CheckBox Name="CheckBoxMarch" IsChecked="True" Content="March"/>
+        <CheckBox Name="CheckBoxApril" Content="April"/>
+        <CheckBox Name="CheckBoxMay" Content="May"/>
+        <CheckBox Name="CheckBoxJune" Content="June"/>
+        <CheckBox Name="CheckBoxJuly" IsChecked="True" Content="July"/>
+        <CheckBox Name="CheckBoxAugust" IsChecked="True" Content="August"/>
+        <CheckBox Name="CheckBoxSeptember" IsChecked="True" Content="September"/>
+        <CheckBox Name="CheckBoxOctober" Content="October"/>
+        <CheckBox Name="CheckBoxNovember" Content="November"/>
+        <CheckBox Name="CheckBoxDecember" Content="December"/>
+        <Separator/>
+        <Label Content="Monthly start day [1..31]"/>
+        <TextBox Name="TextBoxMonthlyStartDay" Text="1"/>
+        <Label Content="Monthly stop day [1..31]"/>
+        <TextBox Name="TextBoxMonthlyStopDay" Text="15"/>
+      </StackPanel>
+    </GroupBox>
+    <GroupBox Header="Simulation" DockPanel.Dock="Left" Padding="5">
+      <StackPanel Name="StackPanalSimulation">
+        <Label Content="Start time:"/>
+        <TextBox Name="TextBoxSimStartTime" Text="1.1.2020 00:00"/>
+        <Label Content="End time:"/>
+        <TextBox Name="TextBoxSimEndTime" Text="1.1.2021 00:00"/>
+      </StackPanel>
+    </GroupBox>
+    <TextBox Name="TextBoxOut" VerticalScrollBarVisibility="Visible" FontFamily="Courier New"/>
+  </DockPanel>
+</Window>

@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\THL_Handler.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C6C2E6A3-B820-432A-A1C8-96C8E633A91F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>THL_Handler</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.5.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>THL_Handler</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonWPF">
+      <HintPath>lib\CommonWPF.dll</HintPath>
+    </Reference>
+    <Reference Include="CommunicationPort">
+      <HintPath>lib\CommunicationPort.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="HandlerLib">
+      <HintPath>lib\HandlerLib.dll</HintPath>
+    </Reference>
+    <Reference Include="MBusLib">
+      <HintPath>lib\MBusLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="ReadoutConfiguration">
+      <HintPath>lib\ReadoutConfiguration.dll</HintPath>
+    </Reference>
+    <Reference Include="StartupLib">
+      <HintPath>lib\StartupLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DeviceStatus.cs" />
+    <Compile Include="LcdTest.cs" />
+    <Compile Include="Mode.cs" />
+    <Compile Include="Reading.cs" />
+    <Compile Include="SwitchState.cs" />
+    <Compile Include="TransmissionScenario.cs" />
+    <Compile Include="THL_AllMeters.cs" />
+    <Compile Include="THL_DeviceCommands.cs" />
+    <Compile Include="THL_DeviceIdentification.cs" />
+    <Compile Include="THL_Params.cs" />
+    <Compile Include="THL_DeviceMemory.cs" />
+    <Compile Include="THL_HandlerFunctions.cs" />
+    <Compile Include="THL_Meter.cs" />
+    <Compile Include="MapDefClass000E0028.cs" />
+    <Compile Include="MapDefClass000E002D.cs" />
+    <Compile Include="MapDefClass000F0028.cs" />
+    <Compile Include="MapDefClass000F002D.cs" />
+    <Compile Include="MapDefClass00100028.cs" />
+    <Compile Include="MapDefClass0010002D.cs" />
+    <Compile Include="MapDefClass0017002D.cs" />
+    <Compile Include="MapDefClass00170041.cs" />
+    <Compile Include="MapDefClass00173041.cs" />
+    <Compile Include="MapDefClass00175041.cs" />
+    <Compile Include="MapDefClass01000041.cs" />
+    <Compile Include="MapDefClass01005041.cs" />
+    <Compile Include="MapDefClass01006041.cs" />
+    <Compile Include="THL_HandlerWindowFunctions.cs" />
+    <Compile Include="PlugInAnchor.cs" />
+    <Compile Include="UserInterface\TestWindows.cs" />
+    <Compile Include="UserInterface\THL_HandlerWindow.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="ui\testwindows.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ui\thl_handlerwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

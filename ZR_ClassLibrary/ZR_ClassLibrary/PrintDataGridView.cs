@@ -244,9 +244,9 @@ namespace ZR_ClassLibrary
             {
               if (cell.OwningColumn.Visible && PrintDataGridView.SelectedColumns.Contains(cell.OwningColumn.HeaderText))
               {
-                if (((System.Type) PrintDataGridView.ColumnTypes[index1]).Name == "DataGridViewTextBoxColumn" || ((System.Type) PrintDataGridView.ColumnTypes[index1]).Name == "DataGridViewLinkColumn")
+                if (((Type) PrintDataGridView.ColumnTypes[index1]).Name == "DataGridViewTextBoxColumn" || ((Type) PrintDataGridView.ColumnTypes[index1]).Name == "DataGridViewLinkColumn")
                   e.Graphics.DrawString(cell.Value.ToString(), cell.InheritedStyle.Font, (Brush) new SolidBrush(cell.InheritedStyle.ForeColor), new RectangleF((float) (int) PrintDataGridView.ColumnLefts[index1], (float) y1, (float) (int) PrintDataGridView.ColumnWidths[index1], (float) PrintDataGridView.CellHeight), PrintDataGridView.StrFormat);
-                else if (((System.Type) PrintDataGridView.ColumnTypes[index1]).Name == "DataGridViewButtonColumn")
+                else if (((Type) PrintDataGridView.ColumnTypes[index1]).Name == "DataGridViewButtonColumn")
                 {
                   PrintDataGridView.CellButton.Text = cell.Value.ToString();
                   PrintDataGridView.CellButton.Size = new Size((int) PrintDataGridView.ColumnWidths[index1], PrintDataGridView.CellHeight);
@@ -254,7 +254,7 @@ namespace ZR_ClassLibrary
                   PrintDataGridView.CellButton.DrawToBitmap(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height));
                   e.Graphics.DrawImage((Image) bitmap, new Point((int) PrintDataGridView.ColumnLefts[index1], y1));
                 }
-                else if (((System.Type) PrintDataGridView.ColumnTypes[index1]).Name == "DataGridViewCheckBoxColumn")
+                else if (((Type) PrintDataGridView.ColumnTypes[index1]).Name == "DataGridViewCheckBoxColumn")
                 {
                   PrintDataGridView.CellCheckBox.Size = new Size(14, 14);
                   PrintDataGridView.CellCheckBox.Checked = (bool) cell.Value;
@@ -263,7 +263,7 @@ namespace ZR_ClassLibrary
                   PrintDataGridView.CellCheckBox.DrawToBitmap(bitmap, new Rectangle((bitmap.Width - PrintDataGridView.CellCheckBox.Width) / 2, (bitmap.Height - PrintDataGridView.CellCheckBox.Height) / 2, PrintDataGridView.CellCheckBox.Width, PrintDataGridView.CellCheckBox.Height));
                   e.Graphics.DrawImage((Image) bitmap, new Point((int) PrintDataGridView.ColumnLefts[index1], y1));
                 }
-                else if (((System.Type) PrintDataGridView.ColumnTypes[index1]).Name == "DataGridViewComboBoxColumn")
+                else if (((Type) PrintDataGridView.ColumnTypes[index1]).Name == "DataGridViewComboBoxColumn")
                 {
                   PrintDataGridView.CellComboBox.Size = new Size((int) PrintDataGridView.ColumnWidths[index1], PrintDataGridView.CellHeight);
                   Bitmap bitmap = new Bitmap(PrintDataGridView.CellComboBox.Width, PrintDataGridView.CellComboBox.Height);
@@ -271,7 +271,7 @@ namespace ZR_ClassLibrary
                   e.Graphics.DrawImage((Image) bitmap, new Point((int) PrintDataGridView.ColumnLefts[index1], y1));
                   e.Graphics.DrawString(cell.Value.ToString(), cell.InheritedStyle.Font, (Brush) new SolidBrush(cell.InheritedStyle.ForeColor), new RectangleF((float) ((int) PrintDataGridView.ColumnLefts[index1] + 1), (float) y1, (float) ((int) PrintDataGridView.ColumnWidths[index1] - 16), (float) PrintDataGridView.CellHeight), PrintDataGridView.StrFormatComboBox);
                 }
-                else if (((System.Type) PrintDataGridView.ColumnTypes[index1]).Name == "DataGridViewImageColumn")
+                else if (((Type) PrintDataGridView.ColumnTypes[index1]).Name == "DataGridViewImageColumn")
                 {
                   Rectangle rectangle = new Rectangle((int) PrintDataGridView.ColumnLefts[index1], y1, (int) PrintDataGridView.ColumnWidths[index1], PrintDataGridView.CellHeight);
                   Size size = ((Image) cell.FormattedValue).Size;

@@ -1,0 +1,68 @@
+<UserControl x:Class="MSS.Client.UI.Desktop.View.Archive.SearchReadingValuesUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+  <telerik:RadBusyIndicator x:Name="BusyIndicator" BusyContent="Loading..." IsBusy="{Binding IsBusy, Mode=TwoWay}">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="75"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid Row="0">
+        <StackPanel Orientation="Vertical">
+          <StackPanel Orientation="Horizontal" Margin="30,0,0,0">
+            <Label Content="{Binding Path=MSS_Client_Archiving_Label_Archive_Records_Number_1, Source={StaticResource Resources}}"/>
+            <Label Content="{Binding Path=ArchiveNumberOfRecords}"/>
+            <Label Content="{Binding Path=MSS_Client_Archiving_Label_Archive_Records_Number_2, Source={StaticResource Resources}}"/>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Margin="30,0,0,0">
+            <Label Content="{Binding Path=MSS_Client_Archiving_Label_Search_Minomat, Source={StaticResource Resources}}"/>
+            <TextBox x:Name="SearchReadingValueBySerialNumberTextBox" Style="{StaticResource TextBoxErrorStyle}"
+                     Width="200" Margin="2,6,3,5" Height="25"
+                     Text="{Binding SearchString, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}">
+              <UIElement.InputBindings>
+                <KeyBinding Key="Enter" Command="{Binding SearchReadingValueCommand}"
+                            CommandParameter="{Binding Text, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}"/>
+              </UIElement.InputBindings>
+            </TextBox>
+            <Image Source="pack://application:,,,/Styles;component/Images/Universal/search.png" Margin="5" Height="16"
+                   Width="16">
+              <UIElement.InputBindings>
+                <MouseBinding MouseAction="LeftClick" Command="{Binding SearchReadingValueCommand}"
+                              CommandParameter="{Binding Path=Text, ElementName=SearchReadingValueBySerialNumberTextBox}"/>
+              </UIElement.InputBindings>
+            </Image>
+          </StackPanel>
+        </StackPanel>
+      </Grid>
+      <Grid Row="1">
+        <telerik:RadGridView x:Name="ArchiveReadingValueGridView" RowIndicatorVisibility="Collapsed"
+                             CanUserFreezeColumns="false" IsReadOnly="true" ColumnWidth="*" AutoGenerateColumns="false"
+                             CanUserSelect="false" CanUserSortColumns="true" AlternateRowBackground="#EDEDED"
+                             AlternationCount="2" IsFilteringAllowed="false" ShowGroupPanel="false"
+                             ItemsSource="{Binding ArchiveMeterReadingValuesDTO}">
+          <telerik:GridViewDataControl.Columns>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding MeterSerialNumber}"
+                                        Header="{Binding Path=MSS_Client_ReadingValues_SerialNumber, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding Value}"
+                                        Header="{Binding Path=MSS_Client_ReadingValues_Value, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding Date}"
+                                        Header="{Binding Path=MSS_Client_ReadingValues_Date, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding PhysicalQuantity}"
+                                        Header="{Binding Path=MSS_Client_DataFilters_PhysicalQuantity, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding MeterType}"
+                                        Header="{Binding Path=MSS_Client_DataFilters_MeterType, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding Calculation}"
+                                        Header="{Binding Path=MSS_Client_DataFilters_Calculation, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding CalculationStart}"
+                                        Header="{Binding Path=MSS_Client_DataFilters_CalculationStart, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding StorageInterval}"
+                                        Header="{Binding Path=MSS_Client_DataFilters_StorageInterval, Source={StaticResource Resources}}"/>
+            <telerik:GridViewDataColumn DataMemberBinding="{Binding Creation}"
+                                        Header="{Binding Path=MSS_Client_DataFilters_Creation, Source={StaticResource Resources}}"/>
+          </telerik:GridViewDataControl.Columns>
+        </telerik:RadGridView>
+      </Grid>
+    </Grid>
+  </telerik:RadBusyIndicator>
+</UserControl>

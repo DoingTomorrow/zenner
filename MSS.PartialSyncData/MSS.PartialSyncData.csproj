@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.PartialSyncData.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5045715D-9203-4D71-A8F8-1507CEE4ABD1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>MSS.PartialSyncData</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>MSS</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper">
+      <HintPath>lib\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Library.NHibernate.Data">
+      <HintPath>lib\Common.Library.NHibernate.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentNHibernate">
+      <HintPath>lib\FluentNHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Business">
+      <HintPath>lib\MSS.Business.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Core">
+      <HintPath>lib\MSS.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.DTO">
+      <HintPath>lib\MSS.DTO.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Interfaces">
+      <HintPath>lib\MSS.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Utils">
+      <HintPath>lib\MSS.Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="MinomatHandler">
+      <HintPath>lib\MinomatHandler.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>lib\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject">
+      <HintPath>lib\Ninject.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Data\Mappings\Meters\PhotoMeterMap.cs" />
+    <Compile Include="PartialSyncData\Utils\DynamicQueryable.cs" />
+    <Compile Include="PartialSyncData\Utils\DynamicClass.cs" />
+    <Compile Include="PartialSyncData\Utils\DynamicProperty.cs" />
+    <Compile Include="PartialSyncData\Utils\DynamicExpression.cs" />
+    <Compile Include="PartialSyncData\Utils\DynamicOrdering.cs" />
+    <Compile Include="PartialSyncData\Utils\Signature.cs" />
+    <Compile Include="PartialSyncData\Utils\ClassFactory.cs" />
+    <Compile Include="PartialSyncData\Utils\ParseException.cs" />
+    <Compile Include="PartialSyncData\Utils\ExpressionParser.cs" />
+    <Compile Include="PartialSyncData\Utils\Res.cs" />
+    <Compile Include="PartialSyncData\Utils\SessionManager.cs" />
+    <Compile Include="PartialSyncData\Repository\JobsRepository.cs" />
+    <Compile Include="PartialSyncData\Repository\OrdersRepository.cs" />
+    <Compile Include="PartialSyncData\Repository\ReadingValuesRepository.cs" />
+    <Compile Include="PartialSyncData\Repository\Repository`1.cs" />
+    <Compile Include="PartialSyncData\Repository\RepositoryFactory.cs" />
+    <Compile Include="PartialSyncData\Repository\RepositoryFactoryCreator.cs" />
+    <Compile Include="PartialSyncData\Repository\SynchronizationRepository.cs" />
+    <Compile Include="PartialSyncData\Repository\UserRepository.cs" />
+    <Compile Include="PartialSyncData\Repository\StructuresNodeRepository.cs" />
+    <Compile Include="PartialSyncData\Mappings\UsersManagement\CountryMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\UsersManagement\OperationMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\UsersManagement\RoleMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\UsersManagement\RoleOperationMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\UsersManagement\UserMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\UsersManagement\UserRoleMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\TechnicalParameters\TechnicalParameterMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Structures\LocationMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Structures\ScenarioMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Structures\StructureNodeEquipmentSettingsMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Structures\StructureNodeLinksMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Structures\StructureNodeMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Structures\StructureNodeTypeMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Structures\TenantMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Reporting\AutomatedExportJobMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Reporting\HeatersMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Reporting\AutomatedExportJobCountryMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Reporting\JobLogsMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\RadioTest\RadioTestRunDeviceMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\RadioTest\RadioTestRunMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\RadioTest\TestOrderMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Orders\CelestaReadingDeviceTypesMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Orders\OrderMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Orders\OrderMessagesMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Orders\OrderUserMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\NewsAndUpdates\NewsMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\MSSClients\MSSClientMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Meters\ChannelMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Meters\ConnectedDeviceTypeMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Meters\MeterMbusRadioMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Meters\MeterRadioDetailsMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Meters\MeterReadingValueMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Meters\MeasureUnitMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Meters\MeterMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Meters\MeterReplacementHistoryMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Meters\MinomatMeterMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Meters\NoteMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Meters\NoteTypeMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Meters\OrderReadingValuesMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Meters\RoomTypeMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Meters\UserDeviceTypeSettingsMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\MDM\MDMConfigsMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Jobs\GMMJobValueMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Jobs\JobDefinitionMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Jobs\JobReadingValuesMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Jobs\MssReadingJobMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Jobs\ScenarioJobDefinitionMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\DataFilters\FilterMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\DataFilters\RuleMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\DataCollectors\MinomatConnectionLogMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\DataCollectors\MinomatMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\DataCollectors\MinomatRadioDetailsMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\DataCollectors\ProviderMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\COMServers\COMServerMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Archiving\ArchiveJobMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Archiving\ArchiveMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\Archiving\CleanupMap.cs" />
+    <Compile Include="PartialSyncData\Mappings\ApplicationParameters\ApplicationParametersMapping.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

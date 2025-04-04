@@ -1,0 +1,19 @@
+<Window x:Class="S4_Handler.UserInterface.S4_ManualFlowCalibration"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:S4_Handler.UserInterface"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico" Title="Manually Flow Calibration"
+        Height="450" Width="800">
+  <DockPanel>
+    <StartupLib:GmmCorporateControl DockPanel.Dock="Top" HorizontalAlignment="Stretch"/>
+    <DockPanel>
+      <StackPanel DockPanel.Dock="Right" VerticalAlignment="Bottom">
+        <Button Click="ButtonCalibration_Click" Name="ButtonCalibration" Content="Calibration" Margin="5"/>
+      </StackPanel>
+      <DataGrid Name="DataGridErrorList"/>
+    </DockPanel>
+  </DockPanel>
+</Window>

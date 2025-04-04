@@ -1,0 +1,134 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Client.UI.Common.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{62186B35-3A98-4D40-8CB2-6258CB01F19C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>MSS.Client.UI.Common</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>MSS.Client.UI.Common</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Business">
+      <HintPath>lib\MSS.Business.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Core">
+      <HintPath>lib\MSS.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.DTO">
+      <HintPath>lib\MSS.DTO.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Interfaces">
+      <HintPath>lib\MSS.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Localisation">
+      <HintPath>lib\MSS.Localisation.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Utils">
+      <HintPath>lib\MSS.Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="MVVM">
+      <HintPath>lib\MVVM.dll</HintPath>
+    </Reference>
+    <Reference Include="MahApps.Metro">
+      <HintPath>lib\MahApps.Metro.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>lib\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="Styles">
+      <HintPath>lib\Styles.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="Telerik.Windows.Controls">
+      <HintPath>lib\Telerik.Windows.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.GridView">
+      <HintPath>lib\Telerik.Windows.Controls.GridView.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Input">
+      <HintPath>lib\Telerik.Windows.Controls.Input.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Navigation">
+      <HintPath>lib\Telerik.Windows.Controls.Navigation.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Data">
+      <HintPath>lib\Telerik.Windows.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ResizableMetroWindow.cs" />
+    <Compile Include="ValidationRules\RangeValidationRule`1.cs" />
+    <Compile Include="ValidationRules\RequiredValidationRule.cs" />
+    <Compile Include="Utils\DelegateCommand.cs" />
+    <Compile Include="Utils\DynamicGridControl.cs" />
+    <Compile Include="Utils\EnumerableExtensions.cs" />
+    <Compile Include="Utils\RangeValidationRuleGenerator.cs" />
+    <Compile Include="Utils\ValidationRuleUtils.cs" />
+    <Compile Include="Utils\WindowClose.cs" />
+    <Compile Include="Utils\ReflectionsUtils\ReflectionsUtils.cs" />
+    <Compile Include="FileProvider\FileServiceLocatorImpl.cs" />
+    <Compile Include="FileProvider\LocalFileProvider.cs" />
+    <Compile Include="FileProvider\RemoteFileProvider.cs" />
+    <Compile Include="FileProvider\Interfaces\IFileProvider.cs" />
+    <Compile Include="FileProvider\Interfaces\IFileServiceLocator.cs" />
+    <Compile Include="CustomControls\MultiSelectionComboBoxViewModel.cs" />
+    <Compile Include="AttachedProperties\DropIndicationDetails.cs" />
+    <Compile Include="AttachedProperties\PreviewMouseUp.cs" />
+    <Compile Include="AttachedProperties\SelectedItemsHelperRadGrid.cs" />
+    <Compile Include="AttachedProperties\SelectedItemsHelperRadListBox.cs" />
+    <Compile Include="AttachedProperties\ListBoxDragDropBehavior.cs" />
+    <Compile Include="AttachedProperties\MouseDoubleClick.cs" />
+    <Compile Include="AttachedProperties\SelectedItemsRadTreeList.cs" />
+    <Compile Include="AttachedProperties\TreeListViewDragDropBehavior.cs" />
+    <Compile Include="AttachedProperties\TreeViewDragDropBehavior.cs" />
+    <Compile Include="MSS_Client\Utils\StructureNodeDTOExtensions.cs" />
+    <Compile Include="CustomControlsMultiSelectionComboBoxUserControl.xaml.cs">
+      <DependentUpon>customcontrolsmultiselectioncomboboxusercontrol.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="customcontrols\multiselectioncomboboxusercontrol.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

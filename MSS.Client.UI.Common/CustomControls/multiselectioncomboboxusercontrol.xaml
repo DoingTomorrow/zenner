@@ -1,0 +1,20 @@
+<UserControl x:Class="MSS.Client.UI.Common.CustomControls.MultiSelectionComboBoxUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+  <Grid>
+    <telerik:RadComboBox Style="{StaticResource RadComboBoxStructureStyle}" IsEditable="true" IsReadOnly="true"
+                         IsFilteringEnabled="false" Width="500" ItemsSource="{Binding ItemsList}"
+                         Text="{Binding SelectedItemText, Mode=TwoWay}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Content="{Binding Text}"
+                    Command="{Binding DataContext.OnCheckChangedCommand, RelativeSource={RelativeSource AncestorType=telerik:RadComboBox}}"
+                    CommandParameter="{Binding}"/>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </telerik:RadComboBox>
+  </Grid>
+</UserControl>

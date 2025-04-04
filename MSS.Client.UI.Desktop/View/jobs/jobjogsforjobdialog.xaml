@@ -1,0 +1,71 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Jobs.JobJogsForJobDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="CanResizeWithGrip" SaveWindowPosition="true" Title="{Binding Title}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="38"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <StackPanel Orientation="Vertical" Grid.Row="0">
+      <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,0,10,0"
+                        Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+    </StackPanel>
+    <Grid Row="1">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="40"/>
+      </Grid.RowDefinitions>
+      <telerik:RadGridView x:Name="JobLogsGridView" Grid.Row="0" RowIndicatorVisibility="Collapsed"
+                           CanUserFreezeColumns="false" telerik:StyleManager.Theme="Windows8" IsReadOnly="true"
+                           AlternateRowBackground="#EDEDED" AlternationCount="2" CanUserReorderColumns="false" ColumnWidth="*"
+                           AutoGenerateColumns="false" IsFilteringAllowed="true" ItemsSource="{Binding JobLogDTOs}">
+        <telerik:GridViewDataControl.SortDescriptors>
+          <telerik:SortDescriptor Member="JobEntityNumber" SortDirection="Ascending"/>
+        </telerik:GridViewDataControl.SortDescriptors>
+        <telerik:GridViewDataControl.Columns>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding StartDate}"
+                                      Header="{Binding Path=MSS_Client_Reporting_JobLogs_StartDate, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding EndDate}"
+                                      Header="{Binding Path=MSS_Client_Reporting_JobLogs_EndDate, Source={StaticResource Resources}}"/>
+          <telerik:GridViewCheckBoxColumn DataMemberBinding="{Binding Active, Converter={StaticResource IsNotNullOrFalseConverter}}"
+                                          Header="{Binding Path=MSS_Client_Reporting_JobLogs_Active, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding Status}"
+                                      Header="{Binding Path=MSS_Client_Reporting_JobLogs_Status, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding Message}"
+                                      Header="{Binding Path=MSS_Client_Reporting_JobLogs_Message, Source={StaticResource Resources}}"/>
+        </telerik:GridViewDataControl.Columns>
+      </telerik:RadGridView>
+      <telerik:RadDataPager PageIndexChanged="OnPageIndexChange" Name="RadDataPager" Grid.Row="1" FontSize="12"
+                            Margin="0,-1,0,0" IsTotalItemCountFixed="true" DisplayMode="FirstLastPreviousNextNumeric, Text"
+                            telerik:StyleManager.Theme="Windows8" PageSize="{Binding PageSize, Mode=TwoWay}"
+                            Source="{Binding Items, ElementName=JobLogsGridView}"/>
+      <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+        <Button x:Name="CancelButton" Foreground="#595151" HorizontalAlignment="Right" Background="White"
+                Height="25" Width="100" BorderBrush="LightGray" Margin="0 0 5 0"
+                Style="{StaticResource AppButtonStyle}"
+                Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                Command="{Binding CancelWindowCommand}"/>
+      </StackPanel>
+    </Grid>
+  </Grid>
+</common:ResizableMetroWindow>

@@ -1,0 +1,67 @@
+<Window x:Class="M8_Handler.UserInterface.TestWindows"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Title="TestWindows" Height="600" Width="800"
+        Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico"
+        WindowStartupLocation="CenterOwner">
+  <Grid>
+    <StartupLib:GmmCorporateControl HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="56"/>
+    <Grid Margin="0,56,0,0">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="20"/>
+        <RowDefinition/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition/>
+        <ColumnDefinition Width="200"/>
+      </Grid.ColumnDefinitions>
+      <TextBlock Name="TextBlockStatus" Margin="6,0,2,0" Text="Status"/>
+      <ProgressBar Name="ProgressBar1" Grid.Column="1" Grid.Row="0" Margin="2"/>
+      <TextBox Name="TextBoxResult" Grid.Row="1" Margin="2" TextWrapping="Wrap"/>
+      <ScrollViewer Grid.Column="1" Grid.Row="1" Grid.RowSpan="4" Margin="0,3,0,30">
+        <StackPanel Name="StackPanalButtons">
+          <Button Click="ButtonRadioTest_Click" Name="ButtonRadioTest" Content="RadioTest" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonSendNextLoRa" Content="Send NEXT LoRa Packet" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonSendSP9T1" Content="Send SP9 subtype 1" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonReadWrite_SerialNumberFull_DevEUI_JoinEUI_DevKey"
+                  Content="Read and write: SerialNumberFull DevEUI JoinEUI DevKey" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonGetConfigurationParameter" Content="Get Configuration Parameter"
+                  Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonSetMode" Content="Set Operation Mode " Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonHardwareTypeManager" Content="Hardware Type Manager" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonAddNewMap" Content="Add new map" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonProtection" Content="Protection" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonReadVersion" Content="Read Version" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonGetRadioVersion" Content="GetRadioVersion" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonReadTemperature" Content="Read Temperature" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonReadTamperSwitch" Content="Read Tamper Switch" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonTransmitModulatedCarrier" Content="Transmit Modulated Carrier"
+                  Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonTransmitUnmodulatedCarrier" Content="Transmit Unmodulated Carrier"
+                  Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonSetFrequencyIncrement" Content="Set Frequency Increment"
+                  Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonSendTestPacket" Content="Send Test Packet" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonReceiveTestPacket" Content="Receive Test Packet" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonReceiveTestPacketViaMiCon" Content="Receive Test Packet (MiCon)"
+                  Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonSendTestPacketViaMiCon" Content="Send Test Packet (MiCon)"
+                  Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonSetLcdTestState" Content="LCD Test" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonSetDeviceIdentification" Content="Set DeviceIdentification"
+                  Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonReadSystemTime" Content="Read System Time" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonWriteSystemTime" Content="Write System Time" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonCompareConnectedAndWork" Content="Compare read and work"
+                  Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonDisableIrDa" Content="Disable IrDa" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonAccessRadioKey" Content="Read AccessRadioKey" Margin="2"/>
+          <Button Click="Button_Click" Name="ButtonGetMbus_interval" Content="Get Mbus_interval" Margin="2"/>
+        </StackPanel>
+      </ScrollViewer>
+      <Button Click="ButtonBreak_Click" Name="ButtonBreak" Content="Break" Grid.Column="1" Height="21"
+              Margin="2,0,2,2" Grid.Row="1" VerticalAlignment="Bottom" IsEnabled="false"/>
+    </Grid>
+  </Grid>
+</Window>

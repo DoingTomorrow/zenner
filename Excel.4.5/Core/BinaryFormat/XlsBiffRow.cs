@@ -1,0 +1,29 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: Excel.Core.BinaryFormat.XlsBiffRow
+// Assembly: Excel.4.5, Version=2.1.2.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa
+// MVID: FC72B9E7-E35A-4A43-9AA0-53802BC5FDE7
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\Excel.4.5.dll
+
+#nullable disable
+namespace Excel.Core.BinaryFormat
+{
+  internal class XlsBiffRow : XlsBiffRecord
+  {
+    internal XlsBiffRow(byte[] bytes, uint offset, ExcelBinaryReader reader)
+      : base(bytes, offset, reader)
+    {
+    }
+
+    public ushort RowIndex => this.ReadUInt16(0);
+
+    public ushort FirstDefinedColumn => this.ReadUInt16(2);
+
+    public ushort LastDefinedColumn => this.ReadUInt16(4);
+
+    public uint RowHeight => (uint) this.ReadUInt16(6);
+
+    public ushort Flags => this.ReadUInt16(12);
+
+    public ushort XFormat => this.ReadUInt16(14);
+  }
+}

@@ -1,0 +1,44 @@
+<Window x:Class="StartupLib.ChangeTestBenchName"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:my="clr-namespace:StartupLib"
+        Loaded="Window_Loaded" Title="Change TestBenchName" Height="393.125" Width="1101.46"
+        Icon="/StartupLib;component/Images/ZR.ico" WindowState="Maximized">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="2"/>
+      <Setter Property="Control.Padding" Value="10,2,10,2"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <my:GmmCorporateControl HorizontalAlignment="Stretch" DockPanel.Dock="Top"/>
+    <DockPanel Dock="Bottom" Margin="5">
+      <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+        <Label Name="LableCurrentName" Content="Current TestBenchName: " VerticalAlignment="Center"/>
+        <TextBox Name="TextBoxCurrentName" Text="Not defined" VerticalAlignment="Center" IsReadOnly="true"/>
+      </StackPanel>
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+        <Label Name="LabelTextBoxFilter" Content="Filter:" VerticalAlignment="Center"/>
+        <TextBox LostFocus="TextBoxFilter_LostFocus" KeyDown="TextBoxFilter_KeyDown" Name="TextBoxFilter"
+                 MinWidth="50" Margin="5,2,5,2" VerticalContentAlignment="Center"/>
+        <Button Click="ButtonRemoveTestBenchName_Click" Name="ButtonRemoveTestBenchName"
+                Content="Split installation from equipment = Remove TestBenchName" IsEnabled="false"/>
+        <Button Click="ButtonChangeToSelection_Click" Name="ButtonChangeToSelection"
+                Content="Change test bench name to selection" IsEnabled="false"/>
+      </StackPanel>
+    </DockPanel>
+    <Grid>
+      <DataGrid SelectionChanged="DataGridTestBenches_SelectionChanged"
+                MouseDoubleClick="DataGridTestBenches_MouseDoubleClick" Name="DataGridTestBenches" Margin="2,2,2,2"
+                AutoGenerateColumns="false" IsReadOnly="true" ClipboardCopyMode="IncludeHeader">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="TestBenchName" Binding="{Binding AccessName}"/>
+          <DataGridTextColumn Header="TestBenchType" Binding="{Binding EquipmentType}"/>
+          <DataGridTextColumn Header="Designation" Binding="{Binding Name}"/>
+          <DataGridTextColumn Header="Description" Binding="{Binding Description}"/>
+          <DataGridTextColumn Header="CreationDate" Binding="{Binding CreationDate}"/>
+        </DataGrid.Columns>
+      </DataGrid>
+    </Grid>
+  </DockPanel>
+</Window>

@@ -1,0 +1,87 @@
+<UserControl x:Class="MSS.Client.UI.Tablet.View.ExceptionMessageBox.MessageHandlerUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008">
+  <FrameworkElement.Resources>
+    <Style x:Key="successLabelStyle" TargetType="{x:Type Label}">
+      <Setter Property="Control.Background" Value="Green"/>
+      <Setter Property="Control.FontSize" Value="15"/>
+      <Setter Property="Control.FontWeight" Value="Bold"/>
+      <Setter Property="Control.Foreground" Value="White"/>
+      <Style.Triggers>
+        <EventTrigger RoutedEvent="Binding.TargetUpdated">
+          <EventTrigger.Actions>
+            <BeginStoryboard>
+              <Storyboard>
+                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1.0" To="0.0" Duration="0:0:4.0"/>
+              </Storyboard>
+            </BeginStoryboard>
+          </EventTrigger.Actions>
+        </EventTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="warningLabelStyle" TargetType="{x:Type Label}">
+      <Setter Property="Control.Background" Value="Orange"/>
+      <Setter Property="Control.FontSize" Value="15"/>
+      <Setter Property="Control.FontWeight" Value="Bold"/>
+      <Setter Property="Control.Foreground" Value="White"/>
+      <Style.Triggers>
+        <EventTrigger RoutedEvent="Binding.TargetUpdated">
+          <EventTrigger.Actions>
+            <BeginStoryboard>
+              <Storyboard>
+                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1.0" To="0.0" Duration="0:0:4.0"/>
+              </Storyboard>
+            </BeginStoryboard>
+          </EventTrigger.Actions>
+        </EventTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="validationLabelStyle" TargetType="{x:Type Label}">
+      <Setter Property="Control.Background" Value="Red"/>
+      <Setter Property="Control.FontSize" Value="15"/>
+      <Setter Property="Control.FontWeight" Value="Bold"/>
+      <Setter Property="Control.Foreground" Value="White"/>
+      <Setter Property="FrameworkElement.Height" Value="30"/>
+      <Style.Triggers>
+        <EventTrigger RoutedEvent="Binding.TargetUpdated">
+          <EventTrigger.Actions>
+            <BeginStoryboard>
+              <Storyboard>
+                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1.0" To="0.0" Duration="0:0:4.0"/>
+              </Storyboard>
+            </BeginStoryboard>
+          </EventTrigger.Actions>
+        </EventTrigger>
+      </Style.Triggers>
+    </Style>
+  </FrameworkElement.Resources>
+  <Grid>
+    <Label Name="label_Success" Style="{StaticResource successLabelStyle}"
+           Content="{Binding ContentMessage, Mode=TwoWay, NotifyOnTargetUpdated=true}"
+           Visibility="{Binding IsSuccessMessage, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}}">
+      <FrameworkElement.Resources>
+        <Style TargetType="{x:Type Label}">
+          <Style.Triggers>
+            <EventTrigger RoutedEvent="Binding.TargetUpdated">
+              <EventTrigger.Actions>
+                <BeginStoryboard>
+                  <Storyboard TargetProperty="Opacity">
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:5"/>
+                  </Storyboard>
+                </BeginStoryboard>
+              </EventTrigger.Actions>
+            </EventTrigger>
+          </Style.Triggers>
+        </Style>
+      </FrameworkElement.Resources>
+    </Label>
+    <Label Name="label_Warning" Style="{StaticResource warningLabelStyle}"
+           Content="{Binding ContentMessage, Mode=TwoWay, NotifyOnTargetUpdated=true}"
+           Visibility="{Binding IsWarningMessage, Converter={StaticResource BoolToVisibilityConverter}}"/>
+    <Label Name="label_Validation" Style="{StaticResource validationLabelStyle}"
+           Content="{Binding ContentMessage, Mode=TwoWay, NotifyOnTargetUpdated=true}"
+           Visibility="{Binding IsValidationMessage, Converter={StaticResource BoolToVisibilityConverter}}"/>
+  </Grid>
+</UserControl>

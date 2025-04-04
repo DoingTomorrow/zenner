@@ -1,0 +1,22 @@
+<Window x:Class="S4_Handler.UserInterface.S4_CommunicationTest"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Loaded="Window_Loaded" Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico"
+        Title="Communication Test" Height="352" Width="772" WindowStartupLocation="CenterScreen">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="2"/>
+      <Setter Property="Control.Padding" Value="5,1,5,1"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StartupLib:GmmCorporateControl HorizontalAlignment="Stretch" DockPanel.Dock="Top"/>
+    <StackPanel DockPanel.Dock="Right">
+      <Button Click="Button_Click" Name="ButtonRun" Content="Run"/>
+      <Button Click="Button_Click" Name="ButtonReadNdcMiConModuleIds" Content="Read NDC_MiCon_Module Ids"/>
+      <Button Click="Button_Click" Name="ButtonCheckFirmwareVersions" Content="Check firmware versions"/>
+    </StackPanel>
+    <TextBox Name="TextBoxResult" TextWrapping="Wrap" Margin="5"/>
+  </DockPanel>
+</Window>

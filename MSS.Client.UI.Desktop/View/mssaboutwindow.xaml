@@ -1,0 +1,67 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.MSSAboutWindow"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="NoResize" Height="300" Width="500"
+                             Title="{Binding Path=MSS_About, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="3*"/>
+        <RowDefinition Height="1.5*"/>
+      </Grid.RowDefinitions>
+      <Grid Row="0" Margin="0 10 0 0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="2*"/>
+          <ColumnDefinition Width="4*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="2" TextWrapping="Wrap" Foreground="#595151" HorizontalAlignment="Right"
+                   VerticalAlignment="Center" FontSize="12" TextAlignment="Right" Grid.Column="0"
+                   Text="{Binding Path=MSS_GMM_MetrologicalCore, Source={StaticResource Resources}}"/>
+        <TextBlock Grid.Row="3" TextWrapping="Wrap" Foreground="#595151" HorizontalAlignment="Right"
+                   VerticalAlignment="Center" FontSize="12" TextAlignment="Right" Grid.Column="0"
+                   Text="{Binding Path=MSS_CurrentLicense, Source={StaticResource Resources}}"/>
+        <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource AppLabelStyle}"
+               HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" Foreground="#0f5f8e"
+               Margin="10 0 0 0" Content="{Binding ApplicationName}"/>
+        <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource AppLabelStyle}"
+               HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10 0 0 0"
+               Content="{Binding VersionNumber}"/>
+        <Label Grid.Row="2" Grid.Column="1" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Left"
+               VerticalAlignment="Center" Margin="10 0 0 0" Content="{Binding GMMMetrologicalCore}"/>
+        <Label Grid.Row="3" Grid.Column="1" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Left"
+               VerticalAlignment="Center" Margin="10 0 0 0" Content="{Binding CurrentLicense}"/>
+        <TextBlock Grid.Row="4" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Foreground="#595151"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10 0 0 0" TextWrapping="Wrap"
+                   Text="{Binding AboutText}"/>
+      </Grid>
+      <Button x:Name="OKButton" Grid.Row="1" Foreground="#595151" HorizontalAlignment="Center"
+              Style="{StaticResource AppButtonStyle}" Background="White" Height="30" Width="100"
+              BorderBrush="LightGray" IsCancel="true"
+              Content="{Binding MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+              Command="{Binding CloseWindowCommand}"/>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

@@ -1,0 +1,17 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: NHibernate.Persister.Entity.EntityPersister
+// Assembly: NHibernate, Version=3.3.1.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4
+// MVID: F2FE07FE-F4FA-4811-8A3A-0A4855BEE49E
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\NHibernate.dll
+
+using System.Runtime.InteropServices;
+
+#nullable disable
+namespace NHibernate.Persister.Entity
+{
+  [StructLayout(LayoutKind.Sequential, Size = 1)]
+  public struct EntityPersister
+  {
+    public static readonly string EntityID = "id";
+  }
+}

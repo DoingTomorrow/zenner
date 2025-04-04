@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.MDMCommunication.Business.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{810AFD7B-B717-4BA8-AC89-7B26B5BB41FA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>MSS.MDMCommunication.Business</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>MSS.MDMCommunication.Business</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Common.Library.NHibernate.Data">
+      <HintPath>lib\Common.Library.NHibernate.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmInterface">
+      <HintPath>lib\GmmInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Business">
+      <HintPath>lib\MSS.Business.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Core">
+      <HintPath>lib\MSS.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.DTO">
+      <HintPath>lib\MSS.DTO.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Interfaces">
+      <HintPath>lib\MSS.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="MinomatHandler">
+      <HintPath>lib\MinomatHandler.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>lib\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.ServiceModel" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MDMCommunication.cs" />
+    <Compile Include="Utils\MDMConstants.cs" />
+    <Compile Include="Utils\MDMHelper.cs" />
+    <Compile Include="Utils\MDMLogger.cs" />
+    <Compile Include="MDMService\IService_MDMS_Data.cs" />
+    <Compile Include="MDMService\SavePortfolioRecordRequest.cs" />
+    <Compile Include="MDMService\SavePortfolioRecordResponse.cs" />
+    <Compile Include="MDMService\SaveBuildingRecordRequest.cs" />
+    <Compile Include="MDMService\SaveBuildingRecordResponse.cs" />
+    <Compile Include="MDMService\SaveTenantInfoRecordRequest.cs" />
+    <Compile Include="MDMService\SaveTenantInfoRecordResponse.cs" />
+    <Compile Include="MDMService\SaveTenantFlatRecordRequest.cs" />
+    <Compile Include="MDMService\SaveTenantFlatRecordResponse.cs" />
+    <Compile Include="MDMService\SaveDeviceInfoRecordRequest.cs" />
+    <Compile Include="MDMService\SaveDeviceInfoRecordResponse.cs" />
+    <Compile Include="MDMService\SaveReadDataRecordRequest.cs" />
+    <Compile Include="MDMService\SaveReadDataRecordResponse.cs" />
+    <Compile Include="MDMService\SaveDCUInfoRecordRequest.cs" />
+    <Compile Include="MDMService\SaveDCUInfoRecordResponse.cs" />
+    <Compile Include="MDMService\SaveAddressRecordRequest.cs" />
+    <Compile Include="MDMService\SaveAddressRecordResponse.cs" />
+    <Compile Include="MDMService\SaveDCUConnectionRecordRequest.cs" />
+    <Compile Include="MDMService\SaveDCUConnectionRecordResponse.cs" />
+    <Compile Include="MDMService\SaveAMRRouteRecordRequest.cs" />
+    <Compile Include="MDMService\SaveAMRRouteRecordResponse.cs" />
+    <Compile Include="MDMService\SaveTestconfigRunRecordRequest.cs" />
+    <Compile Include="MDMService\SaveTestconfigRunRecordResponse.cs" />
+    <Compile Include="MDMService\SaveTestconfigDeviceRecordRequest.cs" />
+    <Compile Include="MDMService\SaveTestconfigDeviceRecordResponse.cs" />
+    <Compile Include="MDMService\IService_MDMS_DataChannel.cs" />
+    <Compile Include="MDMService\Service_MDMS_DataClient.cs" />
+    <Compile Include="Modules\AddressRecord.cs" />
+    <Compile Include="Modules\AMRRouteRecord.cs" />
+    <Compile Include="Modules\BuildingRecord.cs" />
+    <Compile Include="Modules\DCUConnectionRecord.cs" />
+    <Compile Include="Modules\DCUInfoRecord.cs" />
+    <Compile Include="Modules\DeviceInfoRecord.cs" />
+    <Compile Include="Modules\PortfolioRecord.cs" />
+    <Compile Include="Modules\ReadDataRecord.cs" />
+    <Compile Include="Modules\TenantFlatRecord.cs" />
+    <Compile Include="Modules\TenantInfoRecord.cs" />
+    <Compile Include="Modules\TestconfigDeviceRecord.cs" />
+    <Compile Include="Modules\TestconfigRunRecord.cs" />
+    <Compile Include="Model\Enterprises\Enterprise.cs" />
+    <Compile Include="Model\DataWSAccounts\DataWSAccount.cs" />
+    <Compile Include="Model\DataWSAccounts\DataWSAccountIdentifier.cs" />
+    <Compile Include="Managers\MDMManager.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

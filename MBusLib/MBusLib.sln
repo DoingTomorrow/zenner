@@ -1,0 +1,20 @@
+
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MBusLib", "MBusLib.csproj", "{AEF29FF4-BD8B-4D36-91D4-74BFBF16820E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AEF29FF4-BD8B-4D36-91D4-74BFBF16820E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEF29FF4-BD8B-4D36-91D4-74BFBF16820E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEF29FF4-BD8B-4D36-91D4-74BFBF16820E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEF29FF4-BD8B-4D36-91D4-74BFBF16820E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,31 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionArgumentExpression
+// Assembly: EPPlus, Version=4.0.0.1, Culture=neutral, PublicKeyToken=ea159fdaa78159a1
+// MVID: 3F10EAEA-823F-4076-B5B1-DE322159D5F9
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\EPPlus.dll
+
+#nullable disable
+namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
+{
+  public class FunctionArgumentExpression : GroupExpression
+  {
+    private readonly Expression _function;
+
+    public FunctionArgumentExpression(Expression function) => this._function = function;
+
+    public override bool ParentIsLookupFunction
+    {
+      get => base.ParentIsLookupFunction;
+      set
+      {
+        base.ParentIsLookupFunction = value;
+        foreach (Expression child in this.Children)
+          child.ParentIsLookupFunction = value;
+      }
+    }
+
+    public override bool IsGroupedExpression => false;
+
+    public override Expression PrepareForNextChild() => this._function.PrepareForNextChild();
+  }
+}

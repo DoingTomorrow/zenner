@@ -1,0 +1,433 @@
+<UserControl x:Class="MSS.Client.UI.Desktop.View.Orders.OrdersUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:attachedProperties="clr-namespace:MSS.Client.UI.Common.AttachedProperties;assembly=MSS.Client.UI.Common"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             x:Name="ordersUserControl">
+  <FrameworkElement.Resources>
+    <Style x:Key="SelectedReadingOrderButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ElementName=ReadingOrderGridView, Path=SelectedItems.Count}" Value="1">
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="SelectedInstallationOrderButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ElementName=InstallationOrderGridView, Path=SelectedItems.Count}" Value="1">
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="EditableInstallationOrderButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding ElementName=InstallationOrderGridView, Path=SelectedItems.Count}" Value="1"/>
+            <Condition Binding="{Binding EditableInstallationOrder}" Value="True"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="EditableReadingOrderButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding ElementName=ReadingOrderGridView, Path=SelectedItems.Count}" Value="1"/>
+            <Condition Binding="{Binding EditableReadingOrder}" Value="True"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="RemoveInstallationOrderButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="true"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ElementName=InstallationOrderGridView, Path=SelectedItem}" Value="{x:Null}">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="RemoveReadingOrderButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="true"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ElementName=ReadingOrderGridView, Path=SelectedItem}" Value="{x:Null}">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="ExecutableReadingOrderButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding ElementName=ReadingOrderGridView, Path=SelectedItems.Count}" Value="1"/>
+            <Condition Binding="{Binding ExecutableOrder}" Value="True"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="ExecuteInstallationOrderButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding ElementName=InstallationOrderGridView, Path=SelectedItems.Count}" Value="1"/>
+            <Condition Binding="{Binding ExecutableInstallationOrder}" Value="True"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="UnlockInstallationOrderButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding ElementName=InstallationOrderGridView, Path=SelectedItems.Count}" Value="1"/>
+            <Condition Binding="{Binding UnlockableInstallationOrder}" Value="True"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="UnlockReadingOrderButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding ElementName=ReadingOrderGridView, Path=SelectedItems.Count}" Value="1"/>
+            <Condition Binding="{Binding UnlockableReadingOrder}" Value="True"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </MultiDataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="ReadingValuesButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="false"/>
+      <Setter Property="UIElement.Opacity" Value="0.5"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ElementName=ReadingOrderGridView, Path=SelectedItems.Count}" Value="1">
+          <Setter Property="UIElement.IsEnabled" Value="true"/>
+          <Setter Property="UIElement.Opacity" Value="1"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+  </FrameworkElement.Resources>
+  <telerik:RadTabControl HeaderBackground="#EDEDED" Margin="3" Template="{StaticResource RadTabControlControlTemplateTest}"
+                         SelectedIndex="{Binding SelectedIndex, Mode=TwoWay, IsAsync=true}">
+    <telerik:RadTabItem Header="{Binding Path=MSS_Client_OrdersControl_InstallationOrders, Source={StaticResource Resources}}"
+                        Visibility="{Binding InstallationOrderVisibility, Converter={StaticResource BoolToVisibilityConverter}}"
+                        IsSelected="{Binding IsInstallationTabSelected, Mode=TwoWay}">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="30"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Background="#ebebeb">
+          <Button Name="AddInstallationOrderButton" Style="{StaticResource AppButtonStyle}"
+                  Command="{Binding CreateInstallationOrderCommand}"
+                  ToolTip="{Binding Path=MSS_Client_OrdersControl_NewInstallationOrder_Tooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding CreateInstallationOrderVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/add.png"/>
+              <TextBlock Name="CreateInstallationOrderTextBox" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Create, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="EditInstallationOrderButton" Style="{StaticResource EditableInstallationOrderButtonStyle}"
+                  Command="{Binding EditInstallationOrderCommand}"
+                  CommandParameter="{Binding ElementName=InstallationOrderGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_EditInstallationOrder_Tooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding EditInstallationOrderVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"/>
+              <TextBlock Name="EditInstallationOrderCommandTextBox" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Edit, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="RemoveInstallationOrderButton" Style="{StaticResource RemoveInstallationOrderButtonStyle}"
+                  Command="{Binding DeleteInstallationOrderCommand}"
+                  CommandParameter="{Binding ElementName=InstallationOrderGridView, Path=SelectedItems}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_DeleteInstallationOrder_Tooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding DeleteInstallationOrderVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+              <TextBlock Name="DeleteInstallationOrderCommandTextBox" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Delete, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="ExecuteInstallationOrderButton" Style="{StaticResource ExecuteInstallationOrderButtonStyle}"
+                  Command="{Binding ExecuteInstallationOrderCommand}"
+                  CommandParameter="{Binding ElementName=InstallationOrderGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_Execute_Installation_Order, Source={StaticResource Resources}}"
+                  Visibility="{Binding ExecuteInstallationOrderVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/execute.png"/>
+              <TextBlock Name="ExecuteInstallationOrderCommandTextBox" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Execute, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="UnlockInstallationOrderButton" Style="{StaticResource UnlockInstallationOrderButtonStyle}"
+                  Command="{Binding UnlockInstallationOrderCommand}"
+                  CommandParameter="{Binding ElementName=InstallationOrderGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_UnlockOrder_Tooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding UnlockOrderVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/unlock.png"/>
+              <TextBlock Name="UnlockInstallationOrderCommandTextBox" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_UnlockOrder, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="PrintInstallationOrderButton" Style="{StaticResource SelectedInstallationOrderButtonStyle}"
+                  Command="{Binding PrintInstallationOrderCommand}"
+                  CommandParameter="{Binding ElementName=InstallationOrderGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_OrderControl_PrintTooltip, Source={StaticResource Resources}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/print.png"/>
+              <TextBlock Name="PrintInstallationOrderTextBox" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_PrintOrder, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+        <Grid Row="0">
+          <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-58,0,0"
+                            Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+        </Grid>
+        <Grid Row="1" Margin="3">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <telerik:RadGridView x:Name="InstallationOrderGridView" AlternateRowBackground="#EDEDED" AlternationCount="2"
+                               RowIndicatorVisibility="Collapsed" CanUserFreezeColumns="false" IsReadOnly="true"
+                               AutoGenerateColumns="false" IsFilteringAllowed="true" GroupRenderMode="Flat"
+                               SelectionMode="Extended" ItemsSource="{Binding GetInstallationOrders, IsAsync=true}"
+                               SelectedItem="{Binding SelectedOrder}" IsBusy="{Binding IsBusy}"
+                               attachedProperties:MouseDoubleClick.Command="{Binding EditInstallationOrderCommand}"
+                               attachedProperties:MouseDoubleClick.CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=SelectedItem}">
+            <telerik:GridViewDataControl.Columns>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding InstallationNumber}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_InstallationNumber, Source={StaticResource Resources}}"/>
+              <telerik:GridViewColumn Header="{Binding Path=MSS_Client_OrderControl_Header_Structure, Source={StaticResource Resources}}">
+                <telerik:GridViewColumn.CellTemplate>
+                  <DataTemplate>
+                    <Button HorizontalAlignment="Left"
+                            Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.ViewStructureCommand}"
+                            CommandParameter="{Binding}">
+                      <Control.Template>
+                        <ControlTemplate>
+                          <Image Source="pack://application:,,,/Styles;component/Images/Universal/view.png" Height="24" Width="16"/>
+                        </ControlTemplate>
+                      </Control.Template>
+                    </Button>
+                  </DataTemplate>
+                </telerik:GridViewColumn.CellTemplate>
+              </telerik:GridViewColumn>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding RootNodeName}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_RootNodeName, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding RootNodeDescription}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_RootNodeDescription, Source={StaticResource Resources}}"/>
+              <telerik:GridViewCheckBoxColumn DataMemberBinding="{Binding Exported}"
+                                              Header="{Binding Path=MSS_Client_OrderControl_Header_Exported, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding Status}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_Status, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding IsLocked}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_IsLocked, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding DeviceNumber}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_DeviceNumber, Source={StaticResource Resources}}"/>
+            </telerik:GridViewDataControl.Columns>
+          </telerik:RadGridView>
+          <telerik:RadDataPager PageIndexChanged="OnPageIndexChange" Name="RadDataPager" Grid.Row="1" FontSize="12"
+                                Margin="0,-1,0,0" IsTotalItemCountFixed="true" DisplayMode="FirstLastPreviousNextNumeric, Text"
+                                telerik:StyleManager.Theme="Windows8" PageSize="{Binding PageSize, Mode=TwoWay}"
+                                Source="{Binding Items, ElementName=InstallationOrderGridView}"/>
+        </Grid>
+      </Grid>
+    </telerik:RadTabItem>
+    <telerik:RadTabItem Header="{Binding Path=MSS_Client_OrdersControl_ReadingOrders, Source={StaticResource Resources}}"
+                        Visibility="{Binding ReadingOrderVisibility, Converter={StaticResource BoolToVisibilityConverter}}"
+                        IsSelected="{Binding IsReadingTabSelected, Mode=TwoWay}">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <WrapPanel Orientation="Horizontal" Background="#ebebeb">
+          <Button Name="AddReadingOrderButton" Style="{StaticResource AppButtonStyle}"
+                  Command="{Binding CreateReadingOrderCommand}"
+                  ToolTip="{Binding Path=MSS_Client_OrdersControl_NewReadingOrder_Tooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding CreateReadingOrderVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/add.png"/>
+              <TextBlock Name="CreateReadingOrderTextBox" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Create, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="EditReadingOrderButton" Style="{StaticResource EditableReadingOrderButtonStyle}"
+                  Command="{Binding EditReadingOrderCommand}"
+                  CommandParameter="{Binding ElementName=ReadingOrderGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_EditReadingOrder_Tooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding EditReadingOrderVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"/>
+              <TextBlock Name="EditReadingOrderTextBox" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Edit, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="RemoveReadingOrderButton" Style="{StaticResource RemoveReadingOrderButtonStyle}"
+                  Command="{Binding DeleteReadingOrderCommand}"
+                  CommandParameter="{Binding ElementName=ReadingOrderGridView, Path=SelectedItems}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_DeleteReadingOrder_Tooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding DeleteReadingOrderVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+              <TextBlock Name="DeleteReadingOrderTextBox" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Delete, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="ExecuteReadingOrderButton" Style="{StaticResource ExecutableReadingOrderButtonStyle}"
+                  Command="{Binding ExecuteReadingOrderCommand}"
+                  CommandParameter="{Binding ElementName=ReadingOrderGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_Order_ExecuteReadingOrderTitle, Source={StaticResource Resources}}"
+                  Visibility="{Binding ExecuteReadingOrderVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/execute.png"/>
+              <TextBlock Name="ExecuteReadingOrderTextBox" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Execute, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="UnlockReadingOrderButton" Style="{StaticResource UnlockReadingOrderButtonStyle}"
+                  Command="{Binding UnlockReadingOrderCommand}"
+                  CommandParameter="{Binding ElementName=ReadingOrderGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_UnlockOrder_Tooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding UnlockOrderVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/unlock.png"/>
+              <TextBlock Name="UnlockReadingOrderCommandTextBox" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_UnlockOrder, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="PrintReadingOrderButton" Style="{StaticResource SelectedReadingOrderButtonStyle}"
+                  Command="{Binding PrintReadingOrderCommand}"
+                  CommandParameter="{Binding ElementName=ReadingOrderGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_OrderControl_PrintTooltip, Source={StaticResource Resources}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/print.png"/>
+              <TextBlock Name="PrintReadingOrderTextBox" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_PrintOrder, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="btnReadingValues" Style="{StaticResource ReadingValuesButtonStyle}"
+                  ToolTip="{Binding Path=MSS_Client_Structures_ReadingValues, Source={StaticResource Resources}}"
+                  Command="{Binding ViewReadingValuesCommand}"
+                  CommandParameter="{Binding ElementName=ReadingOrderGridView, Path=SelectedItem}">
+            <StackPanel Orientation="Horizontal" Background="White">
+              <Image Style="{StaticResource SmallIconImageStyle}"
+                     Source="pack://application:,,,/Styles;component/Images/Universal/view-reading-values.png"/>
+              <TextBlock Name="textBlockReadingValues" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Structures_ReadingValues, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+        </WrapPanel>
+        <Grid Row="0">
+          <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-58,0,0"
+                            Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+        </Grid>
+        <Grid Row="1" Margin="3">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <telerik:RadGridView x:Name="ReadingOrderGridView" RowIndicatorVisibility="Collapsed" CanUserFreezeColumns="false"
+                               IsReadOnly="true" AutoGenerateColumns="false" SelectionMode="Extended"
+                               AlternateRowBackground="#EDEDED" GroupRenderMode="Flat" AlternationCount="2"
+                               ItemsSource="{Binding GetReadingOrders, IsAsync=true}"
+                               SelectedItem="{Binding SelectedReadingOrder}"
+                               attachedProperties:MouseDoubleClick.Command="{Binding EditReadingOrderCommand}"
+                               attachedProperties:MouseDoubleClick.CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=SelectedItem}">
+            <telerik:GridViewDataControl.Columns>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding InstallationNumber}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_ReadingNumber, Source={StaticResource Resources}}"/>
+              <telerik:GridViewColumn Header="{Binding Path=MSS_Client_OrderControl_Header_Structure, Source={StaticResource Resources}}">
+                <telerik:GridViewColumn.CellTemplate>
+                  <DataTemplate>
+                    <telerik:RadButton HorizontalAlignment="Left"
+                                       Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.ViewStructureCommand}"
+                                       CommandParameter="{Binding}">
+                      <Control.Template>
+                        <ControlTemplate>
+                          <Image Source="pack://application:,,,/Styles;component/Images/Universal/view.png" Height="24" Width="16"/>
+                        </ControlTemplate>
+                      </Control.Template>
+                    </telerik:RadButton>
+                  </DataTemplate>
+                </telerik:GridViewColumn.CellTemplate>
+              </telerik:GridViewColumn>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding RootNodeName}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_RootNodeName, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding RootNodeDescription}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_RootNodeDescription, Source={StaticResource Resources}}"/>
+              <telerik:GridViewCheckBoxColumn DataMemberBinding="{Binding Exported}"
+                                              Header="{Binding Path=MSS_Client_OrderControl_Header_Exported, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding Status}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_Status, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding IsLocked}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_IsLocked, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding DeviceNumber}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_DeviceNumber, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding AssignedUserName}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_AssignedUser, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding DevicesCount}"
+                                          Header="{Binding Path=MSS_Client_OrderControl_Header_DevicesCount, Source={StaticResource Resources}}"/>
+            </telerik:GridViewDataControl.Columns>
+          </telerik:RadGridView>
+          <telerik:RadDataPager PageIndexChanged="OnPageIndexChange" Name="RadDataPager2" Grid.Row="1" FontSize="12"
+                                Margin="0,-1,0,0" IsTotalItemCountFixed="true" DisplayMode="FirstLastPreviousNextNumeric, Text"
+                                telerik:StyleManager.Theme="Windows8" PageSize="{Binding PageSize, Mode=TwoWay}"
+                                Source="{Binding Items, ElementName=ReadingOrderGridView}"/>
+        </Grid>
+      </Grid>
+    </telerik:RadTabItem>
+  </telerik:RadTabControl>
+</UserControl>

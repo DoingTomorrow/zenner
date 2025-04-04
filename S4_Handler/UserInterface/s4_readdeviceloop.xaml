@@ -1,0 +1,105 @@
+<Window x:Class="S4_Handler.UserInterface.S4_ReadDeviceLoop"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Closing="Window_Closing" Title="S4_ReadDeviceLoop" Height="500" Width="450" MinHeight="500"
+        MinWidth="450" Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico"
+        WindowStartupLocation="CenterScreen">
+  <Grid x:Name="GridMain" ShowGridLines="false">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="60"/>
+      <RowDefinition/>
+    </Grid.RowDefinitions>
+    <StartupLib:GmmCorporateControl HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="56" Grid.Row="0"/>
+    <Grid Row="1">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="40"/>
+        <RowDefinition Height="30"/>
+        <RowDefinition Height="30"/>
+        <RowDefinition Height="30"/>
+        <RowDefinition Height="30"/>
+        <RowDefinition Height="30"/>
+        <RowDefinition/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <DockPanel Grid.Row="0">
+        <Label x:Name="LabelMode" Content="Mode:" DockPanel.Dock="Left" HorizontalAlignment="Left"
+               VerticalAlignment="Center" FontSize="14"/>
+        <ComboBox x:Name="ComboBoxMode" FontSize="15" IsReadOnly="true" HorizontalAlignment="Left" Margin="10,2,2,0"
+                  RenderTransformOrigin="0.512,0.466" Width="150" Height="29"/>
+      </DockPanel>
+      <DockPanel Grid.Row="1">
+        <Label x:Name="LabelLoopWaitTime" DockPanel.Dock="Left" HorizontalAlignment="Left"
+               VerticalAlignment="Center" Content="Loop wait time /ms"/>
+        <TextBox x:Name="TextBoxLoopWaitTime" DockPanel.Dock="Left" HorizontalAlignment="Left" Width="80"
+                 Margin="5,2,5,2" VerticalAlignment="Center">
+        </TextBox>
+        <Label x:Name="LabelInitTime" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Center"
+               Content="Wait time after init/ms" Margin="20,0,0,0"/>
+        <TextBox x:Name="TextBoxInitWaitTime" DockPanel.Dock="Left" HorizontalAlignment="Left" Width="80"
+                 Margin="5,2,5,2" VerticalAlignment="Center">
+        </TextBox>
+      </DockPanel>
+      <DockPanel Grid.Row="2">
+        <Label x:Name="LabelLoops" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Center"
+               Content="Loops:"/>
+        <TextBox x:Name="TextBoxLoops" DockPanel.Dock="Left" HorizontalAlignment="Left" Width="80" Margin="5,2,5,2"
+                 IsReadOnly="true" VerticalAlignment="Center">
+        </TextBox>
+        <Label x:Name="LabelSuccessful" DockPanel.Dock="Left" HorizontalAlignment="Left"
+               VerticalAlignment="Center" Content="Successful:"/>
+        <TextBox x:Name="TextBoxSuccessful" DockPanel.Dock="Left" HorizontalAlignment="Left" Width="80"
+                 Margin="5,2,5,2" IsReadOnly="true" VerticalAlignment="Center">
+        </TextBox>
+        <Label x:Name="LabelErrors" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Center"
+               Content="Errors:"/>
+        <TextBox x:Name="TextBoxErrors" DockPanel.Dock="Left" HorizontalAlignment="Left" Width="80" Margin="5,2,5,2"
+                 IsReadOnly="true" VerticalAlignment="Center">
+        </TextBox>
+      </DockPanel>
+      <DockPanel Grid.Row="3">
+        <Label x:Name="LabelLastValidActionDate" Content="Last valid action date:" DockPanel.Dock="Left"
+               HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        <TextBox x:Name="TextBoxLastValidActionDate" DockPanel.Dock="Left" HorizontalAlignment="Stretch"
+                 VerticalAlignment="Center" IsReadOnly="true" Width="150" Margin="5,0,10,0"/>
+        <TextBox x:Name="TextBoxLastValidActionTime" DockPanel.Dock="Left" HorizontalAlignment="Stretch"
+                 VerticalAlignment="Center" IsReadOnly="true" Width="90" Margin="5,0,10,0"/>
+        <TextBox x:Name="TextBoxLastValidDurationTime" DockPanel.Dock="Left" HorizontalAlignment="Stretch"
+                 VerticalAlignment="Center" IsReadOnly="true" Margin="5,0,10,0"/>
+      </DockPanel>
+      <DockPanel Grid.Row="4">
+        <CheckBox x:Name="CheckBoxStopLoopAfterError" DockPanel.Dock="Left" HorizontalAlignment="Left"
+                  Content="Stop loop after error" Margin="5,2,5,0" VerticalAlignment="Center"/>
+        <CheckBox x:Name="CheckBoxInitializeComPortAfterError" DockPanel.Dock="Left" HorizontalAlignment="Left"
+                  Content="Init after error" Margin="20,2,5,0" VerticalAlignment="Center"/>
+        <CheckBox x:Name="CheckBoxWaitAfterOpen" DockPanel.Dock="Left" HorizontalAlignment="Left"
+                  Content="Wait after open" Margin="20,2,5,0" VerticalAlignment="Center"/>
+      </DockPanel>
+      <GroupBox x:Name="GroupBoxMessages" Grid.Row="6" Margin="1">
+        <TextBox x:Name="TextBoxMessages" VerticalScrollBarVisibility="Visible"
+                 HorizontalScrollBarVisibility="Visible">
+        </TextBox>
+      </GroupBox>
+      <DockPanel Grid.Row="5">
+        <Label x:Name="LabelReadPartsList" Content="Read Parts :" DockPanel.Dock="Left" HorizontalAlignment="Left"
+               VerticalAlignment="Center"/>
+        <ComboBox x:Name="ComboBoxPartsList" Grid.Row="5" Margin="30,5,15,5"/>
+      </DockPanel>
+      <DockPanel Grid.Row="7">
+        <Button Click="ButtonReset_Click" x:Name="ButtonReset" DockPanel.Dock="Left" HorizontalAlignment="Left"
+                VerticalAlignment="Center" Content="Reset results" Margin="10,10,10,10" Padding="10,5,10,5"/>
+        <Button Click="ButtonStart_Click" x:Name="ButtonStart" DockPanel.Dock="Right" HorizontalAlignment="Right"
+                VerticalAlignment="Center" Content="Start loop" Margin="10,10,10,10" Padding="12,4,12,4"/>
+        <Button Click="ButtonStop_Click" x:Name="ButtonStop" DockPanel.Dock="Right" HorizontalAlignment="Right"
+                VerticalAlignment="Center" Content="Stop loop" Margin="10,10,10,10" Padding="10,5,10,5"/>
+      </DockPanel>
+      <StatusBar x:Name="MyStatusBar" Grid.Row="8" Margin="2,2,2,2" HorizontalAlignment="Stretch"
+                 VerticalAlignment="Center">
+        <ProgressBar x:Name="ProgressBarStatus" Minimum="0" Maximum="100" Width="150" Height="18"
+                     HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        <TextBlock x:Name="TextBoxProgress" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+      </StatusBar>
+    </Grid>
+  </Grid>
+</Window>

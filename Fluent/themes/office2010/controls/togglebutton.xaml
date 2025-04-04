@@ -1,0 +1,169 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:Fluent="clr-namespace:Fluent"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+  <Fluent:ObjectToImageConverter x:Key="StringToImageConvert"/>
+  <Style x:Key="RibbonToggleButtonStyle" TargetType="{x:Type Fluent:ToggleButton}">
+    <Setter Property="Control.Template" Value="{DynamicResource RibbonToggleButtonControlTemplate}"/>
+    <Setter Property="FrameworkElement.Height" Value="66"/>
+    <Setter Property="FrameworkElement.Width" Value="Auto"/>
+    <Setter Property="Control.FontSize" Value="{DynamicResource DefaultFontSize}"/>
+    <Setter Property="Control.FontFamily" Value="{DynamicResource DefaultFontFamily}"/>
+    <Setter Property="Control.Foreground" Value="{DynamicResource DefaultFontBrush}"/>
+    <Setter Property="FrameworkElement.FocusVisualStyle" Value="{DynamicResource ControlStyleEmptyFocus}"/>
+    <Style.Triggers>
+      <Trigger Property="Fluent:RibbonControl.Size" Value="Large">
+        <Setter Property="FrameworkElement.Height" Value="66"/>
+      </Trigger>
+      <Trigger Property="Fluent:RibbonControl.Size" Value="Middle">
+        <Setter Property="FrameworkElement.Height" Value="22"/>
+      </Trigger>
+      <Trigger Property="Fluent:RibbonControl.Size" Value="Small">
+        <Setter Property="FrameworkElement.Height" Value="22"/>
+        <Setter Property="FrameworkElement.Width" Value="22"/>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+  <ControlTemplate x:Key="RibbonToggleButtonControlTemplate" TargetType="{x:Type Fluent:ToggleButton}">
+    <Border x:Name="border" BorderThickness="1" CornerRadius="2"
+            Background="{DynamicResource TransparentBrush}" BorderBrush="{DynamicResource TransparentBrush}"
+            Height="Auto" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+      <Border x:Name="border1" Height="Auto" BorderBrush="{DynamicResource TransparentBrush}" BorderThickness="1"
+              CornerRadius="2" Background="{DynamicResource TransparentBrush}">
+        <Grid Height="Auto">
+          <Rectangle x:Name="rectangle" StrokeThickness="0" Visibility="Collapsed">
+            <Shape.Fill>
+              <RadialGradientBrush Center="0.503,1" GradientOrigin="0.503,1" RadiusY="0.202">
+                <GradientStop Color="#7FFFFFFF" Offset="0"/>
+                <GradientStop Offset="1"/>
+              </RadialGradientBrush>
+            </Shape.Fill>
+          </Rectangle>
+          <StackPanel x:Name="stackPanel" Width="Auto" Orientation="Vertical">
+            <ContentPresenter x:Name="iconImage" HorizontalAlignment="Center" Height="32" VerticalAlignment="Center" Width="32"
+                              Margin="2" RenderOptions.BitmapScalingMode="NearestNeighbor" SnapsToDevicePixels="true"
+                              Content="{Binding LargeIcon, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource StringToImageConvert}}"/>
+            <Fluent:TwoLineLabel x:Name="controlLabel" Text="{TemplateBinding Fluent:ToggleButton.Header}"
+                                 Style="{DynamicResource TwoLineLabelStyle}" HorizontalAlignment="Stretch"
+                                 VerticalAlignment="Stretch" Margin="2,-2,2,2"/>
+          </StackPanel>
+        </Grid>
+      </Border>
+    </Border>
+    <ControlTemplate.Triggers>
+      <Trigger Property="Fluent:RibbonControl.Size" Value="Small">
+        <Setter TargetName="stackPanel" Property="StackPanel.Orientation" Value="Horizontal"/>
+        <Setter TargetName="controlLabel" Property="UIElement.Visibility" Value="Collapsed"/>
+        <Setter TargetName="controlLabel" Property="Fluent:TwoLineLabel.HasTwoLines" Value="false"/>
+        <Setter TargetName="iconImage" Property="FrameworkElement.Width" Value="16"/>
+        <Setter TargetName="iconImage" Property="FrameworkElement.Height" Value="16"/>
+        <Setter TargetName="iconImage" Property="FrameworkElement.Margin" Value="1,0,2,0"/>
+        <Setter TargetName="iconImage"
+                Value="{Binding Path=Icon, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource StringToImageConvert}}"
+                Property="ContentPresenter.Content"/>
+        <Setter TargetName="controlLabel" Property="FrameworkElement.Margin" Value="2,-2,2,2"/>
+      </Trigger>
+      <Trigger Property="Fluent:RibbonControl.Size" Value="Middle">
+        <Setter TargetName="stackPanel" Property="StackPanel.Orientation" Value="Horizontal"/>
+        <Setter TargetName="stackPanel" Property="FrameworkElement.Width" Value="Auto"/>
+        <Setter TargetName="iconImage" Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+        <Setter TargetName="controlLabel" Property="Fluent:TwoLineLabel.HasTwoLines" Value="false"/>
+        <Setter TargetName="controlLabel" Property="FrameworkElement.Margin" Value="2,2,2,2"/>
+        <Setter TargetName="border" Property="FrameworkElement.VerticalAlignment" Value="Stretch"/>
+        <Setter TargetName="iconImage" Property="FrameworkElement.Width" Value="16"/>
+        <Setter TargetName="iconImage" Property="FrameworkElement.Height" Value="16"/>
+        <Setter TargetName="iconImage" Property="FrameworkElement.Margin" Value="1,0,2,0"/>
+        <Setter TargetName="controlLabel" Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+        <Setter TargetName="iconImage"
+                Value="{Binding Path=Icon, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource StringToImageConvert}}"
+                Property="ContentPresenter.Content"/>
+      </Trigger>
+      <Trigger Property="ButtonBase.IsPressed" Value="true">
+        <Setter TargetName="border" Value="{DynamicResource ButtonPressedOuterBorderBrush}"
+                Property="Border.BorderBrush"/>
+        <Setter TargetName="border" Value="{DynamicResource ButtonPressedOuterBackgroundBrush}"
+                Property="Border.Background"/>
+        <Setter TargetName="border1" Value="{DynamicResource ButtonPressedInnerBackgroundBrush}"
+                Property="Border.Background"/>
+        <Setter TargetName="border1" Value="{DynamicResource ButtonPressedInnerBorderBrush}"
+                Property="Border.BorderBrush"/>
+      </Trigger>
+      <Trigger Property="ToggleButton.IsChecked" Value="True">
+        <Setter TargetName="border" Value="{DynamicResource ButtonPressedOuterBorderBrush}"
+                Property="Border.BorderBrush"/>
+        <Setter TargetName="border" Value="{DynamicResource ButtonPressedInnerBorderBrush}"
+                Property="Border.Background"/>
+      </Trigger>
+      <Trigger Property="UIElement.IsEnabled" Value="false">
+        <Setter TargetName="iconImage" Property="UIElement.Opacity" Value="0.5"/>
+        <Setter TargetName="controlLabel" Property="UIElement.Opacity" Value="0.5"/>
+        <Setter TargetName="iconImage" Property="UIElement.Effect">
+          <Setter.Value>
+            <Fluent:GrayscaleEffect/>
+          </Setter.Value>
+        </Setter>
+      </Trigger>
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="UIElement.IsMouseOver" Value="true"/>
+          <Condition Property="ButtonBase.IsPressed" Value="false"/>
+        </MultiTrigger.Conditions>
+        <Setter TargetName="border1" Value="{DynamicResource ButtonHoverInnerBorderBrush}"
+                Property="Border.BorderBrush"/>
+        <Setter TargetName="border1" Value="{DynamicResource ButtonHoverInnerBackgroundBrush}"
+                Property="Border.Background"/>
+        <Setter TargetName="border" Value="{DynamicResource ButtonHoverOuterBackgroundBrush}"
+                Property="Border.Background"/>
+        <Setter TargetName="border" Value="{DynamicResource ButtonHoverOuterBorderBrush}"
+                Property="Border.BorderBrush"/>
+        <Setter TargetName="rectangle" Property="UIElement.Visibility" Value="Visible"/>
+      </MultiTrigger>
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="UIElement.IsKeyboardFocusWithin" Value="true"/>
+          <Condition Property="ButtonBase.IsPressed" Value="false"/>
+        </MultiTrigger.Conditions>
+        <Setter TargetName="border1" Value="{DynamicResource ButtonHoverInnerBorderBrush}"
+                Property="Border.BorderBrush"/>
+        <Setter TargetName="border1" Value="{DynamicResource ButtonHoverInnerBackgroundBrush}"
+                Property="Border.Background"/>
+        <Setter TargetName="border" Value="{DynamicResource ButtonHoverOuterBackgroundBrush}"
+                Property="Border.Background"/>
+        <Setter TargetName="border" Value="{DynamicResource ButtonHoverOuterBorderBrush}"
+                Property="Border.BorderBrush"/>
+      </MultiTrigger>
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="UIElement.IsMouseOver" Value="true"/>
+          <Condition Property="ButtonBase.IsPressed" Value="false"/>
+          <Condition Property="ToggleButton.IsChecked" Value="True"/>
+        </MultiTrigger.Conditions>
+        <Setter TargetName="border1" Value="{DynamicResource ButtonHoverInnerBorderBrush}"
+                Property="Border.BorderBrush"/>
+        <Setter TargetName="border1" Value="{DynamicResource ButtonHoverInnerBackgroundBrush}"
+                Property="Border.Background"/>
+        <Setter TargetName="border" Value="{DynamicResource ButtonPressedOuterBackgroundBrush}"
+                Property="Border.Background"/>
+        <Setter TargetName="border" Value="{DynamicResource ButtonPressedOuterBorderBrush}"
+                Property="Border.BorderBrush"/>
+        <Setter TargetName="rectangle" Property="UIElement.Visibility" Value="Visible"/>
+      </MultiTrigger>
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="UIElement.IsKeyboardFocusWithin" Value="true"/>
+          <Condition Property="ButtonBase.IsPressed" Value="false"/>
+          <Condition Property="ToggleButton.IsChecked" Value="True"/>
+        </MultiTrigger.Conditions>
+        <Setter TargetName="border1" Value="{DynamicResource ButtonHoverInnerBorderBrush}"
+                Property="Border.BorderBrush"/>
+        <Setter TargetName="border1" Value="{DynamicResource ButtonHoverInnerBackgroundBrush}"
+                Property="Border.Background"/>
+        <Setter TargetName="border" Value="{DynamicResource ButtonPressedOuterBackgroundBrush}"
+                Property="Border.Background"/>
+        <Setter TargetName="border" Value="{DynamicResource ButtonPressedOuterBorderBrush}"
+                Property="Border.BorderBrush"/>
+      </MultiTrigger>
+    </ControlTemplate.Triggers>
+  </ControlTemplate>
+</ResourceDictionary>

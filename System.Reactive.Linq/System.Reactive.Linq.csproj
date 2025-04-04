@@ -1,0 +1,337 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\System.Reactive.Linq.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6896826F-1EBC-4450-8B3E-33FEA1E69D1D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>System.Reactive.Linq</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ApplicationVersion>3.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>System.Reactive</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>lib\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>lib\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Strings_Linq.cs" />
+    <Compile Include="EventPattern`1.cs" />
+    <Compile Include="EventPattern`2.cs" />
+    <Compile Include="EventPatternSource`1.cs" />
+    <Compile Include="EventPatternSourceBase`2.cs" />
+    <Compile Include="EventSource`1.cs" />
+    <Compile Include="TimeInterval`1.cs" />
+    <Compile Include="Timestamped`1.cs" />
+    <Compile Include="Timestamped.cs" />
+    <Compile Include="AnonymousEnumerable`1.cs" />
+    <Compile Include="ConcatSink`1.cs" />
+    <Compile Include="Constants_Linq.cs" />
+    <Compile Include="Either`2.cs" />
+    <Compile Include="Helpers.cs" />
+    <Compile Include="IConcatenatable`1.cs" />
+    <Compile Include="IEvaluatableObservable`1.cs" />
+    <Compile Include="Lookup`2.cs" />
+    <Compile Include="ReflectionUtils.cs" />
+    <Compile Include="TailRecursiveSink`1.cs" />
+    <Compile Include="Subjects\AsyncSubject`1.cs" />
+    <Compile Include="Subjects\BehaviorSubject`1.cs" />
+    <Compile Include="Subjects\ConnectableObservable`2.cs" />
+    <Compile Include="Subjects\ReplaySubject`1.cs" />
+    <Compile Include="Subjects\FastImmediateObserver`1.cs" />
+    <Compile Include="Subjects\Subject`1.cs" />
+    <Compile Include="Subjects\Subject.cs" />
+    <Compile Include="Subjects\SubjectBase`1.cs" />
+    <Compile Include="Linq\QueryServices.cs" />
+    <Compile Include="Linq\IQueryServices.cs" />
+    <Compile Include="Linq\DefaultQueryServices.cs" />
+    <Compile Include="Linq\GroupedObservable`2.cs" />
+    <Compile Include="Linq\IQueryLanguage.cs" />
+    <Compile Include="Linq\LocalQueryMethodImplementationTypeAttribute.cs" />
+    <Compile Include="Linq\Observable.cs" />
+    <Compile Include="Linq\QueryLanguage.cs" />
+    <Compile Include="Linq\ObservableImpl\AddRef`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Aggregate`3.cs" />
+    <Compile Include="Linq\ObservableImpl\Aggregate`1.cs" />
+    <Compile Include="Linq\ObservableImpl\All`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Amb`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Any`1.cs" />
+    <Compile Include="Linq\ObservableImpl\AsObservable`1.cs" />
+    <Compile Include="Linq\ObservableImpl\AverageDouble.cs" />
+    <Compile Include="Linq\ObservableImpl\AverageSingle.cs" />
+    <Compile Include="Linq\ObservableImpl\AverageDecimal.cs" />
+    <Compile Include="Linq\ObservableImpl\AverageInt32.cs" />
+    <Compile Include="Linq\ObservableImpl\AverageInt64.cs" />
+    <Compile Include="Linq\ObservableImpl\AverageDoubleNullable.cs" />
+    <Compile Include="Linq\ObservableImpl\AverageSingleNullable.cs" />
+    <Compile Include="Linq\ObservableImpl\AverageDecimalNullable.cs" />
+    <Compile Include="Linq\ObservableImpl\AverageInt32Nullable.cs" />
+    <Compile Include="Linq\ObservableImpl\AverageInt64Nullable.cs" />
+    <Compile Include="Linq\ObservableImpl\Buffer`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Buffer`2.cs" />
+    <Compile Include="Linq\ObservableImpl\Case`2.cs" />
+    <Compile Include="Linq\ObservableImpl\Cast`2.cs" />
+    <Compile Include="Linq\ObservableImpl\Catch`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Catch`2.cs" />
+    <Compile Include="Linq\ObservableImpl\Collect`2.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatest`3.cs" />
+    <Compile Include="Linq\ObservableImpl\ICombineLatest.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatestSink`1.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatestObserver`1.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatest`2.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatest`4.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatest`5.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatest`6.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatest`7.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatest`8.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatest`9.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatest`10.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatest`11.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatest`12.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatest`13.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatest`14.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatest`15.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatest`16.cs" />
+    <Compile Include="Linq\ObservableImpl\CombineLatest`17.cs" />
+    <Compile Include="Linq\ObservableImpl\Concat`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Contains`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Count`1.cs" />
+    <Compile Include="Linq\ObservableImpl\DefaultIfEmpty`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Defer`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Delay`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Delay`2.cs" />
+    <Compile Include="Linq\ObservableImpl\DelaySubscription`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Dematerialize`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Distinct`2.cs" />
+    <Compile Include="Linq\ObservableImpl\DistinctUntilChanged`2.cs" />
+    <Compile Include="Linq\ObservableImpl\Do`1.cs" />
+    <Compile Include="Linq\ObservableImpl\DoWhile`1.cs" />
+    <Compile Include="Linq\ObservableImpl\ElementAt`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Empty`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Finally`1.cs" />
+    <Compile Include="Linq\ObservableImpl\FirstAsync`1.cs" />
+    <Compile Include="Linq\ObservableImpl\For`2.cs" />
+    <Compile Include="Linq\ObservableImpl\ForEach`1.cs" />
+    <Compile Include="Linq\ObservableImpl\FromEvent`2.cs" />
+    <Compile Include="Linq\ObservableImpl\EventProducer`2.cs" />
+    <Compile Include="Linq\ObservableImpl\ClassicEventProducer`2.cs" />
+    <Compile Include="Linq\ObservableImpl\FromEventPattern.cs" />
+    <Compile Include="Linq\ObservableImpl\Generate`2.cs" />
+    <Compile Include="Linq\ObservableImpl\GetEnumerator`1.cs" />
+    <Compile Include="Linq\ObservableImpl\GroupBy`3.cs" />
+    <Compile Include="Linq\ObservableImpl\GroupByUntil`4.cs" />
+    <Compile Include="Linq\ObservableImpl\Map`2.cs" />
+    <Compile Include="Linq\ObservableImpl\GroupJoin`5.cs" />
+    <Compile Include="Linq\ObservableImpl\If`1.cs" />
+    <Compile Include="Linq\ObservableImpl\IgnoreElements`1.cs" />
+    <Compile Include="Linq\ObservableImpl\IsEmpty`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Join`5.cs" />
+    <Compile Include="Linq\ObservableImpl\LastAsync`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Latest`1.cs" />
+    <Compile Include="Linq\ObservableImpl\LongCount`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Materialize`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Max`1.cs" />
+    <Compile Include="Linq\ObservableImpl\MaxDouble.cs" />
+    <Compile Include="Linq\ObservableImpl\MaxSingle.cs" />
+    <Compile Include="Linq\ObservableImpl\MaxDecimal.cs" />
+    <Compile Include="Linq\ObservableImpl\MaxInt32.cs" />
+    <Compile Include="Linq\ObservableImpl\MaxInt64.cs" />
+    <Compile Include="Linq\ObservableImpl\MaxDoubleNullable.cs" />
+    <Compile Include="Linq\ObservableImpl\MaxSingleNullable.cs" />
+    <Compile Include="Linq\ObservableImpl\MaxDecimalNullable.cs" />
+    <Compile Include="Linq\ObservableImpl\MaxInt32Nullable.cs" />
+    <Compile Include="Linq\ObservableImpl\MaxInt64Nullable.cs" />
+    <Compile Include="Linq\ObservableImpl\MaxBy`2.cs" />
+    <Compile Include="Linq\ObservableImpl\Merge`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Min`1.cs" />
+    <Compile Include="Linq\ObservableImpl\MinDouble.cs" />
+    <Compile Include="Linq\ObservableImpl\MinSingle.cs" />
+    <Compile Include="Linq\ObservableImpl\MinDecimal.cs" />
+    <Compile Include="Linq\ObservableImpl\MinInt32.cs" />
+    <Compile Include="Linq\ObservableImpl\MinInt64.cs" />
+    <Compile Include="Linq\ObservableImpl\MinDoubleNullable.cs" />
+    <Compile Include="Linq\ObservableImpl\MinSingleNullable.cs" />
+    <Compile Include="Linq\ObservableImpl\MinDecimalNullable.cs" />
+    <Compile Include="Linq\ObservableImpl\MinInt32Nullable.cs" />
+    <Compile Include="Linq\ObservableImpl\MinInt64Nullable.cs" />
+    <Compile Include="Linq\ObservableImpl\MinBy`2.cs" />
+    <Compile Include="Linq\ObservableImpl\MostRecent`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Multicast`3.cs" />
+    <Compile Include="Linq\ObservableImpl\Never`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Next`1.cs" />
+    <Compile Include="Linq\ObservableImpl\ObserveOn`1.cs" />
+    <Compile Include="Linq\ObservableImpl\OfType`2.cs" />
+    <Compile Include="Linq\ObservableImpl\OnErrorResumeNext`1.cs" />
+    <Compile Include="Linq\ObservableImpl\PushToPullAdapter`2.cs" />
+    <Compile Include="Linq\ObservableImpl\PushToPullSink`2.cs" />
+    <Compile Include="Linq\ObservableImpl\Range.cs" />
+    <Compile Include="Linq\ObservableImpl\RefCount`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Repeat`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Return`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Sample`2.cs" />
+    <Compile Include="Linq\ObservableImpl\Sample`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Scan`2.cs" />
+    <Compile Include="Linq\ObservableImpl\Scan`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Select`2.cs" />
+    <Compile Include="Linq\ObservableImpl\SelectMany`3.cs" />
+    <Compile Include="Linq\ObservableImpl\SelectMany`2.cs" />
+    <Compile Include="Linq\ObservableImpl\SequenceEqual`1.cs" />
+    <Compile Include="Linq\ObservableImpl\SingleAsync`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Skip`1.cs" />
+    <Compile Include="Linq\ObservableImpl\SkipLast`1.cs" />
+    <Compile Include="Linq\ObservableImpl\SkipUntil`2.cs" />
+    <Compile Include="Linq\ObservableImpl\SkipUntil`1.cs" />
+    <Compile Include="Linq\ObservableImpl\SkipWhile`1.cs" />
+    <Compile Include="Linq\ObservableImpl\SumDouble.cs" />
+    <Compile Include="Linq\ObservableImpl\SumSingle.cs" />
+    <Compile Include="Linq\ObservableImpl\SumDecimal.cs" />
+    <Compile Include="Linq\ObservableImpl\SumInt32.cs" />
+    <Compile Include="Linq\ObservableImpl\SumInt64.cs" />
+    <Compile Include="Linq\ObservableImpl\SumDoubleNullable.cs" />
+    <Compile Include="Linq\ObservableImpl\SumSingleNullable.cs" />
+    <Compile Include="Linq\ObservableImpl\SumDecimalNullable.cs" />
+    <Compile Include="Linq\ObservableImpl\SumInt32Nullable.cs" />
+    <Compile Include="Linq\ObservableImpl\SumInt64Nullable.cs" />
+    <Compile Include="Linq\ObservableImpl\Switch`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Synchronize`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Take`1.cs" />
+    <Compile Include="Linq\ObservableImpl\TakeLast`1.cs" />
+    <Compile Include="Linq\ObservableImpl\TakeLastBuffer`1.cs" />
+    <Compile Include="Linq\ObservableImpl\TakeUntil`2.cs" />
+    <Compile Include="Linq\ObservableImpl\TakeUntil`1.cs" />
+    <Compile Include="Linq\ObservableImpl\TakeWhile`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Throttle`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Throttle`2.cs" />
+    <Compile Include="Linq\ObservableImpl\Throw`1.cs" />
+    <Compile Include="Linq\ObservableImpl\TimeInterval`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Timeout`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Timeout`2.cs" />
+    <Compile Include="Linq\ObservableImpl\Timer.cs" />
+    <Compile Include="Linq\ObservableImpl\Timestamp`1.cs" />
+    <Compile Include="Linq\ObservableImpl\ToArray`1.cs" />
+    <Compile Include="Linq\ObservableImpl\ToDictionary`3.cs" />
+    <Compile Include="Linq\ObservableImpl\ToList`1.cs" />
+    <Compile Include="Linq\ObservableImpl\ToLookup`3.cs" />
+    <Compile Include="Linq\ObservableImpl\ToObservable`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Using`2.cs" />
+    <Compile Include="Linq\ObservableImpl\Where`1.cs" />
+    <Compile Include="Linq\ObservableImpl\While`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Window`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Window`2.cs" />
+    <Compile Include="Linq\ObservableImpl\WindowObservable`1.cs" />
+    <Compile Include="Linq\ObservableImpl\WithLatestFrom`3.cs" />
+    <Compile Include="Linq\ObservableImpl\Zip`3.cs" />
+    <Compile Include="Linq\ObservableImpl\IZip.cs" />
+    <Compile Include="Linq\ObservableImpl\ZipSink`1.cs" />
+    <Compile Include="Linq\ObservableImpl\ZipObserver`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Zip`1.cs" />
+    <Compile Include="Linq\ObservableImpl\Zip`4.cs" />
+    <Compile Include="Linq\ObservableImpl\Zip`5.cs" />
+    <Compile Include="Linq\ObservableImpl\Zip`6.cs" />
+    <Compile Include="Linq\ObservableImpl\Zip`7.cs" />
+    <Compile Include="Linq\ObservableImpl\Zip`8.cs" />
+    <Compile Include="Linq\ObservableImpl\Zip`9.cs" />
+    <Compile Include="Linq\ObservableImpl\Zip`10.cs" />
+    <Compile Include="Linq\ObservableImpl\Zip`11.cs" />
+    <Compile Include="Linq\ObservableImpl\Zip`12.cs" />
+    <Compile Include="Linq\ObservableImpl\Zip`13.cs" />
+    <Compile Include="Linq\ObservableImpl\Zip`14.cs" />
+    <Compile Include="Linq\ObservableImpl\Zip`15.cs" />
+    <Compile Include="Linq\ObservableImpl\Zip`16.cs" />
+    <Compile Include="Linq\ObservableImpl\Zip`17.cs" />
+    <Compile Include="Concurrency\HistoricalSchedulerBase.cs" />
+    <Compile Include="Concurrency\HistoricalScheduler.cs" />
+    <Compile Include="Concurrency\VirtualTimeSchedulerBase`2.cs" />
+    <Compile Include="Concurrency\VirtualTimeScheduler`2.cs" />
+    <Compile Include="Concurrency\VirtualTimeSchedulerExtensions.cs" />
+    <Compile Include="Threading\Tasks\NamespaceDoc.cs" />
+    <Compile Include="Threading\Tasks\TaskObservableExtensions.cs" />
+    <Compile Include="Joins\NamespaceDoc.cs" />
+    <Compile Include="Joins\ActivePlan.cs" />
+    <Compile Include="Joins\ActivePlan`1.cs" />
+    <Compile Include="Joins\ActivePlan`2.cs" />
+    <Compile Include="Joins\ActivePlan`3.cs" />
+    <Compile Include="Joins\ActivePlan`4.cs" />
+    <Compile Include="Joins\ActivePlan`5.cs" />
+    <Compile Include="Joins\ActivePlan`6.cs" />
+    <Compile Include="Joins\ActivePlan`7.cs" />
+    <Compile Include="Joins\ActivePlan`8.cs" />
+    <Compile Include="Joins\ActivePlan`9.cs" />
+    <Compile Include="Joins\ActivePlan`10.cs" />
+    <Compile Include="Joins\ActivePlan`11.cs" />
+    <Compile Include="Joins\ActivePlan`12.cs" />
+    <Compile Include="Joins\ActivePlan`13.cs" />
+    <Compile Include="Joins\ActivePlan`14.cs" />
+    <Compile Include="Joins\ActivePlan`15.cs" />
+    <Compile Include="Joins\ActivePlan`16.cs" />
+    <Compile Include="Joins\IJoinObserver.cs" />
+    <Compile Include="Joins\JoinObserver`1.cs" />
+    <Compile Include="Joins\Pattern.cs" />
+    <Compile Include="Joins\Pattern`1.cs" />
+    <Compile Include="Joins\Pattern`2.cs" />
+    <Compile Include="Joins\Pattern`3.cs" />
+    <Compile Include="Joins\Pattern`4.cs" />
+    <Compile Include="Joins\Pattern`5.cs" />
+    <Compile Include="Joins\Pattern`6.cs" />
+    <Compile Include="Joins\Pattern`7.cs" />
+    <Compile Include="Joins\Pattern`8.cs" />
+    <Compile Include="Joins\Pattern`9.cs" />
+    <Compile Include="Joins\Pattern`10.cs" />
+    <Compile Include="Joins\Pattern`11.cs" />
+    <Compile Include="Joins\Pattern`12.cs" />
+    <Compile Include="Joins\Pattern`13.cs" />
+    <Compile Include="Joins\Pattern`14.cs" />
+    <Compile Include="Joins\Pattern`15.cs" />
+    <Compile Include="Joins\Pattern`16.cs" />
+    <Compile Include="Joins\Plan`1.cs" />
+    <Compile Include="Joins\Plan`2.cs" />
+    <Compile Include="Joins\Plan`3.cs" />
+    <Compile Include="Joins\Plan`4.cs" />
+    <Compile Include="Joins\Plan`5.cs" />
+    <Compile Include="Joins\Plan`6.cs" />
+    <Compile Include="Joins\Plan`7.cs" />
+    <Compile Include="Joins\Plan`8.cs" />
+    <Compile Include="Joins\Plan`9.cs" />
+    <Compile Include="Joins\Plan`10.cs" />
+    <Compile Include="Joins\Plan`11.cs" />
+    <Compile Include="Joins\Plan`12.cs" />
+    <Compile Include="Joins\Plan`13.cs" />
+    <Compile Include="Joins\Plan`14.cs" />
+    <Compile Include="Joins\Plan`15.cs" />
+    <Compile Include="Joins\Plan`16.cs" />
+    <Compile Include="Joins\Plan`17.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Linq\Properties\System\Reactive\Linq\rd.xml" />
+    <EmbeddedResource Include="Linq\Strings_Linq.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

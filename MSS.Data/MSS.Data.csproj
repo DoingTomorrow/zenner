@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MSS.Data.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F6A84863-EB43-4A8F-B643-D756218227E7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>MSS.Data</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>MSS.Data</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper">
+      <HintPath>lib\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Library.NHibernate.Data">
+      <HintPath>lib\Common.Library.NHibernate.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentNHibernate">
+      <HintPath>lib\FluentNHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Business">
+      <HintPath>lib\MSS.Business.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Core">
+      <HintPath>lib\MSS.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.DTO">
+      <HintPath>lib\MSS.DTO.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Interfaces">
+      <HintPath>lib\MSS.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="MSS.Utils">
+      <HintPath>lib\MSS.Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="MinomatHandler">
+      <HintPath>lib\MinomatHandler.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>lib\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject">
+      <HintPath>lib\Ninject.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="StructuresNodeRepository.cs" />
+    <Compile Include="Utils\DynamicQueryable.cs" />
+    <Compile Include="Utils\DynamicClass.cs" />
+    <Compile Include="Utils\DynamicProperty.cs" />
+    <Compile Include="Utils\DynamicExpression.cs" />
+    <Compile Include="Utils\DynamicOrdering.cs" />
+    <Compile Include="Utils\Signature.cs" />
+    <Compile Include="Utils\ClassFactory.cs" />
+    <Compile Include="Utils\ParseException.cs" />
+    <Compile Include="Utils\ExpressionParser.cs" />
+    <Compile Include="Utils\Res.cs" />
+    <Compile Include="Utils\SessionManager.cs" />
+    <Compile Include="Repository\JobsRepository.cs" />
+    <Compile Include="Repository\OrdersRepository.cs" />
+    <Compile Include="Repository\ReadingValuesRepository.cs" />
+    <Compile Include="Repository\Repository`1.cs" />
+    <Compile Include="Repository\RepositoryFactory.cs" />
+    <Compile Include="Repository\RepositoryFactoryCreator.cs" />
+    <Compile Include="Repository\SynchronizationRepository.cs" />
+    <Compile Include="Repository\UserRepository.cs" />
+    <Compile Include="Mappings\UsersManagement\CountryMap.cs" />
+    <Compile Include="Mappings\UsersManagement\OperationMap.cs" />
+    <Compile Include="Mappings\UsersManagement\RoleMap.cs" />
+    <Compile Include="Mappings\UsersManagement\RoleOperationMap.cs" />
+    <Compile Include="Mappings\UsersManagement\UserMap.cs" />
+    <Compile Include="Mappings\UsersManagement\UserRoleMap.cs" />
+    <Compile Include="Mappings\TechnicalParameters\TechnicalParameterMap.cs" />
+    <Compile Include="Mappings\Structures\LocationMap.cs" />
+    <Compile Include="Mappings\Structures\ScenarioMap.cs" />
+    <Compile Include="Mappings\Structures\StructureNodeEquipmentSettingsMap.cs" />
+    <Compile Include="Mappings\Structures\StructureNodeLinksMap.cs" />
+    <Compile Include="Mappings\Structures\StructureNodeMap.cs" />
+    <Compile Include="Mappings\Structures\StructureNodeTypeMap.cs" />
+    <Compile Include="Mappings\Structures\TenantMap.cs" />
+    <Compile Include="Mappings\Reporting\AutomatedExportJobMap.cs" />
+    <Compile Include="Mappings\Reporting\HeatersMap.cs" />
+    <Compile Include="Mappings\Reporting\AutomatedExportJobCountryMap.cs" />
+    <Compile Include="Mappings\Reporting\JobLogsMap.cs" />
+    <Compile Include="Mappings\RadioTest\RadioTestRunDeviceMap.cs" />
+    <Compile Include="Mappings\RadioTest\RadioTestRunMap.cs" />
+    <Compile Include="Mappings\RadioTest\TestOrderMap.cs" />
+    <Compile Include="Mappings\Orders\CelestaReadingDeviceTypesMap.cs" />
+    <Compile Include="Mappings\Orders\OrderMap.cs" />
+    <Compile Include="Mappings\Orders\OrderMessagesMap.cs" />
+    <Compile Include="Mappings\Orders\OrderUserMap.cs" />
+    <Compile Include="Mappings\NewsAndUpdates\NewsMap.cs" />
+    <Compile Include="Mappings\MSSClients\MSSClientMap.cs" />
+    <Compile Include="Mappings\Meters\ChannelMap.cs" />
+    <Compile Include="Mappings\Meters\ConnectedDeviceTypeMap.cs" />
+    <Compile Include="Mappings\Meters\MeterMbusRadioMap.cs" />
+    <Compile Include="Mappings\Meters\MeterRadioDetailsMap.cs" />
+    <Compile Include="Mappings\Meters\MeterReadingValueMap.cs" />
+    <Compile Include="Mappings\Meters\MeasureUnitMap.cs" />
+    <Compile Include="Mappings\Meters\MeterMap.cs" />
+    <Compile Include="Mappings\Meters\MeterReplacementHistoryMap.cs" />
+    <Compile Include="Mappings\Meters\MinomatMeterMap.cs" />
+    <Compile Include="Mappings\Meters\NoteTypeMap.cs" />
+    <Compile Include="Mappings\Meters\NoteMap.cs" />
+    <Compile Include="Mappings\Meters\OrderReadingValuesMap.cs" />
+    <Compile Include="Mappings\Meters\PhotoMeterMap.cs" />
+    <Compile Include="Mappings\Meters\RoomTypeMap.cs" />
+    <Compile Include="Mappings\Meters\UserDeviceTypeSettingsMap.cs" />
+    <Compile Include="Mappings\MDM\MDMConfigsMap.cs" />
+    <Compile Include="Mappings\Jobs\GMMJobValueMap.cs" />
+    <Compile Include="Mappings\Jobs\JobDefinitionMap.cs" />
+    <Compile Include="Mappings\Jobs\JobReadingValuesMap.cs" />
+    <Compile Include="Mappings\Jobs\MssReadingJobMap.cs" />
+    <Compile Include="Mappings\Jobs\ScenarioJobDefinitionMap.cs" />
+    <Compile Include="Mappings\DataFilters\FilterMap.cs" />
+    <Compile Include="Mappings\DataFilters\RuleMap.cs" />
+    <Compile Include="Mappings\DataCollectors\MinomatConnectionLogMap.cs" />
+    <Compile Include="Mappings\DataCollectors\MinomatMap.cs" />
+    <Compile Include="Mappings\DataCollectors\MinomatRadioDetailsMap.cs" />
+    <Compile Include="Mappings\DataCollectors\ProviderMap.cs" />
+    <Compile Include="Mappings\COMServers\COMServerMap.cs" />
+    <Compile Include="Mappings\Archiving\ArchiveJobMap.cs" />
+    <Compile Include="Mappings\Archiving\ArchiveMap.cs" />
+    <Compile Include="Mappings\Archiving\CleanupMap.cs" />
+    <Compile Include="Mappings\ApplicationParameters\ApplicationParametersMapping.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

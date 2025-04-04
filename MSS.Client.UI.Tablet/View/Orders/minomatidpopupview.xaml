@@ -1,0 +1,53 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Orders.MinomatIdPopupView"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" Width="450" Height="100" BorderThickness="0" GlowBrush="Black"
+                             ShowInTaskbar="false" WindowStartupLocation="CenterScreen" WindowTitleBrush="#00608c"
+                             WindowState="Normal" Title="{Binding Path=MSS_SetMinomatId, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="210"/>
+      <ColumnDefinition Width="120"/>
+    </Grid.ColumnDefinitions>
+    <Label Grid.Column="0" Margin="0 0 10 0" HorizontalAlignment="Right" VerticalAlignment="Center"
+           Content="{Binding Path=MSS_MinomatId, Source={StaticResource Resources}}"/>
+    <TextBox Grid.Column="1" Width="200" Height="35" Margin="5 0 5 0" HorizontalAlignment="Left"
+             Style="{StaticResource AppTextBoxStructureStyle}" Text="{Binding MinomatId, Mode=TwoWay}"/>
+    <Button Click="NewIdButton_OnMouseDown" TouchDown="NewIdButton_OnTouchDown" x:Name="NewIdButton"
+            Grid.Column="2" Width="90" Height="35" Margin="2 5 10 5" Background="Transparent"
+            BorderBrush="LightGray" Foreground="#595151" IsDefault="true" Command="{Binding SetMinomatId}">
+      <FrameworkElement.Style>
+        <Style BasedOn="{StaticResource CommandButtonStyle}" TargetType="{x:Type Button}">
+          <Setter Property="ContentControl.Content">
+            <Setter.Value>
+              <StackPanel Width="100" Height="Auto" Background="Transparent" Orientation="Horizontal">
+                <Path Width="23" Height="23" Margin="2 0 0 0"
+                      Data="M 12.5,9.2999878 L 22,16 12.5,22.700012 M 16,3.1000061 C 8.9000244,3.1000061 3.1000061,8.8999939 3.1000061,16 3.1000061,23.100006 8.9000244,28.899994 16,28.899994 23.100037,28.899994 28.900024,23.100006 28.900024,16 28.900024,8.8999939 23.100037,3.1000061 16,3.1000061 M 16,0 C 24.799988,0 32,7.2000122 32,16 32,24.799988 24.799988,32 16,32 7.2000122,32 0,24.799988 0,16 0,7.2000122 7.2000122,0 16,0 Z"
+                      Fill="#00608C" Stretch="Fill"/>
+                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12"
+                           FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap"
+                           Text="{Binding Path=MSS_Minomat_SetId, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Setter.Value>
+          </Setter>
+        </Style>
+      </FrameworkElement.Style>
+    </Button>
+  </Grid>
+</common:ResizableMetroWindow>

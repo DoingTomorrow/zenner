@@ -1,0 +1,59 @@
+<customControls:KeyboardMetroWindow x:Class="MSS.Client.UI.Tablet.View.Meters.TakePhotoDialog"
+                                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                                    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+                                    xmlns:customControls="clr-namespace:MSS.Client.UI.Tablet.CustomControls"
+                                    Loaded="PhotoViewWindowLoaded" Closed="KeyboardMetroWindow_Closed" WindowTitleBrush="#00608c"
+                                    GlowBrush="Black" ShowInTaskbar="false" WindowStartupLocation="CenterScreen"
+                                    WindowState="Maximized" TitleCaps="false" Title="{Binding Title}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid Row="0">
+      <StackPanel Orientation="Horizontal" Background="#ededed" HorizontalAlignment="Stretch">
+        <customControls:TabletButton ButtonPath=" M16.199967,8.1999993C19.599988,8.1999993 22.399972,11.000001 22.399972,14.399995 22.399972,17.799996 19.599988,20.599999 16.199967,20.599999 12.800007,20.599999 10.000021,17.799996 10.000021,14.399995 10.000021,13.899995 10.099996,13.299997 10.199972,12.799997 10.699972,14.000001 11.899982,14.799997 13.300006,14.799997 15.199967,14.799997 16.699965,13.299997 16.699965,11.399995 16.699965,10.000002 15.899978,8.7999978 14.699968,8.2999978 15.199967,8.1999993 15.699967,8.1999993 16.199967,8.1999993z M16.199967,5.6999998C11.399983,5.6999998 7.5000235,9.6000009 7.5000235,14.399995 7.5000235,19.199997 11.399983,23.099999 16.199967,23.099999 21.00001,23.099999 24.89997,19.199997 24.89997,14.399995 24.89997,9.6000009 21.00001,5.6999998 16.199967,5.6999998z M3.200009,5.4000006C2.4999976,5.4000006 1.999998,5.999999 1.999998,6.5999975 1.999998,7.1999993 2.4999976,7.6999993 3.1000034,7.6999993 3.6999781,7.6999993 4.1999776,7.1999993 4.1999776,6.5999975 4.3000142,5.999999 3.8000147,5.4000006 3.200009,5.4000006z M10.800008,0L21.399974,0C22.399972,4.9414894E-08,23.199959,0.79999911,23.199959,1.7999988L23.500008,3.599998 23.500008,3.6999998 32.000001,3.6999998 32.000001,25.499999 0,25.499999 0,3.599998 8.5999982,3.599998 8.5999982,3.4999995 9.0000216,1.7000003C9.0999972,0.79999911,9.8000094,4.9414894E-08,10.800008,0z"
+                                     ButtonText="{Binding MSS_Client_CapturePicture, Source={StaticResource Resources}}"
+                                     ButtonCommand="{Binding CapturePictureCommand}"/>
+        <customControls:TabletButton Width="Auto"
+                                     ButtonPath="M15.000001,8.0000272L17,8.0000272 17,27.000028 15.000001,27.000028z M11.000001,8.0000272L13.000001,8.0000272 13.000001,27.000028 11.000001,27.000028z M7.0000005,8.0000272L9.000001,8.0000272 9.000001,27.000028 7.0000005,27.000028z M3.0790101,5.0000274L4.9959994,29.922999 19.000006,30.000026 20.918949,5.0000274z M13.771989,1.9959999L10.198989,2.0000001C10.158989,2.025,9.9989892,2.241,9.9989892,2.6000001L9.9989892,3.0000258 13.998989,3.0000258 13.998989,2.6000001C13.998989,2.241,13.838988,2.025,13.771989,1.9959999z M10.198989,0L13.798988,0C15.031989,0,15.998989,1.142,15.998989,2.6000001L15.998989,3.0000258 23.07898,3.0000258 24,3.0000272 24,5.0000274 22.925121,5.0000274 20.995976,30.076991C20.999027,31.102992,20.100956,32.000026,18.999029,32.000026L4.9990512,32.000026C3.8960255,32.000026,2.9990543,31.102992,2.999054,30.000026L1.073059,5.0000274 0,5.0000274 0,3.0000272 0.91897895,3.0000272 7.9989887,3.0000258 7.9989887,2.6000001C7.9989887,1.142,8.9659892,0,10.198989,0z"
+                                     ButtonText="{Binding MSS_Client_DeletePhoto, Source={StaticResource Resources}}"
+                                     ButtonCommand="{Binding DeletePictureCommand}"/>
+        <customControls:TabletButton ButtonPath="M29.403992,0L32,3.5860286 8.3720093,21.479001 5.7740173,17.895017 5.776001,17.893002 0,9.9110087 3.5079956,7.2570179 9.2829895,15.23602z"
+                                     ButtonText="{Binding MSS_Client_SavePhoto, Source={StaticResource Resources}}"
+                                     ButtonCommand="{Binding SavePhotoCommand}"/>
+      </StackPanel>
+    </Grid>
+    <Grid Row="1" Margin="10" HorizontalAlignment="Center">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Image Name="frameHolder" HorizontalAlignment="Left" Grid.Column="0" Margin="5"
+             VerticalAlignment="Stretch" Stretch="Fill" Source="{Binding FrameHolder, Mode=TwoWay}"/>
+      <Image Name="RezultImage" HorizontalAlignment="Left" Grid.Column="1" Margin="5"
+             VerticalAlignment="Stretch" Stretch="Fill" Height="{Binding ElementName=frameHolder, Path=Height}"
+             Width="{Binding ElementName=frameHolder, Path=Width}" Source="{Binding ResultImage, Mode=TwoWay}"/>
+    </Grid>
+    <ContentPresenter x:Name="ContentPrt" Grid.Row="3" Grid.Column="0" DataContext="{Binding}"/>
+  </Grid>
+  <Interaction.Triggers>
+    <EventTrigger EventName="Loaded">
+      <InvokeCommandAction Command="{Binding SetVideoStream}" CommandParameter="{Binding ElementName=frameHolder}"/>
+    </EventTrigger>
+  </Interaction.Triggers>
+</customControls:KeyboardMetroWindow>

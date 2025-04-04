@@ -1,0 +1,111 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Users.EditRoleDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c" Height="610"
+                             Width="650"
+                             Title="{Binding Path=MSS_Client_UserControl_Dialog_EditRoleDialog, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+        <ResourceDictionary>
+          <Style x:Key="DraggableListBoxItem" TargetType="{x:Type telerik:RadListBoxItem}"
+                 BasedOn="{StaticResource RadListBoxItemStyle}">
+            <Setter Property="telerik:DragDropManager.AllowCapturedDrag" Value="true"/>
+            <Setter Property="telerik:DragDropManager.TouchDragTrigger" Value="TapAndHold"/>
+          </Style>
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="6*"/>
+        </Grid.RowDefinitions>
+        <Grid Row="0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="4*"/>
+            <ColumnDefinition Width="2*"/>
+          </Grid.ColumnDefinitions>
+          <Label Style="{StaticResource AppLabelStyle}" VerticalAlignment="Bottom"
+                 Content="{Binding MSS_Client_UserControl_Dialog_Role, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Column="1" Margin="10,0,20,2" Style="{StaticResource TextBoxErrorStyle}"
+                   VerticalAlignment="Bottom"
+                   Text="{Binding RoleName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+        </Grid>
+        <Grid Row="1">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="8*"/>
+            <RowDefinition Height="2*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="12*"/>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="17*"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Style="{StaticResource AppTextBlockLightGrayStyle}" Grid.ColumnSpan="3" Margin="148,10,0,2"
+                     Text="{Binding Path=MSS_Client_UserControl_Dialog_AssociatePermissions, Source={StaticResource Resources}}"/>
+          <telerik:RadListBox x:Name="OperationListBox1" Grid.Row="1" Grid.Column="0"
+                              ItemContainerStyle="{StaticResource DraggableListBoxItem}" Margin="60 10 10 20"
+                              SelectionMode="Multiple" Grid.ColumnSpan="2" Background="#EDEDED" BorderBrush="DarkGray"
+                              ItemsSource="{Binding OperationsList}" SelectedItem="{Binding RoleOperation, Mode=TwoWay}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Description}"/>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <telerik:RadListBox.DragVisualProvider>
+              <telerik:ScreenshotDragVisualProvider/>
+            </telerik:RadListBox.DragVisualProvider>
+            <telerik:RadListBox.DragDropBehavior>
+              <telerik:ListBoxDragDropBehavior AllowReorder="false" telerik:DragDropManager.TouchDragTrigger="TapAndHold"/>
+            </telerik:RadListBox.DragDropBehavior>
+          </telerik:RadListBox>
+          <telerik:RadListBox x:Name="RoleOperationListBox1" Grid.Row="1" AllowDrop="true" Grid.Column="2"
+                              SelectionMode="Multiple" ItemContainerStyle="{StaticResource DraggableListBoxItem}"
+                              Style="{StaticResource RadListBoxErrorStyle}" Margin="10 10 60 20" Background="#EDEDED"
+                              BorderBrush="DarkGray"
+                              ItemsSource="{Binding RoleOperationList, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, ValidatesOnNotifyDataErrors=true, ValidatesOnExceptions=true, Mode=TwoWay}"
+                              SelectedItem="{Binding RoleOperation, Mode=TwoWay}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Description}"/>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <telerik:RadListBox.DragVisualProvider>
+              <telerik:ScreenshotDragVisualProvider/>
+            </telerik:RadListBox.DragVisualProvider>
+            <telerik:RadListBox.DragDropBehavior>
+              <telerik:ListBoxDragDropBehavior AllowReorder="true" telerik:DragDropManager.TouchDragTrigger="TapAndHold"/>
+            </telerik:RadListBox.DragDropBehavior>
+          </telerik:RadListBox>
+          <Grid Row="2" Column="2">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="OkButton1" Grid.Column="0" Style="{StaticResource CommandButtonStyle}" Height="40"
+                    Content="{Binding MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                    Command="{Binding EditRoleCommand}"/>
+            <Button x:Name="CancelButton1" Grid.Column="1" Style="{StaticResource CommandButtonStyle}" Height="40"
+                    Content="{Binding MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                    Command="{Binding CancelWindowCommand}"/>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

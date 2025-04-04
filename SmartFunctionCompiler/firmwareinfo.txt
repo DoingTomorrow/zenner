@@ -1,0 +1,40 @@
+﻿Fimrware info
+
+Die Firmware muss nur einen Teil des Compilers abbilden
+
+Dabei sollten folgende Dateien aus dem Compiler mit der Firmware abgestimmt werden:
+	FunctionLoader.cs -> FunctionLoader.c
+		-> Speicherdefinition und Code zum kontrollieren, speichern und initialisieren der Daten.
+		-> LoadFunction() wird aus der Protokollbearbeitung aufgerufen, erkennt viele Fehler und kann in der
+		   Antwort des Protokolls schon diese Fehler melden.
+	Interpreter.cs -> Interpreter.c
+		-> Der eigentliche Interpreter, der bei jedem Event aufgerufen wird.
+		-> In der Protokollbearbeitung, nach LoadFunction() wird der Interpreter zum ersten mal aufgerufen
+		   um eine Funktionsgesteuerte initialisierung durchführen zu können.
+		-> Wird dabei ein Fehler erkannt, so kann das ebenfalls in der Antwort des Protokolls geliefert werden.
+	ByteArrayScanner16Bit.cs -> ByteArrayScanner16Bit.c
+		-> Wichtige Funktionssammlung um Daten aus dem Byteorientierten Speicher auszulesen oder zu schreiben.
+		-> Nicht alle Funktionen werden in der Firmware gebraucht.
+		   Bitte vor der Implementierung im Simulator die Verwendung kontrollieren.
+	FunctionAccessStorage.cs -> FunctionAccessStorage.c
+		-> Funktionssammlung. Beinhaltet alle Funktionen und Macros um schnell auf die Teile einer
+		   geladenen Funktion zugreifen zu können.
+	FunctionRamHeader.cs
+		-> Zugriff auf die feste RAM Header struktur, die jeder Funktion zugeordnet ist.
+		   Kann eventuell als Macros in FunctionAccessStorage.c realisiert werden.
+	Register.cs -> Register.c
+		-> Funktionssammlung aller Register operationen.
+
+Zu beachten für den Interpreter:
+	
+	-> Die in der Datei Opcodes.cs definierten Werte können noch verändert werden um eine
+	   Code-sparende und schnelle Verarbeitung zu realisieren.
+	-> Die Reihenfolge der Opcodes unterhalb von LoadA ist nicht beliebig änderbar!
+	   CompareEQ stellt eine Bereichsgrenze im Compiler dar. Siehe LineCodes.cs
+	   Ab dort bis vor LoadA gibt es eine Standardverarbeitung beim laden eines Wertes.
+	   Siehe Opcodes >= 0x60 
+	-> Opcodes >= 0x60 sind LoadXXX Opcodes. Das ist wichtig da hieran beim laden eines Wertes erkannt wird:
+		0x00 bis 0x1f -> Lade einen RuntimeParameter Wertes
+		0x20 bis 0x3F -> Lade den Initialisierungsert eines RuntimeParameters
+		0x40 bis 0x5F -> Laden einer Konstante
+		0x60 bis 0xff -> Laden über nested Load command. Rekursiver call to WorkOpcode()

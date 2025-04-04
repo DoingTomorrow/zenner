@@ -1,0 +1,184 @@
+<Window x:Class="S4_Handler.UserInterface.S4_HandlerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        Closing="Window_Closing" Title="S4_Handler Main Window" Height="700" Width="1000" MinHeight="600"
+        MinWidth="1000" Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico"
+        WindowStartupLocation="CenterOwner">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="1"/>
+      <Setter Property="Control.Padding" Value="5,1,5,1"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <Grid Name="GridBackground"
+        DataContext="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}}">
+    <Menu Name="menuMain" Height="23" HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
+    <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" Margin="0,23,0,0" VerticalAlignment="Top"
+                                    Height="56"/>
+    <Grid Margin="0,79,0,0">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+        <RowDefinition Height="100*"/>
+        <RowDefinition Height="100*"/>
+        <RowDefinition Height="100*"/>
+        <RowDefinition Height="100*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <DockPanel>
+        <TextBox Name="TextBoxChannel" MinWidth="20" VerticalAlignment="Top" Margin="0,0,0,0"
+                 Text="{Binding Path=ReadingChannelIdentification, Mode=TwoWay}"/>
+        <TextBlock Name="TextBlockRepeats" MinWidth="20" Visibility="Collapsed" DockPanel.Dock="Right"/>
+        <TextBlock Name="TextBlockStatus" Margin="6,0,2,0" Text="Status"/>
+      </DockPanel>
+      <ProgressBar Name="ProgressBar1" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Margin="2"/>
+      <GroupBox Name="GroupBoxType" Header="Type" Grid.Row="1" Margin="2">
+        <Grid>
+          <TextBox Name="TextBoxTypeInfo" Margin="0,0,155,0"/>
+          <StackPanel HorizontalAlignment="Right" Width="150">
+            <Button Click="Button_Click" Name="ButtonLoadType" Content="Load type ..." Height="20"/>
+            <Button Click="Button_Click" Name="ButtonLoadCompareType" Content="Load compare type ..." Height="20"/>
+            <Button Click="Button_Click" Name="ButtonSaveType" Content="Save type ..." Height="20"/>
+          </StackPanel>
+        </Grid>
+      </GroupBox>
+      <GridSplitter Grid.Row="2" VerticalAlignment="Top" Height="3" HorizontalAlignment="Stretch"/>
+      <GroupBox Name="GroupBoxBackup" Header="Backup" Grid.Row="2" Margin="3">
+        <Grid>
+          <TextBox Name="TextBoxBackupInfo" Margin="0,0,155,0"/>
+          <TabControl HorizontalAlignment="Right" Width="150">
+            <TabItem Header="Basic">
+              <StackPanel>
+                <Button Click="ButtonLoadBackup_Click" Name="ButtonLoadBackup" Content="Load backup ..." Height="20"/>
+                <Button Click="ButtonSaveBackup_Click" Name="ButtonSaveBackup" Content="Save backup" Height="20"/>
+                <Separator/>
+                <Button Click="Button_Click" Name="ButtonWriteClone" Content="Write clone from backup" Height="20"
+                        IsEnabled="false"/>
+              </StackPanel>
+            </TabItem>
+            <TabItem Header="Special">
+              <StackPanel>
+                <CheckBox Checked="CheckBoxUseSecondDB_Checked" Unchecked="CheckBoxUseSecondDB_Unchecked"
+                          Name="CheckBoxUseSecondDB" Content="Second DB for load" Margin="3"/>
+                <Separator/>
+                <GroupBox Header="Last backup by MeterID">
+                  <DockPanel>
+                    <Button Click="ButtonLoadLastBackup_Click" Name="ButtonLoadLastBackup" Content="Load"
+                            DockPanel.Dock="Right" Height="20"/>
+                    <TextBox Name="TextBoxBackupMeterID" MinWidth="80"/>
+                  </DockPanel>
+                </GroupBox>
+              </StackPanel>
+            </TabItem>
+          </TabControl>
+        </Grid>
+      </GroupBox>
+      <GridSplitter Grid.Row="3" VerticalAlignment="Top" Height="3" HorizontalAlignment="Stretch"/>
+      <GroupBox Name="GroupBoxConnected" Header="Connected" Grid.Row="3" Margin="3" IsEnabled="false">
+        <Grid>
+          <TextBox Name="TextBoxConnectedInfo" Margin="0,0,155,0"/>
+          <StackPanel HorizontalAlignment="Right" Width="150">
+            <Button Click="Button_Click" Name="ButtonNextLcdView" Content="Next LCD view"/>
+            <Button Click="Button_Click" Name="ButtonConnect" Content="Connect"/>
+            <DockPanel>
+              <Button Click="ButtonReadRange_Click" Name="ButtonReadRange" DockPanel.Dock="Right" Content="Range"/>
+              <Button Click="Button_Click" Name="ButtonRead" Content="Read"/>
+            </DockPanel>
+          </StackPanel>
+        </Grid>
+      </GroupBox>
+      <GridSplitter Grid.Row="4" Height="3" VerticalAlignment="Top" HorizontalAlignment="Stretch"/>
+      <GroupBox Name="GroupBoxWork" Header="Work" Grid.Row="4" Margin="3">
+        <Grid>
+          <TextBox Name="TextBoxWorkInfo" Margin="0,0,155,0"/>
+          <StackPanel HorizontalAlignment="Right" Width="150">
+            <Button Click="Button_Click" Name="ButtonWrite" Content="Write" Height="20" IsEnabled="false"/>
+          </StackPanel>
+        </Grid>
+      </GroupBox>
+      <StackPanel Name="StackPanalButtons2" Grid.Column="1" Grid.Row="1" Grid.RowSpan="4" Margin="0,3,0,3">
+        <Button Click="ButtonConfiguration_Click" x:Name="ButtonConfiguration" Content="Configuration"/>
+        <GroupBox Name="GroupBoxMapBased" Header="Map based functions" IsEnabled="false">
+          <StackPanel>
+            <Button Click="ButtonDeviceIdentification_Click" x:Name="ButtonDeviceIdentification"
+                    Content="Device identification"/>
+            <Button Click="ButtonMapData_Click" x:Name="ButtonMapData" Content="Map data"/>
+            <Button Click="ButtonOverwriteAndCompare_Click" x:Name="ButtonOverwriteAndDiagnostic"
+                    Content="Overwrite and Compare"/>
+            <Button Click="ButtonUltrasonicWindow_Click" x:Name="ButtonUltrasonicWindow" Content="Ultrasonic"/>
+            <Button Click="ButtonTimeElapseSimulator_Click" x:Name="ButtonTimeElapseSimulator"
+                    Content="Time lapse simulator"/>
+            <Button Click="ButtonCurrentMeasurement_Click" x:Name="ButtonCurrentMeasurement"
+                    Content="Current measurement"/>
+            <Separator/>
+            <Button Click="ButtonShowSummary_Click" x:Name="ButtonShowSummary" Content="Show summary"/>
+            <Button Click="ButtonPrepareDeviceHistory_Click" x:Name="ButtonDeviceHistory"
+                    Content="Prepare device history"/>
+            <Button Click="ButtonPrepareReleaseInfo_Click" x:Name="ButtonPrepareReleaseInfo"
+                    Content="Prepare release info"/>
+          </StackPanel>
+        </GroupBox>
+        <GroupBox Name="GroupBoxManagedMap" Header="Map manageding functions" IsEnabled="false">
+          <StackPanel>
+            <Button Click="ButtonShowParameter_Click" x:Name="ButtonShowParameter" Content="Show parameters"/>
+            <Button Click="ButtonShowMemory_Click" x:Name="ButtonShowMemory" Content="Show memory"/>
+          </StackPanel>
+        </GroupBox>
+        <GroupBox Name="GroupBoxModules" Header="Modules">
+          <StackPanel>
+            <ListBox Name="ListBoxModules">
+              <ListBoxItem MouseDoubleClick="ListBoxItemModules_MouseDoubleClick" Content="DemoModule1"/>
+              <ListBoxItem MouseDoubleClick="ListBoxItemModules_MouseDoubleClick" Content="DemoModule2"/>
+            </ListBox>
+            <Button Click="ButtonReloadModuleList_Click" x:Name="ButtonReloadModuleList" Content="Reload module list"/>
+          </StackPanel>
+        </GroupBox>
+      </StackPanel>
+      <StackPanel Name="StackPanalButtons" Grid.Column="2" Grid.Row="1" Grid.RowSpan="4" Margin="0,3,0,56">
+        <GroupBox Header="Communication">
+          <StackPanel>
+            <Button Click="ButtonReadoutConfig_Click" Name="ButtonReadoutConfig" Content="ReadoutConfiguration"
+                    IsEnabled="false"/>
+            <Button Click="ButtonCommunicationPort_Click" Name="ButtonCommunicationPort" Content="CommunicationPort"
+                    IsEnabled="false"/>
+            <Button Click="ButtonCommunicationTest_Click" Name="ButtonCommunicationTest"
+                    Content="Device communication test" IsEnabled="false"/>
+          </StackPanel>
+        </GroupBox>
+        <GroupBox Name="GroupBoxByProtocol" Header="Functions by protocol">
+          <StackPanel>
+            <StackPanel Name="StackPanelOnlyProtocol" IsEnabled="false">
+              <Button Click="ButtonDeviceData_Click" x:Name="ButtonDeviceData" Content="Device data"/>
+              <Button Click="ButtonMeterMonitor_Click" x:Name="ButtonMeterMonitor" Content="Meter monitor"/>
+              <Button Click="ButtonHardwareSetupWindow_Click" x:Name="ButtonHardwareSetupWindow" Content="Hardware setup"/>
+              <Button Click="ButtonTestWindowCommunication_Click" x:Name="ButtonTestWindowCommunication"
+                      Content="Communication group functions"/>
+              <Button Click="ButtonRadioTests_Click" x:Name="ButtonRadioTests" Content="Radio tests"/>
+              <GroupBox Name="GroupBoxSingleCommands" Header="Single commands">
+                <StackPanel>
+                  <Button Click="Button_CommonCMD_Click" Name="Button_CommonCMD" Content="Common CMDs"/>
+                  <Button Click="Button_LoraCMD_Click" Name="Button_LoraCMD" Content="LoRa CMDs"/>
+                  <Button Click="Button_RadioCMD_Click" Name="Button_RadioCMD" Content="Radio CMDs"/>
+                  <Button Click="Button_MBusCMD_Click" Name="Button_MBusCMD" Content="MBus CMDs"/>
+                  <Button Click="Button_SpecialCMD_Click" Name="Button_SpecialCMD" Content="Special CMDs"/>
+                </StackPanel>
+              </GroupBox>
+            </StackPanel>
+            <Button Click="ButtonSmartFunctions_Click" x:Name="ButtonSmartFunctions" Content="Smart functions"/>
+            <Button Click="ButtonCommunicationScenarios_Click" x:Name="ButtonCommunicationScenarios"
+                    Content="Communication scenarios"/>
+          </StackPanel>
+        </GroupBox>
+        <Button Click="ButtonTestWindow2_Click" x:Name="ButtonTestWindow2" Content="Test window for developers"/>
+      </StackPanel>
+      <Button Click="ButtonClear_Click" Name="ButtonClear" Content="Clear" Grid.Column="2" Height="21"
+              Margin="2,0,2,28" Grid.Row="4" VerticalAlignment="Bottom"/>
+      <Button Click="ButtonBreak_Click" Name="ButtonBreak" Content="Break" Grid.Column="2" Height="21"
+              Margin="2,0,2,2" Grid.Row="4" VerticalAlignment="Bottom" IsEnabled="false"/>
+    </Grid>
+  </Grid>
+</Window>

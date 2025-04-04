@@ -1,0 +1,119 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Meters.MeterReadingValuesDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="CanResizeWithGrip" SaveWindowPosition="true" Title="{Binding ReadingValuesTitle}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+        <ResourceDictionary>
+          <Style TargetType="{x:Type telerik:GridViewRow}" x:Key="MeterReadingValuesGridRowStyle">
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding IsDarkRowColor}" Value="True">
+                <DataTrigger.Setters>
+                  <Setter Property="Control.Background" Value="#EDEDED"/>
+                </DataTrigger.Setters>
+              </DataTrigger>
+              <DataTrigger Binding="{Binding IsDarkRowColor}" Value="False">
+                <DataTrigger.Setters>
+                  <Setter Property="Control.Background" Value="#FFFFFF"/>
+                </DataTrigger.Setters>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <ContentPresenter Height="30" HorizontalAlignment="Right" Margin="0,-30,100,0"
+                        Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+      <telerik:RadGridView x:Name="RadioTestRunGridView" RowIndicatorVisibility="Collapsed" CanUserFreezeColumns="false"
+                           IsReadOnly="true" ColumnWidth="Auto" Margin="5" AutoGenerateColumns="false" CanUserSelect="false"
+                           CanUserSortColumns="true" GroupPanelBackground="#FF00608C"
+                           RowStyle="{StaticResource MeterReadingValuesGridRowStyle}" Grid.Row="1"
+                           ItemsSource="{Binding MeterReadingValuesDTO}">
+        <telerik:GridViewDataControl.Columns>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding MeterSerialNumber}"
+                                      Header="{Binding Path=MSS_Client_ReadingValues_SerialNumber, Source={StaticResource Resources}}">
+            <telerik:GridViewColumn.CellTemplate>
+              <DataTemplate>
+                <Grid MaxHeight="100">
+                  <StackPanel Orientation="Horizontal">
+                    <TextBlock FontWeight="Bold" Text="{Binding MeterSerialNumber}"/>
+                    <Image Source="pack://application:,,,/Styles;component/Images/Universal/star.png" Height="16" Width="16"
+                           Visibility="{Binding IsReplacedMeter, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                  </StackPanel>
+                </Grid>
+              </DataTemplate>
+            </telerik:GridViewColumn.CellTemplate>
+          </telerik:GridViewDataColumn>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding Value}"
+                                      Header="{Binding Path=MSS_Client_ReadingValues_Value, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding UnitCode}"
+                                      Header="{Binding Path=MSS_Client_ReadingValues_Unit, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding Name, StringFormat=g}"
+                                      Header="{Binding Path=MSS_Client_ReadingValues_Name, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding Date}"
+                                      Header="{Binding Path=MSS_Client_ReadingValues_Date, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding Status}"
+                                      Header="{Binding Path=MSS_Client_ReadingValues_Status, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding PhysicalQuantity}"
+                                      Header="{Binding Path=MSS_Client_DataFilters_PhysicalQuantity, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding MeterType}"
+                                      Header="{Binding Path=MSS_Client_DataFilters_MeterType, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding Calculation}"
+                                      Header="{Binding Path=MSS_Client_DataFilters_Calculation, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding CalculationStart}"
+                                      Header="{Binding Path=MSS_Client_DataFilters_CalculationStart, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding StorageInterval}"
+                                      Header="{Binding Path=MSS_Client_DataFilters_StorageInterval, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding Creation}"
+                                      Header="{Binding Path=MSS_Client_DataFilters_Creation, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding ReadingType}"
+                                      Header="{Binding Path=MSS_Client_ReadingValues_ReadingType, Source={StaticResource Resources}}"/>
+        </telerik:GridViewDataControl.Columns>
+      </telerik:RadGridView>
+      <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+        <Button VerticalAlignment="Bottom" Height="30" Width="250" Margin="5" Visibility="Hidden"
+                Style="{StaticResource AppButtonStyle}" Command="{Binding SendReadingValuesCommand}"
+                Content="{Binding MSS_Client_SendReadingValues_Button, Source={StaticResource Resources}}"/>
+        <Button TouchEnter="ExportButton_OnTouchEnter" Click="ExportButton_OnClick" x:Name="exportButton"
+                Foreground="#595151" HorizontalAlignment="Right" Style="{StaticResource AppButtonStyle}"
+                Background="White" Height="25" Width="100" BorderBrush="LightGray" IsDefault="true"
+                Margin="0 0 5 0" Content="{Binding Path=MSS_Client_Export, Source={StaticResource Resources}}"
+                Visibility="{Binding IsExportVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        <Button TouchEnter="ExportCsvButton_OnTouchEnter" Click="ExportCsvButton_OnClick" x:Name="exportCsvButton"
+                Foreground="#595151" HorizontalAlignment="Right" Style="{StaticResource AppButtonStyle}"
+                Background="White" Height="25" Width="100" BorderBrush="LightGray" IsDefault="true"
+                Margin="0 0 5 0" Content="{Binding Path=MSS_Client_ExportCSV, Source={StaticResource Resources}}"
+                Visibility="{Binding IsExportCsvVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        <Button TouchEnter="ExportPdfButton_OnTouchEnter" Click="ExportPdfButton_OnClick" x:Name="exportPdfButton"
+                Foreground="#595151" HorizontalAlignment="Right" Style="{StaticResource AppButtonStyle}"
+                Background="White" Height="25" Width="100" BorderBrush="LightGray" IsDefault="true"
+                Margin="0 0 5 0" Content="{Binding Path=MSS_Client_ExportPDF, Source={StaticResource Resources}}"
+                Visibility="{Binding IsExportPdfVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        <Button x:Name="CancelButton" Foreground="#595151" HorizontalAlignment="Right"
+                Style="{StaticResource AppButtonStyle}" Background="White" Height="25" Width="100"
+                BorderBrush="LightGray" Margin="0 0 5 0"
+                Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                Command="{Binding CancelWindowCommand}"/>
+      </StackPanel>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

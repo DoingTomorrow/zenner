@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\SQLitePCL.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{270A8E2C-8A9A-47BB-BF21-727E571DCBAD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>SQLitePCL</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ApplicationVersion>3.8.5.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>SQLitePCL</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Collections" />
+    <Reference Include="System.Diagnostics.Debug" />
+    <Reference Include="System.Diagnostics.Tools" />
+    <Reference Include="System.Globalization" />
+    <Reference Include="System.Reflection" />
+    <Reference Include="System.Resources.ResourceManager" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Threading" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="FunctionNative.cs" />
+    <Compile Include="AggregateStepNative.cs" />
+    <Compile Include="AggregateFinalNative.cs" />
+    <Compile Include="IPlatformMarshal.cs" />
+    <Compile Include="IPlatformStorage.cs" />
+    <Compile Include="ISQLite3Provider.cs" />
+    <Compile Include="ISQLiteStatement.cs" />
+    <Compile Include="SQLiteStatement.cs" />
+    <Compile Include="SQLiteType.cs" />
+    <Compile Include="Function.cs" />
+    <Compile Include="AggregateStep.cs" />
+    <Compile Include="AggregateFinal.cs" />
+    <Compile Include="ISQLiteConnection.cs" />
+    <Compile Include="IPlatform.cs" />
+    <Compile Include="Platform.cs" />
+    <Compile Include="Resources.cs" />
+    <Compile Include="SQLiteConnection.cs" />
+    <Compile Include="SQLiteException.cs" />
+    <Compile Include="SQLiteResult.cs" />
+    <Compile Include="Extensions\ISQLiteStatementExtensions.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

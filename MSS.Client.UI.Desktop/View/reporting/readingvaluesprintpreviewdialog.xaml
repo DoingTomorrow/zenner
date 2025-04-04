@@ -1,0 +1,85 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.Reporting.ReadingValuesPrintPreviewDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="NoResize" MinHeight="380" MinWidth="800" Height="380" Width="900"
+                             Title="{Binding MSS_STRUCTURES_PRINT_PREVIEW, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="8*"/>
+      </Grid.RowDefinitions>
+      <telerik:RadButton Name="Print" Grid.Row="0" Margin="10 10 10 10" HorizontalAlignment="Left"
+                         Command="{Binding PrintCommand}" CommandParameter="{Binding ElementName=MeterReadingValuesGrid}"
+                         ToolTip="{Binding Path=METER_DATE_PRINT, Source={StaticResource Resources}}">
+        <Image Source="pack://application:,,,/Styles;component/Images/Universal/print.png"/>
+      </telerik:RadButton>
+      <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+        <Grid Name="MeterReadingValuesGrid">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <TextBlock Grid.Row="0" Margin="0 10 0 15" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"
+                     VerticalAlignment="Center"
+                     Visibility="{Binding IsTitleVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                     Text="{Binding Title}" MaxWidth="{Binding GridWidth}"/>
+          <telerik:RadGridView x:Name="MeterReadingValuesGridView" Grid.Row="1" ShowGroupPanel="false" CanUserSortColumns="false"
+                               CanUserFreezeColumns="false" IsFilteringAllowed="false" AutoGenerateColumns="false"
+                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RowIndicatorVisibility="Collapsed"
+                               telerik:StyleManager.Theme="Windows8" IsReadOnly="true" BorderBrush="Transparent"
+                               CanUserSelect="false" CanUserResizeColumns="false" ShowColumnHeaders="true"
+                               ShowColumnFooters="false" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                               ItemsSource="{Binding MeterReadingValues, Mode=TwoWay}" Width="{Binding GridWidth}"
+                               Height="{Binding GridHeight}">
+            <telerik:GridViewDataControl.Columns>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding Date}"
+                                          Header="{Binding Path=MSS_Client_ReadingValues_Date, Source={StaticResource Resources}}"
+                                          IsVisible="{Binding IsDateChecked}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding MeterSerialNumber}"
+                                          Header="{Binding Path=MSS_Client_Structures_Header_SerialNumber, Source={StaticResource Resources}}"
+                                          IsVisible="{Binding IsMeterSerialNumberChecked}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding Value}"
+                                          Header="{Binding Path=MSS_Client_ReadingValues_Value, Source={StaticResource Resources}}"
+                                          IsVisible="{Binding IsValueChecked}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding PhysicalQuantity}"
+                                          Header="{Binding Path=MSS_Client_DataFilters_PhysicalQuantity, Source={StaticResource Resources}}"
+                                          IsVisible="{Binding IsPhysicalQuantityChecked}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding MeterType}"
+                                          Header="{Binding Path=MSS_Client_DataFilters_MeterType, Source={StaticResource Resources}}"
+                                          IsVisible="{Binding IsMeterTypeChecked}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding Calculation}"
+                                          Header="{Binding Path=MSS_Client_DataFilters_Calculation, Source={StaticResource Resources}}"
+                                          IsVisible="{Binding IsCalculationChecked}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding CalculationStart}"
+                                          Header="{Binding Path=MSS_Client_DataFilters_CalculationStart, Source={StaticResource Resources}}"
+                                          IsVisible="{Binding IsCalculationStartChecked}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding StorageInterval}"
+                                          Header="{Binding Path=MSS_Client_DataFilters_StorageInterval, Source={StaticResource Resources}}"
+                                          IsVisible="{Binding IsStorageIntervalChecked}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding Creation}"
+                                          Header="{Binding Path=MSS_Client_DataFilters_Creation, Source={StaticResource Resources}}"
+                                          IsVisible="{Binding IsCreationChecked}"/>
+            </telerik:GridViewDataControl.Columns>
+          </telerik:RadGridView>
+        </Grid>
+      </ScrollViewer>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

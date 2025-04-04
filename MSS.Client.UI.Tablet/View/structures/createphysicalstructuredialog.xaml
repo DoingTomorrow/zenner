@@ -1,0 +1,561 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Structures.CreatePhysicalStructureDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:telerikControls="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls"
+                             xmlns:attachedProp="clr-namespace:MSS.Client.UI.Common.AttachedProperties;assembly=MSS.Client.UI.Common"
+                             xmlns:gmm="clr-namespace:MSS.Business.Modules.GMM;assembly=MSS.Business"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Maximized" WindowTitleBrush="#00608c"
+                             Height="460" Width="900"
+                             Title="{Binding MSS_Client_Structures_Create_Physical_Structure, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+        <ResourceDictionary>
+          <Style x:Key="PasteStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource CommandButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="false"/>
+            <Setter Property="UIElement.Opacity" Value="0.5"/>
+            <Style.Triggers>
+              <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                  <Condition Binding="{Binding IsPasteActive}" Value="True"/>
+                </MultiDataTrigger.Conditions>
+                <Setter Property="UIElement.IsEnabled" Value="true"/>
+                <Setter Property="UIElement.Opacity" Value="1"/>
+              </MultiDataTrigger>
+            </Style.Triggers>
+          </Style>
+          <gmm:ScanMinoConnectManager x:Key="scanManager"/>
+          <Style TargetType="{x:Type telerik:RadTreeViewItem}" x:Key="AvailableTreeViewItemStyle">
+            <Setter Property="telerik:RadTreeViewItem.IsExpanded" Value="true"/>
+            <Setter Property="telerik:DragDropManager.AllowCapturedDrag" Value="true"/>
+            <Setter Property="telerik:DragDropManager.TouchDragTrigger" Value="TapAndHold"/>
+          </Style>
+          <Style TargetType="{x:Type telerik:TreeListViewRow}" BasedOn="{StaticResource TreeListViewRowStyle}">
+            <Setter Property="telerik:DragDropManager.AllowCapturedDrag" Value="true"/>
+            <Setter Property="telerik:DragDropManager.TouchDragTrigger" Value="TapAndHold"/>
+          </Style>
+          <Style TargetType="{x:Type telerik:RadTreeListView}">
+            <Setter Property="attachedProp:MouseDoubleClick.Command" Value="{Binding EditEntityCommand}"/>
+            <Setter Property="attachedProp:MouseDoubleClick.CommandParameter"
+                    Value="{Binding RelativeSource={RelativeSource Self}}"/>
+          </Style>
+          <Style x:Key="EditNodeStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource CommandButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="true"/>
+            <Setter Property="UIElement.Opacity" Value="1"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding ElementName=treeListView, Path=SelectedItem, Mode=TwoWay}" Value="{x:Null}">
+                <Setter Property="UIElement.IsEnabled" Value="false"/>
+                <Setter Property="UIElement.Opacity" Value="0.5"/>
+              </DataTrigger>
+              <DataTrigger Binding="{Binding ElementName=treeListView, Path=SelectedItem.IsMeterNonEditable, Mode=TwoWay}"
+                           Value="True">
+                <Setter Property="UIElement.IsEnabled" Value="false"/>
+                <Setter Property="UIElement.Opacity" Value="0.5"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+          <Style x:Key="ScanSettingsButtonStyle" TargetType="{x:Type Button}"
+                 BasedOn="{StaticResource CommandButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="true"/>
+            <Setter Property="UIElement.Opacity" Value="1"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding ElementName=treeListView, Path=SelectedItem.IsMeterNonEditable, Mode=TwoWay}"
+                           Value="True">
+                <Setter Property="UIElement.IsEnabled" Value="false"/>
+                <Setter Property="UIElement.Opacity" Value="0.5"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+          <Style x:Key="DeleteNodeStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource CommandButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="true"/>
+            <Setter Property="UIElement.Opacity" Value="1"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding ElementName=treeListView, Path=SelectedItem, Mode=TwoWay}" Value="{x:Null}">
+                <Setter Property="UIElement.IsEnabled" Value="false"/>
+                <Setter Property="UIElement.Opacity" Value="0.5"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+          <Style x:Key="ChangeDeviceModelParametersButtonStyle" TargetType="{x:Type Button}"
+                 BasedOn="{StaticResource CommandButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="false"/>
+            <Setter Property="UIElement.Opacity" Value="0.5"/>
+            <Style.Triggers>
+              <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                  <Condition Binding="{Binding ElementName=treeListView, Path=SelectedItem.IsMeterNonEditable, Mode=TwoWay}"
+                             Value="False"/>
+                  <Condition Binding="{Binding IsChangeDeviceModelParametersEnabled, Mode=TwoWay}" Value="True"/>
+                </MultiDataTrigger.Conditions>
+                <Setter Property="UIElement.IsEnabled" Value="true"/>
+                <Setter Property="UIElement.Opacity" Value="1"/>
+              </MultiDataTrigger>
+            </Style.Triggers>
+          </Style>
+          <Style x:Key="IsMeterSelectedAndEditableStyle" TargetType="{x:Type Button}"
+                 BasedOn="{StaticResource CommandButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="false"/>
+            <Setter Property="UIElement.Opacity" Value="0.5"/>
+            <Style.Triggers>
+              <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                  <Condition Binding="{Binding ElementName=treeListView, Path=SelectedItem.IsMeterNonEditable, Mode=TwoWay}"
+                             Value="False"/>
+                  <Condition Binding="{Binding IsMeterSelected, Mode=TwoWay}" Value="True"/>
+                </MultiDataTrigger.Conditions>
+                <Setter Property="UIElement.IsEnabled" Value="true"/>
+                <Setter Property="UIElement.Opacity" Value="1"/>
+              </MultiDataTrigger>
+            </Style.Triggers>
+          </Style>
+          <Style x:Key="StopScanButtonStyle" TargetType="{x:Type Button}"
+                 BasedOn="{StaticResource CommandButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="false"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding Source={StaticResource scanManager}, Path=IsScanningStarted, Mode=TwoWay}"
+                           Value="True">
+                <Setter Property="UIElement.IsEnabled" Value="true"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+          <Style x:Key="StartScanButtonStyle" TargetType="{x:Type Button}"
+                 BasedOn="{StaticResource CommandButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="false"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding IsStartMBusScanButtonEnabled, Mode=TwoWay}" Value="True">
+                <Setter Property="UIElement.IsEnabled" Value="true"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+          <Style x:Key="ImportRadioMetersButtonStyle" TargetType="{x:Type Button}"
+                 BasedOn="{StaticResource CommandButtonStyle}">
+            <Setter Property="UIElement.IsEnabled" Value="false"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding IsRadioSelected, Mode=TwoWay}" Value="True">
+                <Setter Property="UIElement.IsEnabled" Value="true"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+          <Style x:Key="TextBlockDisabledTextStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="TextBlock.Foreground" Value="Black"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding IsMeterNonEditable}" Value="True">
+                <Setter Property="TextBlock.Foreground" Value="DarkGray"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid Row="0">
+        <ContentPresenter Height="30" HorizontalAlignment="Right" Margin="0,-30,100,0"
+                          Content="{Binding MessageUserControl, Mode=TwoWay}"/>
+      </Grid>
+      <Grid Row="1">
+        <FrameworkElement.Resources>
+          <DataTemplate x:Key="NodeTemplate">
+            <telerikControls:RadDockPanel MaxWidth="200">
+              <Image Style="{StaticResource SmallIconImageStyle}" telerikControls:RadDockPanel.Dock="Left"
+                     Source="{Binding Image}"/>
+              <TextBlock telerikControls:RadDockPanel.Dock="Right"
+                         Foreground="{telerikControls:Windows8Resource ResourceKey=MarkerBrush}" Text="{Binding Name}"/>
+            </telerikControls:RadDockPanel>
+          </DataTemplate>
+          <HierarchicalDataTemplate x:Key="AvailableNodesTemplate" ItemTemplate="{StaticResource NodeTemplate}"
+                                    ItemsSource="{Binding Participants}">
+            <StackPanel Orientation="Horizontal">
+              <Image Style="{StaticResource SmallIconImageStructureStyle}" VerticalAlignment="Center"
+                     Source="pack://application:,,,/Styles;component/Images/StructureIcons/folder.png"/>
+              <TextBlock VerticalAlignment="Center" Foreground="{telerikControls:Windows8Resource ResourceKey=MarkerBrush}"
+                         Text="{Binding Name}"/>
+            </StackPanel>
+          </HierarchicalDataTemplate>
+          <DataTemplate x:Key="FirstColumnCellTemplate">
+            <StackPanel Orientation="Horizontal">
+              <Image Style="{StaticResource SmallIconImageStyle}" Source="{Binding Image}"/>
+              <TextBlock Style="{StaticResource TextBlockDisabledTextStyle}" Margin="5 4 0 0" Text="{Binding Name}"/>
+            </StackPanel>
+          </DataTemplate>
+          <DataTemplate x:Key="NodeTypeColumnCellTemplate">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Style="{StaticResource TextBlockDisabledTextStyle}"
+                         Text="{Binding NodeType.Name, Converter={StaticResource StructureNodeTranslationConverter}}"/>
+            </StackPanel>
+          </DataTemplate>
+          <DataTemplate x:Key="SerialNumberColumnCellTemplate">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Style="{StaticResource TextBlockDisabledTextStyle}" Text="{Binding EntityDto.SerialNumber}"/>
+            </StackPanel>
+          </DataTemplate>
+          <DataTemplate x:Key="InputNumberColumnCellTemplate">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Style="{StaticResource TextBlockDisabledTextStyle}" Text="{Binding EntityDto.InputNumber}"/>
+            </StackPanel>
+          </DataTemplate>
+          <DataTemplate x:Key="DeviceTypeColumnCellTemplate">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Style="{StaticResource TextBlockDisabledTextStyle}" Text="{Binding EntityDto.DeviceType}"/>
+            </StackPanel>
+          </DataTemplate>
+          <DataTemplate x:Key="PrimaryAddressColumnCellTemplate">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Style="{StaticResource TextBlockDisabledTextStyle}" Text="{Binding EntityDto.PrimaryAddress}"/>
+            </StackPanel>
+          </DataTemplate>
+          <DataTemplate x:Key="ManufacturerColumnCellTemplate">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Style="{StaticResource TextBlockDisabledTextStyle}" Text="{Binding EntityDto.Manufacturer}"/>
+            </StackPanel>
+          </DataTemplate>
+          <DataTemplate x:Key="MediumColumnCellTemplate">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Style="{StaticResource TextBlockDisabledTextStyle}" Text="{Binding EntityDto.Medium}"/>
+            </StackPanel>
+          </DataTemplate>
+          <Style TargetType="{x:Type telerik:RadTreeViewItem}">
+            <Setter Property="telerik:RadTreeViewItem.IsExpanded" Value="true"/>
+          </Style>
+        </FrameworkElement.Resources>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="70"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="3*"/>
+          <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Row="0" Column="0" ColumnSpan="2">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <FrameworkElement.Resources>
+            <DataTemplate x:Key="NotesAndPhotosCellTemplate">
+              <StackPanel Orientation="Horizontal">
+                <Image Source="pack://application:,,,/Styles;component/Images/Universal/photo.png" Margin="0 0 2 0">
+                  <FrameworkElement.Style>
+                    <Style TargetType="{x:Type Image}">
+                      <Setter Property="UIElement.Visibility" Value="Visible"/>
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding AssignedPicture.Count, Mode=OneWay}" Value="0">
+                          <Setter Property="UIElement.Visibility" Value="Hidden"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding AssignedPicture}" Value="{x:Null}">
+                          <Setter Property="UIElement.Visibility" Value="Hidden"/>
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </FrameworkElement.Style>
+                </Image>
+                <Image Source="pack://application:,,,/Styles;component/Images/Universal/notes.png">
+                  <FrameworkElement.Style>
+                    <Style TargetType="{x:Type Image}">
+                      <Setter Property="UIElement.Visibility" Value="Visible"/>
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding AssignedNotes.Count, Mode=OneWay}" Value="0">
+                          <Setter Property="UIElement.Visibility" Value="Hidden"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding AssignedNotes}" Value="{x:Null}">
+                          <Setter Property="UIElement.Visibility" Value="Hidden"/>
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </FrameworkElement.Style>
+                </Image>
+              </StackPanel>
+            </DataTemplate>
+          </FrameworkElement.Resources>
+          <Grid>
+            <Grid ColumnSpan="2">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <WrapPanel Grid.Column="0" Background="#ededed" Orientation="Horizontal" Margin="5,5,0,0">
+                <Button Name="btnEditNode" Style="{StaticResource EditNodeStyle}" Height="40" Width="Auto"
+                        ToolTip="{Binding Path=MSS_Client_Structures_Edit_Structures, Source={StaticResource Resources}}"
+                        Command="{Binding EditEntityCommand}" CommandParameter="{Binding ElementName=treeListView}">
+                  <StackPanel Orientation="Horizontal" Background="Transparent">
+                    <Image Style="{StaticResource SmallIconImageStyle}"
+                           Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"/>
+                    <TextBlock FontWeight="Normal" Margin="10 0 10 0"
+                               Text="{Binding Path=MSS_Client_Structures_Edit_Structures, Source={StaticResource Resources}}"/>
+                  </StackPanel>
+                </Button>
+                <Button Name="btnDeleteNode" Style="{StaticResource DeleteNodeStyle}" Height="40" Width="Auto"
+                        ToolTip="{Binding Path=MSS_Client_Structures_Delete_Structures, Source={StaticResource Resources}}"
+                        Command="{Binding DeleteToolbarSelectedItemCommand}"
+                        CommandParameter="{Binding ElementName=treeListView}">
+                  <StackPanel Orientation="Horizontal" Background="Transparent">
+                    <Image Style="{StaticResource SmallIconImageStyle}"
+                           Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+                    <TextBlock FontWeight="Normal" Margin="10 0 10 0"
+                               Text="{Binding Path=MSS_Client_Structures_Delete_Structures, Source={StaticResource Resources}}"/>
+                  </StackPanel>
+                </Button>
+                <Button Name="btnCutNode" Style="{StaticResource DeleteNodeStyle}" Height="40" Width="Auto"
+                        ToolTip="{Binding Path=STRUCTURES_TABLET_CUT, Source={StaticResource Resources}}"
+                        Command="{Binding CutToolbarSelectedItemCommand}"
+                        CommandParameter="{Binding ElementName=treeListView}">
+                  <StackPanel Orientation="Horizontal" Background="Transparent">
+                    <Image Style="{StaticResource SmallIconImageStyle}"
+                           Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+                    <TextBlock FontWeight="Normal" Margin="10 0 10 0"
+                               Text="{Binding Path=STRUCTURES_TABLET_CUT, Source={StaticResource Resources}}"/>
+                  </StackPanel>
+                </Button>
+                <Button Name="btnPasteNode" Style="{StaticResource PasteStyle}" Height="40" Width="Auto"
+                        ToolTip="{Binding Path=STRUCTURES_TABLET_PASTE, Source={StaticResource Resources}}"
+                        Command="{Binding PasteToolbarSelectedItemCommand}"
+                        CommandParameter="{Binding ElementName=treeListView}">
+                  <StackPanel Orientation="Horizontal" Background="Transparent">
+                    <Image Style="{StaticResource SmallIconImageStyle}"
+                           Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+                    <TextBlock FontWeight="Normal" Margin="10 0 10 0"
+                               Text="{Binding Path=STRUCTURES_TABLET_PASTE, Source={StaticResource Resources}}"/>
+                  </StackPanel>
+                </Button>
+                <Button Name="btnPasteAfterNode" Style="{StaticResource PasteStyle}" Width="Auto" Height="40"
+                        ToolTip="{Binding Path=STRUCTURES_TABLET_PASTE_AFTER, Source={StaticResource Resources}}"
+                        Command="{Binding PasteAfterToolbarSelectedItemCommand}"
+                        CommandParameter="{Binding ElementName=treeListView}">
+                  <StackPanel Orientation="Horizontal" Background="Transparent">
+                    <Image Style="{StaticResource SmallIconImageStyle}"
+                           Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+                    <TextBlock FontWeight="Normal" Margin="10 0 10 0"
+                               Text="{Binding Path=STRUCTURES_TABLET_PASTE_AFTER, Source={StaticResource Resources}}"/>
+                  </StackPanel>
+                </Button>
+                <Button Name="btnScanSetting" Style="{StaticResource ScanSettingsButtonStyle}" Width="Auto" Height="40"
+                        ToolTip="{Binding Path=MSS_Client_Structures_ScanSettings, Source={StaticResource Resources}}"
+                        Command="{Binding ScanSettingsCommand}"
+                        Visibility="{Binding MBusScanNetworkVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+                  <StackPanel Orientation="Horizontal">
+                    <Image Style="{StaticResource SmallIconImageStyle}"
+                           Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+                    <TextBlock FontWeight="Normal" Margin="10 0 10 0"
+                               Text="{Binding Path=MSS_Client_Structures_ScanSettings, Source={StaticResource Resources}}"/>
+                  </StackPanel>
+                </Button>
+                <Button Name="btnImportRadioMeters" Style="{StaticResource ImportRadioMetersButtonStyle}" Width="Auto"
+                        Height="40"
+                        ToolTip="{Binding Path=MSS_Client_Structures_ImportRadioMeters, Source={StaticResource Resources}}"
+                        Command="{Binding ImportRadioMetersCommand}">
+                  <StackPanel Orientation="Horizontal">
+                    <Image Style="{StaticResource SmallIconImageStyle}"
+                           Source="pack://application:,,,/Styles;component/Images/Universal/import.png"/>
+                    <TextBlock FontWeight="Normal" Margin="10 0 10 0"
+                               Text="{Binding Path=MSS_Client_Structures_ImportRadioMeters, Source={StaticResource Resources}}"/>
+                  </StackPanel>
+                </Button>
+                <Button Name="btnPhotos" Style="{StaticResource IsMeterSelectedAndEditableStyle}" Width="Auto" Height="40"
+                        ToolTip="{Binding Path=MSS_Client_Structures_Photos, Source={StaticResource Resources}}"
+                        Command="{Binding PhotosCommand}">
+                  <StackPanel Orientation="Horizontal">
+                    <Image Style="{StaticResource SmallIconImageStyle}"
+                           Source="pack://application:,,,/Styles;component/Images/Universal/photo.png"/>
+                    <TextBlock Name="txtBlockPhotos" Margin="10 0 10 0"
+                               Text="{Binding Path=MSS_Client_Structures_Photos, Source={StaticResource Resources}}"/>
+                  </StackPanel>
+                </Button>
+                <Button Name="btnNotes" Style="{StaticResource IsMeterSelectedAndEditableStyle}" Width="Auto" Height="40"
+                        Command="{Binding NotesCommand}"
+                        CommandParameter="{Binding ElementName=treeListView, Path=SelectedItem}">
+                  <StackPanel Orientation="Horizontal">
+                    <Image Style="{StaticResource SmallIconImageStyle}"
+                           Source="pack://application:,,,/Styles;component/Images/Universal/notes.png"/>
+                    <TextBlock Margin="10 0 10 0"
+                               Text="{Binding Path=MSS_Client_Structures_Notes, Source={StaticResource Resources}}"/>
+                  </StackPanel>
+                </Button>
+                <Button Name="btnImportDeliveryNote" Style="{StaticResource CommandButtonStyle}" Width="Auto" Height="40"
+                        Command="{Binding ImportDeliveryNoteCommand}" IsEnabled="{Binding IsRadioSelected}">
+                  <StackPanel Orientation="Horizontal">
+                    <Image Style="{StaticResource SmallIconImageStyle}"
+                           Source="pack://application:,,,/Styles;component/Images/Universal/import.png"/>
+                    <TextBlock Margin="10 0 10 0"
+                               Text="{Binding Path=MSS_Client_Structures_ImportDeliveryNote, Source={StaticResource Resources}}"/>
+                  </StackPanel>
+                </Button>
+                <Button Name="btnChangeDeviceModelParameters"
+                        Style="{StaticResource ChangeDeviceModelParametersButtonStyle}" Margin="10 0 10 0" Height="40"
+                        Width="80" Background="White"
+                        ToolTip="{Binding Path=MSS_Client_DeviceModelChangeableParameters_Tooltip, Source={StaticResource Resources}}"
+                        Command="{Binding ChangeDeviceModelParametersCommand}">
+                  <Control.Template>
+                    <ControlTemplate>
+                      <Grid Background="White">
+                        <Image Source="pack://application:,,,/Styles;component/Images/Settings/update_settings.png"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" Height="24" Width="24"
+                               Style="{StaticResource SmallIconImageStyle}"/>
+                      </Grid>
+                    </ControlTemplate>
+                  </Control.Template>
+                </Button>
+              </WrapPanel>
+              <DockPanel Grid.Column="1" Dock="Right" Background="#ededed" Margin="0,5,5,0">
+                <TextBlock DockPanel.Dock="Right" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"
+                           Text="{Binding DevicesFoundLabel}"/>
+              </DockPanel>
+            </Grid>
+          </Grid>
+          <telerik:RadTreeListView x:Name="treeListView" AutoGenerateColumns="false" VerticalAlignment="Stretch" Margin="5"
+                                   CanUserFreezeColumns="false" CanUserReorderColumns="false" RowIndicatorVisibility="Collapsed"
+                                   Grid.Row="1" telerikControls:StyleManager.Theme="Windows8" AutoExpandItems="true" AllowDrop="true"
+                                   CanUserDeleteRows="false" ItemsSource="{Binding StructureNodeCollection}"
+                                   attachedProp:TreeListViewDragDropBehavior.IsEnabled="{Binding DragDropAttachedProp}"
+                                   SelectedItem="{Binding SelectedItem}">
+            <telerik:GridViewDataControl.ChildTableDefinitions>
+              <telerik:TreeListViewTableDefinition ItemsSource="{Binding SubNodes}"/>
+            </telerik:GridViewDataControl.ChildTableDefinitions>
+            <telerik:GridViewDataControl.Columns>
+              <telerik:GridViewDataColumn CellTemplate="{StaticResource FirstColumnCellTemplate}" IsReadOnly="true"
+                                          DataMemberBinding="{Binding Name}"
+                                          Header="{Binding Path=MSS_Client_Structures_Header_Name, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn IsReadOnly="true" CellTemplate="{StaticResource NodeTypeColumnCellTemplate}"
+                                          DataMemberBinding="{Binding NodeType.Name, Converter={StaticResource StructureNodeTranslationConverter}}"
+                                          Header="{Binding Path=MSS_Client_Structures_Header_NodeType, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding Description}"
+                                          Header="{Binding Path=MSS_Client_Structures_Header_Description, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn IsReadOnly="true" CellTemplate="{StaticResource SerialNumberColumnCellTemplate}"
+                                          DataMemberBinding="{Binding EntityDto.SerialNumber}"
+                                          Header="{Binding Path=MSS_Client_Structures_Header_SerialNumber, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn IsReadOnly="true" CellTemplate="{StaticResource InputNumberColumnCellTemplate}"
+                                          DataMemberBinding="{Binding EntityDto.InputNumber}"
+                                          Header="{Binding Path=MSS_STRUCTURES_INPUTNUMBER, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn IsReadOnly="true" Width="Auto" CellTemplate="{StaticResource NotesAndPhotosCellTemplate}"
+                                          DataMemberBinding="{Binding RelativeSource={RelativeSource Self}}"
+                                          Header="{Binding Path=MSS_Client_Header_PhotosNotes, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn IsReadOnly="true" CellTemplate="{StaticResource DeviceTypeColumnCellTemplate}"
+                                          DataMemberBinding="{Binding EntityDto.DeviceType}"
+                                          Header="{Binding Path=MSS_Client_Structures_Header_DeviceType, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn IsReadOnly="true" CellTemplate="{StaticResource PrimaryAddressColumnCellTemplate}"
+                                          DataMemberBinding="{Binding EntityDto.PrimaryAddress}"
+                                          Header="{Binding Path=MSS_Client_Structures_Header_PrimaryAddress, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn IsReadOnly="true" CellTemplate="{StaticResource ManufacturerColumnCellTemplate}"
+                                          DataMemberBinding="{Binding EntityDto.Manufacturer}"
+                                          Header="{Binding Path=MSS_Client_Structures_Header_Manufacturer, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn IsReadOnly="true" CellTemplate="{StaticResource MediumColumnCellTemplate}"
+                                          DataMemberBinding="{Binding EntityDto.Medium}"
+                                          Header="{Binding Path=MSS_Client_Structures_Header_Medium, Source={StaticResource Resources}}"/>
+            </telerik:GridViewDataControl.Columns>
+            <FrameworkElement.Resources>
+              <DataTemplate x:Key="DraggedItemTemplate">
+                <StackPanel>
+                  <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding Path=MSS_Dragging, Source={StaticResource Resources}}"/>
+                    <TextBlock FontWeight="Bold" Text="{Binding CurrentDraggedItem}"/>
+                  </StackPanel>
+                  <StackPanel Orientation="Horizontal">
+                    <TextBlock FontWeight="Bold" MinWidth="45" Text="{Binding CurrentDropPosition}"/>
+                    <TextBlock Text=", (" Foreground="Gray"/>
+                    <TextBlock Text="{Binding CurrentDraggedOverItem}"/>
+                    <TextBlock Text=")" Foreground="Gray"/>
+                  </StackPanel>
+                </StackPanel>
+              </DataTemplate>
+            </FrameworkElement.Resources>
+          </telerik:RadTreeListView>
+        </Grid>
+        <Grid Row="0" Column="2">
+          <FrameworkElement.Resources>
+            <DataTemplate x:Key="RadTreeListTemplate">
+              <telerik:RadTreeListView AutoGenerateColumns="false" VerticalAlignment="Stretch" Margin="5" ShowColumnHeaders="false"
+                                       CanUserFreezeColumns="false" CanUserReorderColumns="false" RowIndicatorVisibility="Collapsed"
+                                       telerikControls:StyleManager.Theme="Windows8" AutoExpandItems="true" CanUserDeleteRows="false"
+                                       ItemsSource="{Binding Participants}">
+                <telerik:GridViewDataControl.ChildTableDefinitions>
+                  <telerik:TreeListViewTableDefinition ItemsSource="{Binding SubNodes}"/>
+                </telerik:GridViewDataControl.ChildTableDefinitions>
+                <telerik:GridViewDataControl.Columns>
+                  <telerik:GridViewColumn CellTemplate="{StaticResource FirstColumnCellTemplate}" IsReadOnly="true"/>
+                  <telerik:GridViewColumn IsReadOnly="false">
+                    <telerik:GridViewColumn.CellTemplate>
+                      <DataTemplate>
+                        <Button Style="{StaticResource AddDeviceButtonStyle}"
+                                Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.AddNodeCommand}"
+                                CommandParameter="{Binding}"/>
+                      </DataTemplate>
+                    </telerik:GridViewColumn.CellTemplate>
+                  </telerik:GridViewColumn>
+                </telerik:GridViewDataControl.Columns>
+              </telerik:RadTreeListView>
+            </DataTemplate>
+          </FrameworkElement.Resources>
+          <telerik:RadGridView DataLoaded="RadGridView1_OnDataLoaded" x:Name="RadGridView1"
+                               HierarchyChildTemplate="{StaticResource RadTreeListTemplate}" AutoExpandGroups="true"
+                               ShowGroupPanel="false" RowIndicatorVisibility="Collapsed" ShowColumnHeaders="false"
+                               telerikControls:StyleManager.Theme="Windows8" AlternateRowBackground="#EDEDED" AlternationCount="2"
+                               CanUserFreezeColumns="false" AutoGenerateColumns="false"
+                               RowStyle="{StaticResource AvailableNodesGridStyle}" ItemsSource="{Binding AvailableNodesGroups}">
+            <telerik:GridViewDataControl.ChildTableDefinitions>
+              <telerik:GridViewTableDefinition/>
+            </telerik:GridViewDataControl.ChildTableDefinitions>
+            <telerik:GridViewDataControl.Columns>
+              <telerik:GridViewDataColumn IsReadOnly="true" CellTemplate="{StaticResource AvailableNodesTemplate}"/>
+            </telerik:GridViewDataControl.Columns>
+          </telerik:RadGridView>
+        </Grid>
+        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
+          <Button x:Name="StartScanButton" Style="{StaticResource StartScanButtonStyle}" Width="160" Height="40"
+                  Margin="5,0,0,0" Command="{Binding StartScanCommand}"
+                  CommandParameter="{Binding ElementName=treeListView, Path=SelectedItem}"
+                  Visibility="{Binding MBusScanNetworkVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+            <StackPanel Orientation="Horizontal">
+              <Image Style="{StaticResource SmallIconImageStyle}"
+                     Source="pack://application:,,,/Styles;component/Images/Universal/start.png"/>
+              <TextBlock Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_MessageCodes_StartScan, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button x:Name="StopScanButton" Style="{StaticResource StopScanButtonStyle}" Height="40" Width="160"
+                  Margin="5,0,0,0" Command="{Binding StopScanCommand}"
+                  Visibility="{Binding MBusScanNetworkVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+            <StackPanel Orientation="Horizontal">
+              <Image Style="{StaticResource SmallIconImageStyle}"
+                     Source="pack://application:,,,/Styles;component/Images/Universal/stop.png"/>
+              <TextBlock Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_MessageCodes_StopScan, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="1">
+          <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="Gray" Height="19.5"
+                     Text="{Binding ProgressDialogMessage, Mode=TwoWay}"/>
+          <telerikControls:RadProgressBar Height="35" Width="250" IsIndeterminate="false" Minimum="0" Maximum="100"
+                                          RenderTransformOrigin="0.52,-2.36" Value="{Binding ProgressBarValue, Mode=TwoWay}"/>
+        </StackPanel>
+        <Grid Row="1" Column="2">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="OkButton" Grid.Column="0" Style="{StaticResource CommandButtonStyle}" Height="40"
+                  HorizontalAlignment="Right" IsDefault="true"
+                  Content="{Binding Path=MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                  Command="{Binding SaveStructureCommand}" CommandParameter="{Binding ElementName=treeListView}"/>
+          <Button x:Name="CancelButton" Grid.Column="1" Style="{StaticResource CommandButtonStyle}" Height="40"
+                  Content="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"
+                  Command="{Binding CancelWindowCommand}"/>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

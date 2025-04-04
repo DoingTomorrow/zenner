@@ -1,0 +1,22 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: OfficeOpenXml.FormulaParsing.Excel.Functions.DecimalCompileResultValidator
+// Assembly: EPPlus, Version=4.0.0.1, Culture=neutral, PublicKeyToken=ea159fdaa78159a1
+// MVID: 3F10EAEA-823F-4076-B5B1-DE322159D5F9
+// Assembly location: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\EPPlus.dll
+
+using OfficeOpenXml.FormulaParsing.Exceptions;
+using OfficeOpenXml.Utils;
+
+#nullable disable
+namespace OfficeOpenXml.FormulaParsing.Excel.Functions
+{
+  public class DecimalCompileResultValidator : CompileResultValidator
+  {
+    public override void Validate(object obj)
+    {
+      double valueDouble = ConvertUtil.GetValueDouble(obj);
+      if (double.IsNaN(valueDouble) || double.IsInfinity(valueDouble))
+        throw new ExcelErrorValueException(eErrorType.Num);
+    }
+  }
+}

@@ -1,0 +1,183 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Orders.RepairModeDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:controls="clr-namespace:WpfKb.Controls;assembly=WpfKb"
+                             xmlns:controls1="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:customControls="clr-namespace:MSS.Client.UI.Tablet.CustomControls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" Width="980" Height="750" BorderThickness="0" GlowBrush="Black"
+                             ResizeMode="CanResizeWithGrip" ShowInTaskbar="false" WindowStartupLocation="CenterScreen"
+                             WindowState="Maximized" WindowTitleBrush="#00608c"
+                             Title="{Binding Path=MSS_Client_Orders_ExecuteInstallationOrder_RepairMode, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary>
+          <Style x:Key="ReadingStartedButtonStyle" TargetType="{x:Type UserControl}">
+            <Setter Property="UIElement.IsEnabled" Value="true"/>
+            <Setter Property="UIElement.Opacity" Value="1"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding IsReadingStarted, Mode=TwoWay}" Value="True">
+                <Setter Property="UIElement.IsEnabled" Value="false"/>
+                <Setter Property="UIElement.Opacity" Value="0.5"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </ResourceDictionary>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="90"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <controls:FloatingTouchScreenKeyboard x:Name="Keyboard" Height="400" Margin="0 -25" HorizontalAlignment="Stretch"
+                                          AllowsTransparency="true" AreAnimationsEnabled="true" IsAllowedToFade="false" IsOpen="false"
+                                          KeyBoardInputType="Numeric" Placement="Top" StaysOpen="true"
+                                          Width="{Binding ElementName=RepairModeView, Path=ActualWidth}"
+                                          PlacementTarget="{Binding ElementName=PlaceHolder}"/>
+    <CheckBox x:Name="PlaceHolder" Grid.Row="0" Margin="0,0,0,-25" HorizontalAlignment="Left"
+              VerticalAlignment="Bottom"
+              IsChecked="{Binding IsKeyBoardOpen, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+    <StackPanel Grid.Row="0" Grid.Column="0" Background="WhiteSmoke" Orientation="Horizontal">
+      <customControls:TabletButton ButtonPath="M16.573013,19.56604L19.008015,19.56604C18.978016,20.593018 19.008015,21.538025 19.008015,21.538025 18.576006,25.065002 14.943007,24.921021 14.943007,24.921021L10.048014,24.994019 10.048014,27.080017 5.9449829,23.768005 10.048014,20.531006 10.048014,22.473999C10.048014,22.473999 13.737013,22.684021 14.943007,22.473999 16.826006,22.14502 16.573013,20.674988 16.573013,20.674988z M14.957015,11.031982L19.060016,14.343994 14.957015,17.580994 14.957015,15.638C14.957015,15.638 11.267986,15.42804 10.061991,15.638 8.1789931,15.967041 8.4319847,17.437012 8.4319847,17.437012L8.4319847,18.546021 5.9969848,18.546021C6.0269836,17.518982 5.9969848,16.574036 5.9969848,16.574036 6.4289916,13.046021 10.061991,13.19104 10.061991,13.19104L14.957015,13.117981z M2.2809778,2.4169922L2.2809778,29.582031 22.125021,29.582031 22.125021,8.4990234 15.832992,8.4990234 15.832992,2.4169922z M0,0L15.832992,0 17.127001,0 22.683006,5.434021 24.405998,7.1229858 24.405998,32 0,32z"
+                                   ButtonCommand="{Binding ChangeMinomantCommand}"
+                                   ButtonText="{Binding Path=MSS_Client_ChangeMinomat, Source={StaticResource Resources}}"/>
+      <customControls:TabletButton ButtonPath="M13.900004,16L6.3000008,23.599998 11.299998,23.599998 11.299998,29.400002 16.400003,29.400002 16.400003,23.599998 21.400001,23.599998z M18.1,1.0999985L27.799993,10.900002 18.1,10.900002z M0,0L16.1,0 16.1,12.099998 27.899999,12.099998 27.899999,32 0,32z"
+                                   ButtonCommand="{Binding ReadFirmwareVersionCommand}"
+                                   ButtonText="{Binding Path=MSS_Client_FirmwareVersion, Source={StaticResource Resources}}"/>
+      <customControls:TabletButton ButtonPath="M18.377005,20.576004L11.141004,20.585999 9.9820001,24.072006 19.920005,24.057999z M14.360006,11.507004C14.290006,11.514008,14.222006,11.526001,14.151006,11.529007L11.969,18.097 17.276007,18.089005z M14.052999,5.201004C15.801,5.201004 17.221007,6.6190033 17.221007,8.3690033 17.221007,9.1010132 16.963004,9.7660065 16.547004,10.302002L25.669005,30.891006 23.395003,31.899002 21.023001,26.544006 9.1550043,26.561005 7.3480046,32 4.9860046,31.21701 11.829,10.625C11.246,10.05101 10.883001,9.253006 10.883001,8.3690033 10.883001,6.6190033 12.301,5.201004 14.052999,5.201004z M21.256003,3.2000122C22.592002,4.5240021 23.421004,6.3410034 23.421004,8.3460083 23.421004,10.331009 22.606002,12.13501 21.291007,13.455002L19.940001,12.09201C20.905005,11.119003 21.501006,9.7990112 21.501006,8.3460083 21.501006,6.8730011 20.891005,5.5380096 19.905005,4.5630035z M6.750005,3.0839996L8.1250046,4.427002C7.0550053,5.4120026 6.3870056,6.803009 6.3870056,8.3460083 6.3870056,9.8690033 7.0389989,11.24501 8.0860031,12.229004L6.7130025,13.570999C5.3279999,12.241013 4.4669998,10.391006 4.4669998,8.3460083 4.4669998,6.2810059 5.3439987,4.4160004 6.750005,3.0839996z M24.360007,0.066009521C26.536002,2.1829987 27.886,5.1130066 27.886,8.3450012 27.886,11.557999 26.552001,14.475006 24.397002,16.588013L23.045005,15.225006C24.848006,13.459 25.966002,11.027008 25.966002,8.3450012 25.966002,5.6460114 24.835006,3.1990051 23.008002,1.4290009L23.485007,0.95100403z M3.5980006,0L4.4440048,0.82701111 4.9710052,1.3440094C3.0920034,3.1190033 1.9220013,5.6010132 1.9220014,8.3460083 1.9220013,11.072006 3.0760007,13.539001 4.9340027,15.312012L3.5610018,16.654999C1.3650021,14.535004 2.1254414E-07,11.594009 0,8.3460083 2.1254414E-07,5.0780029 1.3810009,2.1230011 3.5980006,0z"
+                                   ButtonCommand="{Binding ReadGSMState}"
+                                   ButtonText="{Binding Path=MSS_Client_GSMState, Source={StaticResource Resources}}"/>
+      <customControls:TabletButton ButtonPath="M15.994003,0C24.819954,-9.1655238E-08 32,7.1629951 32,15.967989 32,24.772006 24.819954,31.935002 15.994003,31.935002 7.3439871,31.935002 0.27899144,25.053988 0,16.492007L4.0790063,15.647005C4.0760156,15.755007 4.062008,15.859987 4.062008,15.967989 4.062008,22.530001 9.4149996,27.871005 15.994003,27.871005 22.573007,27.871005 27.925968,22.530001 27.925968,15.967989 27.925968,9.4039924 22.573007,4.0639956 15.994003,4.0639956 12.93999,4.0639956 10.163992,5.2300117 8.051994,7.1199958L11.938007,10.346009 0.70901443,12.959993 1.2480154,1.4729919 4.8850051,4.4920046C7.7659837,1.7149964,11.680989,-9.1655238E-08,15.994003,0z"
+                                   Style="{StaticResource ReadingStartedButtonStyle}" ButtonCommand="{Binding ResetConfiguration}"
+                                   ButtonText="{Binding Path=MSS_Client_ResetConfiguration, Source={StaticResource Resources}}"/>
+      <customControls:TabletButton ButtonPath="M16.200012,11.899994C15.5,12.300003 14.799988,12.600006 14.299988,12.800003 13.700012,13 13,13.100006 12.200012,13.199997L12.200012,14.5 14.799988,14.5 14.799988,23.399994C14.799988,24.199997 14.799988,24.699997 14.700012,25 14.600037,25.199997 14.400024,25.399994 14.200012,25.5 14,25.600006 13.5,25.699997 12.799988,25.699997L12.200012,25.699997 12.200012,27 20,27 20,25.699997 19.299988,25.699997C18.700012,25.699997 18.299988,25.699997 18.100037,25.600006 17.900024,25.5 17.700012,25.300003 17.600037,25.100006 17.5,24.899994 17.400024,24.600006 17.400024,24.100006L17.400024,11.899994z M16,5.1000061C15.5,5.1000061 15.100037,5.3000031 14.799988,5.6000061 14.5,5.8999939 14.299988,6.3999939 14.299988,6.8000031 14.299988,7.3000031 14.5,7.6999969 14.799988,8 15.100037,8.3000031 15.600037,8.5 16,8.5 16.5,8.5 16.900024,8.3000031 17.200012,8 17.5,7.6999969 17.700012,7.1999969 17.700012,6.8000031 17.700012,6.3000031 17.5,5.8999939 17.200012,5.6000061 16.900024,5.3000031 16.5,5.1000061 16,5.1000061z M16,0C24.799988,0 32,7.1999969 32,16 32,24.800003 24.799988,32 16,32 7.2000122,32 0,24.800003 0,16 0,7.1999969 7.2000122,0 16,0z"
+                                   Style="{StaticResource ReadingStartedButtonStyle}" ButtonCommand="{Binding ReadPhaseDetails}"
+                                   ButtonText="{Binding Path=MSS_Client_PhaseDetails, Source={StaticResource Resources}}"/>
+      <customControls:TabletButton ButtonPath="M1.4300079,17.677926L9.428009,17.677926C9.3200073,18.342931 9.2490082,19.016908 9.2490082,19.711913 9.2490082,21.500905 9.6320038,23.196881 10.306,24.734899L1.4300079,24.734899C0.63900757,24.734899,0,24.095895,0,23.303907L0,19.108918C0,18.31693,0.63900757,17.677926,1.4300079,17.677926z M21.758011,15.299946C19.322006,15.283924 17.335999,17.250926 17.31601,19.685912 17.300003,22.121905 19.266006,24.108895 21.697006,24.12388 24.137009,24.139901 26.123001,22.178912 26.139008,19.742919 26.154007,17.306926 24.193008,15.31493 21.758011,15.299946z M21.794006,9.0639526C22.718002,9.0699645,23.611008,9.206957,24.459,9.4319622L24.811005,11.760962C25.669006,12.09296,26.465012,12.556948,27.160004,13.134948L29.366013,12.296939C30.606003,13.578946,31.520004,15.166921,32,16.938916L30.152008,18.409917C30.218002,18.84891 30.264008,19.302919 30.259003,19.762908 30.254013,20.232906 30.208008,20.681909 30.132004,21.126914L31.959,22.617906C31.459,24.384895,30.525009,25.957885,29.274002,27.22387L27.078003,26.360868C26.374008,26.927882,25.572006,27.376886,24.709,27.703879L24.326004,30.032848C23.473007,30.246867 22.580002,30.369851 21.661011,30.364846 20.737,30.354867 19.848007,30.221873 18.99501,29.996867L18.64801,27.662864C17.785004,27.330865,16.988998,26.866878,16.294006,26.294889L14.089005,27.126886C12.848007,25.849885,11.934006,24.256873,11.45401,22.489885L13.302002,21.018912C13.236008,20.574916 13.190002,20.120908 13.195007,19.655913 13.200012,19.195924 13.246002,18.741916 13.322998,18.302922L11.490005,16.805921C11.990005,15.03893,12.925003,13.46594,14.181,12.204959L16.376007,13.067931C17.081009,12.495943,17.882004,12.04694,18.74501,11.719946L19.123001,9.3959514C19.981003,9.1819631,20.874008,9.0539733,21.794006,9.0639526z M1.4300079,8.7569467L15.74501,8.7569467C12.992004,10.268964,10.873001,12.786958,9.8769989,15.815935L1.4300079,15.815935C0.63900757,15.815935,0,15.177938,0,14.385949L0,10.192945C0,9.4009563,0.63900757,8.7569467,1.4300079,8.7569467z M4.2180023,1.8990083C3.3240051,1.8990083 2.5890045,2.6289853 2.5890045,3.5279983 2.5890045,4.425974 3.3240051,5.1559817 4.2180023,5.1559817 5.1160126,5.1559817 5.8420105,4.425974 5.8420105,3.5279983 5.8420105,2.6289853 5.1160126,1.8990083 4.2180023,1.8990083z M1.4300079,0L21.491013,0C22.283005,-1.3679619E-07,22.92601,0.64300223,22.92601,1.4349909L22.92601,5.6259805C22.92601,6.4169618,22.283005,7.0549594,21.491013,7.0549594L1.4300079,7.0549594C0.63900757,7.0549594,0,6.4169618,0,5.6259805L0,1.4349909C0,0.64300223,0.63900757,-1.3679619E-07,1.4300079,0z"
+                                   Style="{StaticResource ReadingStartedButtonStyle}" ButtonCommand="{Binding SetMinomatPhase}"
+                                   ButtonText="{Binding Path=MSS_Client_SetPhase, Source={StaticResource Resources}}"/>
+      <customControls:TabletButton ButtonPath="M9.4614787,7.2521966C8.897512,7.2521966 8.3335462,7.4671911 7.9035716,7.8961795 7.0456223,8.7541569 7.0456223,10.15112 7.9035716,11.010097 8.7355218,11.842075 10.186436,11.842075 11.018386,11.010097 11.876336,10.15112 11.876336,8.7541569 11.018386,7.8961795 10.588412,7.4671911 10.024445,7.2521966 9.4614787,7.2521966z M9.4617286,5.2529996C10.537916,5.2529991 11.613851,5.6627386 12.432303,6.4822172 14.069206,8.1201742 14.069206,10.786103 12.432303,12.424061 11.639349,13.217039 10.583413,13.655028 9.4614787,13.655028 8.3395457,13.655028 7.283608,13.217039 6.4896555,12.424061 4.8527527,10.786103 4.8527527,8.1201742 6.4896555,6.4822172 7.3091063,5.6627386 8.3855424,5.2529991 9.4617286,5.2529996z M12.752985,2.0839849L3.0529771,3.0440679 2.0839834,12.737062 18.512992,29.166996 29.173999,18.505007z M13.497004,0L32.002,18.505007 18.512992,31.994999 0,13.481081 1.2249749,1.2160647z"
+                                   Style="{StaticResource ReadingStartedButtonStyle}" ButtonCommand="{Binding ReadMinolId}"
+                                   ButtonText="{Binding Path=MSS_Client_ReadMinolId, Source={StaticResource Resources}}"/>
+      <customControls:TabletButton ButtonPath="M12.523432,6.5932371C12.062422,6.5932371 11.627413,6.7782275 11.300406,7.1132114 10.610391,7.8171765 10.610391,8.9641196 11.300406,9.6690852 11.95542,10.337052 13.090444,10.338052 13.747459,9.6680848 14.436473,8.9631202 14.436473,7.8171765 13.746459,7.1132114 13.418452,6.7782275 12.984442,6.5932371 12.523432,6.5932371z M12.523432,4.6300842C13.495453,4.6300838 14.467474,4.9908158 15.175489,5.7122805 16.621521,7.1892073 16.621521,9.591089 15.175489,11.067016L15.174489,11.068016C14.467474,11.789981 13.526453,12.186961 12.523432,12.186961 11.520411,12.186961 10.579391,11.789981 9.872375,11.068016 8.425344,9.591089 8.425344,7.1892073 9.8713751,5.7122805 10.57939,4.9908158 11.551411,4.6300838 12.523432,4.6300842z M5.0143417,4.438823L2.895002,4.6530449 2.0820014,12.965046 15.991009,27.167047 17.586607,25.537159 4.2790283,11.949961z M15.282026,2.0849626L7.1730118,2.9050317 6.3610606,11.218027 20.270066,25.420065 29.202016,16.298963z M16.037031,0L32.001029,16.298963 20.270066,28.277002 18.986857,26.966831 15.991009,30.024048 0,13.697046 1.065001,2.8270449 5.2131304,2.4082195 5.343055,1.0810556z"
+                                   Style="{StaticResource ReadingStartedButtonStyle}" ButtonCommand="{Binding WriteMinolId}"
+                                   ButtonText="{Binding Path=MSS_Client_WriteMinolId, Source={StaticResource Resources}}"/>
+      <customControls:TabletButton ButtonPath="M9.9000245,6.000003L6.0000001,9.8999988 12.100037,16.000007 6.0000001,22.100002 9.9000245,25.999997 16,19.900018 22.100037,25.999997 26,22.100002 19.900024,16.000007 26,9.8999988 22.100037,6.000003 16,12.099997z M16,0C24.799988,0 32,7.2000005 32,16.000007 32,24.800016 24.799988,32.000001 16,32.000001 7.2000123,32.000001 8.3946347E-08,24.800016 0,16.000007 8.3946347E-08,7.2000005 7.2000123,0 16,0z"
+                                   ButtonCommand="{Binding CancelWindowCommand}"
+                                   ButtonText="{Binding Path=MSS_MessageCodes_Cancel, Source={StaticResource Resources}}"/>
+    </StackPanel>
+    <Grid Row="1">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="50"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid Row="0" Background="DarkGray">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+          <Image HorizontalAlignment="Center" Style="{StaticResource SmallIconImageStructureStyle}"
+                 Source="{Binding SelectedMinomatStructureNode.Image}"/>
+          <Label HorizontalAlignment="Center" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding SelectedMinomatStructureNode.Name}"/>
+        </StackPanel>
+      </Grid>
+      <Grid Row="1" Margin="0 20 0 0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="0.6*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="50"/>
+          <RowDefinition Height="50"/>
+          <RowDefinition Height="50"/>
+          <RowDefinition Height="50"/>
+          <RowDefinition Height="50"/>
+          <RowDefinition Height="50"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" Margin="0 0 10 0" HorizontalAlignment="Right" VerticalAlignment="Center"
+               Content="{Binding Path=MSS_Client_RegisteredWithMaster, Source={StaticResource Resources}}"
+               Visibility="{Binding IsRegisteredWithMasterVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        <StackPanel Grid.Row="0" Grid.Column="1" Width="200" Height="40" Margin="10 0 0 0" HorizontalAlignment="Left"
+                    Orientation="Horizontal">
+          <Image HorizontalAlignment="Center" Style="{StaticResource SmallIconImageStructureStyle}"
+                 Source="{Binding SelectedMinomatStructureNode.Image}"
+                 Visibility="{Binding IsRegisteredWithMasterVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+          <Label HorizontalAlignment="Center" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding SelectedMinomatStructureNode.Name}"
+                 Visibility="{Binding IsRegisteredWithMasterVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        </StackPanel>
+        <Label Grid.Row="1" Grid.Column="0" Margin="0 0 10 0" HorizontalAlignment="Right"
+               VerticalAlignment="Center"
+               Content="{Binding Path=MSS_Client_ReceivedMeters, Source={StaticResource Resources}}"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Width="200" Height="35" Margin="5 0 0 0" HorizontalAlignment="Left"
+                 IsEnabled="false" Style="{StaticResource AppTextBoxStructureStyle}" Text="{Binding ReceivedMeters}"/>
+        <Label Grid.Row="2" Grid.Column="0" Margin="0 0 10 0" HorizontalAlignment="Right"
+               VerticalAlignment="Center"
+               Content="{Binding Path=MSS_Client_Assigned_Meters, Source={StaticResource Resources}}"/>
+        <TextBox Grid.Row="2" Grid.Column="1" Width="200" Height="35" Margin="5 0 0 0" HorizontalAlignment="Left"
+                 IsEnabled="false" Style="{StaticResource AppTextBoxStructureStyle}" Text="234"/>
+        <Label Grid.Row="3" Grid.Column="0" Margin="0 0 10 0" HorizontalAlignment="Right"
+               VerticalAlignment="Center"
+               Content="{Binding Path=MSS_Client_RegisteredMeters, Source={StaticResource Resources}}"/>
+        <TextBox Grid.Row="3" Grid.Column="1" Width="200" Height="35" Margin="5 0 0 0" HorizontalAlignment="Left"
+                 IsEnabled="false" Style="{StaticResource AppTextBoxStructureStyle}" Text="0"/>
+        <Label Grid.Row="4" Grid.Column="0" Margin="0 0 10 0" HorizontalAlignment="Right"
+               VerticalAlignment="Center"
+               Content="{Binding Path=MSS_Client_StatusMeterMeters, Source={StaticResource Resources}}"/>
+        <TextBox Grid.Row="4" Grid.Column="1" Width="200" Height="35" Margin="5 0 0 0" HorizontalAlignment="Left"
+                 IsEnabled="false" Style="{StaticResource AppTextBoxStructureStyle}" Text="Registered"/>
+        <Label Grid.Row="5" Grid.Column="0" Margin="0 0 10 0" HorizontalAlignment="Right"
+               VerticalAlignment="Center"
+               Content="{Binding Path=MSS_Client_StatusNetwork, Source={StaticResource Resources}}"/>
+        <TextBox Grid.Row="5" Grid.Column="1" Width="200" Height="35" Margin="5 0 0 0" HorizontalAlignment="Left"
+                 IsEnabled="false" Style="{StaticResource AppTextBoxStructureStyle}" Text="Received"/>
+        <Grid Row="6" Margin="0 50 0 0" Column="0" ColumnSpan="2" VerticalAlignment="Stretch"
+              Background="WhiteSmoke">
+          <Grid Name="GridSuccess" Row="0" Visibility="Visible">
+            <Grid Height="60" Margin="0 50 0 0" HorizontalAlignment="Center" VerticalAlignment="Top">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="90"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Path Grid.Column="1" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Data="M 465.398469957348,2.284039510414E-06 C 482.459535631177,-7.61341652832925E-07 499.520570787427,-7.61341652832925E-07 516.589754137036,2.284039510414E-06 519.715974840161,4.35931638350303 504.222078355786,9.83137658705527 495.651124986645,15.5573039399605 369.009920152661,100.241870437763 263.848604234692,210.585139785908 169.875505479809,318.99998048415 112.043924364087,266.893931900166 60.7961788501707,210.390620742939 0,160.277934585713 10.2915821399656,149.517451797627 23.4670200672117,140.696284805439 39.5505962696043,133.819682632588 67.6463871326414,148.99883607497 91.5659046497312,162.881587539814 125.526414903637,179.184352432392 130.292497667309,181.463908706806 162.467790636059,196.205531631611 165.214326890942,196.065074478291 171.321382555005,195.740977798603 187.712007555005,176.40232423415 197.793550523755,168.061854873798 270.811983140942,107.610042129658 375.722932847973,39.4010119782906 465.398469957348,2.284039510414E-06 Z"
+                    Fill="#00608c" Stretch="Uniform"/>
+              <TextBlock Grid.Column="2" Width="300" Margin="10,0,0,0" VerticalAlignment="Top" FontSize="15"
+                         FontWeight="Bold" Foreground="#00608c" TextAlignment="Justify" TextWrapping="Wrap"
+                         Text="{Binding Path=MSS_Client_ActualFirmwareVersion, Source={StaticResource Resources}}"/>
+            </Grid>
+          </Grid>
+          <Grid Name="GridError" Row="0" Visibility="Collapsed">
+            <Grid Height="60" Margin="0 50 0 0" HorizontalAlignment="Center" VerticalAlignment="Top">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="90"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Path Grid.Column="1" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0 -5 0 0"
+                    Data="M 220.834246527323,330.538787841797 C 203.961810003885,330.538787841797 190.315020453104,342.622802734375 190.315020453104,357.564208984375 190.315020453104,372.577178955078 203.961810003885,384.661193847656 220.834246527323,384.661193847656 237.705691229471,384.661193847656 251.352450262674,372.577178955078 251.352450262674,357.564208984375 251.352450262674,342.622802734375 237.705691229471,330.538787841797 220.834246527323,330.538787841797 M 221.851672064432,74.331184387207 C 221.566088568339,74.3326187133789 221.412752997049,74.3387756347656 221.412752997049,74.3387680053711 188.164584051737,78.9556579589843 187.254946600565,105.176460266113 187.254946600565,105.176460266113 L 187.254946600565,133.299819946289 195.442812811503,237.228179931641 C 200.570559393534,263.302398681641 204.29295624412,272.822235107422 204.29295624412,272.822235107422 219.096728216776,286.519134521484 232.412356268534,276.119506835938 232.412356268534,276.119506835938 243.49574555076,266.306396484375 244.239809881815,243.307739257812 244.239809881815,243.307739257812 257.555453192362,133.299819946289 253.834063421854,101.879196166992 253.834063421854,101.879196166992 252.559527289042,75.7928390502929 226.967806707987,74.3693618774414 222.180560003885,74.3317260742187 222.056765448221,74.3307495117187 221.946871649393,74.3307037353515 221.851672064432,74.331184387207 M 223.232043158182,0 C 223.232043158182,4.78958415328634E-06 311.397433172831,59.17919921875 452.990877997049,40.2109603881836 452.990877997049,40.2109603881836 482.434908758768,380.927612304688 223.232043158182,458.999969482422 223.232043158182,458.999969482422 -1.4807909616145,395.135925292969 0.0073589020532836,42.5533828735351 0.0073601383840014,42.5533790588379 153.841204535135,52.0768356323242 223.232043158182,0 Z"
+                    Fill="Red" Stretch="Uniform"/>
+              <TextBlock Grid.Column="2" Width="300" Margin="10,0,0,0" VerticalAlignment="Top" FontSize="15"
+                         FontWeight="Bold" Foreground="#00608c" TextAlignment="Justify" TextWrapping="Wrap"
+                         Text="{Binding Path=MSS_Client_ActualFirmwareVersion, Source={StaticResource Resources}}"/>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
+  </Grid>
+</common:ResizableMetroWindow>

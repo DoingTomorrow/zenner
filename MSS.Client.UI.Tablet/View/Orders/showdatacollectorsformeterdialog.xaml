@@ -1,0 +1,37 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Tablet.View.Orders.ShowDataCollectorsForMeterDialog"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c" Height="400"
+                             Width="380" ShowMaxRestoreButton="false" ShowMinButton="false" Title="{Binding Title}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid>
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+      <telerik:RadGridView x:Name="RadGridView" Margin="5,5,5,5" HorizontalAlignment="Center"
+                           telerik:StyleManager.Theme="Windows8" ShowGroupPanel="false" AutoGenerateColumns="false"
+                           IsFilteringAllowed="false" CanUserResizeColumns="false" CanUserInsertRows="false"
+                           RowIndicatorVisibility="Collapsed" ColumnWidth="Auto" IsReadOnly="true" Width="360"
+                           ItemsSource="{Binding MinomatMeters}">
+        <telerik:GridViewDataControl.Columns>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding Minomat.GsmId}"
+                                      Header="{Binding Path=MSS_Client_DataCollectors, Source={StaticResource Resources}}"/>
+          <telerik:GridViewDataColumn DataMemberBinding="{Binding Status}"
+                                      Header="{Binding Path=MSS_Client_Status, Source={StaticResource Resources}}"/>
+        </telerik:GridViewDataControl.Columns>
+      </telerik:RadGridView>
+    </ScrollViewer>
+  </Grid>
+</common:ResizableMetroWindow>

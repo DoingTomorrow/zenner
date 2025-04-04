@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\PDCL2_Handler.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6CF11797-21ED-4371-978D-2EB55125F0E3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>PDCL2_Handler</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>2.22.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>PDCL2_Handler</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonWPF">
+      <HintPath>lib\CommonWPF.dll</HintPath>
+    </Reference>
+    <Reference Include="CommunicationPort">
+      <HintPath>lib\CommunicationPort.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="HandlerLib">
+      <HintPath>lib\HandlerLib.dll</HintPath>
+    </Reference>
+    <Reference Include="MBusLib">
+      <HintPath>lib\MBusLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="ReadoutConfiguration">
+      <HintPath>lib\ReadoutConfiguration.dll</HintPath>
+    </Reference>
+    <Reference Include="StartupLib">
+      <HintPath>lib\StartupLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="EncabulatorData.cs" />
+    <Compile Include="ArrayExtension.cs" />
+    <Compile Include="PDCL2_AllMeters.cs" />
+    <Compile Include="PDCL2_DeviceCommands.cs" />
+    <Compile Include="PDCL2_DeviceIdentification_2.cs" />
+    <Compile Include="PDCL2_DeviceIdentification_1.cs" />
+    <Compile Include="PDCL2_DeviceIdentification.cs" />
+    <Compile Include="PDCL2_HandlerFunctions.cs" />
+    <Compile Include="PDCL2_Meter.cs" />
+    <Compile Include="PDCL2_Params.cs" />
+    <Compile Include="PDCL2_DeviceMemory.cs" />
+    <Compile Include="DeviceStatus.cs" />
+    <Compile Include="HardwareStatus.cs" />
+    <Compile Include="Mode.cs" />
+    <Compile Include="NominalFlow.cs" />
+    <Compile Include="TransmissionScenario.cs" />
+    <Compile Include="MapDefClass0000001A.cs" />
+    <Compile Include="MapDefClass0200A01A.cs" />
+    <Compile Include="MapDefClass0200B01A.cs" />
+    <Compile Include="MapDefClass0200D01A.cs" />
+    <Compile Include="MapDefClass0201001A.cs" />
+    <Compile Include="MapDefClass0202101A.cs" />
+    <Compile Include="MapDefClass0204001A.cs" />
+    <Compile Include="MapDefClass0207001A.cs" />
+    <Compile Include="MapDefClass0208001A.cs" />
+    <Compile Include="MapDefClass0209001A.cs" />
+    <Compile Include="MapDefClass020A001A.cs" />
+    <Compile Include="MapDefClass020D002E.cs" />
+    <Compile Include="MapDefClass0210002E.cs" />
+    <Compile Include="MapDefClass0211001A.cs" />
+    <Compile Include="MapDefClass0212001A.cs" />
+    <Compile Include="MapDefClass0213001A.cs" />
+    <Compile Include="MapDefClass0214001A.cs" />
+    <Compile Include="MapDefClass0214002F.cs" />
+    <Compile Include="MapDefClass0215001A.cs" />
+    <Compile Include="MapDefClass0215002F.cs" />
+    <Compile Include="MapDefClass0216003A.cs" />
+    <Compile Include="MapDefClass0217003A.cs" />
+    <Compile Include="MapDefClass0219002F.cs" />
+    <Compile Include="MapDefClass021B102F.cs" />
+    <Compile Include="MapDefClass021E002F.cs" />
+    <Compile Include="MapDefClass021F002F.cs" />
+    <Compile Include="PlugInAnchor.cs" />
+    <Compile Include="UserInterface\PDCL2_HandlerWindow.cs" />
+    <Compile Include="UserInterface\PDCL2_HandlerWindowFunctions.cs" />
+    <Compile Include="UserInterface\TestWindows.cs" />
+    <Compile Include="Properties\Resources.cs" />
+    <Compile Include="Properties\Settings.cs" />
+    <Compile Include="UIEncabulatorWindow.xaml.cs">
+      <DependentUpon>uiencabulatorwindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="ui\encabulatorwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ui\pdcl2_handlerwindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ui\testwindows.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

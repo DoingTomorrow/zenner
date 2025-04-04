@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\SmokeDetectorHandler.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{01C415B1-1967-4A18-90C5-F49C16D31504}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>SmokeDetectorHandler</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>2.20.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>SmokeDetectorHandler</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AsyncCom">
+      <HintPath>lib\AsyncCom.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonLibrary">
+      <HintPath>lib\CommonLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="CommunicationPort">
+      <HintPath>lib\CommunicationPort.dll</HintPath>
+    </Reference>
+    <Reference Include="CorporateDesign">
+      <HintPath>lib\CorporateDesign.dll</HintPath>
+    </Reference>
+    <Reference Include="DeviceCollector">
+      <HintPath>lib\DeviceCollector.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="HandlerLib">
+      <HintPath>lib\HandlerLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationFramework" />
+    <Reference Include="ReadoutConfiguration">
+      <HintPath>lib\ReadoutConfiguration.dll</HintPath>
+    </Reference>
+    <Reference Include="StartupLib">
+      <HintPath>lib\StartupLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="WindowsFormsIntegration" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AsyncFunctionsEx.cs" />
+    <Compile Include="LoRaParameter.cs" />
+    <Compile Include="RadioProtocol.cs" />
+    <Compile Include="SmokeDetectorDatabase.cs" />
+    <Compile Include="MeterData.cs" />
+    <Compile Include="ManufacturingParameter.cs" />
+    <Compile Include="ReadPart.cs" />
+    <Compile Include="ExtendedSearch.cs" />
+    <Compile Include="BackupEditor.cs" />
+    <Compile Include="HandlerMeterType.cs" />
+    <Compile Include="Configurator.cs" />
+    <Compile Include="FaultIdentification.cs" />
+    <Compile Include="FunctionTestMode.cs" />
+    <Compile Include="InterlinkedDeviceStatus.cs" />
+    <Compile Include="LED_Broken.cs" />
+    <Compile Include="MinoprotectII.cs" />
+    <Compile Include="RadioMode.cs" />
+    <Compile Include="MinoprotectIII_Events.cs" />
+    <Compile Include="PushButtonErrorState.cs" />
+    <Compile Include="HornDriveLevelState.cs" />
+    <Compile Include="RemovingDetectionState.cs" />
+    <Compile Include="ObstructionDetectionState.cs" />
+    <Compile Include="SurroundingProximityState.cs" />
+    <Compile Include="LED_FailureState.cs" />
+    <Compile Include="MinoprotectIII_Parameter.cs" />
+    <Compile Include="MinoprotectII_Parameter.cs" />
+    <Compile Include="MinoprotectII_Events.cs" />
+    <Compile Include="MinoprotectII_Values.cs" />
+    <Compile Include="SmokeDetectorStatusInformation.cs" />
+    <Compile Include="SmokeDetectorVersion.cs" />
+    <Compile Include="TestModeParameter.cs" />
+    <Compile Include="SmokeDetectorHandlerFunctions.cs" />
+    <Compile Include="MinoprotectIII.cs" />
+    <Compile Include="ArrayExtension.cs" />
+    <Compile Include="PlugInAnchor.cs" />
+    <Compile Include="SmokeDetectorWindow.cs" />
+    <Compile Include="TestCommand.cs" />
+    <Compile Include="OutputAnalyzeData.cs" />
+    <Compile Include="Properties\Resources.cs" />
+    <Compile Include="Properties\Settings.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="BackupEditor.resx" />
+    <EmbeddedResource Include="Configurator.resx" />
+    <EmbeddedResource Include="ExtendedSearch.resx" />
+    <EmbeddedResource Include="Properties\Resources.resx" />
+    <EmbeddedResource Include="SmokeDetectorWindow.resx" />
+    <EmbeddedResource Include="TestCommand.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

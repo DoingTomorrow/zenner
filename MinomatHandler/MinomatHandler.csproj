@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: F:\tekst\DoingTomorrow\Zenner_Software\program_filer\MinomatHandler.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{452C9251-41AA-4B3F-9523-70C74096ED1E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>MinomatHandler</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ApplicationVersion>1.0.3.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <RootNamespace>MinomatHandler</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AsyncCom">
+      <HintPath>lib\AsyncCom.dll</HintPath>
+    </Reference>
+    <Reference Include="DeviceCollector">
+      <HintPath>lib\DeviceCollector.dll</HintPath>
+    </Reference>
+    <Reference Include="GmmDbLib">
+      <HintPath>lib\GmmDbLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PlugInLib">
+      <HintPath>lib\PlugInLib.dll</HintPath>
+    </Reference>
+    <Reference Include="StartupLib">
+      <HintPath>lib\StartupLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="ZR_ClassLibrary">
+      <HintPath>lib\ZR_ClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="GenericCheckBoxForm.cs" />
+    <Compile Include="IMinomatHandler.cs" />
+    <Compile Include="MinomatHandlerFunctions.cs" />
+    <Compile Include="MinomatHandlerWindow.cs" />
+    <Compile Include="MinomatV4Settings.cs" />
+    <Compile Include="MinomatV4Parameter.cs" />
+    <Compile Include="MinomatV4.cs" />
+    <Compile Include="PlugInAnchor.cs" />
+    <Compile Include="SCGiParserWindow.cs" />
+    <Compile Include="CommunicationEventHandler.cs" />
+    <Compile Include="SCGiConnection.cs" />
+    <Compile Include="SCGiErrorType.cs" />
+    <Compile Include="SCGiError.cs" />
+    <Compile Include="SCGiFrame.cs" />
+    <Compile Include="SCGiHeader.cs" />
+    <Compile Include="SCGiHeaderEx.cs" />
+    <Compile Include="SCGiPacket.cs" />
+    <Compile Include="SCGiMessageType.cs" />
+    <Compile Include="SCGiSequenceHeaderType.cs" />
+    <Compile Include="SCGiAddress.cs" />
+    <Compile Include="SCGiCommandManager.cs" />
+    <Compile Include="SCGiCommand.cs" />
+    <Compile Include="RadioChannelError.cs" />
+    <Compile Include="RadioChannel.cs" />
+    <Compile Include="StateOfLPSR.cs" />
+    <Compile Include="StateDataOfLPRS.cs" />
+    <Compile Include="RoutingRow.cs" />
+    <Compile Include="RoutingTable.cs" />
+    <Compile Include="EndPoint.cs" />
+    <Compile Include="MultiChannelSettings.cs" />
+    <Compile Include="Scenario.cs" />
+    <Compile Include="StartTestReceptionSettings.cs" />
+    <Compile Include="StartTestReceptionAction.cs" />
+    <Compile Include="RadioProtocol.cs" />
+    <Compile Include="RadioDevice.cs" />
+    <Compile Include="TestReceptionResult.cs" />
+    <Compile Include="MeasurementValueType.cs" />
+    <Compile Include="MeasurementCategory.cs" />
+    <Compile Include="MessUnit.cs" />
+    <Compile Include="NetworkSetupMode.cs" />
+    <Compile Include="GSMTestReceptionState.cs" />
+    <Compile Include="NetworkOptimizationState.cs" />
+    <Compile Include="TableOfSlaves.cs" />
+    <Compile Include="Slave.cs" />
+    <Compile Include="SlaveType.cs" />
+    <Compile Include="FlashBlock.cs" />
+    <Compile Include="EepromBlock.cs" />
+    <Compile Include="AppInitialSettings.cs" />
+    <Compile Include="ActionMode.cs" />
+    <Compile Include="ActionTimepointType.cs" />
+    <Compile Include="ActionTimepoint.cs" />
+    <Compile Include="MeasurementDataType.cs" />
+    <Compile Include="MeasurementDataHeader.cs" />
+    <Compile Include="MeasurementData.cs" />
+    <Compile Include="MeasurementSet.cs" />
+    <Compile Include="HttpCondition.cs" />
+    <Compile Include="HttpState.cs" />
+    <Compile Include="GsmStateA.cs" />
+    <Compile Include="GsmStateB.cs" />
+    <Compile Include="GsmState.cs" />
+    <Compile Include="PhaseMode.cs" />
+    <Compile Include="PhaseState.cs" />
+    <Compile Include="PhaseDetails.cs" />
+    <Compile Include="TimeOffsetMode.cs" />
+    <Compile Include="MessUnitState.cs" />
+    <Compile Include="MessUnitMetadata.cs" />
+    <Compile Include="ResetConfigurationState.cs" />
+    <Compile Include="LED.cs" />
+    <Compile Include="ComServerFile.cs" />
+    <Compile Include="ComServerFileType.cs" />
+    <Compile Include="ModemCounterType.cs" />
+    <Compile Include="ModemCounter.cs" />
+    <Compile Include="ModemUpdateTiming.cs" />
+    <Compile Include="Components\DataTableWithDateTimeControl.cs" />
+    <Compile Include="Components\TextBoxesControl.cs" />
+    <Compile Include="Components\DataTableControl.cs" />
+    <Compile Include="Components\RichTextBoxControl.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Components\DataTableControl.resx" />
+    <EmbeddedResource Include="Components\DataTableWithDateTimeControl.resx" />
+    <EmbeddedResource Include="Components\RichTextBoxControl.resx" />
+    <EmbeddedResource Include="Components\TextBoxesControl.resx" />
+    <EmbeddedResource Include="GenericCheckBoxForm.resx" />
+    <EmbeddedResource Include="MinomatHandlerWindow.resx" />
+    <EmbeddedResource Include="SCGiParserWindow.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

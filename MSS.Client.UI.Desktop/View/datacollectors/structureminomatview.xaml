@@ -1,0 +1,78 @@
+<common:ResizableMetroWindow x:Class="MSS.Client.UI.Desktop.View.DataCollectors.StructureMinomatView"
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                             xmlns:common="clr-namespace:MSS.Client.UI.Common;assembly=MSS.Client.UI.Common"
+                             TitleCaps="false" BorderThickness="0" GlowBrush="Black" ShowInTaskbar="false"
+                             WindowStartupLocation="CenterScreen" WindowState="Normal" WindowTitleBrush="#00608c"
+                             ResizeMode="NoResize" Height="560" Width="500"
+                             Title="{Binding MSS_Client_OrderControl_Header_Structure, Source={StaticResource Resources}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
+        <ResourceDictionary>
+          <Style TargetType="{x:Type telerik:TreeListViewRow}" BasedOn="{StaticResource TreeListViewRowStyle}">
+            <Setter Property="Control.Background" Value="{Binding BackgroundColor}"/>
+          </Style>
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <DockPanel LastChildFill="true">
+    <Grid>
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="10"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="70"/>
+        </Grid.RowDefinitions>
+        <Grid Row="1">
+          <Grid x:Name="StructureRootGrid" Background="White" HorizontalAlignment="Center" Width="490">
+            <FrameworkElement.Resources>
+              <DataTemplate x:Key="FirstColumnCellTemplate">
+                <StackPanel Orientation="Horizontal">
+                  <Image Style="{StaticResource SmallIconImageStyle}" Source="{Binding Image}"/>
+                  <TextBlock Margin="5" Text="{Binding Name}"/>
+                </StackPanel>
+              </DataTemplate>
+            </FrameworkElement.Resources>
+            <telerik:RadTreeListView x:Name="treeListView" telerik:TreeViewPanel.IsVirtualizing="true" AutoGenerateColumns="false"
+                                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="29,5"
+                                     CanUserFreezeColumns="false" CanUserReorderColumns="false" RowIndicatorVisibility="Collapsed"
+                                     AutoExpandItems="true" ShowColumnHeaders="true" telerik:StyleManager.Theme="Windows8"
+                                     ItemsSource="{Binding StructureNodeCollection}"
+                                     SelectedItem="{Binding SelectedStructureNodeItem, Mode=TwoWay}"
+                                     SelectionMode="{Binding SelectionMode, Converter={StaticResource BoolToSelectionModeConverter}, Mode=TwoWay}">
+              <telerik:GridViewDataControl.ChildTableDefinitions>
+                <telerik:TreeListViewTableDefinition ItemsSource="{Binding SubNodes}"/>
+              </telerik:GridViewDataControl.ChildTableDefinitions>
+              <telerik:GridViewDataControl.Columns>
+                <telerik:GridViewDataColumn CellTemplate="{StaticResource FirstColumnCellTemplate}" IsReadOnly="true" Width="Auto"
+                                            Header="Name" DataMemberBinding="{Binding Name}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" Width="Auto" Header="Description" DataMemberBinding="{Binding Description}"/>
+              </telerik:GridViewDataControl.Columns>
+            </telerik:RadTreeListView>
+          </Grid>
+        </Grid>
+        <Grid Row="2">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+          </Grid.RowDefinitions>
+          <StackPanel HorizontalAlignment="Center" Grid.Row="1" Orientation="Horizontal">
+            <Button x:Name="OkButton" IsDefault="true" Foreground="#595151" Style="{StaticResource AppButtonStyle}"
+                    Background="White" Height="25" Width="73" BorderBrush="LightGray" Margin="0 0 10 0"
+                    Content="{Binding Path=MSS_MessageCodes_OK, Source={StaticResource Resources}}"
+                    Command="{Binding CancelWindowCommand}"/>
+          </StackPanel>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</common:ResizableMetroWindow>

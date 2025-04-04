@@ -1,0 +1,16 @@
+<UserControl x:Class="MSS.Client.UI.Desktop.View.Archive.SearchMssReadingJobUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid Row="0">
+      <telerik:RadGridView x:Name="ArchiveOrderView" RowIndicatorVisibility="Collapsed" CanUserFreezeColumns="false"
+                           IsReadOnly="true" ColumnWidth="*" AutoGenerateColumns="true" CanUserSelect="false"
+                           CanUserSortColumns="true" AlternateRowBackground="#EDEDED" AlternationCount="2"
+                           ItemsSource="{Binding ArchiveMssReadingJobDTO, Mode=TwoWay}"/>
+    </Grid>
+  </Grid>
+</UserControl>

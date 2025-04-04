@@ -1,0 +1,410 @@
+<UserControl x:Class="MSS.Client.UI.Desktop.View.Reporting.ReportingUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type telerik:TreeListViewRow}" BasedOn="{StaticResource TreeListViewRowStyle}">
+      <Setter Property="Control.Background" Value="{Binding BackgroundColor}"/>
+    </Style>
+    <Style TargetType="{x:Type telerik:GridViewRow}" BasedOn="{StaticResource GridViewRowStyle}">
+      <Setter Property="Control.Background" Value="{Binding BackgroundColor}"/>
+    </Style>
+    <Style x:Key="JobMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="true"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ElementName=JobsGridView, Path=SelectedItem}" Value="{x:Null}">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="MeterMustBeSelectedButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="true"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ElementName=treeListView, Path=SelectedItem}" Value="{x:Null}">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="ExportDataButtonStyle" TargetType="{x:Type Button}"
+           BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="true"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+    </Style>
+    <Style x:Key="PrintButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource AppButtonStyle}">
+      <Setter Property="UIElement.IsEnabled" Value="true"/>
+      <Setter Property="UIElement.Opacity" Value="1"/>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ElementName=treeListView, Path=SelectedItems}" Value="{x:Null}">
+          <Setter Property="UIElement.IsEnabled" Value="false"/>
+          <Setter Property="UIElement.Opacity" Value="0.5"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="MeterReadingValuesGridRowStyle" TargetType="{x:Type telerik:GridViewRow}">
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding IsDarkRowColor}" Value="True">
+          <DataTrigger.Setters>
+            <Setter Property="Control.Background" Value="#EDEDED"/>
+          </DataTrigger.Setters>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding IsDarkRowColor}" Value="False">
+          <DataTrigger.Setters>
+            <Setter Property="Control.Background" Value="#FFFFFF"/>
+          </DataTrigger.Setters>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+  </FrameworkElement.Resources>
+  <telerik:RadTabControl HeaderBackground="#EDEDED" Margin="3" Template="{StaticResource RadTabControlControlTemplateTest}">
+    <telerik:RadTabItem Header="{Binding Path=MSS_Client_UserControl_MeterData, Source={StaticResource Resources}}"
+                        IsSelected="{Binding IsMeterDataTabSelected, Mode=TwoWay}"
+                        Visibility="{Binding IsMeterDataTabVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="30"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Background="#ebebeb">
+          <Button Name="Consumption" Style="{StaticResource AppButtonStyle}" ToolTip="Consumption"
+                  Command="{Binding GetConsumptionCommand}"
+                  CommandParameter="{Binding ElementName=treeListView, Path=SelectedItem}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/execute.png"/>
+              <TextBlock Name="ConsumptionCommand" Margin="10 0 10 0"
+                         Text="{Binding Path=METER_DATA_CHART_GENERATION_TITLE, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="LoadData" Style="{StaticResource MeterMustBeSelectedButtonStyle}" ToolTip="LoadData"
+                  Command="{Binding SearchForReadingValues}"
+                  CommandParameter="{Binding ElementName=treeListView, Path=SelectedItem}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/load.png"/>
+              <TextBlock Name="LoadDataCommand" Margin="10 0 10 0"
+                         Text="{Binding Path=METER_DATE_LOAD_DATA, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="btnExportData" Style="{StaticResource ExportDataButtonStyle}"
+                  ToolTip="{Binding Path=MSS_ExportData, Source={StaticResource Resources}}"
+                  Command="{Binding ExportDataCommand}"
+                  Visibility="{Binding MeterDataExportVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+            <StackPanel Orientation="Horizontal" Background="White">
+              <Image Style="{StaticResource SmallIconImageStyle}"
+                     Source="pack://application:,,,/Styles;component/Images/Universal/export.png"/>
+              <TextBlock Margin="10 0 10 0" Text="{Binding Path=MSS_ExportData, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="Print" Style="{StaticResource PrintButtonStyle}" Command="{Binding PrintCommand}"
+                  ToolTip="{Binding Path=METER_DATE_PRINT, Source={StaticResource Resources}}"
+                  IsEnabled="{Binding IsPrintButtonEnabled}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/print.png"/>
+              <TextBlock Name="PrintCommand" Margin="10 0 10 0"
+                         Text="{Binding Path=METER_DATE_PRINT, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+        <Grid Row="0">
+          <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-58,0,0"
+                            Content="{Binding MessageUserControlMeterData, Mode=TwoWay}"/>
+        </Grid>
+        <Grid Row="1">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="0"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid Row="1">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="380"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Column="0">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="40"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid Row="0"
+                      Visibility="{Binding RadioButtonsVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="150"/>
+                  </Grid.ColumnDefinitions>
+                  <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <telerik:RadComboBox Height="25" Width="150" Style="{StaticResource RadComboBoxErrorStyle}" DisplayMemberPath="Name"
+                                         ItemsSource="{Binding StructureTypeCollection}"
+                                         SelectedItem="{Binding SelectedType, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"/>
+                  </StackPanel>
+                  <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Button Click="Expand_OnClick" Name="Expand" Margin="5" Style="{StaticResource AppButtonStyle}"
+                            ToolTip="{Binding Path=MSS_Client_Expand_All, Source={StaticResource Resources}}">
+                      <Image Source="pack://application:,,,/Styles;component/Images/Universal/expand.png"/>
+                    </Button>
+                    <Button Click="Collapse_OnClick" Name="Collapse" Margin="5" Style="{StaticResource AppButtonStyle}"
+                            ToolTip="{Binding Path=MSS_Client_Collapse_All, Source={StaticResource Resources}}">
+                      <Image Source="pack://application:,,,/Styles;component/Images/Universal/collapse.png"/>
+                    </Button>
+                  </StackPanel>
+                  <StackPanel Grid.Column="2" Margin="5,0,0,0" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <TextBox x:Name="SearchTextBox" Style="{StaticResource AppTextBoxStyle}" Width="120" Margin="2,2,5,1"
+                             Height="25" Text="{Binding SearchText}">
+                      <UIElement.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding SearchCommand}"
+                                    CommandParameter="{Binding Path=Text, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}"/>
+                      </UIElement.InputBindings>
+                    </TextBox>
+                    <Image Source="pack://application:,,,/Styles;component/Images/Universal/search.png" Margin="2" Height="16"
+                           Width="16">
+                      <UIElement.InputBindings>
+                        <MouseBinding MouseAction="LeftClick" Command="{Binding SearchCommand}"
+                                      CommandParameter="{Binding Path=Text, ElementName=SearchTextBox}"/>
+                      </UIElement.InputBindings>
+                    </Image>
+                  </StackPanel>
+                </Grid>
+                <Grid Row="1">
+                  <Grid x:Name="StructureRootGrid" Background="White" HorizontalAlignment="Center" Width="425">
+                    <FrameworkElement.Resources>
+                      <DataTemplate x:Key="FirstColumnCellTemplate">
+                        <StackPanel Orientation="Horizontal">
+                          <Image Style="{StaticResource SmallIconImageStyle}" Source="{Binding Image}"/>
+                          <TextBlock Text="{Binding Name}"/>
+                        </StackPanel>
+                      </DataTemplate>
+                    </FrameworkElement.Resources>
+                    <telerik:RadTreeListView x:Name="treeListView" telerik:TreeViewPanel.IsVirtualizing="true" AutoGenerateColumns="false"
+                                             ColumnWidth="*" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="29,5"
+                                             CanUserFreezeColumns="true" CanUserReorderColumns="true" RowIndicatorVisibility="Collapsed"
+                                             ShowColumnHeaders="true" CanUserResizeRows="true" telerik:StyleManager.Theme="Windows8"
+                                             ItemsSource="{Binding StructureNodeCollection}"
+                                             SelectedItem="{Binding SelectedStructureNodeItem, Mode=TwoWay}"
+                                             IsExpandedBinding="{Binding IsExpanded}">
+                      <telerik:GridViewDataControl.ChildTableDefinitions>
+                        <telerik:TreeListViewTableDefinition ItemsSource="{Binding SubNodes}"/>
+                      </telerik:GridViewDataControl.ChildTableDefinitions>
+                      <telerik:GridViewDataControl.SortDescriptors>
+                        <telerik:SortDescriptor Member="Name" SortDirection="Ascending"/>
+                      </telerik:GridViewDataControl.SortDescriptors>
+                      <telerik:GridViewDataControl.Columns>
+                        <telerik:GridViewDataColumn CellTemplate="{StaticResource FirstColumnCellTemplate}" IsReadOnly="true" Width="Auto"
+                                                    Header="Name" DataMemberBinding="{Binding Name}"/>
+                        <telerik:GridViewDataColumn IsReadOnly="true" Width="Auto" Header="Name" DataMemberBinding="{Binding Entity.SerialNumber}"/>
+                        <telerik:GridViewDataColumn IsReadOnly="true" Width="Auto" Header="Description" DataMemberBinding="{Binding Description}"/>
+                      </telerik:GridViewDataControl.Columns>
+                    </telerik:RadTreeListView>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid Column="1">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="120"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid Row="0">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="80"/>
+                  <ColumnDefinition Width="120"/>
+                  <ColumnDefinition Width="120"/>
+                  <ColumnDefinition Width="50"/>
+                  <ColumnDefinition Width="140"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="40"/>
+                  <RowDefinition Height="40"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6" Margin="5 0 0 0">
+                  <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0"
+                             Text="{Binding Path=MSS_Client_Interval, Source={StaticResource Resources}}"/>
+                  <telerik:RadDateTimePicker Name="StartDate" telerik:StyleManager.Theme="Windows8"
+                                             Style="{StaticResource RadDateTimePickerErrorStyle}" Height="30" Margin="4"
+                                             SelectedValue="{Binding StartDate, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"
+                                             SelectableDateEnd="{Binding ElementName=EndDate, Path=SelectedValue}"/>
+                  <telerik:RadDateTimePicker Name="EndDate" telerik:StyleManager.Theme="Windows8"
+                                             Style="{StaticResource RadDateTimePickerErrorStyle}" Height="30" Margin="4"
+                                             SelectedValue="{Binding EndDate, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"
+                                             SelectableDateStart="{Binding ElementName=StartDate, Path=SelectedValue}"/>
+                  <Label Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Right" Height="26" Width="auto"
+                         Content="{Binding Path=MSS_JOBS_FILTER, Source={StaticResource Resources}}"/>
+                  <telerik:RadComboBox Style="{StaticResource RadComboBoxErrorStyle}" Width="Auto" Height="30" Margin="4,2,8,2"
+                                       DisplayMemberPath="Name" SelectedValuePath="Id"
+                                       SelectedItem="{Binding SelectedFilter, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"
+                                       ItemsSource="{Binding FilterCollection, Mode=TwoWay}"/>
+                  <Button x:Name="BtnStructure" HorizontalAlignment="Left" Command="{Binding OpenFilterCommand}">
+                    <Control.Template>
+                      <ControlTemplate>
+                        <Image Source="pack://application:,,,/Styles;component/Images/Universal/details.png" Height="18"
+                               Width="45"/>
+                      </ControlTemplate>
+                    </Control.Template>
+                  </Button>
+                </StackPanel>
+                <Grid Column="0" ColumnSpan="2" Row="2">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <CheckBox Name="ShowOnlyLast" HorizontalAlignment="Right" IsChecked="{Binding IsFiltered}"/>
+                  <TextBlock Grid.Column="1" HorizontalAlignment="Right" Text="Show only last values per:"
+                             VerticalAlignment="Center" Margin="0,0,5,0"/>
+                </Grid>
+                <StackPanel Orientation="Horizontal" Grid.ColumnSpan="3" Grid.Column="2" Grid.Row="1"
+                            IsEnabled="{Binding ElementName=ShowOnlyLast, Path=IsChecked}">
+                  <TextBlock Margin="20,10,10,10" Text="Day"/>
+                  <RadioButton IsChecked="{Binding IsDaily}"/>
+                  <TextBlock Margin="20,10,10,10" Text="Month"/>
+                  <RadioButton IsChecked="{Binding IsMonthly}"/>
+                  <TextBlock Margin="20,10,10,10" Text="Year"/>
+                  <RadioButton IsChecked="{Binding IsYearly}"/>
+                </StackPanel>
+              </Grid>
+              <Grid Row="1">
+                <telerik:RadGridView x:Name="MeterReadingValuesGridView" Margin="0,0,5,0" VerticalAlignment="Stretch"
+                                     AlternateRowBackground="#EDEDED" RowStyle="{StaticResource MeterReadingValuesGridRowStyle}"
+                                     CanUserFreezeColumns="false" telerik:StyleManager.Theme="Windows8" ColumnWidth="auto"
+                                     AutoGenerateColumns="false" ShowGroupPanel="true" ShowColumnHeaders="true" SelectionMode="Extended"
+                                     BorderThickness="1" ItemsSource="{Binding ReadingValuesDto, Mode=TwoWay}">
+                  <telerik:GridViewDataControl.SortDescriptors>
+                    <telerik:SortDescriptor Member="MeterSerialNumber" SortDirection="Ascending"/>
+                  </telerik:GridViewDataControl.SortDescriptors>
+                  <telerik:GridViewDataControl.Columns>
+                    <telerik:GridViewDataColumn DataMemberBinding="{Binding Date}"
+                                                Header="{Binding Path=MSS_Client_ReadingValues_Date, Source={StaticResource Resources}}"/>
+                    <telerik:GridViewDataColumn DataMemberBinding="{Binding MeterSerialNumber}"
+                                                Header="{Binding Path=MSS_Client_Structures_Header_SerialNumber, Source={StaticResource Resources}}"/>
+                    <telerik:GridViewDataColumn DataMemberBinding="{Binding Value}"
+                                                Header="{Binding Path=MSS_Client_ReadingValues_Value, Source={StaticResource Resources}}"/>
+                    <telerik:GridViewDataColumn DataMemberBinding="{Binding PhysicalQuantity}"
+                                                Header="{Binding Path=MSS_Client_DataFilters_PhysicalQuantity, Source={StaticResource Resources}}"/>
+                    <telerik:GridViewDataColumn DataMemberBinding="{Binding MeterType}"
+                                                Header="{Binding Path=MSS_Client_DataFilters_MeterType, Source={StaticResource Resources}}"/>
+                    <telerik:GridViewDataColumn DataMemberBinding="{Binding Calculation}"
+                                                Header="{Binding Path=MSS_Client_DataFilters_Calculation, Source={StaticResource Resources}}"/>
+                    <telerik:GridViewDataColumn DataMemberBinding="{Binding CalculationStart}"
+                                                Header="{Binding Path=MSS_Client_DataFilters_CalculationStart, Source={StaticResource Resources}}"/>
+                    <telerik:GridViewDataColumn DataMemberBinding="{Binding StorageInterval}"
+                                                Header="{Binding Path=MSS_Client_DataFilters_StorageInterval, Source={StaticResource Resources}}"/>
+                    <telerik:GridViewDataColumn DataMemberBinding="{Binding Creation}"
+                                                Header="{Binding Path=MSS_Client_DataFilters_Creation, Source={StaticResource Resources}}"/>
+                  </telerik:GridViewDataControl.Columns>
+                </telerik:RadGridView>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    </telerik:RadTabItem>
+    <telerik:RadTabItem Header="{Binding Path=MSS_Client_UserControl_AutomatedExports, Source={StaticResource Resources}}"
+                        IsSelected="{Binding IsAutomatedExportJobTabSelected, Mode=TwoWay}"
+                        Visibility="{Binding IsAutomatedExportsTabVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="30"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Background="#ebebeb">
+          <Button Name="CreateJob" Style="{StaticResource AppButtonStyle}" Command="{Binding CreateJobCommand}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_CreateExportJobTooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding IsCreateAutomatedExportVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/add.png"/>
+              <TextBlock Name="CreateExportJobCommand" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Create, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="EditJob" Style="{StaticResource JobMustBeSelectedButtonStyle}"
+                  Command="{Binding EditJobCommand}"
+                  CommandParameter="{Binding ElementName=JobsGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_EditExportJobTooltip, Source={StaticResource Resources}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"/>
+              <TextBlock Name="EditUserCommand" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Edit, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="DeleteJob" Style="{StaticResource JobMustBeSelectedButtonStyle}"
+                  Command="{Binding DeleteJobCommand}"
+                  CommandParameter="{Binding ElementName=JobsGridView, Path=SelectedItem}"
+                  ToolTip="{Binding Path=MSS_Client_UserControl_DeleteExportJobTooltip, Source={StaticResource Resources}}"
+                  Visibility="{Binding IsDeleteAutomatedExportVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/delete.png"/>
+              <TextBlock Name="DeleteExportJobCommand" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_Delete, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="ExportReadingValuesButton" Style="{StaticResource AppButtonStyle}"
+                  Command="{Binding ExportAllReadingValues}"
+                  ToolTip="{Binding Path=MSS_Client_Export, Source={StaticResource Resources}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/export.png"/>
+              <TextBlock Name="ExportAllCommand" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_MainWindow_ImportExport_ExportAllReadingValues, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+          <Button Name="MDMExportButton" Style="{StaticResource AppButtonStyle}" Command="{Binding MDMExportCommand}"
+                  ToolTip="{Binding Path=MSS_Client_MDMExport_Button, Source={StaticResource Resources}}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+              <Image Source="pack://application:,,,/Styles;component/Images/Universal/export.png"/>
+              <TextBlock Name="MDMExportTextBox" Style="{StaticResource AppTextBlockBlackStyle}" Margin="10 0 10 0"
+                         Text="{Binding Path=MSS_Client_MDMExport_Button, Source={StaticResource Resources}}"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+        <Grid Row="0">
+          <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-58,0,0"
+                            Content="{Binding MessageUserControlAutomatedExports, Mode=TwoWay}"/>
+        </Grid>
+        <Grid Row="1" Margin="3">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <telerik:RadGridView x:Name="JobsGridView" RowIndicatorVisibility="Collapsed" CanUserFreezeColumns="false"
+                               telerik:StyleManager.Theme="Windows8" IsReadOnly="true" AlternateRowBackground="#EDEDED"
+                               AlternationCount="2" CanUserReorderColumns="false" ColumnWidth="*" AutoGenerateColumns="false"
+                               IsFilteringAllowed="true" ItemsSource="{Binding GetJobs}">
+            <telerik:GridViewDataControl.SortDescriptors>
+              <telerik:SortDescriptor Member="Periodicity" SortDirection="Ascending"/>
+            </telerik:GridViewDataControl.SortDescriptors>
+            <telerik:GridViewDataControl.Columns>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding Periodicity}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_Periodicity, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding StartDate, StringFormat={0:dd-MMM-yy}}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_StartDate, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding LastExecutionTime, StringFormat={0:dd-MMM-yy}}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_LastExecutionTime, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding ArchiveAfterExport}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_ArchiveAfterExport, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding DeleteAfterExport}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_DeleteAfterExport, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding ExportedDataFormatted}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_ExportedData, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding ExportFor}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_ExportFor, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding ExportedFileType}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_FileType, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding DecimalSeparator}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_DecimalSeparator, Source={StaticResource Resources}}"/>
+              <telerik:GridViewDataColumn DataMemberBinding="{Binding ValueSeparator}"
+                                          Header="{Binding Path=MSS_Client_Reporting_AutomatedJobCreateDialog_ValueSeparator, Source={StaticResource Resources}}"/>
+            </telerik:GridViewDataControl.Columns>
+          </telerik:RadGridView>
+          <telerik:RadDataPager PageIndexChanged="OnPageIndexChange" Name="RadDataPager" Grid.Row="1" FontSize="12"
+                                Margin="0,-1,0,0" IsTotalItemCountFixed="true" DisplayMode="FirstLastPreviousNextNumeric, Text"
+                                telerik:StyleManager.Theme="Windows8" PageSize="{Binding PageSize, Mode=TwoWay}"
+                                Source="{Binding Items, ElementName=JobsGridView}"/>
+        </Grid>
+      </Grid>
+    </telerik:RadTabItem>
+  </telerik:RadTabControl>
+</UserControl>

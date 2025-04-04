@@ -1,0 +1,480 @@
+<UserControl x:Class="MSS.Client.UI.Tablet.View.Settings.SettingsUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             x:Name="UserControlSettings">
+  <FrameworkElement.Resources>
+    <DataTemplate x:Key="ComboBoxCustomTemplate">
+      <Grid MaxHeight="20">
+        <StackPanel Orientation="Horizontal">
+          <TextBlock FontWeight="Bold" Width="130" Text="{Binding TranslatedName}"/>
+          <Image Margin="10,0,0,0" Source="{Binding Image}"/>
+        </StackPanel>
+      </Grid>
+    </DataTemplate>
+  </FrameworkElement.Resources>
+  <Grid Background="White">
+    <telerik:RadTabControl x:Name="RadTabControlSettings" HeaderBackground="#EDEDED" Margin="3"
+                           Template="{StaticResource RadTabControlControlTemplateTest}"
+                           SelectedIndex="{Binding SelectedIndex, Mode=TwoWay, IsAsync=true}">
+      <telerik:RadTabItem x:Name="TabGeneralSettings" Visibility="Visible"
+                          IsSelected="{Binding IsGeneralSettingsTabSelected, Mode=TwoWay}"
+                          Header="{Binding Path=MSS_Client_Settings_GeneralSettings, Source={StaticResource Resources}}">
+        <Grid x:Name="GeneralSettingsGrid">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <StackPanel Background="#ededed" Orientation="Horizontal">
+            <Button x:Name="UpdateGeneralSettings" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    Command="{Binding buttonUpdateGeneralSettings}"
+                    CommandParameter="{Binding ElementName=UserDeviceTypesSettingsGridView, Path=ItemsSource}">
+              <StackPanel Orientation="Horizontal">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Settings/update_settings.png"/>
+                <TextBlock Style="{StaticResource AppTextBlockBlackStyle}"
+                           Text="{Binding Path=MSS_Client_Settings_UpdateSettings, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+          <Grid Row="0">
+            <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-58,0,0"
+                              Content="{Binding MessageUserControlGeneralSettings, Mode=TwoWay}"/>
+          </Grid>
+          <Grid Row="1" Margin="-10,0,10,0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="10"/>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="10"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="10"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="154*"/>
+              <ColumnDefinition Width="217*"/>
+              <ColumnDefinition Width="199*"/>
+              <ColumnDefinition Width="355*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right"
+                       Style="{StaticResource AppTextBlockGrayStyle}"
+                       Text="{Binding Path=MSS_Client_Settings_Language, Source={StaticResource Resources}}"/>
+            <telerik:RadComboBox x:Name="ComboLanguage" Grid.Row="1" Grid.Column="1" Width="220" Background="#ededed"
+                                 HorizontalAlignment="Left" Margin="10 0 0 0" ItemTemplate="{StaticResource ComboBoxCustomTemplate}"
+                                 Style="{StaticResource RadComboBoxStyle}" VerticalAlignment="Center" FontWeight="Bold" Height="30"
+                                 SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}" ItemsSource="{Binding LanguageList}"
+                                 Text="{Binding Path=MSS_Client_Settings_SelectLanguage, Source={StaticResource Resources}, Mode=OneWay}"/>
+            <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                   Content="{Binding Path=MSS_Client_Settings_BatchSize, Source={StaticResource Resources}}"/>
+            <TextBox PreviewTextInput="NumericOnly" x:Name="BatchSizeTextBox" Grid.Row="2" Grid.Column="1" Height="30"
+                     Width="220" Style="{StaticResource TextBoxErrorStyle}" Margin="10 0 0 0" HorizontalAlignment="Left"
+                     MaxLength="4"
+                     Text="{Binding BatchSize, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"/>
+            <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                   Content="{Binding Path=MSS_Client_Settings_PageSize, Source={StaticResource Resources}}"/>
+            <TextBox Grid.Row="3" Grid.Column="1" Height="30" Width="220" Style="{StaticResource TextBoxErrorStyle}"
+                     HorizontalAlignment="Left" Margin="10 0 0 0"
+                     Text="{Binding PageSize, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"/>
+            <Label Grid.Row="4" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                   Content="{Binding Path=MSS_Client_Settings_ServerIp, Source={StaticResource Resources}}"
+                   Visibility="{Binding ServerControlsVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <TextBox Grid.Row="4" Grid.Column="1" IsEnabled="false" Height="30" Width="220"
+                     Style="{StaticResource TextBoxErrorStyle}" HorizontalAlignment="Left" Margin="10 0 0 0"
+                     Text="{Binding ServerIp, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true, Mode=TwoWay}"
+                     Visibility="{Binding ServerControlsVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <TextBlock TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="0" Grid.Row="6"
+                       HorizontalAlignment="Right" Style="{StaticResource AppTextBlockGrayStyle}" Visibility="Hidden"
+                       Text="{Binding Path=MSS_Client_Settings_DeviceTypeSettings, Source={StaticResource Resources}}"/>
+            <telerik:RadGridView x:Name="UserDeviceTypesSettingsGridView" Grid.Row="6" Grid.ColumnSpan="3" Grid.Column="1"
+                                 Margin="10 0 50 10" GroupPanelBackground="#FF00608C" AlternateRowBackground="#EDEDED"
+                                 AlternationCount="2" RowIndicatorVisibility="Collapsed" CanUserFreezeColumns="false"
+                                 IsFilteringAllowed="true" ColumnWidth="*" AutoGenerateColumns="false" Visibility="Hidden"
+                                 ItemsSource="{Binding GetUserDeviceTypeSettings}">
+              <telerik:GridViewDataControl.Columns>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding DeviceType}"
+                                            Header="{Binding Path=MSS_Client_Structures_EditDevice_DeviceType, Source={StaticResource Resources}}"/>
+                <telerik:GridViewComboBoxColumn DisplayMemberPath="Code" SelectedValueMemberPath="Id" ItemsSource="{Binding MeasureUnits}"
+                                                DataMemberBinding="{Binding DisplayUnitId, Mode=TwoWay}"
+                                                Header="{Binding Path=MSS_Client_Structures_EditDevice_DisplayUnit, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn TextWrapping="Wrap" DataMemberBinding="{Binding DecimalPlaces}"
+                                            Header="{Binding Path=MSS_Client_Structures_EditDevice_DecimalPlaces, Source={StaticResource Resources}}">
+                  <telerik:GridViewColumn.CellEditTemplate>
+                    <DataTemplate>
+                      <telerik:RadNumericUpDown Minimum="0" IsInteger="true"
+                                                Value="{Binding DecimalPlaces, Mode=TwoWay, UpdateSourceTrigger=Explicit}"/>
+                    </DataTemplate>
+                  </telerik:GridViewColumn.CellEditTemplate>
+                </telerik:GridViewDataColumn>
+              </telerik:GridViewDataControl.Columns>
+            </telerik:RadGridView>
+          </Grid>
+        </Grid>
+      </telerik:RadTabItem>
+      <telerik:RadTabItem x:Name="TabServerSettings" IsSelected="{Binding IsServerSettingsTabSelected, Mode=TwoWay}"
+                          Header="{Binding Path=MSS_Client_Settings_ServerSettings, Source={StaticResource Resources}}"
+                          Visibility="{Binding ServerControlsVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+        <Grid x:Name="ServerSettingsGrid">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <StackPanel Background="#ededed" Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2">
+            <Button x:Name="UpdateServerSettings" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    Command="{Binding buttonUpdateServerSettings}">
+              <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Settings/update_settings.png"/>
+                <TextBlock Style="{StaticResource AppTextBlockBlackStyle}"
+                           Text="{Binding Path=MSS_Client_Settings_UpdateSettings, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+            <Button Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    Command="{Binding buttonChangeServer}"
+                    Visibility="{Binding ChangeServerVisibility, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+              <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Universal/edit.png"/>
+                <TextBlock Style="{StaticResource AppTextBlockBlackStyle}"
+                           Text="{Binding Path=MSS_Client_Settings_Edit_Server_Address, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+          <Grid Row="0" Column="0" ColumnSpan="2">
+            <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-58,0,0"
+                              Content="{Binding MessageUserControlServerSettings, Mode=TwoWay}"/>
+          </Grid>
+          <TextBlock Margin="10,10,0,0" Grid.Row="1" VerticalAlignment="Top" Grid.Column="0" Foreground="Gray"
+                     HorizontalAlignment="Right"
+                     Text="{Binding Path=MSS_Clients_Table_Info, Source={StaticResource Resources}}"/>
+          <Grid Row="1" Margin="10" Column="1" HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <telerik:RadGridView MouseWheel="Grid_MouseWheel" x:Name="ClientSettingsGrid" telerik:StyleManager.Theme="Windows8"
+                                 Width="900" VerticalAlignment="Stretch" DataLoadMode="Asynchronous"
+                                 AlternateRowBackground="#EDEDED" AlternationCount="2" GroupPanelBackground="#FF00608C"
+                                 AutoGenerateColumns="false" RowIndicatorVisibility="Collapsed" ItemsSource="{Binding ClientsList}">
+              <telerik:GridViewDataControl.Columns>
+                <telerik:GridViewImageColumn Header="" IsGroupable="false" IsFilterable="false"
+                                             DataMemberBinding="{Binding IconUrl, Mode=TwoWay}"/>
+                <telerik:GridViewDataColumn Width="240" IsReadOnly="true" DataMemberBinding="{Binding UserName}"
+                                            Header="{Binding Path=MSS_Client_ShowConflictsDialog_User_Username, Source={StaticResource Resources}}"/>
+                <telerik:GridViewComboBoxColumn Width="120" DisplayMemberPath="StatusFromObj" SelectedValueMemberPath="IdEnum"
+                                                DataMemberBinding="{Binding idEnumStatus, Mode=TwoWay}" ItemsSource="{Binding GetStatus}"
+                                                Header="{Binding Path=MSS_Client_RadGrid_Header_Satus, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn IsReadOnly="true" DataMemberBinding="{Binding ApprovedOn, Mode=TwoWay}"
+                                            Header="{Binding Path=MSS_Client_RadGrid_Header_ApprovedOn, Source={StaticResource Resources}}"/>
+              </telerik:GridViewDataControl.Columns>
+            </telerik:RadGridView>
+            <telerik:RadDataPager Width="900" Grid.Row="1" FontSize="12" Margin="0,-1,0,0" IsTotalItemCountFixed="true"
+                                  DisplayMode="FirstLastPreviousNextNumeric, Text" telerik:StyleManager.Theme="Windows8"
+                                  PageSize="{Binding PageSize, Mode=TwoWay}" Source="{Binding Items, ElementName=RadGridView}"/>
+          </Grid>
+          <StackPanel Grid.Row="2" Grid.Column="0" Margin="10,10,0,0">
+            <TextBlock Foreground="Gray" HorizontalAlignment="Right"
+                       Text="{Binding Path=MSS_Providers_Table_Info, Source={StaticResource Resources}}"/>
+            <telerik:RadButton Margin="0 10 0 0" Command="telerik:RadGridViewCommands.BeginInsert"
+                               Content="{Binding Path=MSS_Provider_Settings_Add_MDMConfig, Source={StaticResource Resources}}"
+                               CommandTarget="{Binding ElementName=MdmConfigsGridView}"/>
+          </StackPanel>
+          <Grid Margin="10" Row="2" Column="1" HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <telerik:RadGridView MouseWheel="Grid_MouseWheel" x:Name="MdmConfigsGridView" telerik:StyleManager.Theme="Windows8"
+                                 Width="900" GroupPanelBackground="#FF00608C" AlternateRowBackground="#EDEDED" AlternationCount="2"
+                                 AutoGenerateColumns="false" RowIndicatorVisibility="Collapsed"
+                                 ItemsSource="{Binding GetMdmConfigs}">
+              <telerik:GridViewDataControl.Columns>
+                <telerik:GridViewComboBoxColumn DisplayMemberPath="Name" SelectedValueMemberPath="Id"
+                                                DataMemberBinding="{Binding Country, Mode=TwoWay}" ItemsSource="{Binding CountryList}"
+                                                Header="{Binding Path=MSS_Client_Settings_MDM_Country, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding MDMUser}"
+                                            Header="{Binding Path=MSS_Client_Settings_MDM_User, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding MDMPassword}"
+                                            Header="{Binding Path=MSS_Client_Settings_MDM_Password, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding MDMUrl}"
+                                            Header="{Binding Path=MSS_Client_Settings_MDM_Url, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding Company}"
+                                            Header="{Binding Path=MSS_Client_Settings_MDM_Company, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding CustomerNumber}"
+                                            Header="{Binding Path=MSS_Client_Settings_MDM_CustomerNumber, Source={StaticResource Resources}}"/>
+                <telerik:GridViewColumn Header="{Binding Path=MSS_Client_Settings_Provider_Commands, Source={StaticResource Resources}}">
+                  <telerik:GridViewColumn.CellTemplate>
+                    <DataTemplate>
+                      <StackPanel Orientation="Horizontal">
+                        <telerik:RadButton Command="telerik:RadGridViewCommands.CommitEdit"
+                                           Content="{Binding Path=MSS_Provider_Settings_Save, Source={StaticResource Resources}}"
+                                           CommandParameter="{Binding}"/>
+                        <telerik:RadButton Margin="3 0 0 0" Command="telerik:RadGridViewCommands.CancelRowEdit"
+                                           Content="{Binding Path=MSS_Provider_Settings_Cancel, Source={StaticResource Resources}}"
+                                           CommandParameter="{Binding}"/>
+                        <telerik:RadButton Margin="3 0 0 0" Command="telerik:RadGridViewCommands.Delete"
+                                           Content="{Binding Path=MSS_Provider_Settings_Delete, Source={StaticResource Resources}}"
+                                           CommandParameter="{Binding}"/>
+                      </StackPanel>
+                    </DataTemplate>
+                  </telerik:GridViewColumn.CellTemplate>
+                </telerik:GridViewColumn>
+              </telerik:GridViewDataControl.Columns>
+            </telerik:RadGridView>
+            <telerik:RadDataPager Width="900" Grid.Row="1" FontSize="12" Margin="0,-1,0,0" IsTotalItemCountFixed="true"
+                                  DisplayMode="FirstLastPreviousNextNumeric, Text" telerik:StyleManager.Theme="Windows8"
+                                  PageSize="{Binding PageSize, Mode=TwoWay}" Source="{Binding Items, ElementName=MdmConfigsGridView}"/>
+          </Grid>
+        </Grid>
+      </telerik:RadTabItem>
+      <telerik:RadTabItem x:Name="TabMinomatSettings" IsSelected="{Binding IsMinomatSettingsTabSelected, Mode=TwoWay}"
+                          Header="{Binding Path=MSS_Client_Settings_MinomatSettings, Source={StaticResource Resources}}"
+                          Visibility="{Binding MinomatTabVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+        <Grid x:Name="MinomatSettingsGrid">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <StackPanel Background="#ededed" Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2">
+            <Button x:Name="UpdateMinomatSettings" Style="{StaticResource CommandButtonStyle}" Height="40" Width="Auto"
+                    Command="{Binding buttonUpdateMinomatSettings}">
+              <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                <Image Style="{StaticResource SmallIconImageStyle}"
+                       Source="pack://application:,,,/Styles;component/Images/Settings/update_settings.png"/>
+                <TextBlock Style="{StaticResource AppTextBlockBlackStyle}"
+                           Text="{Binding Path=MSS_Client_Settings_UpdateSettings, Source={StaticResource Resources}}"/>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+          <Grid Row="0" Column="0" ColumnSpan="2">
+            <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-58,0,0"
+                              Content="{Binding MessageUserControlMinomatSettings, Mode=TwoWay}"/>
+          </Grid>
+          <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Settings_HostAndPort, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="1" Grid.Column="1" Height="25" Width="200" Style="{StaticResource TextBoxErrorStyle}"
+                   HorizontalAlignment="Left" Margin="10 0 0 0" Text="{Binding HostAndPort, Mode=TwoWay}"/>
+          <Label Grid.Row="2" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Settings_Polling, Source={StaticResource Resources}}"/>
+          <TextBox PreviewTextInput="NumericOnly" x:Name="PollingTextBox" Grid.Row="2" Grid.Column="1" Height="25"
+                   Width="200" Style="{StaticResource TextBoxErrorStyle}" HorizontalAlignment="Left" Margin="10 0 0 0"
+                   Text="{Binding Polling, Mode=TwoWay}"/>
+          <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=MSS_Client_Settings_Url, Source={StaticResource Resources}}"/>
+          <TextBox Grid.Row="3" Grid.Column="1" Height="25" Width="200" Style="{StaticResource TextBoxErrorStyle}"
+                   HorizontalAlignment="Left" Margin="10 0 0 0" Text="{Binding Url, Mode=TwoWay}"/>
+          <Label Grid.Row="4" Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                 Content="{Binding Path=USE_MINOMAT_POOL, Source={StaticResource Resources}}"/>
+          <CheckBox Name="UseMinomatPoolCheckBox" Grid.Row="4" Grid.Column="1"
+                    Style="{StaticResource AppCheckBoxButtonStyle}" Margin="8 0 0 0"
+                    IsChecked="{Binding UseMasterpool}"/>
+          <TextBlock Grid.Row="5" Grid.Column="0" Margin="10" Foreground="Gray" HorizontalAlignment="Right"
+                     Text="{Binding Path=MSS_Countries_Table_Info, Source={StaticResource Resources}}"/>
+          <Grid Row="5" Column="1" Margin="10" HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <telerik:RadGridView MouseWheel="Grid_MouseWheel" x:Name="CountriesGridView" telerik:StyleManager.Theme="Windows8"
+                                 Width="900" AlternateRowBackground="#EDEDED" AlternationCount="2" DataLoadMode="Asynchronous"
+                                 GroupPanelBackground="#FF00608C" AutoGenerateColumns="false" RowIndicatorVisibility="Collapsed"
+                                 ItemsSource="{Binding CountryList}">
+              <telerik:GridViewDataControl.Columns>
+                <telerik:GridViewImageColumn Header="" IsGroupable="false" IsFilterable="false"
+                                             DataMemberBinding="{Binding IconUrl, Mode=TwoWay}"/>
+                <telerik:GridViewDataColumn Width="240" IsReadOnly="true" DataMemberBinding="{Binding Name}"
+                                            Header="{Binding Path=MSS_Client_ShowConflictsDialog_User_Username, Source={StaticResource Resources}}"/>
+                <telerik:GridViewComboBoxColumn Width="120" DisplayMemberPath="Code" SelectedValueMemberPath="Id"
+                                                DataMemberBinding="{Binding DefaultScenarioId, Mode=TwoWay}" ItemsSource="{Binding GetScenarios}"
+                                                Header="{Binding Path=MSS_Client_Countries_Scenario, Source={StaticResource Resources}}"/>
+              </telerik:GridViewDataControl.Columns>
+            </telerik:RadGridView>
+            <telerik:RadDataPager Width="900" Grid.Row="1" FontSize="12" Margin="0,-1,0,0" IsTotalItemCountFixed="true"
+                                  DisplayMode="FirstLastPreviousNextNumeric, Text" telerik:StyleManager.Theme="Windows8"
+                                  PageSize="{Binding PageSize, Mode=TwoWay}" Source="{Binding Items, ElementName=RadGridView}"/>
+          </Grid>
+          <StackPanel Grid.Row="6" Grid.Column="0">
+            <TextBlock Margin="10" Foreground="Gray" HorizontalAlignment="Right"
+                       Text="{Binding Path=MSS_Providers_Table_Info, Source={StaticResource Resources}}"/>
+            <telerik:RadButton Margin="10" Command="telerik:RadGridViewCommands.BeginInsert"
+                               Content="{Binding Path=MSS_Provider_Settings_Add_Provider, Source={StaticResource Resources}}"
+                               CommandTarget="{Binding ElementName=ProvidersGridView}"/>
+          </StackPanel>
+          <Grid Row="6" Margin="10" Column="1" HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <telerik:RadGridView MouseWheel="Grid_MouseWheel" x:Name="ProvidersGridView" telerik:StyleManager.Theme="Windows8"
+                                 Width="900" GroupPanelBackground="#FF00608C" AlternateRowBackground="#EDEDED" AlternationCount="2"
+                                 AutoGenerateColumns="false" RowIndicatorVisibility="Collapsed" ItemsSource="{Binding GetProviders}">
+              <telerik:GridViewDataControl.Columns>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding ProviderName}"
+                                            Header="{Binding Path=MSS_Client_Settings_Provider_Name, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding AccessPoint}"
+                                            Header="{Binding Path=MSS_Client_Settings_Provider_AccessPoint, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding SimPin}"
+                                            Header="{Binding Path=MSS_Client_Settings_Provider_SimPin, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding UserId}"
+                                            Header="{Binding Path=MSS_Client_Settings_Provider_UserId, Source={StaticResource Resources}}"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding UserPassword}"
+                                            Header="{Binding Path=MSS_Client_Settings_Provider_UserPassword, Source={StaticResource Resources}}"/>
+                <telerik:GridViewColumn Header="{Binding Path=MSS_Client_Settings_Provider_Commands, Source={StaticResource Resources}}">
+                  <telerik:GridViewColumn.CellTemplate>
+                    <DataTemplate>
+                      <StackPanel Orientation="Horizontal">
+                        <telerik:RadButton Command="telerik:RadGridViewCommands.CommitEdit"
+                                           Content="{Binding Path=MSS_Provider_Settings_Save, Source={StaticResource Resources}}"
+                                           CommandParameter="{Binding}"/>
+                        <telerik:RadButton Margin="3 0 0 0" Command="telerik:RadGridViewCommands.CancelRowEdit"
+                                           Content="{Binding Path=MSS_Provider_Settings_Cancel, Source={StaticResource Resources}}"
+                                           CommandParameter="{Binding}"/>
+                        <telerik:RadButton Margin="3 0 0 0" Command="telerik:RadGridViewCommands.Delete"
+                                           Content="{Binding Path=MSS_Provider_Settings_Delete, Source={StaticResource Resources}}"
+                                           CommandParameter="{Binding}"/>
+                      </StackPanel>
+                    </DataTemplate>
+                  </telerik:GridViewColumn.CellTemplate>
+                </telerik:GridViewColumn>
+              </telerik:GridViewDataControl.Columns>
+            </telerik:RadGridView>
+            <telerik:RadDataPager Width="900" Grid.Row="1" FontSize="12" Margin="0,-1,0,0" IsTotalItemCountFixed="true"
+                                  DisplayMode="FirstLastPreviousNextNumeric, Text" telerik:StyleManager.Theme="Windows8"
+                                  PageSize="{Binding PageSize, Mode=TwoWay}" Source="{Binding Items, ElementName=ProvidersGridView}"/>
+          </Grid>
+        </Grid>
+      </telerik:RadTabItem>
+      <telerik:RadTabItem x:Name="TabItemEquipmentSettings" Visibility="Visible"
+                          IsSelected="{Binding IsEquipmentSettingsTabSelected, Mode=TwoWay}"
+                          Header="{Binding Path=MSS_Client_Settings_EquipmentSettings, Source={StaticResource Resources}}">
+        <telerik:RadBusyIndicator IsBusy="{Binding EquipmentSelectorProperty.IsBusy, Mode=TwoWay}">
+          <Grid x:Name="EquipmentSettingsGrid">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Background="#ededed" Orientation="Horizontal">
+              <Button x:Name="UpdateEquipmentSettings" Style="{StaticResource CommandButtonStyle}" Height="40"
+                      Width="Auto" Command="{Binding buttonUpdateEquipmentSettings}"
+                      CommandParameter="{Binding ElementName=StackPanelDynamic, Path=Tag}">
+                <StackPanel Orientation="Horizontal" Style="{StaticResource AppHeaderButtonStyle}">
+                  <Image Style="{StaticResource SmallIconImageStyle}"
+                         Source="pack://application:,,,/Styles;component/Images/Settings/update_settings.png"/>
+                  <TextBlock Style="{StaticResource AppTextBlockBlackStyle}"
+                             Text="{Binding Path=MSS_Client_Settings_UpdateSettings, Source={StaticResource Resources}}"/>
+                </StackPanel>
+              </Button>
+            </StackPanel>
+            <Grid Row="0">
+              <ContentPresenter Width="Auto" Height="28" HorizontalAlignment="Right" Margin="0,-58,0,0"
+                                Content="{Binding MessageUserControlEquipmentSettings, Mode=TwoWay}"/>
+            </Grid>
+            <ScrollViewer Grid.Row="1">
+              <Grid x:Name="EquipmentGrid">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="60"/>
+                  <RowDefinition Height="60"/>
+                  <RowDefinition Height="60"/>
+                  <RowDefinition Height="3*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="250"/>
+                  <ColumnDefinition Width="380"/>
+                  <ColumnDefinition Width="100"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Margin="10" Style="{StaticResource AppLabelStyle}"
+                       HorizontalAlignment="Left"
+                       Content="{Binding Path=MSS_Equipment_Settings_EquipmentGroup, Source={StaticResource Resources}}"/>
+                <telerik:RadComboBox Name="SelectedEquipmentGroupComboBox" Grid.Row="0" Grid.Column="1" Margin="10" Width="330"
+                                     Style="{StaticResource RadComboBoxErrorStyle}" DisplayMemberPath="Name" HorizontalAlignment="Left"
+                                     ItemsSource="{Binding EquipmentSelectorProperty.EquipmentGroupCollection}"
+                                     SelectedItem="{Binding EquipmentSelectorProperty.SelectedEquipmentGroup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+                <Label Grid.Row="1" Grid.Column="0" Margin="10" Style="{StaticResource AppLabelStyle}"
+                       HorizontalAlignment="Left"
+                       Content="{Binding Path=MSS_Equipment_Settings_EquipmentType, Source={StaticResource Resources}}"/>
+                <telerik:RadComboBox Name="SelectedEquipmentModelComboBox" Grid.Row="1" Grid.Column="1" Margin="10" Width="330"
+                                     ItemTemplate="{StaticResource ImageComboBoxTemplate}"
+                                     SelectionBoxTemplate="{StaticResource SelectedImageComboBoxTemplate}"
+                                     Style="{StaticResource RadComboBoxErrorStyle}" HorizontalAlignment="Left" MaxDropDownHeight="333"
+                                     ItemsSource="{Binding EquipmentSelectorProperty.EquipmentCollection}"
+                                     SelectedItem="{Binding EquipmentSelectorProperty.SelectedEquipmentModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=true}"/>
+                <ToggleButton Name="equipmentModelButton" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2"
+                              HorizontalAlignment="Left">
+                  <Control.Template>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                      <Image Margin="15 0 0 0"
+                             Source="{Binding ElementName=SelectedEquipmentModelComboBox, Path=SelectedItem.Image500x500}"/>
+                    </ControlTemplate>
+                  </Control.Template>
+                </ToggleButton>
+                <Popup Name="popupEquipmentModel" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Placement="Center"
+                       StaysOpen="false" IsOpen="{Binding IsChecked, ElementName=equipmentModelButton}"
+                       PlacementTarget="{Binding ElementName=dockpanel}">
+                  <Border Background="DimGray" BorderThickness="1">
+                    <StackPanel Background="White">
+                      <Image HorizontalAlignment="Left"
+                             Source="{Binding ElementName=SelectedEquipmentModelComboBox, Path=SelectedItem.Image500x500}"/>
+                    </StackPanel>
+                  </Border>
+                </Popup>
+                <StackPanel Name="StaticStackPanel" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
+                            Tag="{Binding EquipmentSelectorProperty.TagConfigValues, Mode=TwoWay}">
+                  <Grid Margin="0 0 0 5"
+                        Visibility="{Binding EquipmentSelectorProperty.IsTextBoxRowVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="120"/>
+                      <ColumnDefinition Width="220"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                           Content="{Binding EquipmentSelectorProperty.MinoConnectPowerOffTimeLabel}"/>
+                    <TextBox Grid.Column="1" Text="{Binding EquipmentSelectorProperty.MinoConnectPowerOffTimeTextBox}"/>
+                  </Grid>
+                  <Grid Visibility="{Binding EquipmentSelectorProperty.IsComboBoxRowVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="120"/>
+                      <ColumnDefinition Width="220"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Style="{StaticResource AppLabelStyle}"
+                           Content="{Binding EquipmentSelectorProperty.PortLabel}"/>
+                    <telerik:RadComboBox Grid.Column="1" DisplayMemberPath="DisplayName" SelectedValuePath="Value"
+                                         ItemContainerStyle="{StaticResource Triggers}"
+                                         ItemsSource="{Binding EquipmentSelectorProperty.PortComboBoxItems}"
+                                         SelectedItem="{Binding EquipmentSelectorProperty.PortComboBoxSelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button x:Name="RefreshPortsButton" Grid.Column="1" Foreground="#595151" Background="White" Height="25"
+                            BorderBrush="LightGray" IsDefault="true" Margin="0,41,0,-41"
+                            Content="{Binding Path=MSS_Settings_Refresh, Source={StaticResource Resources}}"
+                            Command="{Binding EquipmentSelectorProperty.RefreshPortsCommand}"/>
+                  </Grid>
+                </StackPanel>
+                <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource AppLabelStyle}" HorizontalAlignment="Left"
+                       VerticalAlignment="Top"
+                       Content="{Binding Path=MSS_Client_Expert_Configuration_Mode, Source={StaticResource Resources}}"/>
+                <CheckBox Name="ExpertConfigurationModeCheckbox" Grid.Row="3" Grid.Column="1"
+                          Style="{StaticResource AppCheckBoxButtonStyle}" Margin="0 5 0 0" VerticalAlignment="Top"
+                          IsChecked="{Binding IsExpertConfigurationMode, Mode=TwoWay}"/>
+              </Grid>
+            </ScrollViewer>
+          </Grid>
+        </telerik:RadBusyIndicator>
+      </telerik:RadTabItem>
+    </telerik:RadTabControl>
+  </Grid>
+</UserControl>

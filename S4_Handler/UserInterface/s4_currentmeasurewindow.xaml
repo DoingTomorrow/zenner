@@ -1,0 +1,117 @@
+<Window x:Class="S4_Handler.UserInterface.S4_CurrentMeasureWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:StartupLib="clr-namespace:StartupLib;assembly=StartupLib"
+        xmlns:CWPF="clr-namespace:CommonWPF;assembly=CommonWPF"
+        Closing="Window_Closing" Icon="pack://application:,,,/StartupLib;component/Images/ZR.ico"
+        Title="Current measurement window" Height="596.82" Width="834.33" MinHeight="470" MinWidth="500"
+        WindowStartupLocation="CenterOwner">
+  <FrameworkElement.Resources>
+    <Style TargetType="{x:Type Button}">
+      <Setter Property="FrameworkElement.Margin" Value="3"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+      <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style TargetType="{x:Type Label}">
+      <Setter Property="FrameworkElement.Margin" Value="5"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+      <Setter Property="FrameworkElement.HorizontalAlignment" Value="Right"/>
+      <Setter Property="FrameworkElement.VerticalAlignment" Value="Center"/>
+      <Setter Property="Control.VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <Style TargetType="{x:Type TextBox}">
+      <Setter Property="FrameworkElement.Margin" Value="5"/>
+      <Setter Property="Control.Padding" Value="5,2,5,2"/>
+      <Setter Property="FrameworkElement.HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="Control.VerticalContentAlignment" Value="Top"/>
+    </Style>
+    <Style TargetType="{x:Type GroupBox}">
+      <Setter Property="FrameworkElement.Margin" Value="3"/>
+      <Setter Property="Control.BorderBrush" Value="Black"/>
+      <Setter Property="Control.Foreground" Value="Black"/>
+    </Style>
+  </FrameworkElement.Resources>
+  <DockPanel>
+    <StartupLib:GmmCorporateControl Name="gmmCorporateControl1" HorizontalAlignment="Stretch" DockPanel.Dock="Top"/>
+    <DockPanel>
+      <DockPanel Dock="Right">
+        <StackPanel Name="StackPanelButtons" DockPanel.Dock="Bottom">
+          <Button Click="ButtonRun_Click" Name="ButtonRun" Content="Run current test"/>
+          <Button Click="ButtonBreak_Click" Name="ButtonBreak" Content="Break" IsEnabled="false"/>
+        </StackPanel>
+        <StackPanel Name="StackPanelSetup">
+          <GroupBox x:Name="GroupBoxMode" Header="Current test selection">
+            <StackPanel>
+              <RadioButton Checked="RadioButtonCPU_standby_Checked" Name="RadioButtonCPU_standby" Content="CPU standby"
+                           IsEnabled="false"/>
+              <RadioButton Checked="RadioButtonOperationMode_Checked" Name="RadioButtonOperationMode"
+                           Content="Ultrasonic operation" IsEnabled="false"/>
+              <RadioButton Checked="RadioButtonWorking_Checked" Name="RadioButtonWorking" Content="System working"
+                           IsEnabled="false"/>
+              <RadioButton Checked="RadioButtonRadio_active_Checked" Name="RadioButtonRadio_active" Content="Radio active"
+                           IsEnabled="false"/>
+              <Button Click="ButtonShowDatabaseSetup_Click" Name="ButtonShowDatabaseSetup" Content="Show database setup"/>
+            </StackPanel>
+          </GroupBox>
+          <GroupBox x:Name="GroupBoxMeasureValues" Header="Measure values">
+            <StackPanel>
+              <Label Content="Measure time [ms]:"/>
+              <TextBox Name="TextBoxMeasureTime" Text="1000"/>
+            </StackPanel>
+          </GroupBox>
+          <GroupBox x:Name="GroupBoxLimits" Header="Graphic limits">
+            <StackPanel>
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="auto"/>
+                  <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="auto"/>
+                  <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Label Content="Min:" Grid.Column="0" Grid.Row="0"/>
+                <TextBox Name="TextBoxGraphicLimitsMin" Text="3000" Grid.Column="1" Grid.Row="0"/>
+                <Label Content="Max:" Grid.Column="0" Grid.Row="1"/>
+                <TextBox Name="TextBoxGraphicLimitsMax" Text="4000" Grid.Column="1" Grid.Row="1"/>
+              </Grid>
+              <Button Click="ButtonRefreshGraphic_Click" x:Name="ButtonRefreshGraphic" Content="Refresh graphic"/>
+              <Button Click="ButtonClearGraphic_Click" x:Name="ButtonClearGraphic" Content="Clear graphic"/>
+            </StackPanel>
+          </GroupBox>
+          <GroupBox x:Name="GroupBoxLoops" Header="Loop Parameter">
+            <StackPanel>
+              <CheckBox Name="CheckBoxRepeatToBreak" Content="Loop until break" Margin="5,3,3,3"/>
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="auto"/>
+                  <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="auto"/>
+                  <ColumnDefinition Width="auto"/>
+                  <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Label Content="Pause:" Width="44" Grid.Column="0" Grid.Row="1"/>
+                <TextBox Name="TextBoxPauseBetweenLoops" Text="4" Width="34" Grid.Column="1" Grid.Row="1"/>
+                <Label Content="sec." Width="30" Grid.Column="2" Grid.Row="1"/>
+              </Grid>
+            </StackPanel>
+          </GroupBox>
+          <Button Click="ButtonIsShuntAssambled_Click" Name="ButtonIsShuntAssambled" Content="Is shunt assembled"/>
+        </StackPanel>
+      </DockPanel>
+      <TextBlock Name="TextBlockStatus" DockPanel.Dock="Bottom" Margin="5"/>
+      <Grid x:Name="GridGraphicAndText">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <CWPF:GmmGraphicControl x:Name="MyGraphicControl" Grid.Row="0"/>
+        <TextBox Name="TextBoxOutput" Grid.Row="1" Margin="0,7,0,0" HorizontalScrollBarVisibility="Auto"
+                 VerticalScrollBarVisibility="Auto"/>
+        <GridSplitter Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="10"/>
+      </Grid>
+    </DockPanel>
+  </DockPanel>
+</Window>
